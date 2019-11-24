@@ -8,6 +8,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using ICSharpCode.SharpZipLib.Checksum;
+using ICSharpCode.SharpZipLib.Zip;
+using SevenZip;
 using SevenZip.Compression.LZMA;
 using Directory = Alphaleonis.Win32.Filesystem.Directory;
 using Path = Alphaleonis.Win32.Filesystem.Path;
@@ -15,6 +18,9 @@ using File = Alphaleonis.Win32.Filesystem.File;
 
 namespace OMODFramework.Classes
 {
+    internal enum CompressionType : byte { SevenZip, Zip }
+    internal enum CompressionLevel : byte { VeryHigh, High, Medium, Low, VeryLow, None }
+
     internal class SparseFileWriterStream : Stream
     {
         private long _length;
@@ -165,7 +171,7 @@ namespace OMODFramework.Classes
         private long _currentFileEnd ;
         private bool _finished;
 
-        internal string CurrentFile => _filePaths[_fileCount - 1];
+        //internal string CurrentFile => _filePaths[_fileCount - 1];
 
         internal SparseFileReaderStream(List<string> filePaths)
         {
@@ -247,6 +253,254 @@ namespace OMODFramework.Classes
             if (_currentInputStream == null) return;
             _currentInputStream.Close();
             _currentInputStream = null;
+        }
+    }
+
+    internal abstract class CompressionHandler
+    {
+        private static readonly Crc32 CRC32 = new Crc32();
+        private static readonly SevenZipHandler SevenZip = new SevenZipHandler();
+        private static readonly ZipHandler Zip = new ZipHandler();
+
+        internal static void CompressFiles(List<string> files, List<string> folderStructure,
+            out FileStream compressedStream, out Stream fileList, CompressionType compType,
+            CompressionLevel compLevel)
+        {
+            fileList = GenerateFileList(files, folderStructure);
+            switch (compType)
+            {
+                case CompressionType.SevenZip:
+                    compressedStream = SevenZip.CompressAll(files, compLevel);
+                    break;
+                case CompressionType.Zip:
+                    compressedStream = Zip.CompressAll(files, compLevel);
+                    break;
+                default:
+                    throw new OMODFrameworkException("Unrecognized compression type.");
+            }
+        }
+
+        internal static string DecompressFiles(Stream fileList, Stream compressedStream, CompressionType type)
+        {
+            switch (type)
+            {
+                case CompressionType.SevenZip: return SevenZip.DecompressAll(fileList, compressedStream);
+                case CompressionType.Zip: return Zip.DecompressAll(fileList, compressedStream);
+                default: throw new OMODFrameworkException("Unrecognized compression type.");
+            }
+        }
+
+        private static Stream GenerateFileList(IReadOnlyList<string> files, IReadOnlyList<string> folderStructure)
+        {
+            var fileList = new MemoryStream();
+            using (var bw = new BinaryWriter(fileList))
+            {
+                for (int i = 0; i < files.Count; i++)
+                {
+                    bw.Write(folderStructure[i]);
+                    bw.Write(CRC(files[i]));
+                    bw.Write(new FileInfo(files[i]).Length);
+                }
+                bw.Flush();
+            }
+            fileList.Position = 0;
+            return fileList;
+        }
+
+        internal static uint CRC(string s)
+        {
+            var fs = File.OpenRead(s);
+            uint i = CRC(fs);
+            fs.Close();
+            return i;
+        }
+
+        internal static uint CRC(Stream inputStream)
+        {
+            byte[] buffer = new byte[4096];
+            CRC32.Reset();
+            while (inputStream.Position + 4096 < inputStream.Length)
+            {
+                inputStream.Read(buffer, 0, 4096);
+                CRC32.Update(buffer);
+            }
+
+            if (inputStream.Position >= inputStream.Length) 
+                return (uint)CRC32.Value;
+
+            int i = (int)(inputStream.Length - inputStream.Position);
+            inputStream.Read(buffer, 0, i);
+            CRC32.Update(buffer);
+
+            return (uint)CRC32.Value;
+        }
+
+        internal static uint CRC(byte[] b)
+        {
+            CRC32.Reset();
+            CRC32.Update(b);
+            return (uint)CRC32.Value;
+        }
+
+        protected abstract string DecompressAll(Stream fileList, Stream compressedStream);
+        protected abstract FileStream CompressAll(List<string> filePaths, CompressionLevel level);
+    }
+
+    internal class SevenZipHandler : CompressionHandler
+    {
+        protected override string DecompressAll(Stream fileList, Stream compressedStream)
+        {
+            var sfs = new SparseFileWriterStream(fileList);
+            byte[] buffer = new byte[5];
+            var decoder = new Decoder();
+
+            compressedStream.Read(buffer, 0, 5);
+            decoder.SetDecoderProperties(buffer);
+
+            try
+            {
+                decoder.Code(compressedStream, sfs, compressedStream.Length - compressedStream.Position, sfs.Length,
+                    null);
+            }
+            finally
+            {
+                sfs.Close();
+            }
+
+            return sfs.BaseDirectory;
+        }
+
+        protected override FileStream CompressAll(List<string> filePaths, CompressionLevel level)
+        {
+            var sfs = new SparseFileReaderStream(filePaths);
+            var coder = new Encoder();
+            int size = 0;
+
+            switch (level)
+            {
+                case CompressionLevel.VeryHigh:
+                    size = 1 << 26;
+                    break;
+                case CompressionLevel.High:
+                    size = 1 << 25;
+                    break;
+                case CompressionLevel.Medium:
+                    size = 1 << 23;
+                    break;
+                case CompressionLevel.Low:
+                    size = 1 << 21;
+                    break;
+                case CompressionLevel.VeryLow:
+                    size = 1 << 19;
+                    break;
+                case CompressionLevel.None:
+                    break;
+                default:
+                    throw new OMODFrameworkException("Unrecognized compression level");
+            }
+
+            coder.SetCoderProperties(new[]
+            {
+                CoderPropID.DictionarySize
+            }, new object[] { size });
+
+            var fs = Utils.CreateTempFile();
+            coder.WriteCoderProperties(fs);
+
+            try
+            {
+                coder.Code(sfs, fs, sfs.Length, -1, null);
+            }
+            catch
+            {
+                fs.Close();
+                throw;
+            }
+            finally
+            {
+                sfs.Close();
+            }
+
+            fs.Flush();
+            fs.Position = 0;
+            return fs;
+        }
+    }
+
+    internal class ZipHandler : CompressionHandler
+    {
+        internal static int GetCompressionLevel(CompressionLevel level)
+        {
+            switch (level)
+            {
+                case CompressionLevel.VeryHigh:
+                    return 9;
+                case CompressionLevel.High:
+                    return 7;
+                case CompressionLevel.Medium:
+                    return 5;
+                case CompressionLevel.Low:
+                    return 3;
+                case CompressionLevel.VeryLow:
+                    return 1;
+                case CompressionLevel.None:
+                    return 0;
+                default:
+                    throw new OMODFrameworkException("Unrecognized compression level.");
+            }
+        }
+
+        protected override string DecompressAll(Stream fileList, Stream compressedStream)
+        {
+            var sfs = new SparseFileWriterStream(fileList);
+            using (var zip = new ZipFile(compressedStream))
+            {
+                var file = zip.GetInputStream(0);
+                byte[] buffer = new byte[4096];
+                int i;
+
+                while ((i = file.Read(buffer, 0, 4096)) > 0)
+                {
+                    sfs.Write(buffer, 0, i);
+                }
+
+                sfs.Close();
+            }
+
+            return sfs.BaseDirectory;
+        }
+
+        protected override FileStream CompressAll(List<string> filePaths, CompressionLevel level)
+        {
+            var fs = Utils.CreateTempFile();
+            string tempFileName = fs.Name;
+            using (var sfs = new SparseFileReaderStream(filePaths))
+            using (var zipStream = new ZipOutputStream(fs))
+            {
+                zipStream.SetLevel(GetCompressionLevel(level));
+                var ze = new ZipEntry("a");
+                zipStream.PutNextEntry(ze);
+                
+                byte[] buffer = new byte[4096];
+                int upTo = 0;
+
+                while (sfs.Length - upTo > 4096)
+                {
+                    sfs.Read(buffer, 0, 4096);
+                    zipStream.Write(buffer, 0, 4096);
+                    upTo += 4096;
+                }
+
+                if (sfs.Length - upTo > 0)
+                {
+                    sfs.Read(buffer, 0, (int)(sfs.Length - upTo));
+                    zipStream.Write(buffer, 0, (int)(sfs.Length - upTo));
+                }
+
+                zipStream.Finish();
+            }
+
+            return File.OpenRead(tempFileName);
         }
     }
 }
