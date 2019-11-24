@@ -293,16 +293,16 @@ namespace OMODFramework.Classes
         private static Stream GenerateFileList(IReadOnlyList<string> files, IReadOnlyList<string> folderStructure)
         {
             var fileList = new MemoryStream();
-            using (var bw = new BinaryWriter(fileList))
+            var bw = new BinaryWriter(fileList);
+
+            for (int i = 0; i < files.Count; i++)
             {
-                for (int i = 0; i < files.Count; i++)
-                {
-                    bw.Write(folderStructure[i]);
-                    bw.Write(CRC(files[i]));
-                    bw.Write(new FileInfo(files[i]).Length);
-                }
-                bw.Flush();
+                bw.Write(folderStructure[i]);
+                bw.Write(CRC(files[i]));
+                bw.Write(new FileInfo(files[i]).Length);
             }
+            bw.Flush();
+
             fileList.Position = 0;
             return fileList;
         }
@@ -472,8 +472,7 @@ namespace OMODFramework.Classes
 
         protected override FileStream CompressAll(List<string> filePaths, CompressionLevel level)
         {
-            var fs = Utils.CreateTempFile();
-            string tempFileName = fs.Name;
+            var fs = Utils.CreateTempFile(out var tempFileName);
             using (var sfs = new SparseFileReaderStream(filePaths))
             using (var zipStream = new ZipOutputStream(fs))
             {
