@@ -37,9 +37,9 @@ steps:
     script: |
       echo Copying $(nexusKey.secureFilePath) to the debug test folder
       
-      mkdir OMODFramework\OMODFramework.Test\Debug\
+      mkdir OMODFramework\OMODFramework.Test\bin\Debug\
       
-      move $(nexusKey.secureFilePath) OMODFramework\OMODFramework.Test\Debug\nexus_api_key.txt
+      move $(nexusKey.secureFilePath) OMODFramework\OMODFramework.Test\bin\Debug\nexus_api_key.txt
 
 - task: VSTest@2
   inputs:
