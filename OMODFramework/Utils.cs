@@ -49,6 +49,8 @@ namespace OMODFramework
                     continue;
 
                 path = s;
+                if (!Directory.Exists(Framework.TempDir))
+                    Directory.CreateDirectory(Framework.TempDir);
                 return File.Create(s);
             }
             throw new OMODFrameworkException("Could not create a new temp file because the directory is full!");
@@ -62,6 +64,8 @@ namespace OMODFramework
                 if (Directory.Exists(path))
                     continue;
 
+                if (!Directory.Exists(Framework.TempDir))
+                    Directory.CreateDirectory(Framework.TempDir);
                 Directory.CreateDirectory(path);
                 return path;
             }
