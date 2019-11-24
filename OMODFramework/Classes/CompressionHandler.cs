@@ -6,10 +6,12 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using SevenZip.Compression.LZMA;
 using Directory = Alphaleonis.Win32.Filesystem.Directory;
 using Path = Alphaleonis.Win32.Filesystem.Path;
+using File = Alphaleonis.Win32.Filesystem.File;
 
 namespace OMODFramework.Classes
 {
@@ -77,7 +79,7 @@ namespace OMODFramework.Classes
         public override long Position
         {
             get => 0;
-            set { throw new NotImplementedException("The SparseFileStream does not support seeking");}
+            set { throw new NotImplementedException("The SparseFileStream does not support seeking"); }
         }
 
         public override long Length => _length;
@@ -85,7 +87,8 @@ namespace OMODFramework.Classes
         public override bool CanSeek => false;
         public override bool CanWrite => true;
 
-        public override int Read(byte[] buffer, int offset, int count) {
+        public override int Read(byte[] buffer, int offset, int count)
+        {
             throw new NotImplementedException("The SparseFileStream does not support reading");
         }
 
@@ -93,7 +96,7 @@ namespace OMODFramework.Classes
         {
             while (_written + count > _fileLength)
             {
-                _currentOutputStream.Write(buffer, offset, (int)(_fileLength-_written));
+                _currentOutputStream.Write(buffer, offset, (int)(_fileLength - _written));
                 offset += (int)(_fileLength - _written);
                 count -= (int)(_fileLength - _written);
                 NextFile();
@@ -105,11 +108,13 @@ namespace OMODFramework.Classes
             _written += count;
         }
 
-        public override void SetLength(long length) {
+        public override void SetLength(long length)
+        {
             throw new NotImplementedException("The SparseFileStream does not support length");
         }
 
-        public override long Seek(long offset, SeekOrigin origin) {
+        public override long Seek(long offset, SeekOrigin origin)
+        {
             throw new NotImplementedException("The SparseFileStream does not support seeking");
         }
 
@@ -128,8 +133,10 @@ namespace OMODFramework.Classes
                 _fileList.ReadUInt32(); //CRC
                 _fileLength = _fileList.ReadInt64();
 
-                if(_fileLength > 0) throw new OMODFrameworkException("Compressed data file stream didn't contain enough information to fill all files");
-                
+                if (_fileLength > 0)
+                    throw new OMODFrameworkException(
+                        "Compressed data file stream didn't contain enough information to fill all files");
+
                 _currentOutputStream?.Close();
 
                 _currentOutputStream = File.Create(!Utils.IsSafeFileName(_currentFile)
@@ -144,6 +151,102 @@ namespace OMODFramework.Classes
 
             _currentOutputStream.Close();
             _currentOutputStream = null;
+        }
+    }
+
+    internal class SparseFileReaderStream : Stream
+    {
+        private long _position ;
+        private long _length;
+
+        private readonly List<string> _filePaths;
+        private int _fileCount;
+        private FileStream _currentInputStream ;
+        private long _currentFileEnd ;
+        private bool _finished;
+
+        internal string CurrentFile => _filePaths[_fileCount - 1];
+
+        internal SparseFileReaderStream(List<string> filePaths)
+        {
+            _length = 0;
+            filePaths.Do(s => _length += new FileInfo(s).Length);
+            _filePaths = filePaths;
+            NextFile();
+        }
+
+        private bool NextFile()
+        {
+            _currentInputStream?.Close();
+            if (_fileCount >= _filePaths.Count)
+            {
+                _currentInputStream = null;
+                _finished = true;
+                return false;
+            }
+
+            _currentInputStream = File.OpenRead(_filePaths[_fileCount++]);
+            _currentFileEnd += _currentInputStream.Length;
+            return true;
+        }
+
+        public override long Position
+        {
+            get => _position;
+            set { throw  new NotImplementedException("The SparseFileReaderStream does not support seeking");}
+        }
+
+        public override long Length => _length;
+        public override bool CanRead => true;
+        public override bool CanSeek => false;
+        public override bool CanWrite => false;
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            if (_finished) return 0;
+            int read = 0;
+            while (count > _currentFileEnd - _position)
+            {
+                _currentInputStream.Read(buffer, offset, (int)(_currentFileEnd - _position));
+                offset += (int)(_currentFileEnd - _position);
+                count -= (int)(_currentFileEnd - _position);
+                read += (int)(_currentFileEnd - _position);
+                _position += _currentFileEnd - _position;
+                if(!NextFile()) return read;
+            }
+
+            if (count <= 0) return read;
+
+            _currentInputStream.Read(buffer, offset, count);
+            _position += count;
+            read += count;
+
+            return read;
+        }
+
+        public override void Write(byte[] buffer, int offset, int count) {
+            throw new NotImplementedException("The SparseFileReaderStream does not support writing");
+        }
+
+        public override void SetLength(long length) {
+            throw new NotImplementedException("The SparseFileReaderStream does not support setting length");
+        }
+
+        public override long Seek(long offset, SeekOrigin origin) {
+            throw new NotImplementedException("The SparseFileReaderStream does not support seeking");
+        }
+
+        public override void Flush()
+        {
+            _currentInputStream?.Close();
+        }
+
+        public override void Close()
+        {
+            Flush();
+            if (_currentInputStream == null) return;
+            _currentInputStream.Close();
+            _currentInputStream = null;
         }
     }
 }
