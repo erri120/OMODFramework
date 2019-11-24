@@ -35,11 +35,11 @@ steps:
 - task: CmdLine@2
   inputs:
     script: |
-      echo Copying $(nexusKey.secureFilePath) to the debug test folder
+      echo Copying $(nexusKey.secureFilePath) to the Release test folder
       
-      mkdir OMODFramework.Test\bin\Debug\
+      mkdir OMODFramework.Test\bin\Release\
       
-      move $(nexusKey.secureFilePath) OMODFramework.Test\bin\Debug\nexus_api_key.txt
+      move $(nexusKey.secureFilePath) OMODFramework.Test\bin\Release\nexus_api_key.txt
 
 - task: VSTest@2
   inputs:
