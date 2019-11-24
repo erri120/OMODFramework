@@ -27,6 +27,20 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
+- task: DownloadSecureFile@1
+  name: nexusKey
+  inputs:
+    secureFile: 'nexus_api_key'
+
+- task: CmdLine@2
+  inputs:
+    script: |
+      echo Copying $(nexusKey.secureFilePath) to the debug test folder
+      
+      mkdir OMODFramework\OMODFramework.Test\Debug\
+      
+      move $(nexusKey.secureFilePath) OMODFramework\OMODFramework.Test\Debug\nexus_api_key.txt
+
 - task: VSTest@2
   inputs:
     platform: '$(buildPlatform)'
