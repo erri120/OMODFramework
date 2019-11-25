@@ -103,7 +103,7 @@ namespace OMODFramework
             }
         }
 
-        public OMOD(string path, ref Framework f)
+        public OMOD(string path)
         {
             if(!File.Exists(path))
                 throw new OMODFrameworkException($"The provided file at {path} does not exists!");
@@ -119,7 +119,7 @@ namespace OMODFramework
                 using (var br = new BinaryReader(configStream))
                 {
                     var fileVersion = br.ReadByte();
-                    if(fileVersion > Framework.CurrentOmodVersion && !f.IgnoreVersion)
+                    if(fileVersion > Framework.CurrentOmodVersion && !Framework.IgnoreVersion)
                         throw new OMODFrameworkException($"{FileName} was created with a newer version of OBMM and could not be loaded!");
 
                     ModName = br.ReadString();

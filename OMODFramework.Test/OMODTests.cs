@@ -22,7 +22,6 @@ using System.Net;
 using System.Reflection;
 using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OMODFramework;
 using Pathoschild.FluentNexus;
 using File = Alphaleonis.Win32.Filesystem.File;
 using Path = Alphaleonis.Win32.Filesystem.Path;
@@ -86,9 +85,7 @@ namespace OMODFramework.Test
         [TestMethod]
         public void TestOMOD()
         {
-            var f = new Framework();
-
-            var omod = new OMOD(FileName, ref f);
+            var omod = new OMOD(FileName);
 
             Assert.IsNotNull(omod);
         }
@@ -96,9 +93,7 @@ namespace OMODFramework.Test
         [TestMethod]
         public void TestExtraction()
         {
-            var f = new Framework();
-
-            var omod = new OMOD(FileName, ref f);
+            var omod = new OMOD(FileName);
 
             Assert.IsNotNull(omod);
 
@@ -165,9 +160,7 @@ namespace OMODFramework.Test
 
             Assert.IsTrue(File.Exists("test.omod"));
 
-            var f = new Framework();
-
-            var omod = new OMOD("test.omod", ref f);
+            var omod = new OMOD("test.omod");
 
             Assert.IsNotNull(omod);
 

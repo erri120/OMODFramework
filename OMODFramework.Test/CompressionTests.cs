@@ -23,7 +23,6 @@ using System.Reflection;
 using Alphaleonis.Win32.Security;
 using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OMODFramework;
 using File = Alphaleonis.Win32.Filesystem.File;
 using Path = Alphaleonis.Win32.Filesystem.Path;
 

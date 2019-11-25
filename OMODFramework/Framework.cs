@@ -29,11 +29,11 @@ namespace OMODFramework
         public static byte BuildNumber = 12;
         public static byte CurrentOmodVersion = 4;
 
-        internal bool IgnoreVersion = false;
+        public static bool IgnoreVersion = false;
 
-        internal static int MaxMemoryStreamSize => 67108864;
+        public static int MaxMemoryStreamSize => 67108864;
 
-        internal static string TempDir { get; set; } = Path.Combine(Path.GetTempPath(), "OMODFramework");
+        public static string TempDir { get; set; } = Path.Combine(Path.GetTempPath(), "OMODFramework");
 
         public static void CleanTempDir(bool deleteRoot = false)
         {
