@@ -54,17 +54,8 @@ steps:
       OMODFramework.pdb
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-- task: ArchiveFiles@2
-  inputs:
-    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)'
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/OMODFramework.zip'
-    replaceExistingArchive: true
-    verbose: true
-
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/OMODFramework.zip'
-    ArtifactName: 'OMODFramework.zip'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'OMODFramework'
     publishLocation: 'Container'
