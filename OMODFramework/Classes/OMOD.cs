@@ -18,8 +18,8 @@ namespace OMODFramework.Classes
     {
         protected class PrivateData
         {
-            internal ZipFile modFile = null;
-            internal Image image;
+            internal ZipFile ModFile;
+            internal Image Image;
         }
 
         private PrivateData _pD = new PrivateData();
@@ -41,7 +41,6 @@ namespace OMODFramework.Classes
         public readonly HashSet<DataFileInfo> AllDataFiles;
         public readonly uint CRC;
         public readonly CompressionType CompType;
-        private readonly byte FileVersion;
 
         public string Version => "" + MajorVersion + (MinorVersion != -1 ? "." + MinorVersion + (BuildVersion != -1 ? "." + BuildVersion : "") : "");
 
@@ -62,13 +61,30 @@ namespace OMODFramework.Classes
         {
             get
             {
-                if (_pD.modFile != null) return _pD.modFile;
-                _pD.modFile = new ZipFile(FullFilePath);
-                return _pD.modFile;
+                if (_pD.ModFile != null) return _pD.ModFile;
+                _pD.ModFile = new ZipFile(FullFilePath);
+                return _pD.ModFile;
             }
         }
 
-        //TODO: public Image image
+        public Image Image
+        {
+            get
+            {
+                if (_pD.Image != null)
+                    return _pD.Image;
+
+                using (var stream = ExtractWholeFile("image"))
+                {
+                    if (stream == null) return null;
+
+                    _pD.Image = Image.FromStream(stream);
+
+                }
+
+                return _pD.Image;
+            }
+        }
 
         public OMOD(string path, ref Framework f)
         {
@@ -85,8 +101,8 @@ namespace OMODFramework.Classes
                     throw new OMODFrameworkException($"Could not find the configuration data for {FileName} !");
                 using (var br = new BinaryReader(configStream))
                 {
-                    FileVersion = br.ReadByte();
-                    if(FileVersion > f.CurrentOmodVersion && !f.IgnoreVersion)
+                    var fileVersion = br.ReadByte();
+                    if(fileVersion > f.CurrentOmodVersion && !f.IgnoreVersion)
                         throw new OMODFrameworkException($"{FileName} was created with a newer version of OBMM and could not be loaded!");
 
                     ModName = br.ReadString();
@@ -97,7 +113,7 @@ namespace OMODFramework.Classes
                     Website = br.ReadString();
                     Description = br.ReadString();
 
-                    if (FileVersion >= 2)
+                    if (fileVersion >= 2)
                         CreationTime = DateTime.FromBinary(br.ReadInt64());
                     else
                     {
@@ -110,7 +126,7 @@ namespace OMODFramework.Classes
                     if (Description == "") Description = "No description";
                     CompType = (CompressionType)br.ReadByte();
 
-                    if (FileVersion >= 1)
+                    if (fileVersion >= 1)
                         BuildVersion = br.ReadInt32();
                     else
                         BuildVersion = -1;
@@ -139,9 +155,9 @@ namespace OMODFramework.Classes
 
         public void Close()
         {
-            _pD.modFile?.Close();
-            _pD.modFile = null;
-            _pD.image = null;
+            _pD.ModFile?.Close();
+            _pD.ModFile = null;
+            _pD.Image = null;
         }
 
         private HashSet<string> GetPluginSet()
