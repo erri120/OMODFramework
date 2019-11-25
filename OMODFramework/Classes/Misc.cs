@@ -7,6 +7,20 @@
 
 namespace OMODFramework.Classes
 {
+    public enum ConflictLevel { Active, NoConflict, MinorConflict, MajorConflict, Unusable }
+
+    public struct ConflictData
+    {
+        public ConflictLevel Level;
+        public string File;
+        public int MinMajorVersion;
+        public int MinMinorVersion;
+        public int MaxMajorVersion;
+        public int MaxMinorVersion;
+        public string Comment;
+        public bool Partial;
+    }
+
     public class DataFileInfo
     {
         public readonly string FileName;

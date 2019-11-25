@@ -54,8 +54,8 @@ namespace OMODFramework.Classes
 
         //TODO: public ConflictLevel Conflict=ConflictLevel.NoConflict;
 
-        //TODO: public readonly List<ConflictData> ConflictsWith=new List<ConflictData>();
-        //TODO: public readonly List<ConflictData> DependsOn=new List<ConflictData>();
+        public readonly List<ConflictData> ConflictsWith = new List<ConflictData>();
+        public readonly List<ConflictData> DependsOn = new List<ConflictData>();
 
         private ZipFile ModFile
         {
