@@ -18,8 +18,8 @@ using File = Alphaleonis.Win32.Filesystem.File;
 
 namespace OMODFramework.Classes
 {
-    internal enum CompressionType : byte { SevenZip, Zip }
-    internal enum CompressionLevel : byte { VeryHigh, High, Medium, Low, VeryLow, None }
+    public enum CompressionType : byte { SevenZip, Zip }
+    public enum CompressionLevel : byte { VeryHigh, High, Medium, Low, VeryLow, None }
 
     internal class SparseFileWriterStream : Stream
     {
@@ -58,7 +58,7 @@ namespace OMODFramework.Classes
                 {
                     int i = path.IndexOf("\\", upTo, StringComparison.Ordinal);
                     if (i == -1) break;
-                    string dir = path.Substring(0, 1);
+                    string dir = path.Substring(0, i);
                     if (!Directory.Exists(Path.Combine(BaseDirectory, dir)))
                         Directory.CreateDirectory(Path.Combine(BaseDirectory, dir));
                     upTo = i + 1;
@@ -340,6 +340,26 @@ namespace OMODFramework.Classes
             CRC32.Reset();
             CRC32.Update(b);
             return (uint)CRC32.Value;
+        }
+
+        public static void WriteStreamToZip(BinaryWriter bw, Stream input)
+        {
+            input.Position = 0;
+            byte[] buffer = new byte[4096];
+            int upTo = 0;
+
+            while (input.Length - upTo > 4096)
+            {
+                input.Read(buffer, 0, 4096);
+                bw.Write(buffer, 0, 4096);
+                upTo += 4096;
+            }
+
+            if (input.Length - upTo <= 0)
+                return;
+
+            input.Read(buffer, 0, (int)(input.Length - upTo));
+            bw.Write(buffer, 0, (int)(input.Length - upTo));
         }
 
         protected abstract string DecompressAll(Stream fileList, Stream compressedStream);

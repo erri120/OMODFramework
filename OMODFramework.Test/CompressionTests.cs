@@ -34,7 +34,7 @@ namespace OMODFramework.Test
                 var ze = new ZipEntry(HelloFile);
                 zipStream.PutNextEntry(ze);
                 var fs = File.OpenRead(HelloFile);
-                WriteStreamToZip(bw, fs);
+                CompressionHandler.WriteStreamToZip(bw, fs);
                 bw.Flush();
                 fs.Close();
             }
@@ -67,13 +67,13 @@ namespace OMODFramework.Test
                 zipStream.SetLevel(0);
                 var ze = new ZipEntry("hello");
                 zipStream.PutNextEntry(ze);
-                WriteStreamToZip(bw, dataCompressed);
+                CompressionHandler.WriteStreamToZip(bw, dataCompressed);
                 bw.Flush();
                 
                 zipStream.SetLevel(ZipHandler.GetCompressionLevel(CompressionLevel.Medium));
                 ze = new ZipEntry("hello.crc");
                 zipStream.PutNextEntry(ze);
-                WriteStreamToZip(bw, dataInfo);
+                CompressionHandler.WriteStreamToZip(bw, dataInfo);
                 bw.Flush();
             }
 
@@ -83,29 +83,11 @@ namespace OMODFramework.Test
             dataInfo.Close();
         }
 
-        private static void WriteStreamToZip(BinaryWriter bw, Stream input)
-        {
-            input.Position = 0;
-            byte[] buffer = new byte[4096];
-            int upTo = 0;
-
-            while (input.Length - upTo > 4096)
-            {
-                input.Read(buffer, 0, 4096);
-                bw.Write(buffer, 0, 4096);
-                upTo += 4096;
-            }
-
-            if (input.Length - upTo <= 0)
-                return;
-
-            input.Read(buffer, 0, (int)(input.Length - upTo));
-            bw.Write(buffer, 0, (int)(input.Length - upTo));
-        }
-
         [TestCleanup]
         public void Cleanup()
         {
+            Framework.CleanTempDir(true);
+
 #if DELETEFILES
             if(File.Exists("hello.txt"))
                 File.Delete("hello.txt");
