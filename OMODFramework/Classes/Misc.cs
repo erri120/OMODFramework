@@ -5,6 +5,8 @@
  * GPLv2: https://opensource.org/licenses/gpl-2.0.php
  */
 
+using System.Collections.Generic;
+
 namespace OMODFramework.Classes
 {
     public enum ConflictLevel { Active, NoConflict, MinorConflict, MajorConflict, Unusable }
@@ -40,5 +42,27 @@ namespace OMODFramework.Classes
             LowerFileName = original.LowerFileName;
             CRC = original.CRC;
         }
+    }
+
+    public struct OMODCreationOptions
+    {
+        public string Name;
+        public string Author;
+        public string Email;
+        public string Website;
+        public string Description;
+        public string Image;
+        public int MajorVersion;
+        public int MinorVersion;
+        public int BuildVersion;
+        public CompressionType CompressionType;
+        public CompressionLevel DataFileCompressionLevel;
+        public CompressionLevel OMODCompressionLevel;
+        public List<string> ESPs;
+        public List<string> ESPPaths;
+        public List<string> DataFiles;
+        public List<string> DataFilePaths;
+        public string Readme;
+        public string Script;
     }
 }

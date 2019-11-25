@@ -52,7 +52,7 @@ namespace OMODFramework.Classes
         //TODO: public List<INIEditInfo> INIEdits;
         //TODO: public List<SDPEditInfo> SDPEdits;
 
-        //TODO: public ConflictLevel Conflict=ConflictLevel.NoConflict;
+        public ConflictLevel Conflict = ConflictLevel.NoConflict;
 
         public readonly List<ConflictData> ConflictsWith = new List<ConflictData>();
         public readonly List<ConflictData> DependsOn = new List<ConflictData>();
@@ -102,7 +102,7 @@ namespace OMODFramework.Classes
                 using (var br = new BinaryReader(configStream))
                 {
                     var fileVersion = br.ReadByte();
-                    if(fileVersion > f.CurrentOmodVersion && !f.IgnoreVersion)
+                    if(fileVersion > Framework.CurrentOmodVersion && !f.IgnoreVersion)
                         throw new OMODFrameworkException($"{FileName} was created with a newer version of OBMM and could not be loaded!");
 
                     ModName = br.ReadString();
@@ -158,6 +158,119 @@ namespace OMODFramework.Classes
             _pD.ModFile?.Close();
             _pD.ModFile = null;
             _pD.Image = null;
+        }
+
+        public static void CreateOMOD(OMODCreationOptions ops, string omodFileName)
+        {
+            if(File.Exists(omodFileName))
+                throw new OMODFrameworkException($"The provided omodFileName {omodFileName} already exists!");
+            using (var zipStream = new ZipOutputStream(File.Open(omodFileName, FileMode.CreateNew)))
+            using (var omodStream = new BinaryWriter(zipStream))
+            {
+                ZipEntry ze;
+                zipStream.SetLevel(ZipHandler.GetCompressionLevel(ops.OMODCompressionLevel));
+
+                if (!string.IsNullOrWhiteSpace(ops.Readme))
+                {
+                    ze = new ZipEntry("readme");
+                    zipStream.PutNextEntry(ze);
+                    omodStream.Write(ops.Readme);
+                    omodStream.Flush();
+                }
+
+                if (!string.IsNullOrWhiteSpace(ops.Script))
+                {
+                    ze = new ZipEntry("script");
+                    zipStream.PutNextEntry(ze);
+                    omodStream.Write(ops.Script);
+                    omodStream.Flush();
+                }
+
+                if (!string.IsNullOrWhiteSpace(ops.Image))
+                {
+                    ze = new ZipEntry("image");
+                    zipStream.PutNextEntry(ze);
+
+                    using (var fs = File.OpenRead(ops.Image))
+                    {
+                        CompressionHandler.WriteStreamToZip(omodStream, fs);
+                        omodStream.Flush();
+                    }
+                }
+
+                ze = new ZipEntry("config");
+                zipStream.PutNextEntry(ze);
+
+                omodStream.Write(Framework.CurrentOmodVersion);
+                omodStream.Write(ops.Name);
+                omodStream.Write(ops.MajorVersion);
+                omodStream.Write(ops.MinorVersion);
+                omodStream.Write(ops.Author);
+                omodStream.Write(ops.Email);
+                omodStream.Write(ops.Website);
+                omodStream.Write(ops.Description);
+                omodStream.Write(DateTime.Now.ToBinary());
+                omodStream.Write((byte)ops.CompressionType);
+                omodStream.Write(ops.BuildVersion);
+                
+                omodStream.Flush();
+
+
+                FileStream dataCompressed;
+                Stream dataInfo;
+
+                if (ops.ESPs.Count > 0)
+                {
+                    //TODO: find out why OBMM calls GC.Collect here
+                    ze = new ZipEntry("plugins.crc");
+                    zipStream.PutNextEntry(ze);
+
+                    CompressionHandler.CompressFiles(ops.ESPs, ops.ESPPaths, out dataCompressed, out dataInfo,
+                        ops.CompressionType, ops.DataFileCompressionLevel);
+                    CompressionHandler.WriteStreamToZip(omodStream, dataInfo);
+
+                    omodStream.Flush();
+                    zipStream.SetLevel(0);
+
+                    ze = new ZipEntry("plugins");
+                    zipStream.PutNextEntry(ze);
+
+                    CompressionHandler.WriteStreamToZip(omodStream, dataCompressed);
+                    omodStream.Flush();
+
+                    zipStream.SetLevel(ZipHandler.GetCompressionLevel(ops.OMODCompressionLevel));
+
+                    dataCompressed.Close();
+                    dataInfo.Close();
+                }
+
+                if (ops.DataFiles.Count > 0)
+                {
+                    //TODO: find out why OBMM calls GC.Collect here
+                    ze = new ZipEntry("data.crc");
+                    zipStream.PutNextEntry(ze);
+
+                    CompressionHandler.CompressFiles(ops.DataFiles, ops.DataFilePaths, out dataCompressed, out dataInfo,
+                        ops.CompressionType, ops.DataFileCompressionLevel);
+                    CompressionHandler.WriteStreamToZip(omodStream, dataInfo);
+
+                    omodStream.Flush();
+                    zipStream.SetLevel(0);
+
+                    ze = new ZipEntry("data");
+                    zipStream.PutNextEntry(ze);
+
+                    CompressionHandler.WriteStreamToZip(omodStream, dataCompressed);
+                    omodStream.Flush();
+
+                    zipStream.SetLevel(ZipHandler.GetCompressionLevel(ops.OMODCompressionLevel));
+
+                    dataCompressed.Close();
+                    dataInfo.Close();
+                }
+
+                zipStream.Finish();
+            }
         }
 
         private HashSet<string> GetPluginSet()
