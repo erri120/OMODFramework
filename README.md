@@ -4,6 +4,12 @@
 
 This project is the continuation and overhaul of my previous `OMOD-Framework`. Aside from the fact that I remove the `-` from the name, this project will be more refined than the last one. I've implemented more features from the [Oblivion Mod Manager](https://www.nexusmods.com/oblivion/mods/2097) and finally use continuous integration with Azure DevOps to build, test and release this project.
 
+## Features
+
+- Extraction
+- Creation
+- Script Execution
+
 ## OMOD
 
 `.omod` files are used exclusively by the [Oblivion Mod Manager](https://www.nexusmods.com/oblivion/mods/2097) aka `OBMM`. This was fine 11 years ago. Today the Oblivion modding community still stands strong and continues to mod their favorite game. There are sadly some huge and essential mods still in the OMOD format. [Mod Organizer 2](https://github.com/Modorganizer2/modorganizer) has [recently](https://github.com/ModOrganizer2/modorganizer/releases/tag/v2.2.0) added more support for [running Oblivion OBSE with MO2](https://github.com/ModOrganizer2/modorganizer/wiki/Running-Oblivion-OBSE-with-MO2) and made me wanna mod Oblivion again, only to find out that you still need OBMM for some stuff.
