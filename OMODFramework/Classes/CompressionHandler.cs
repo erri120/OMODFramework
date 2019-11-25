@@ -33,7 +33,7 @@ using Directory = Alphaleonis.Win32.Filesystem.Directory;
 using Path = Alphaleonis.Win32.Filesystem.Path;
 using File = Alphaleonis.Win32.Filesystem.File;
 
-namespace OMODFramework.Classes
+namespace OMODFramework
 {
     public enum CompressionType : byte { SevenZip, Zip }
     public enum CompressionLevel : byte { VeryHigh, High, Medium, Low, VeryLow, None }

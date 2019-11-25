@@ -22,7 +22,7 @@ using System.Net;
 using System.Reflection;
 using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OMODFramework.Classes;
+using OMODFramework;
 using Pathoschild.FluentNexus;
 using File = Alphaleonis.Win32.Filesystem.File;
 using Path = Alphaleonis.Win32.Filesystem.Path;

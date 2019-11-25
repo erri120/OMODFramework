@@ -29,7 +29,7 @@ using System.IO;
 using ICSharpCode.SharpZipLib.Zip;
 using Path = Alphaleonis.Win32.Filesystem.Path;
 
-namespace OMODFramework.Classes
+namespace OMODFramework
 { 
     public class OMOD
     {

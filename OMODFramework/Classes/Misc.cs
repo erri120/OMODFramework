@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace OMODFramework.Classes
+namespace OMODFramework
 {
     public enum ConflictLevel { Active, NoConflict, MinorConflict, MajorConflict, Unusable }
 
