@@ -42,10 +42,8 @@ namespace OMODFramework.Classes
         public readonly uint CRC;
         public readonly CompressionType CompType;
         private readonly byte FileVersion;
-        public bool Hidden = false;
 
-        // TODO: minor and build version can be -1
-        public string Version => $"{MajorVersion}.{MinorVersion}.{BuildVersion}";
+        public string Version => "" + MajorVersion + (MinorVersion != -1 ? "." + MinorVersion + (BuildVersion != -1 ? "." + BuildVersion : "") : "");
 
         public string FullFilePath => Path.Combine(FilePath, FileName);
 
