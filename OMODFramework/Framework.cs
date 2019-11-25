@@ -15,6 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System;
 using System.IO;
 using Path = Alphaleonis.Win32.Filesystem.Path;
 
@@ -45,6 +46,14 @@ namespace OMODFramework
 
             if(deleteRoot)
                 Directory.Delete(TempDir);
+        }
+    }
+
+    public class OMODFrameworkException : Exception
+    {
+        public OMODFrameworkException(string s) : base(s)
+        {
+
         }
     }
 }
