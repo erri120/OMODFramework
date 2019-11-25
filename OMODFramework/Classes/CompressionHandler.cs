@@ -58,7 +58,7 @@ namespace OMODFramework.Classes
                 {
                     int i = path.IndexOf("\\", upTo, StringComparison.Ordinal);
                     if (i == -1) break;
-                    string dir = path.Substring(0, 1);
+                    string dir = path.Substring(0, i);
                     if (!Directory.Exists(Path.Combine(BaseDirectory, dir)))
                         Directory.CreateDirectory(Path.Combine(BaseDirectory, dir));
                     upTo = i + 1;
