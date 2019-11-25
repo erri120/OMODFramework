@@ -23,11 +23,11 @@ namespace OMODFramework
 {
     public class Framework
     {
-        public const string Version = "1.1.12";
-        public const byte MajorVersion = 1;
-        public const byte MinorVersion = 1;
-        public const byte BuildNumber = 12;
-        public const byte CurrentOmodVersion = 4;
+        public static string Version = "1.1.12";
+        public static byte MajorVersion = 1;
+        public static byte MinorVersion = 1;
+        public static byte BuildNumber = 12;
+        public static byte CurrentOmodVersion = 4;
 
         internal bool IgnoreVersion = false;
 
