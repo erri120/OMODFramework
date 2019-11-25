@@ -342,6 +342,26 @@ namespace OMODFramework.Classes
             return (uint)CRC32.Value;
         }
 
+        public static void WriteStreamToZip(BinaryWriter bw, Stream input)
+        {
+            input.Position = 0;
+            byte[] buffer = new byte[4096];
+            int upTo = 0;
+
+            while (input.Length - upTo > 4096)
+            {
+                input.Read(buffer, 0, 4096);
+                bw.Write(buffer, 0, 4096);
+                upTo += 4096;
+            }
+
+            if (input.Length - upTo <= 0)
+                return;
+
+            input.Read(buffer, 0, (int)(input.Length - upTo));
+            bw.Write(buffer, 0, (int)(input.Length - upTo));
+        }
+
         protected abstract string DecompressAll(Stream fileList, Stream compressedStream);
         protected abstract FileStream CompressAll(List<string> filePaths, CompressionLevel level);
     }
