@@ -74,5 +74,22 @@ namespace OMODFramework.Test
 
             Assert.IsNotNull(omod);
         }
+
+        [TestMethod]
+        public void TestExtraction()
+        {
+            var f = new Framework();
+
+            var omod = new OMOD(FileName, ref f);
+
+            Assert.IsNotNull(omod);
+
+            var data = omod.GetDataFiles();
+            Assert.IsNotNull(data);
+
+            var plugins = omod.GetPlugins();
+            Assert.IsTrue(omod.AllPlugins.Count == 0 && plugins == null ||
+                          omod.AllPlugins.Count >= 1 && plugins != null);
+        }
     }
 }
