@@ -5,11 +5,11 @@ namespace OMODFramework
 {
     public class Framework
     {
-        internal string Version = "1.1.12";
-        internal byte MajorVersion = 1;
-        internal byte MinorVersion = 1;
-        internal byte BuildNumber = 12;
-        internal byte CurrentOmodVersion = 4;
+        public const string Version = "1.1.12";
+        public const byte MajorVersion = 1;
+        public const byte MinorVersion = 1;
+        public const byte BuildNumber = 12;
+        public const byte CurrentOmodVersion = 4;
 
         internal bool IgnoreVersion = false;
 
