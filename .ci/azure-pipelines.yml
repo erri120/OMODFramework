@@ -59,3 +59,18 @@ steps:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'OMODFramework'
     publishLocation: 'Container'
+
+- task: NuGetCommand@2
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/OMODFramework.csproj'
+    packDestination: '$(Build.ArtifactStagingDirectory)/nuget'
+    versioningScheme: 'off'
+    includeReferencedProjects: true
+    includeSymbols: true
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/nuget'
+    ArtifactName: 'OMODFramework.NuGet'
+    publishLocation: 'Container'
