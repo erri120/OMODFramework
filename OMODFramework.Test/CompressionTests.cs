@@ -106,6 +106,8 @@ namespace OMODFramework.Test
         [TestCleanup]
         public void Cleanup()
         {
+            Framework.CleanTempDir(true);
+
 #if DELETEFILES
             if(File.Exists("hello.txt"))
                 File.Delete("hello.txt");

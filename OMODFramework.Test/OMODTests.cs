@@ -91,5 +91,11 @@ namespace OMODFramework.Test
             Assert.IsTrue(omod.AllPlugins.Count == 0 && plugins == null ||
                           omod.AllPlugins.Count >= 1 && plugins != null);
         }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            Framework.CleanTempDir(true);
+        }
     }
 }
