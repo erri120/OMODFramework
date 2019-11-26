@@ -22,17 +22,11 @@
  * GPLv2: https://opensource.org/licenses/gpl-2.0.php
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace OMODFramework.Scripting
 {
     public class ScriptRunner
     {
-        public static ScriptReturnData ExecuteScript(string script, string dataPath, string pluginsPath)
+        public static ScriptReturnData ExecuteScript(string script, string dataPath, string pluginsPath, IScriptFunctions scriptFunctions)
         {
             if (string.IsNullOrWhiteSpace(script)) 
                 return new ScriptReturnData();
@@ -48,7 +42,7 @@ namespace OMODFramework.Scripting
 
             if (type == ScriptType.OBMMScript)
             {
-                return OBMMScriptHandler.Execute(script, dataPath, pluginsPath);
+                return OBMMScriptHandler.Execute(script, dataPath, pluginsPath, scriptFunctions);
             }
 
             //TODO: other script types
