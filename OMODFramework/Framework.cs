@@ -49,7 +49,7 @@ namespace OMODFramework
         }
     }
 
-    public class OMODFrameworkException : Exception
+    public class OMODFrameworkException : ApplicationException
     {
         public OMODFrameworkException(string s) : base(s)
         {
