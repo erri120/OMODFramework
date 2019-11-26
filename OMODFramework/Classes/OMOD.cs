@@ -208,10 +208,17 @@ namespace OMODFramework
                     ze = new ZipEntry("image");
                     zipStream.PutNextEntry(ze);
 
-                    using (var fs = File.OpenRead(ops.Image))
+                    try
                     {
-                        CompressionHandler.WriteStreamToZip(omodStream, fs);
-                        omodStream.Flush();
+                        using (var fs = File.OpenRead(ops.Image))
+                        {
+                            CompressionHandler.WriteStreamToZip(omodStream, fs);
+                            omodStream.Flush();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        throw new OMODFrameworkException($"There was an exception while trying to read the image at {ops.Image}!\n{e}");
                     }
                 }
 
