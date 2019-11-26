@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using Directory = Alphaleonis.Win32.Filesystem.Directory;
 using File = Alphaleonis.Win32.Filesystem.File;
 using Path = Alphaleonis.Win32.Filesystem.Path;
@@ -808,6 +809,85 @@ namespace OMODFramework.Scripting
                 Warn("Unexpected function for 'For'");
                 return nullLoop;
             }
+        }
+
+        private static string[] FunctionSelect(IList<string> line, bool isMultiSelect, bool hasPreviews, bool hasDescriptions)
+        {
+            if (line.Count < 3)
+            {
+                Warn("Missing arguments for 'Select'");
+                return new string[0];
+            }
+
+            int argsPerOption = 1 + (hasPreviews ? 1 : 0) + (hasDescriptions ? 1 : 0);
+
+            var title = line[1];
+            var items = new List<string>(line.Count - 2);
+            line.Where(s => line.IndexOf(s) >= 2).Do(items.Add);
+            line = items;
+
+            if (line.Count % argsPerOption != 0)
+            {
+                Warn("Unexpected extra arguments for 'Select'");
+                do
+                {
+                    line.RemoveAt(line.Count - line.Count % argsPerOption);
+                } while (line.Count % argsPerOption != 0);
+            }
+
+            items = new List<string>(line.Count/argsPerOption);
+            var previews = hasPreviews ? new List<string>(line.Count / argsPerOption) : null;
+            var descriptions = hasDescriptions ? new List<string>(line.Count / argsPerOption) : null;
+
+            for (var i = 0; i < line.Count / argsPerOption; i++)
+            {
+                items[i] = line[i * argsPerOption];
+                if (hasPreviews)
+                {
+                    previews[i] = line[i * argsPerOption + 1];
+                    if (hasDescriptions) descriptions[i] = line[i * argsPerOption + 2];
+                }
+                else
+                {
+                    if (hasDescriptions) descriptions[i] = line[i * argsPerOption + 1];
+                }
+            }
+
+            if (previews != null)
+            {
+                for (var i = 0; i < previews.Count; i++)
+                {
+                    if (previews[i] == "None")
+                    {
+                        previews[i] = null;
+                    } else if (!Utils.IsSafeFileName(previews[i])) {
+                        Warn($"Preview file path '{previews[i]}' is invalid");
+                        previews[i] = null;
+                    } else if (!File.Exists(Path.Combine(DataFiles, previews[i]))) {
+                        Warn($"Preview file path '{previews[i]}' does not exist");
+                        previews[i] = null;
+                    }
+                    else
+                    {
+                        previews[i] = Path.Combine(DataFiles, previews[i]);
+                    }
+                }
+            }
+
+            var selectedIndex = _scriptFunctions.Select(items, title, isMultiSelect, previews, descriptions);
+            if (selectedIndex == null || selectedIndex.Count == 0)
+            {
+                srd.CancelInstall = true;
+                return new string[0];
+            }
+
+            var result = new string[selectedIndex.Count];
+            for (int i = 0; i < selectedIndex.Count; i++)
+            {
+                result[i] = $"Case {items[selectedIndex[i]]}";
+            }
+
+            return result;
         }
 
         private static string[] FunctionSelectVar(IReadOnlyList<string> line, bool isVariable)
