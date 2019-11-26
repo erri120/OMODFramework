@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using Directory = Alphaleonis.Win32.Filesystem.Directory;
+using File = Alphaleonis.Win32.Filesystem.File;
 using Path = Alphaleonis.Win32.Filesystem.Path;
 
 namespace OMODFramework.Scripting
@@ -292,18 +293,20 @@ namespace OMODFramework.Scripting
                         flowControl.Push(new FlowControlStruct(i, FunctionSelectVar(line, false)));
                         break;
                     case "Break": {
-                        /*TODO: 
-                            bool found=false;
-                            FlowControlStruct[] fcs=FlowControl.ToArray();
-                            for(int k=0;k<fcs.Length;k++) {
-                                if(fcs[k].type==1) {
-                                    for(int j=0;j<=k;j++) fcs[j].active=false;
-                                    found=true;
-                                    break;
-                                }
-                            }
-                            if(!found) Warn("Unexpected Break");*/
+                        bool found = false;
+                        var fcs = flowControl.ToArray();
+                        for (int k = 0; k < fcs.Length; k++)
+                        {
+                            if (fcs[k].type != 1)
+                                continue;
+
+                            for (int j = 0; j <= k; j++) fcs[j].active = false;
+                            found = true;
                             break;
+                        }
+
+                        if (!found) Warn("Unexpected Break");
+                        break;
                         }
                     case "Case":
                         if (flowControl.Count == 0 || flowControl.Peek().type != 1) Warn($"Unexpected Case");
@@ -389,25 +392,25 @@ namespace OMODFramework.Scripting
                         FunctionMessage(line);
                         break;
                     case "LoadEarly":
-                        //TODO: FunctionLoadEarly(line);
+                        FunctionLoadEarly(line);
                         break;
                     case "LoadBefore":
-                        //TODO: FunctionLoadOrder(line, false);
+                        FunctionLoadOrder(line, false);
                         break;
                     case "LoadAfter":
-                        //TODO: FunctionLoadOrder(line, true);
+                        FunctionLoadOrder(line, true);
                         break;
                     case "ConflictsWith":
-                        //TODO: FunctionConflicts(line, true, false);
+                        FunctionConflicts(line, true, false);
                         break;
                     case "DependsOn":
-                        //TODO: FunctionConflicts(line, false, false);
+                        FunctionConflicts(line, false, false);
                         break;
                     case "ConflictsWithRegex":
-                        //TODO: FunctionConflicts(line, true, true);
+                        FunctionConflicts(line, true, true);
                         break;
                     case "DependsOnRegex":
-                        //TODO: FunctionConflicts(line, false, true);
+                        FunctionConflicts(line, false, true);
                         break;
                     case "DontInstallAnyPlugins":
                         srd.InstallAllPlugins = false;
@@ -452,10 +455,10 @@ namespace OMODFramework.Scripting
                         Break = true;
                         break;
                     case "UncheckESP":
-                        //TODO: FunctionUncheckESP(line);
+                        FunctionUncheckESP(line);
                         break;
                     case "SetDeactivationWarning":
-                        //TODO: FunctionSetDeactivationWarning(line);
+                        FunctionSetDeactivationWarning(line);
                         break;
                     case "CopyDataFile":
                         //TODO: FunctionCopyDataFile(line, false);
@@ -541,7 +544,7 @@ namespace OMODFramework.Scripting
                         //TODO: FunctionReadRenderer(line);
                         break;
                     case "ExecLines":
-                        //TODO: FunctionExecLines(line, ExtraLines);
+                        FunctionExecLines(line, extraLines);
                         break;
                     case "iSet":
                         FunctionSet(line, true);
@@ -1276,6 +1279,195 @@ namespace OMODFramework.Scripting
             } catch
             {
                 Warn("Invalid arguments for function "+(integer ? "iSet":"fSet"));
+            }
+        }
+
+        private static void FunctionExecLines(IList<string> line, Queue<string> queue)
+        {
+            if (line.Count < 2)
+            {
+                Warn("Missing arguments for 'ExecLines'");
+                return;
+            }
+
+            if (line.Count > 2) Warn("Unexpected extra arguments for 'ExecLines'");
+            string[] lines = line[1].Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
+            lines.Do(queue.Enqueue);
+        }
+
+        private static void FunctionLoadEarly(IList<string> line)
+        {
+            if (line.Count < 2)
+            {
+                Warn("Missing arguments for 'LoadEarly'");
+                return;
+            }
+
+            if (line.Count > 2)
+            {
+                Warn("Unexpected arguments for 'LoadEarly'");
+            }
+
+            line[1] = line[1].ToLower();
+            if (!srd.EarlyPlugins.Contains(line[1]))
+                srd.EarlyPlugins.Add(line[1]);
+        }
+
+        private static void FunctionLoadOrder(IReadOnlyList<string> line, bool loadAfter)
+        {
+            string funcName = loadAfter ? "LoadAfter" : "LoadEarly";
+            if (line.Count < 3)
+            {
+                Warn($"Missing arguments for '{funcName}'");
+                return;
+            }
+
+            if (line.Count > 3)
+            {
+                Warn($"Unexpected arguments for '{funcName}'");
+            }
+
+            srd.LoadOrderSet.Add(new PluginLoadInfo(line[1], line[2], loadAfter));
+        }
+
+        private static void FunctionConflicts(IReadOnlyList<string> line, bool conflicts, bool regex)
+        {
+            var funcName = conflicts ? "ConflictsWith" : "DependsOn";
+            if (regex) funcName += "Regex";
+
+            var cd = new ConflictData {Level = ConflictLevel.MajorConflict};
+            switch (line.Count)
+            {
+            case 1:
+                Warn($"Missing arguments for '${funcName}'");
+                return;
+            case 2:
+                cd.File = line[1];
+                break;
+            case 3:
+                cd.Comment = line[2];
+                goto case 2;
+            case 4:
+                switch (line[3])
+                {
+                case "Unusable":
+                    cd.Level = ConflictLevel.Unusable;
+                    break;
+                case "Major":
+                    cd.Level = ConflictLevel.MajorConflict;
+                    break;
+                case "Minor":
+                    cd.Level = ConflictLevel.MinorConflict;
+                    break;
+                default:
+                    Warn($"Unknown conflict level after '{funcName}'");
+                    break;
+                }
+
+                goto case 3;
+            case 5:
+                Warn($"Unexpected arguments for '{funcName}'");
+                break;
+            case 6:
+                cd.File = line[1];
+                try
+                {
+                    cd.MinMajorVersion = Convert.ToInt32(line[2]);
+                    cd.MinMinorVersion = Convert.ToInt32(line[3]);
+                    cd.MaxMajorVersion = Convert.ToInt32(line[4]);
+                    cd.MaxMinorVersion = Convert.ToInt32(line[5]);
+                }
+                catch
+                {
+                    Warn($"Arguments for '{funcName}' could not been parsed");
+                }
+
+                break;
+            case 7:
+                cd.Comment = line[6];
+                goto case 6;
+            case 8:
+                switch (line[7])
+                {
+                case "Unusable":
+                    cd.Level = ConflictLevel.Unusable;
+                    break;
+                case "Major":
+                    cd.Level = ConflictLevel.MajorConflict;
+                    break;
+                case "Minor":
+                    cd.Level = ConflictLevel.MinorConflict;
+                    break;
+                default:
+                    Warn($"Unknown conflict level after '{funcName}'");
+                    break;
+                }
+
+                goto case 7;
+            default:
+                Warn($"Unexpected arguments for '{funcName}'");
+                goto case 8;
+            }
+
+            cd.Partial = regex;
+            if (conflicts)
+                srd.ConflictsWith.Add(cd);
+            else
+                srd.DependsOn.Add(cd);
+        }
+
+        private static void FunctionUncheckESP(IList<string> line)
+        {
+            if (line.Count == 1)
+            {
+                Warn("Missing arguments for 'UncheckESP'");
+                return;
+            }
+
+            if(line.Count > 2) Warn("Unexpected arguments for 'UncheckESP'");
+            if (!File.Exists(Path.Combine(Plugins, line[1])))
+            {
+                Warn($"Invalid argument for 'UncheckESP': {line[1]} does not exist");
+                return;
+            }
+
+            line[1] = line[1].ToLower();
+            if (!srd.UncheckedPlugins.Contains(line[1]))
+                srd.UncheckedPlugins.Add(line[1]);
+        }
+
+        private static void FunctionSetDeactivationWarning(IList<string> line)
+        {
+            if (line.Count < 3)
+            {
+                Warn("Missing arguments for 'SetDeactivationWarning'");
+                return;
+            }
+
+            if(line.Count > 3) Warn("Unexpected arguments for 'SetDeactivationWarning'");
+            if (!File.Exists(Path.Combine(Plugins, line[1])))
+            {
+                Warn($"Invalid argument for 'SetDeactivationWarning'\nFile '{line[1]}' does not exist");
+                return;
+            }
+
+            line[1] = line[1].ToLower();
+
+            srd.ESPDeactivation.RemoveWhere(a => a.Plugin == line[1]);
+            switch (line[2])
+            {
+            case "Allow":
+                srd.ESPDeactivation.Add(new ScriptESPWarnAgainst(line[1], DeactivationStatus.Allow));
+                break;
+            case "WarnAgainst":
+                srd.ESPDeactivation.Add(new ScriptESPWarnAgainst(line[1], DeactivationStatus.WarnAgainst));
+                break;
+            case "Disallow":
+                srd.ESPDeactivation.Add(new ScriptESPWarnAgainst(line[1], DeactivationStatus.Disallow));
+                break;
+            default:
+                Warn("Invalid argument for 'SetDeactivationWarning'");
+                return;
             }
         }
     }
