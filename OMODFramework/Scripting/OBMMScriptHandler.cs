@@ -24,6 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using Directory = Alphaleonis.Win32.Filesystem.Directory;
+using Path = Alphaleonis.Win32.Filesystem.Path;
 
 namespace OMODFramework.Scripting
 {
@@ -313,13 +316,15 @@ namespace OMODFramework.Scripting
                         else Warn($"Unexpected EndSelect");
                         break;
                     case "For": {
-                            /*TODO: FlowControlStruct fc=FunctionFor(line, i);
-                            FlowControl.Push(fc);
-                            if(fc.line!=-1&&fc.values.Length>0) {
-                                variables[fc.var]=fc.values[0];
-                                fc.active=true;
-                            }*/
-                            break;
+                        var fc = FunctionFor(line, i);
+                        flowControl.Push(fc);
+                        if (fc.line != -1 && fc.values.Length > 0)
+                        {
+                            variables[fc.var] = fc.values[0];
+                            fc.active = true;
+                        }
+
+                        break;
                         }
                     case "Continue": {
                         var found = false;
@@ -697,6 +702,108 @@ namespace OMODFramework.Scripting
             if (inVar) Warn("Unterminated variable");
             if (inQuotes) Warn("Unterminated quote");
             return temp.ToArray();
+        }
+
+        private static FlowControlStruct FunctionFor(IList<string> line, int lineNo)
+        {
+            var nullLoop = new FlowControlStruct(3);
+            if (line.Count < 3)
+            {
+                Warn("Missing arguments for function 'For'");
+                return nullLoop;
+            }
+
+            if (line[1] == "Each") line[1] = line[2];
+            switch (line[1])
+            {
+            case "Count":
+            {
+                if (line.Count < 5)
+                {
+                    Warn("Missing arguments to function 'For Count'");
+                    return nullLoop;
+                }
+                if (line.Count > 6) Warn("Unexpected extra arguments for 'For Count'");
+                int step = 1;
+                if (!int.TryParse(line[3], out var start) || !int.TryParse(line[4], out var end) ||
+                    line.Count >= 6 && !int.TryParse(line[5], out step))
+                {
+                    Warn("Invalid argument to 'For Count'");
+                    return nullLoop;
+                }
+                var steps = new List<string>();
+                for (int i = start; i < +end; i += step)
+                {
+                    steps.Add(i.ToString());
+                }
+
+                return new FlowControlStruct(steps.ToArray(), line[2], lineNo);
+            }
+            case "DataFolder":
+            case "PluginFolder":
+            case "DataFile":
+            case "Plugin":
+            {
+                string root;
+                if (line[1] == "DataFolder" || line[1] == "DataFile")
+                    root = DataFiles;
+                else
+                    root = Plugins;
+
+                if (line.Count < 5)
+                {
+                    Warn($"Missing arguments for function 'For Each {line[1]}'");
+                    return nullLoop;
+                }
+                if(line.Count > 7) Warn($"Unexpected extra arguments to 'For Each {line[1]}'");
+                if (!Utils.IsSafeFolderName(line[4]))
+                {
+                    Warn($"Invalid argument for 'For Each {line[1]}'\nDirectory '{line[4]}' is not valid");
+                    return nullLoop;
+                }
+
+                if (!Directory.Exists(Path.Combine(root, line[4])))
+                {
+                    Warn($"Invalid argument for 'For Each {line[1]}'\nDirectory '{line[4]}' does not exist");
+                }
+
+                var option = SearchOption.TopDirectoryOnly;
+                if (line.Count > 5)
+                {
+                    switch (line[5])
+                    {
+                    case "True":
+                        option = SearchOption.AllDirectories;
+                        break;
+                    case "False":
+                        break;
+                    default:
+                        Warn($"Invalid argument '{line[5]}' for 'For Each {line[1]}'.\nExpected 'True' or 'False'");
+                        break;
+                    }
+                }
+
+                try
+                {
+                    var paths = Directory.GetDirectories(Path.Combine(root, line[4]),
+                        line.Count > 6 ? line[6] : "*", option);
+                    for (var i = 0; i < paths.Length; i++)
+                    {
+                        if (Path.IsPathRooted(paths[i]))
+                            paths[i] = paths[i].Substring(root.Length);
+                    }
+                    return new FlowControlStruct(paths, line[3], lineNo);
+                }
+                catch
+                {
+                    Warn($"Invalid argument for 'For Each {line[1]}'");
+                    return nullLoop;
+                }
+            }
+            default:
+                Warn("Unexpected function for 'For'");
+                return nullLoop;
+            }
         }
 
         private static void FunctionMessage(IReadOnlyList<string> line)
