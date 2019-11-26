@@ -286,10 +286,10 @@ namespace OMODFramework.Scripting
                         //TODO: FlowControl.Push(new FlowControlStruct(i, FunctionSelect(line, true, true, true)));
                         break;
                     case "SelectVar":
-                        //TODO: FlowControl.Push(new FlowControlStruct(i, FunctionSelectVar(line, true)));
+                        flowControl.Push(new FlowControlStruct(i, FunctionSelectVar(line, true)));
                         break;
                     case "SelectString":
-                        //TODO: FlowControl.Push(new FlowControlStruct(i, FunctionSelectVar(line, false)));
+                        flowControl.Push(new FlowControlStruct(i, FunctionSelectVar(line, false)));
                         break;
                     case "Break": {
                         /*TODO: 
@@ -507,7 +507,7 @@ namespace OMODFramework.Scripting
                         //TODO: FunctionDisplayFile(line, false);
                         break;
                     case "SetVar":
-                        //TODO: FunctionSetVar(line);
+                        FunctionSetVar(line);
                         break;
                     case "GetFolderName":
                     case "GetDirectoryName":
@@ -520,16 +520,16 @@ namespace OMODFramework.Scripting
                         //TODO: FunctionGetFileNameWithoutExtension(line);
                         break;
                     case "CombinePaths":
-                        //TODO: FunctionCombinePaths(line);
+                        FunctionCombinePaths(line);
                         break;
                     case "Substring":
-                        //TODO: FunctionSubstring(line);
+                        FunctionSubRemoveString(line, false);
                         break;
                     case "RemoveString":
-                        //TODO: FunctionRemoveString(line);
+                        FunctionSubRemoveString(line, true);
                         break;
                     case "StringLength":
-                        //TODO: FunctionStringLength(line);
+                        FunctionStringLength(line);
                         break;
                     case "InputString":
                         //TODO: FunctionInputString(line);
@@ -807,6 +807,27 @@ namespace OMODFramework.Scripting
             }
         }
 
+        private static string[] FunctionSelectVar(IReadOnlyList<string> line, bool isVariable)
+        {
+            string funcName = isVariable ? "SelectVar" : "SelectString";
+            if (line.Count < 2)
+            {
+                Warn($"Missing arguments for '{funcName}'");
+                return new string[0];
+            }
+
+            if(line.Count > 2) Warn($"Unexpected arguments for '{funcName}'");
+            if (!isVariable)
+                return new[] {$"Case {line[1]}"};
+
+            if (variables.ContainsKey(line[1]))
+                return new[] {$"Case {variables[line[1]]}"};
+
+            Warn($"Invalid argument for '{funcName}'\nVariable '{line[1]}' does not exist");
+            return new string[0];
+
+        }
+
         private static void FunctionMessage(IReadOnlyList<string> line)
         {
             switch(line.Count)
@@ -825,6 +846,80 @@ namespace OMODFramework.Scripting
                 Warn("Unexpected arguments after 'Message'");
                 break;
             }
+        }
+
+        private static void FunctionSetVar(IReadOnlyList<string> line)
+        {
+            if (line.Count < 3)
+            {
+                Warn("Missing arguments for function 'SetVar'");
+                return;
+            }
+
+            if(line.Count > 3) Warn("Unexpected extra arguments for function 'SetVar'");
+            variables[line[1]] = line[2];
+        }
+
+        private static void FunctionCombinePaths(IReadOnlyList<string> line)
+        {
+            if (line.Count < 4)
+            {
+                Warn("Missing arguments for 'CombinePaths'");
+                return;
+            }
+
+            if(line.Count > 4) Warn("Unexpected arguments for 'CombinePaths'");
+            try
+            {
+                variables[line[1]] = Path.Combine(line[2], line[3]);
+            }
+            catch
+            {
+                Warn("Invalid arguments for 'CombinePaths'");
+            }
+        }
+
+        private static void FunctionSubRemoveString(IList<string> line, bool remove)
+        {
+            string funcName = remove ? "RemoveString" : "Substring";
+            if (line.Count < 4)
+            {
+                Warn($"Missing arguments for '{funcName}'");
+                return;
+            }
+
+            if (line.Count > 5) Warn($"Unexpected extra arguments for '{funcName}'");
+            if (line.Count == 4)
+            {
+                if (!int.TryParse(line[3], out int start))
+                {
+                    Warn($"Invalid arguments for '{funcName}'");
+                    return;
+                }
+
+                variables[line[1]] = remove ? line[2].Remove(start) : line[2].Substring(start);
+            }
+            else
+            {
+                if (!int.TryParse(line[3], out int start) || !int.TryParse(line[4], out int end))
+                {
+                    Warn($"Invalid arguments for '{funcName}'");
+                    return;
+                }
+                variables[line[1]] = remove ? line[2].Remove(start,end) : line[2].Substring(start, end);
+            }
+        }
+
+        private static void FunctionStringLength(IList<string> line)
+        {
+            if (line.Count < 3)
+            {
+                Warn("Missing arguments for 'StringLength'");
+                return;
+            }
+
+            if(line.Count > 3) Warn("Unexpected extra arguments for 'StringLength'");
+            variables[line[1]] = line[2].Length.ToString();
         }
 
         private static int Set(List<string> func)
