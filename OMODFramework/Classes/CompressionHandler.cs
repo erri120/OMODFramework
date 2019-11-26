@@ -35,7 +35,13 @@ using File = Alphaleonis.Win32.Filesystem.File;
 
 namespace OMODFramework
 {
+    /// <summary>
+    /// The Compression used for extraction and compression
+    /// </summary>
     public enum CompressionType : byte { SevenZip, Zip }
+    /// <summary>
+    /// The level of compression used for extraction and compression
+    /// </summary>
     public enum CompressionLevel : byte { VeryHigh, High, Medium, Low, VeryLow, None }
 
     internal class SparseFileWriterStream : Stream
