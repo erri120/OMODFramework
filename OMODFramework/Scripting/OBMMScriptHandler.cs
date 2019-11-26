@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using Directory = Alphaleonis.Win32.Filesystem.Directory;
 using Path = Alphaleonis.Win32.Filesystem.Path;
@@ -543,10 +544,10 @@ namespace OMODFramework.Scripting
                         //TODO: FunctionExecLines(line, ExtraLines);
                         break;
                     case "iSet":
-                        //TODO: FunctionSet(line, true);
+                        FunctionSet(line, true);
                         break;
                     case "fSet":
-                        //TODO: FunctionSet(line, false);
+                        FunctionSet(line, false);
                         break;
                     case "EditXMLLine":
                         //TODO: FunctionEditXMLLine(line);
@@ -823,6 +824,363 @@ namespace OMODFramework.Scripting
                 _scriptFunctions.Message(line[1], line[2]);
                 Warn("Unexpected arguments after 'Message'");
                 break;
+            }
+        }
+
+        private static int Set(List<string> func)
+        {
+            if (func.Count == 0) throw new OMODFrameworkException($"Empty iSet in script at {cLine}");
+            if (func.Count == 1) return int.Parse(func[0]);
+
+            var index = func.IndexOf("(");
+            while (index != -1)
+            {
+                int count = 1;
+                var newFunc = new List<string>();
+                for (int i = index + 1; i < func.Count; i++)
+                {
+                    if (func[i] == "(") count++;
+                    else if (func[i] == ")") count--;
+
+                    if (count != 0)
+                        continue;
+
+                    func.RemoveRange(index, (i-index) +1);
+                    func.Insert(index, Set(newFunc).ToString());
+                    break;
+                }
+
+                if(count != 0) throw new OMODFrameworkException($"Mismatched brackets in script at {cLine}");
+                index = func.IndexOf("(");
+            }
+
+            //not
+            index = func.IndexOf("not");
+            while (index != -1)
+            {
+                int i = int.Parse(func[index + 1]);
+                i = ~i;
+                func[index + 1] = i.ToString();
+                func.RemoveAt(index);
+                index = func.IndexOf("not");
+            }
+
+            //and
+            index = func.IndexOf("not");
+            while (index != -1)
+            {
+                int i = int.Parse(func[index - 1]) & int.Parse(func[index + 1]);
+                func[index + 1] = i.ToString();
+                func.RemoveRange(index - 1, 2);
+                index = func.IndexOf("not");
+            }
+
+            //or
+            index = func.IndexOf("or");
+            while (index != -1)
+            {
+                int i = int.Parse(func[index - 1]) | int.Parse(func[index + 1]);
+                func[index + 1] = i.ToString();
+                func.RemoveRange(index - 1, 2);
+                index = func.IndexOf("or");
+            }
+
+            //xor
+            index = func.IndexOf("xor");
+            while (index != -1)
+            {
+                int i = int.Parse(func[index - 1]) ^ int.Parse(func[index + 1]);
+                func[index + 1] = i.ToString();
+                func.RemoveRange(index - 1, 2);
+                index = func.IndexOf("xor");
+            }
+
+            //mod
+            index = func.IndexOf("mod");
+            while (index != -1)
+            {
+                int i = int.Parse(func[index - 1]) % int.Parse(func[index + 1]);
+                func[index + 1] = i.ToString();
+                func.RemoveRange(index - 1, 2);
+                index = func.IndexOf("mod");
+            }
+
+            //mod
+            index = func.IndexOf("%");
+            while (index != -1)
+            {
+                int i = int.Parse(func[index - 1]) % int.Parse(func[index + 1]);
+                func[index + 1] = i.ToString();
+                func.RemoveRange(index - 1, 2);
+                index = func.IndexOf("%");
+            }
+
+            //power
+            index = func.IndexOf("^");
+            while (index != -1)
+            {
+                int i = (int)Math.Pow(int.Parse(func[index - 1]), int.Parse(func[index + 1]));
+                func[index + 1] = i.ToString();
+                func.RemoveRange(index - 1, 2);
+                index = func.IndexOf("^");
+            }
+
+            //division
+            index = func.IndexOf("/");
+            while (index != -1)
+            {
+                int i = int.Parse(func[index - 1]) / int.Parse(func[index + 1]);
+                func[index + 1] = i.ToString();
+                func.RemoveRange(index - 1, 2);
+                index = func.IndexOf("/");
+            }
+
+            //multiplication
+            index = func.IndexOf("*");
+            while (index != -1)
+            {
+                int i = int.Parse(func[index - 1]) * int.Parse(func[index + 1]);
+                func[index + 1] = i.ToString();
+                func.RemoveRange(index - 1, 2);
+                index = func.IndexOf("*");
+            }
+
+            //add
+            index = func.IndexOf("+");
+            while (index != -1)
+            {
+                int i = int.Parse(func[index - 1]) + int.Parse(func[index + 1]);
+                func[index + 1] = i.ToString();
+                func.RemoveRange(index - 1, 2);
+                index = func.IndexOf("+");
+            }
+
+            //sub
+            index = func.IndexOf("-");
+            while (index != -1)
+            {
+                int i = int.Parse(func[index - 1]) - int.Parse(func[index + 1]);
+                func[index + 1] = i.ToString();
+                func.RemoveRange(index - 1, 2);
+                index = func.IndexOf("-");
+            }
+
+            if(func.Count != 1) throw new OMODFrameworkException($"Leftovers in iSet function for script at {cLine}");
+            return int.Parse(func[0]);
+        }
+
+        private static double FSet(List<string> func)
+        {
+            if (func.Count == 0) throw new OMODFrameworkException($"Empty fSet in script at {cLine}");
+            if (func.Count == 1) return int.Parse(func[0]);
+            //check for brackets
+
+            var index = func.IndexOf("(");
+            while (index != -1)
+            {
+                int count = 1;
+                var newFunc = new List<string>();
+                for (int i = index; i < func.Count; i++)
+                {
+                    if (func[i] == "(") count++;
+                    else if (func[i] == ")") count--;
+                    if (count == 0)
+                    {
+                        func.RemoveRange(index, i - index);
+                        func.Insert(index, FSet(newFunc).ToString(CultureInfo.CurrentCulture));
+                        break;
+                    }
+
+                    newFunc.Add(func[i]);
+                }
+
+                if (count != 0) throw new OMODFrameworkException($"Mismatched brackets in script at {cLine}");
+                index = func.IndexOf("(");
+            }
+
+            //sin
+            index = func.IndexOf("sin");
+            while (index != -1)
+            {
+                func[index + 1] = Math.Sin(double.Parse(func[index + 1])).ToString(CultureInfo.CurrentCulture);
+                func.RemoveAt(index);
+                index = func.IndexOf("sin");
+            }
+
+            //cos
+            index = func.IndexOf("cos");
+            while (index != -1)
+            {
+                func[index + 1] = Math.Cos(double.Parse(func[index + 1])).ToString(CultureInfo.CurrentCulture);
+                func.RemoveAt(index);
+                index = func.IndexOf("cos");
+            }
+
+            //tan
+            index = func.IndexOf("tan");
+            while (index != -1)
+            {
+                func[index + 1] = Math.Tan(double.Parse(func[index + 1])).ToString(CultureInfo.CurrentCulture);
+                func.RemoveAt(index);
+                index = func.IndexOf("tan");
+            }
+
+            //sinh
+            index = func.IndexOf("sinh");
+            while (index != -1)
+            {
+                func[index + 1] = Math.Sinh(double.Parse(func[index + 1])).ToString(CultureInfo.CurrentCulture);
+                func.RemoveAt(index);
+                index = func.IndexOf("sinh");
+            }
+
+            //cosh
+            index = func.IndexOf("cosh");
+            while (index != -1)
+            {
+                func[index + 1] = Math.Cosh(double.Parse(func[index + 1])).ToString(CultureInfo.CurrentCulture);
+                func.RemoveAt(index);
+                index = func.IndexOf("cosh");
+            }
+
+            //tanh
+            index = func.IndexOf("tanh");
+            while (index != -1)
+            {
+                func[index + 1] = Math.Tanh(double.Parse(func[index + 1])).ToString(CultureInfo.CurrentCulture);
+                func.RemoveAt(index);
+                index = func.IndexOf("tanh");
+            }
+
+            //exp
+            index = func.IndexOf("exp");
+            while (index != -1)
+            {
+                func[index + 1] = Math.Exp(double.Parse(func[index + 1])).ToString(CultureInfo.CurrentCulture);
+                func.RemoveAt(index);
+                index = func.IndexOf("exp");
+            }
+
+            //log
+            index = func.IndexOf("log");
+            while (index != -1)
+            {
+                func[index + 1] = Math.Log10(double.Parse(func[index + 1])).ToString(CultureInfo.CurrentCulture);
+                func.RemoveAt(index);
+                index = func.IndexOf("log");
+            }
+
+            //ln
+            index = func.IndexOf("ln");
+            while (index != -1)
+            {
+                func[index + 1] = Math.Log(double.Parse(func[index + 1])).ToString(CultureInfo.CurrentCulture);
+                func.RemoveAt(index);
+                index = func.IndexOf("ln");
+            }
+
+            //mod
+            index = func.IndexOf("mod");
+            while (index != -1)
+            {
+                double i = double.Parse(func[index - 1]) % double.Parse(func[index + 1]);
+                func[index + 1] = i.ToString(CultureInfo.CurrentCulture);
+                func.RemoveRange(index - 1, 2);
+                index = func.IndexOf("mod");
+            }
+
+            //mod2
+            index = func.IndexOf("%");
+            while (index != -1)
+            {
+                double i = double.Parse(func[index - 1]) % double.Parse(func[index + 1]);
+                func[index + 1] = i.ToString(CultureInfo.CurrentCulture);
+                func.RemoveRange(index - 1, 2);
+                index = func.IndexOf("%");
+            }
+
+            //power
+            index = func.IndexOf("^");
+            while (index != -1)
+            {
+                double i = Math.Pow(double.Parse(func[index - 1]), double.Parse(func[index + 1]));
+                func[index + 1] = i.ToString(CultureInfo.CurrentCulture);
+                func.RemoveRange(index - 1, 2);
+                index = func.IndexOf("^");
+            }
+
+            //division
+            index = func.IndexOf("/");
+            while (index != -1)
+            {
+                double i = double.Parse(func[index - 1]) / double.Parse(func[index + 1]);
+                func[index + 1] = i.ToString(CultureInfo.CurrentCulture);
+                func.RemoveRange(index - 1, 2);
+                index = func.IndexOf("/");
+            }
+
+            //multiplication
+            index = func.IndexOf("*");
+            while (index != -1)
+            {
+                double i = double.Parse(func[index - 1]) * double.Parse(func[index + 1]);
+                func[index + 1] = i.ToString(CultureInfo.CurrentCulture);
+                func.RemoveRange(index - 1, 2);
+                index = func.IndexOf("*");
+            }
+
+            //add
+            index = func.IndexOf("+");
+            while (index != -1)
+            {
+                double i = double.Parse(func[index - 1]) + double.Parse(func[index + 1]);
+                func[index + 1] = i.ToString(CultureInfo.CurrentCulture);
+                func.RemoveRange(index - 1, 2);
+                index = func.IndexOf("+");
+            }
+
+            //sub
+            index = func.IndexOf("-");
+            while (index != -1)
+            {
+                double i = double.Parse(func[index - 1]) - double.Parse(func[index + 1]);
+                func[index + 1] = i.ToString(CultureInfo.CurrentCulture);
+                func.RemoveRange(index - 1, 2);
+                index = func.IndexOf("-");
+            }
+
+            if (func.Count != 1) throw new OMODFrameworkException($"Leftovers in iSet function for script at {cLine}");
+            return double.Parse(func[0]);
+        }
+
+        private static void FunctionSet(IReadOnlyList<string> line, bool integer)
+        {
+            if (line.Count < 3)
+            {
+                Warn("Missing arguments for function "+(integer ? "iSet":"fSet"));
+                return;
+            }
+
+            var func = new List<string>();
+            for(int i = 2; i < line.Count; i++) func.Add(line[i]);
+            try
+            {
+                string result;
+                if (integer)
+                {
+                    int i = Set(func);
+                    result = i.ToString();
+                }
+                else
+                {
+                    float f = (float)FSet(func);
+                    result = f.ToString(CultureInfo.CurrentCulture);
+                }
+
+                variables[line[1]] = result;
+            } catch
+            {
+                Warn("Invalid arguments for function "+(integer ? "iSet":"fSet"));
             }
         }
     }
