@@ -35,6 +35,8 @@ namespace OMODFramework
 
         public static string TempDir { get; set; } = Path.Combine(Path.GetTempPath(), "OMODFramework");
 
+        public static bool EnableWarnings { get; set; } = false;
+
         public static void CleanTempDir(bool deleteRoot = false)
         {
             if(!Directory.Exists(TempDir))
