@@ -426,22 +426,22 @@ namespace OMODFramework.Scripting
                         srd.InstallAllData = true;
                         break;
                     case "InstallPlugin":
-                        //TODO: FunctionModifyInstall(line, true, true);
+                        FunctionModifyInstall(line, true, true);
                         break;
                     case "DontInstallPlugin":
-                        //TODO: FunctionModifyInstall(line, true, false);
+                        FunctionModifyInstall(line, true, false);
                         break;
                     case "InstallDataFile":
-                        //TODO: FunctionModifyInstall(line, false, true);
+                        FunctionModifyInstall(line, false, true);
                         break;
                     case "DontInstallDataFile":
-                        //TODO: FunctionModifyInstall(line, false, false);
+                        FunctionModifyInstall(line, false, false);
                         break;
                     case "DontInstallDataFolder":
-                        //TODO: FunctionModifyInstallFolder(line, false);
+                        FunctionModifyInstallFolder(line, false);
                         break;
                     case "InstallDataFolder":
-                        //TODO: FunctionModifyInstallFolder(line, true);
+                        FunctionModifyInstallFolder(line, true);
                         break;
                     case "RegisterBSA":
                         //TODO: FunctionRegisterBSA(line, true);
@@ -714,7 +714,7 @@ namespace OMODFramework.Scripting
             var nullLoop = new FlowControlStruct(3);
             if (line.Count < 3)
             {
-                Warn("Missing arguments for function 'For'");
+                Warn("Missing arguments for 'For'");
                 return nullLoop;
             }
 
@@ -757,7 +757,7 @@ namespace OMODFramework.Scripting
 
                 if (line.Count < 5)
                 {
-                    Warn($"Missing arguments for function 'For Each {line[1]}'");
+                    Warn($"Missing arguments for 'For Each {line[1]}'");
                     return nullLoop;
                 }
                 if(line.Count > 7) Warn($"Unexpected extra arguments to 'For Each {line[1]}'");
@@ -935,11 +935,11 @@ namespace OMODFramework.Scripting
         {
             if (line.Count < 3)
             {
-                Warn("Missing arguments for function 'SetVar'");
+                Warn("Missing arguments for 'SetVar'");
                 return;
             }
 
-            if(line.Count > 3) Warn("Unexpected extra arguments for function 'SetVar'");
+            if(line.Count > 3) Warn("Unexpected extra arguments for 'SetVar'");
             variables[line[1]] = line[2];
         }
 
@@ -1335,7 +1335,7 @@ namespace OMODFramework.Scripting
         {
             if (line.Count < 3)
             {
-                Warn("Missing arguments for function "+(integer ? "iSet":"fSet"));
+                Warn("Missing arguments for "+(integer ? "iSet":"fSet"));
                 return;
             }
 
@@ -1358,7 +1358,7 @@ namespace OMODFramework.Scripting
                 variables[line[1]] = result;
             } catch
             {
-                Warn("Invalid arguments for function "+(integer ? "iSet":"fSet"));
+                Warn("Invalid arguments for "+(integer ? "iSet":"fSet"));
             }
         }
 
@@ -1621,6 +1621,122 @@ namespace OMODFramework.Scripting
             var text = File.ReadAllText(file);
             text = text.Replace(line[2], line[3]);
             File.WriteAllText(file, text);
+        }
+
+        private static void FunctionModifyInstall(IReadOnlyCollection<string> line, bool plugins, bool install)
+        {
+            var funcName = install ? "Install" : "DontInstall";
+            funcName += plugins ? "Plugin" : "DataFile";
+
+            if (line.Count == 1)
+            {
+                Warn($"Missing arguments for '{funcName}'");
+                return;
+            }
+
+            var l = line.ElementAt(1).ToLower();
+            if(line.Count > 2) Warn($"Unexpected arguments for '{funcName}'");
+            if (plugins)
+            {
+                var path = Path.Combine(Plugins, l);
+                if (!File.Exists(path))
+                {
+                    Warn($"Invalid argument for '{funcName}'\nFile '{path}' does not exist");
+                    return;
+                }
+
+                if (l.IndexOfAny(new [] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar}) != -1)
+                {
+                    Warn($"Invalid argument for '{funcName}'\nThis function cannot be used on plugins stored in subdirectories");
+                }
+
+                if (install)
+                {
+                    srd.IgnorePlugins.RemoveWhere(s => s == l);
+                    if (!srd.InstallPlugins.Contains(l))
+                        srd.InstallPlugins.Add(l);
+                }
+                else
+                {
+                    srd.InstallPlugins.RemoveWhere(s => s == l);
+                    if (!srd.IgnorePlugins.Contains(l))
+                        srd.IgnorePlugins.Add(l);
+                }
+            }
+            else
+            {
+                var path = Path.Combine(DataFiles, l);
+                if(!File.Exists(path)) {
+                    Warn($"Invalid argument for '{funcName}'\nFile '{path}' does not exist");
+                    return;
+                }
+
+                if (install)
+                {
+                    srd.IgnoreData.RemoveWhere(s => s == l);
+                    if (!srd.InstallData.Contains(l))
+                        srd.InstallData.Add(l);
+                } else
+                {
+                    srd.InstallData.RemoveWhere(s => s == l);
+                    if (!srd.IgnoreData.Contains(l))
+                        srd.IgnoreData.Add(l);
+                }
+            }
+        }
+
+        private static void FunctionModifyInstallFolder(IList<string> line, bool install)
+        {
+            var funcName = (install ? "Install" : "DontInstall") + "DataFolder";
+
+            if (line.Count == 1)
+            {
+                Warn($"Missing arguments for '{funcName}'");
+                return;
+            }
+            if(line.Count > 3) Warn($"Unexpected arguments for '{funcName}'");
+
+            line[1] = Utils.MakeValidFolderPath(line[1]);
+            var path = Path.Combine(DataFiles, line[1]);
+
+            if (!Directory.Exists(path))
+            {
+                Warn($"Invalid argument for '{funcName}'\nFolder '{path}' does not exist");
+                return;
+            }
+
+            if (line.Count >= 2)
+            {
+                switch (line[2])
+                {
+                case "True":
+                    Directory.GetDirectories(path).Do(d =>
+                        FunctionModifyInstallFolder(
+                            new List<string> {"", d.Substring(DataFiles.Length), "True"}, install));
+                    break;
+                case "False":
+                    break;
+                default:
+                    Warn($"Invalid argument for '{funcName}'\nExpected True or False");
+                    break;
+                }
+            }
+            Directory.GetFiles(path).Do(f =>
+            {
+                var name = Path.GetFileName(f);
+                if (install)
+                {
+                    srd.IgnoreData.RemoveWhere(s => s == name);
+                    if (!srd.InstallData.Contains(name))
+                        srd.InstallData.Add(name);
+                }
+                else
+                {
+                    srd.InstallData.RemoveWhere(s => s == name);
+                    if (!srd.IgnoreData.Contains(name))
+                        srd.IgnoreData.Add(name);
+                }
+            });
         }
     }
 }

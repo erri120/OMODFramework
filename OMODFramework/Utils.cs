@@ -33,6 +33,15 @@ namespace OMODFramework
 {
     public static class Utils
     {
+        internal static string MakeValidFolderPath(string s)
+        {
+            s = s.Replace('/', '\\');
+            if (s.StartsWith("\\")) s = s.Substring(1);
+            // if (!s.EndsWith("\\")) s += "\\";
+            if (s.Contains("\\\\")) s = s.Replace("\\\\", "\\");
+            return s;
+        }
+
         internal static bool IsSafeFileName(string s)
         {
             s = s.Replace('/', '\\');
