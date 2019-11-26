@@ -57,7 +57,7 @@ namespace OMODFramework
         public readonly HashSet<string> AllPlugins;
         public readonly HashSet<DataFileInfo> AllDataFiles;
         public readonly uint CRC;
-        public readonly CompressionType CompType;
+        public readonly CompressionType Compression;
 
         public string Version => "" + MajorVersion + (MinorVersion != -1 ? "." + MinorVersion + (BuildVersion != -1 ? "." + BuildVersion : "") : "");
 
@@ -141,7 +141,7 @@ namespace OMODFramework
                     }
 
                     if (Description == "") Description = "No description";
-                    CompType = (CompressionType)br.ReadByte();
+                    Compression = (CompressionType)br.ReadByte();
 
                     if (fileVersion >= 1)
                         BuildVersion = br.ReadInt32();
@@ -379,7 +379,7 @@ namespace OMODFramework
             if (infoStream == null) return null;
 
             var compressedStream = ExtractWholeFile(dataCompressed);
-            var path = CompressionHandler.DecompressFiles(infoStream, compressedStream, CompType);
+            var path = CompressionHandler.DecompressFiles(infoStream, compressedStream, Compression);
 
             infoStream.Close();
             compressedStream.Close();
