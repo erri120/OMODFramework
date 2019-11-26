@@ -256,36 +256,36 @@ namespace OMODFramework.Scripting
                         //TODO: FlowControl.Push(new FlowControlStruct(i, !FunctionIf(line)));
                         break;
                     case "Else":
-                        //TODO: if(FlowControl.Count!=0&&FlowControl.Peek().type==0) FlowControl.Peek().active=false;
-                        //TODO: else Warn("Unexpected Else");
+                        if (flowControl.Count != 0 && flowControl.Peek().type == 0) flowControl.Peek().active = false;
+                        else Warn("Unexpected Else");
                         break;
                     case "EndIf":
-                        //TODO: if(FlowControl.Count!=0&&FlowControl.Peek().type==0) FlowControl.Pop();
-                        //TODO: else Warn("Unexpected EndIf");
+                        if (flowControl.Count != 0 && flowControl.Peek().type == 0) flowControl.Pop();
+                        else Warn("Unexpected EndIf");
                         break;
                     case "Select":
-                        //TODO: FlowControl.Push(new FlowControlStruct(i, FunctionSelect(line, false, false, false)));
+                        flowControl.Push(new FlowControlStruct(i, FunctionSelect(line, false, false, false)));
                         break;
                     case "SelectMany":
-                        //TODO: FlowControl.Push(new FlowControlStruct(i, FunctionSelect(line, true, false, false)));
+                        flowControl.Push(new FlowControlStruct(i, FunctionSelect(line, true, false, false)));
                         break;
                     case "SelectWithPreview":
-                        //TODO: FlowControl.Push(new FlowControlStruct(i, FunctionSelect(line, false, true, false)));
+                        flowControl.Push(new FlowControlStruct(i, FunctionSelect(line, false, true, false)));
                         break;
                     case "SelectManyWithPreview":
-                        //TODO: FlowControl.Push(new FlowControlStruct(i, FunctionSelect(line, true, true, false)));
+                        flowControl.Push(new FlowControlStruct(i, FunctionSelect(line, true, true, false)));
                         break;
                     case "SelectWithDescriptions":
-                        //TODO: FlowControl.Push(new FlowControlStruct(i, FunctionSelect(line, false, false, true)));
+                        flowControl.Push(new FlowControlStruct(i, FunctionSelect(line, false, false, true)));
                         break;
                     case "SelectManyWithDescriptions":
-                        //TODO: FlowControl.Push(new FlowControlStruct(i, FunctionSelect(line, true, false, true)));
+                        flowControl.Push(new FlowControlStruct(i, FunctionSelect(line, true, false, true)));
                         break;
                     case "SelectWithDescriptionsAndPreviews":
-                        //TODO: FlowControl.Push(new FlowControlStruct(i, FunctionSelect(line, false, true, true)));
+                        flowControl.Push(new FlowControlStruct(i, FunctionSelect(line, false, true, true)));
                         break;
                     case "SelectManyWithDescriptionsAndPreviews":
-                        //TODO: FlowControl.Push(new FlowControlStruct(i, FunctionSelect(line, true, true, true)));
+                        flowControl.Push(new FlowControlStruct(i, FunctionSelect(line, true, true, true)));
                         break;
                     case "SelectVar":
                         flowControl.Push(new FlowControlStruct(i, FunctionSelectVar(line, true)));
@@ -545,7 +545,7 @@ namespace OMODFramework.Scripting
                         //TODO: FunctionReadRenderer(line);
                         break;
                     case "ExecLines":
-                        FunctionExecLines(line, extraLines);
+                        FunctionExecLines(line, ref extraLines);
                         break;
                     case "iSet":
                         FunctionSet(line, true);
@@ -554,10 +554,10 @@ namespace OMODFramework.Scripting
                         FunctionSet(line, false);
                         break;
                     case "EditXMLLine":
-                        //TODO: FunctionEditXMLLine(line);
+                        FunctionEditXMLLine(line);
                         break;
                     case "EditXMLReplace":
-                        //TODO: FunctionEditXMLReplace(line);
+                        FunctionEditXMLReplace(line);
                         break;
                     case "AllowRunOnLines":
                         allowRunOnLines = true;
@@ -1362,7 +1362,7 @@ namespace OMODFramework.Scripting
             }
         }
 
-        private static void FunctionExecLines(IList<string> line, Queue<string> queue)
+        private static void FunctionExecLines(IList<string> line, ref Queue<string> queue)
         {
             if (line.Count < 2)
             {
@@ -1549,6 +1549,78 @@ namespace OMODFramework.Scripting
                 Warn("Invalid argument for 'SetDeactivationWarning'");
                 return;
             }
+        }
+
+        private static void FunctionEditXMLLine(IList<string> line)
+        {
+            if (line.Count < 4)
+            {
+                Warn("Missing arguments for 'EditXMLLine'");
+                return;
+            }
+
+            var file = Path.Combine(DataFiles, line[1]);
+
+            if (line.Count > 4) Warn("Unexpected extra arguments for 'EditXMLLine'");
+            line[1] = line[1].ToLower();
+            if (!Utils.IsSafeFileName(line[1]) || !File.Exists(file))
+            {
+                Warn("Invalid filename supplied for 'EditXMLLine'");
+                return;
+            }
+
+            var ext = Path.GetExtension(line[1]);
+            if (ext != ".xml" && ext != ".txt" && ext != ".ini" && ext != ".bat")
+            {
+                Warn("Invalid filename supplied for 'EditXMLLine'");
+                return;
+            }
+
+            if (!int.TryParse(line[2], out var index) || index < 1)
+            {
+                Warn("Invalid line number supplied for 'EditXMLLine'");
+                return;
+            }
+
+            index -= 1;
+            var lines = File.ReadAllLines(file);
+            if (lines.Length <= index)
+            {
+                Warn("Invalid line number supplied for 'EditXMLLine'");
+                return;
+            }
+
+            lines[index] = line[3];
+            File.WriteAllLines(file, lines);
+        }
+
+        private static void FunctionEditXMLReplace(IList<string> line)
+        {
+            if (line.Count < 4)
+            {
+                Warn("Missing arguments for 'EditXMLReplace'");
+                return;
+            }
+
+            var file = Path.Combine(DataFiles, line[1]);
+            if (line.Count > 4) Warn("Unexpected extra arguments for 'EditXMLReplace'");
+            line[1] = line[1].ToLower();
+            if (!Utils.IsSafeFileName(line[1]) || !File.Exists(file))
+            {
+                Warn("Invalid filename supplied for 'EditXMLReplace'");
+                return;
+            }
+
+            var ext = Path.GetExtension(file);
+            if (ext != ".xml" && ext != ".txt" && ext != ".ini" && ext != ".bat")
+            {
+                Warn("Invalid filename supplied for 'EditXMLLine'");
+                return;
+            }
+
+            var text = File.ReadAllText(file);
+            text = text.Replace(line[2], line[3]);
+            File.WriteAllText(file, text);
         }
     }
 }
