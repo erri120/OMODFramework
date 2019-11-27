@@ -5,7 +5,7 @@ namespace OMODFramework.Scripting
     public interface IScriptFunctions
     {
         /// <summary>
-        /// Warn the user about something. This will only be called if Framework.EnableWarnings = true
+        /// Warn the user about something. This will only be called if <c>Framework.EnableWarnings = true</c>
         /// </summary>
         /// <param name="msg">The message, will always contain the line number</param>
         void Warn(string msg);
@@ -25,12 +25,12 @@ namespace OMODFramework.Scripting
 
         /// <summary>
         /// This gets called when the user needs to select something.
-        /// The preview image and description of an item will be at the index position of
-        /// the item within the items list.
-        /// You need to return either null, if the user canceled, or a list containing the indices of the
-        /// selected items.
-        /// If the user selected the first item than that list will be {0}
-        /// If the user selected the first and second item than {0, 1}
+        /// <para>The preview image and description of an item will be at the index position of
+        /// the item within the items list.</para>
+        /// <para>You need to return either null, if the user canceled, or a list containing the indices of the
+        /// selected items.</para>
+        /// <para>If the user selected the first item than that list will be <c>{ 0 }</c></para>
+        /// <para>If the user selected the first and second item than <c>{ 0, 1 }</c></para>
         /// </summary>
         /// <param name="items">List of items </param>
         /// <param name="title">Title of the form</param>

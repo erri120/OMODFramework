@@ -29,10 +29,24 @@ namespace OMODFramework
         public static byte BuildNumber = 12;
         public static byte CurrentOmodVersion = 4;
 
-        public static bool IgnoreVersion = false;
+        /// <summary>
+        /// Whether the internal omod version check should be ignored
+        /// </summary>
+        public static bool IgnoreVersion { get; set; } = false;
 
+        /// <summary>
+        /// Whether to enable warnings during script executing. HIGHLY recommended to have this set to true
+        /// </summary>
+        public static bool EnableWarnings { get; set; } = true;
+
+        /// <summary>
+        /// DO NOT TOUCH UNLESS TOLD TO
+        /// </summary>
         public static int MaxMemoryStreamSize => 67108864;
 
+        /// <summary>
+        /// Temp folder used for extraction. Default is %temp%\\OMODFramework\\
+        /// </summary>
         public static string TempDir { get; set; } = Path.Combine(Path.GetTempPath(), "OMODFramework");
 
         /// <summary>
@@ -87,8 +101,10 @@ namespace OMODFramework
         public static ReadRendererMethod CurrentReadRendererMethod { get; set; } =
             ReadRendererMethod.ReadOriginalRenderer;
 
-        public static bool EnableWarnings { get; set; } = false;
-
+        /// <summary>
+        /// Convenience function that will clean the entire temp folder for you 
+        /// </summary>
+        /// <param name="deleteRoot">Whether to delete the folder itself</param>
         public static void CleanTempDir(bool deleteRoot = false)
         {
             if(!Directory.Exists(TempDir))
@@ -105,9 +121,6 @@ namespace OMODFramework
 
     public class OMODFrameworkException : ApplicationException
     {
-        public OMODFrameworkException(string s) : base(s)
-        {
-
-        }
+        public OMODFrameworkException(string s) : base(s) { }
     }
 }
