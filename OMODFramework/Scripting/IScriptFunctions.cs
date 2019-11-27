@@ -71,5 +71,20 @@ namespace OMODFramework.Scripting
         /// <param name="from">Absolute path to the file from the OMOD</param>
         /// <param name="to">Relative path to the file inside the data folder which may or may not exist</param>
         void Patch(string from, string to);
+
+        /// <summary>
+        /// Read the oblivion.ini file and return the value of a field using its key and section name
+        /// </summary>
+        /// <param name="section"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        string ReadOblivionINI(string section, string name);
+
+        /// <summary>
+        /// Reads the RendererInfo.txt file and returns the value of the field using its name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        string ReadRendererInfo(string name);
     }
 }

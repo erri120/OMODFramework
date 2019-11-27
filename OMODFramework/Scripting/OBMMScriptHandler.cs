@@ -28,6 +28,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using OMODFramework.Classes;
 using Directory = Alphaleonis.Win32.Filesystem.Directory;
 using File = Alphaleonis.Win32.Filesystem.File;
 using Path = Alphaleonis.Win32.Filesystem.Path;
@@ -540,10 +541,10 @@ namespace OMODFramework.Scripting
                         FunctionInputString(line);
                         break;
                     case "ReadINI":
-                        //TODO: FunctionReadINI(line);
+                        FunctionReadINI(line);
                         break;
                     case "ReadRendererInfo":
-                        //TODO: FunctionReadRenderer(line);
+                        FunctionReadRenderer(line);
                         break;
                     case "ExecLines":
                         FunctionExecLines(line, ref extraLines);
@@ -2334,6 +2335,55 @@ namespace OMODFramework.Scripting
                 srd.RegisterBSASet.Add(esp);
             else
                 srd.RegisterBSASet.RemoveWhere(s => s == esp);
+        }
+
+        private static void FunctionReadINI(IReadOnlyCollection<string> line)
+        {
+            if (line.Count < 4)
+            {
+                Warn("Missing arguments for 'ReadINI'");
+                return;
+            }
+
+            if(line.Count > 4) Warn("Unexpected extra arguments for 'ReadINI'");
+
+            switch (Framework.CurrentReadINIMethod)
+            {
+            case Framework.ReadINIMethod.ReadOriginalINI:
+                variables[line.ElementAt(1)] = OblivionINI.GetINIValue(line.ElementAt(2), line.ElementAt(3));
+                break;
+            case Framework.ReadINIMethod.ReadWithInterface:
+                var s = _scriptFunctions.ReadOblivionINI(line.ElementAt(2), line.ElementAt(3));
+                variables[line.ElementAt(1)] = s ?? throw new OMODFrameworkException("Could not read the oblivion.ini file using the function IScriptFunctions.ReadOblivionINI");
+                break;
+            default:
+                throw new OMODFrameworkException("Unknown ReadINIMethod for Framework.CurrentReadINIMethod!");
+            }
+            
+        }
+
+        private static void FunctionReadRenderer(IReadOnlyCollection<string> line)
+        {
+            if (line.Count < 3)
+            {
+                Warn("Missing arguments for 'ReadRendererInfo'");
+                return;
+            }
+
+            if(line.Count > 3) Warn("Unexpected extra arguments for 'ReadRendererInfo'");
+
+            switch (Framework.CurrentReadRendererMethod)
+            {
+            case Framework.ReadRendererMethod.ReadOriginalRenderer:
+                variables[line.ElementAt(1)] = OblivionRenderInfo.GetInfo(line.ElementAt(2));
+                break;
+            case Framework.ReadRendererMethod.ReadWithInterface:
+                var s = _scriptFunctions.ReadRendererInfo(line.ElementAt(2));
+                variables[line.ElementAt(1)] = s ?? throw new OMODFrameworkException("Could not read the RenderInfo.txt file using the function IScriptFunctions.ReadRendererInfo");
+                break;
+            default:
+                throw new OMODFrameworkException("Unknown ReadRendererMethod for Framework.CurrentReadRendererMethod!");
+            }
         }
     }
 }

@@ -43,6 +43,16 @@ namespace OMODFramework
         internal static string OblivionDataFolder => Path.Combine(OblivionGameFolder, "data");
 
         /// <summary>
+        /// Absolute path to the oblivion.ini file
+        /// </summary>
+        public static string OblivionINIFile { get; set; } = "";
+
+        /// <summary>
+        /// Absolute path to the RendererInfo.txt file
+        /// </summary>
+        public static string OblivionRenderInfoFile { get; set; } = "";
+
+        /// <summary>
         /// Methods for patching files.
         /// <para><c>OverwriteGameFolder</c> - will overwrite the file from the oblivion data folder if found</para>
         /// <para><c>CreatePatchGameFolder</c> - will create a patch folder in the oblivion data folder containing the patched files</para>
@@ -54,6 +64,28 @@ namespace OMODFramework
         /// Method used for patching files, see <see cref="PatchMethod"/> for all available options
         /// </summary>
         public static PatchMethod CurrentPatchMethod { get; set; } = PatchMethod.CreatePatchInMod;
+
+        /// <summary>
+        /// Methods for reading the oblivion.ini file
+        /// <para><c>ReadOriginalINI</c> - reads the oblivion.ini specified at <see cref="OblivionINIFile"/></para>
+        /// <para><c>ReadWithInterface</c> - will call <c>IScriptFunctions.ReadOblivionINI</c></para>
+        /// </summary>
+        public enum ReadINIMethod { ReadOriginalINI, ReadWithInterface }
+        /// <summary>
+        /// Method used for reading the oblivion.ini file, see <see cref="ReadINIMethod"/> for all available options
+        /// </summary>
+        public static ReadINIMethod CurrentReadINIMethod { get; set; } = ReadINIMethod.ReadOriginalINI;
+        /// <summary>
+        /// Methods for reading the RendererInfo.txt file
+        /// <para><c>ReadOriginalRenderer</c> - reads the RendererInfo.txt specified at <see cref="OblivionRenderInfoFile"/></para>
+        /// <para><c>ReadWithInterface</c> - will call <c>IScriptFunctions.ReadRendererInfo</c></para>
+        /// </summary>
+        public enum ReadRendererMethod { ReadOriginalRenderer, ReadWithInterface }
+        /// <summary>
+        /// Method used for reading the RendererInfo.txt file, see <see cref="ReadRendererMethod"/> for all available options
+        /// </summary>
+        public static ReadRendererMethod CurrentReadRendererMethod { get; set; } =
+            ReadRendererMethod.ReadOriginalRenderer;
 
         public static bool EnableWarnings { get; set; } = false;
 
