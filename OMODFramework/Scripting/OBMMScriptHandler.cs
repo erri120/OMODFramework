@@ -2025,7 +2025,13 @@ namespace OMODFramework.Scripting
                 case "True":
                     Directory.GetDirectories(from).Do(d =>
                     {
-                        FunctionCopyDataFolder(new [] {"", d.Substring(DataFiles.Length), line.ElementAt(2) + d.Substring(DataFiles.Length + line.ElementAt(1).Length), "True"});
+                        var arg2 = d.Substring(DataFiles.Length);
+                        if (arg2.StartsWith("\\"))
+                            arg2 = arg2.Substring(1);
+                        var l = DataFiles.Length + line.ElementAt(1).Length;
+                        var t = d.Substring(l);
+                        var arg3 = line.ElementAt(2) + t;
+                        FunctionCopyDataFolder(new [] {"", arg2, arg3, "True"});
                     });
                     break;
                 case "False":
