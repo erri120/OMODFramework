@@ -28,11 +28,13 @@ steps:
     configuration: '$(buildConfiguration)'
 
 - task: DownloadSecureFile@1
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   name: nexusKey
   inputs:
     secureFile: 'nexus_api_key'
 
 - task: CmdLine@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
     script: |
       echo Copying $(nexusKey.secureFilePath) to the Release test folder
@@ -42,11 +44,13 @@ steps:
       move $(nexusKey.secureFilePath) OMODFramework.Test\bin\Release\nexus_api_key.txt
 
 - task: VSTest@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
 - task: CopyFiles@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
     SourceFolder: '$(System.DefaultWorkingDirectory)/OMODFramework/bin/$(buildConfiguration)/'
     Contents: |
@@ -55,12 +59,14 @@ steps:
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
 - task: PublishBuildArtifacts@1
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'OMODFramework'
     publishLocation: 'Container'
 
 - task: NuGetCommand@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
     command: 'pack'
     packagesToPack: '**/OMODFramework.csproj'
@@ -70,6 +76,7 @@ steps:
     includeSymbols: true
 
 - task: PublishBuildArtifacts@1
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)/nuget'
     ArtifactName: 'OMODFramework.NuGet'
