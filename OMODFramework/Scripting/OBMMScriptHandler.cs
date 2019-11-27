@@ -484,25 +484,25 @@ namespace OMODFramework.Scripting
                         FunctionEditShader(line);
                         break;
                     case "SetGMST":
-                        //TODO: FunctionSetEspVar(line, true);
+                        FunctionSetESPVar(line, true);
                         break;
                     case "SetGlobal":
-                        //TODO: FunctionSetEspVar(line, false);
+                        FunctionSetESPVar(line, false);
                         break;
                     case "SetPluginByte":
-                        //TODO: FunctionSetEspData(line, typeof(byte));
+                        FunctionSetESPData(line, typeof(byte));
                         break;
                     case "SetPluginShort":
-                        //TODO: FunctionSetEspData(line, typeof(short));
+                        FunctionSetESPData(line, typeof(short));
                         break;
                     case "SetPluginInt":
-                        //TODO: FunctionSetEspData(line, typeof(int));
+                        FunctionSetESPData(line, typeof(int));
                         break;
                     case "SetPluginLong":
-                        //TODO: FunctionSetEspData(line, typeof(long));
+                        FunctionSetESPData(line, typeof(long));
                         break;
                     case "SetPluginFloat":
-                        //TODO: FunctionSetEspData(line, typeof(float));
+                        FunctionSetESPData(line, typeof(float));
                         break;
                     case "DisplayImage":
                         //TODO: FunctionDisplayFile(line, true);
@@ -823,7 +823,8 @@ namespace OMODFramework.Scripting
 
             var title = line[1];
             var items = new List<string>(line.Count - 2);
-            line.Where(s => line.IndexOf(s) >= 2).Do(items.Add);
+            var line1 = line;
+            line.Where(s => line1.IndexOf(s) >= 2).Do(items.Add);
             line = items;
 
             if (line.Count % argsPerOption != 0)
@@ -2107,6 +2108,153 @@ namespace OMODFramework.Scripting
 
             if(line.Count > 4) Warn("Unexpected argument for EditINI");
             srd.INIEdits.Add(new INIEditInfo(line.ElementAt(1), line.ElementAt(2), line.ElementAt(3)));
+        }
+
+        private static void FunctionSetESPVar(IReadOnlyCollection<string> line, bool gmst)
+        {
+            var funcName = "Set";
+            funcName += gmst ? "GMST" : "Global";
+            if (line.Count < 4)
+            {
+                Warn($"Missing argument for '{funcName}'");
+                return;
+            }
+
+            if(line.Count > 4) Warn($"Unexpected extra arguments for '{funcName}'");
+            if (!Utils.IsSafeFileName(line.ElementAt(1)))
+            {
+                Warn($"Illegal plugin name supplied to '{funcName}'");
+                return;
+            }
+
+            if (!File.Exists(Path.Combine(Plugins, line.ElementAt(1))))
+            {
+                Warn($"Invalid argument for '{funcName}'\nFile '{line.ElementAt(1)}' does not exist");
+                return;
+            }
+
+            srd.ESPEdits.Add(new ScriptESPEdit(gmst, line.ElementAt(1).ToLower(), line.ElementAt(2).ToLower(),
+                line.ElementAt(3)));
+        }
+
+        private static void FunctionSetESPData(IReadOnlyCollection<string> line, Type type)
+        {
+            var funcName = "SetPlugin";
+            if (type == typeof(byte)) funcName += "Byte";
+            else if (type == typeof(short)) funcName += "Short";
+            else if (type == typeof(int)) funcName += "Int";
+            else if (type == typeof(long)) funcName += "Long";
+            else if (type == typeof(float)) funcName += "Float";
+
+            if (line.Count < 4)
+            {
+                Warn($"Missing arguments for '{funcName}'");
+                return;
+            }
+
+            if(line.Count > 4) Warn($"Unexpected extra arguments for '{funcName}'");
+
+            var plugin = line.ElementAt(1);
+            if (!Utils.IsSafeFileName(plugin))
+            {
+                Warn($"Illegal plugin name supplied to '{funcName}'");
+                return;
+            }
+
+            var pluginPath = Path.Combine(Plugins, plugin);
+            if (!File.Exists(pluginPath))
+            {
+                Warn($"Invalid argument for '{funcName}'\nFile {plugin} does not exist");
+                return;
+            }
+
+            byte[] data = null;
+            if (!long.TryParse(line.ElementAt(2), out var offset) || offset < 0)
+            {
+                Warn($"Invalid argument for '{funcName}'\nOffset {line.ElementAt(2)} is not valid");
+                return;
+            }
+
+            var val = line.ElementAt(3);
+            if (type == typeof(byte))
+            {
+                if (!byte.TryParse(val, out var value))
+                {
+                    Warn($"Invalid argument for '{funcName}'\nValue '{val}' is not valid");
+                    return;
+                }
+
+                data = BitConverter.GetBytes(value);
+            }
+
+            if (type == typeof(short))
+            {
+                if (!short.TryParse(val, out var value))
+                {
+                    Warn($"Invalid argument for '{funcName}'\nValue '{val}' is not valid");
+                    return;
+                }
+
+                data = BitConverter.GetBytes(value);
+            }
+
+            if (type == typeof(int))
+            {
+                if (!int.TryParse(val, out var value))
+                {
+                    Warn($"Invalid argument for '{funcName}'\nValue '{val}' is not valid");
+                    return;
+                }
+
+                data = BitConverter.GetBytes(value);
+            }
+
+            if (type == typeof(long))
+            {
+                if (!long.TryParse(val, out var value))
+                {
+                    Warn($"Invalid argument for '{funcName}'\nValue '{val}' is not valid");
+                    return;
+                }
+
+                data = BitConverter.GetBytes(value);
+            }
+
+            if (type == typeof(float))
+            {
+                if (!float.TryParse(val, out var value))
+                {
+                    Warn($"Invalid argument for '{funcName}'\nValue '{val}' is not valid");
+                    return;
+                }
+
+                data = BitConverter.GetBytes(value);
+            }
+
+            if (data == null)
+            {
+                throw new OMODFrameworkException($"Data in '{funcName}' can not be null!");
+            }
+
+            using (var fs = File.OpenWrite(pluginPath))
+            {
+                if (offset + data.Length >= fs.Length)
+                {
+                    Warn($"Invalid argument for '{funcName}'\nOffset {line.ElementAt(2)} is out of range");
+                    return;
+                }
+
+                fs.Position = offset;
+
+                try
+                {
+                    fs.Write(data, 0, data.Length);
+                }
+                catch (Exception e)
+                {
+                    throw new OMODFrameworkException($"Could not write to file {pluginPath} in '{funcName}' at {cLine}\n{e}");
+                }
+            }
         }
     }
 }
