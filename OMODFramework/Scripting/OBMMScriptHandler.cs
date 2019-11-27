@@ -477,11 +477,11 @@ namespace OMODFramework.Scripting
                         FunctionPatch(line, false);
                         break;
                     case "EditINI":
-                        //TODO: FunctionEditINI(line);
+                        FunctionEditINI(line);
                         break;
                     case "EditSDP":
                     case "EditShader":
-                        //TODO: FunctionEditShader(line);
+                        FunctionEditShader(line);
                         break;
                     case "SetGMST":
                         //TODO: FunctionSetEspVar(line, true);
@@ -2064,6 +2064,49 @@ namespace OMODFramework.Scripting
             default:
                 throw new OMODFrameworkException("Unknown PatchMethod for Framework.CurrentPatchMethod!");
             }
+        }
+
+        private static void FunctionEditShader(IReadOnlyCollection<string> line)
+        {
+            if(line.Count < 4) {
+                Warn("Missing arguments for 'EditShader'");
+                return;
+            }
+
+            if (line.Count > 4) Warn("Unexpected arguments for 'EditShader'");
+            var shaderPath = Path.Combine(DataFiles, line.ElementAt(3));
+            if (!Utils.IsSafeFileName(line.ElementAt(3)))
+            {
+                Warn($"Invalid argument for 'EditShader'\n'{line.ElementAt(3)}' is not a valid file name");
+                return;
+            }
+
+            if (!File.Exists(shaderPath))
+            {
+                Warn($"Invalid argument for 'EditShader'\nFile '{line.ElementAt(3)}' does not exist");
+                return;
+            }
+
+            if (!byte.TryParse(line.ElementAt(1), out var package))
+            {
+                Warn($"Invalid argument for function 'EditShader'\n'{line.ElementAt(1)}' is not a valid shader package ID");
+                return;
+            }
+
+            srd.SDPEdits.Add(new SDPEditInfo(package, line.ElementAt(2), shaderPath));
+
+        }
+
+        private static void FunctionEditINI(IReadOnlyCollection<string> line)
+        {
+            if (line.Count < 4)
+            {
+                Warn("Missing arguments for 'EditINI'");
+                return;
+            }
+
+            if(line.Count > 4) Warn("Unexpected argument for EditINI");
+            srd.INIEdits.Add(new INIEditInfo(line.ElementAt(1), line.ElementAt(2), line.ElementAt(3)));
         }
     }
 }
