@@ -462,13 +462,13 @@ namespace OMODFramework.Scripting
                         FunctionSetDeactivationWarning(line);
                         break;
                     case "CopyDataFile":
-                        //TODO: FunctionCopyDataFile(line, false);
+                        FunctionCopyDataFile(line, false);
                         break;
                     case "CopyPlugin":
-                        //TODO: FunctionCopyDataFile(line, true);
+                        FunctionCopyDataFile(line, true);
                         break;
                     case "CopyDataFolder":
-                        //TODO: FunctionCopyDataFolder(line);
+                        FunctionCopyDataFolder(line);
                         break;
                     case "PatchPlugin":
                         //TODO: FunctionPatch(line, true);
@@ -1736,6 +1736,143 @@ namespace OMODFramework.Scripting
                     if (!srd.IgnoreData.Contains(name))
                         srd.IgnoreData.Add(name);
                 }
+            });
+        }
+
+        private static void FunctionCopyDataFile(IReadOnlyCollection<string> line, bool plugin)
+        {
+            var funcName = "Copy";
+            funcName += plugin ? "Plugin" : "DataFile";
+
+            if (line.Count < 3)
+            {
+                Warn($"Missing arguments for '{funcName}'");
+                return;
+            }
+
+            if(line.Count > 3) Warn($"Unexpected arguments for '{funcName}'");
+            var from = line.ElementAt(1);
+            var to = line.ElementAt(2);
+
+            if (!Utils.IsSafeFileName(from) || !Utils.IsSafeFileName(to))
+            {
+                Warn($"Invalid argument for '{funcName}'");
+                return;
+            }
+
+            if (from == to)
+            {
+                Warn($"Invalid argument for '{funcName}'\nYou can not copy a file over itself");
+                return;
+            }
+
+            if(plugin)
+            {
+                var path = Path.Combine(Plugins, from);
+                if (!File.Exists(path))
+                {
+                    Warn($"Invalid argument for '{funcName}'\nFile '{from}' does not exist");
+                    return;
+                }
+
+                if (to.IndexOfAny(new [] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar}) != -1)
+                {
+                    Warn("Plugins cannot be copied to subdirectories of the data folder");
+                    return;
+                }
+
+                if (!(to.EndsWith("esp") || to.EndsWith(".esm")))
+                {
+                    Warn("Copied plugins must have a .esp or .esm extension");
+                    return;
+                }
+            }
+            else
+            {
+                var path = Path.Combine(DataFiles, from);
+                if (!File.Exists(path))
+                {
+                    Warn($"Invalid argument for '{funcName}'\nFile '{from}' does not exist");
+                    return;
+                }
+
+                if (to.EndsWith("esp") || to.EndsWith(".esm"))
+                {
+                    Warn("Copied data files cannot have a .esp or .esm extension");
+                    return;
+                }
+            }
+
+            if (plugin)
+            {
+                srd.CopyPlugins.RemoveWhere(s => s.CopyTo == to.ToLower());
+                srd.CopyPlugins.Add(new ScriptCopyDataFile(from.ToLower(), to.ToLower()));
+            }
+            else
+            {
+                srd.CopyDataFiles.RemoveWhere(s => s.CopyTo == to.ToLower());
+                srd.CopyDataFiles.Add(new ScriptCopyDataFile(from.ToLower(), to.ToLower()));
+            }
+        }
+
+        private static void FunctionCopyDataFolder(IReadOnlyCollection<string> line)
+        {
+            if (line.Count < 3)
+            {
+                Warn("Missing arguments for 'CopyDataFolder'");
+                return;
+            }
+
+            if(line.Count > 4) Warn("Unexpected arguments for 'CopyDataFolder'");
+            var validFrom = Utils.MakeValidFolderPath(line.ElementAt(1).ToLower());
+            var validTo = Utils.MakeValidFolderPath(line.ElementAt(2).ToLower());
+
+            if (!Utils.IsSafeFolderName(validFrom) || !Utils.IsSafeFolderName(validTo))
+            {
+                Warn("Invalid argument for 'CopyDataFolder'");
+                return;
+            }
+
+            var from = Path.Combine(DataFiles, validFrom);
+            var to = Path.Combine(DataFiles, validTo);
+
+            if(!Directory.Exists(from))
+            {
+                Warn($"Invalid argument for 'CopyDataFolder'\nFolder '{from}' does not exist!");
+                return;
+            }
+
+            if (from == to)
+            {
+                Warn("Invalid argument for 'CopyDataFolder'\nYou cannot copy a folder over itself");
+                return;
+            }
+
+            if (line.Count >= 4)
+            {
+                switch(line.ElementAt(3)) {
+                case "True":
+                    Directory.GetDirectories(from).Do(d =>
+                    {
+                        FunctionCopyDataFolder(new [] {"", d.Substring(DataFiles.Length), line.ElementAt(2) + d.Substring(DataFiles.Length + line.ElementAt(1).Length), "True"});
+                    });
+                    break;
+                case "False":
+                    break;
+                default:
+                    Warn("Invalid argument for 'CopyDataFolder'\nExpected True or False");
+                    return;
+                }
+            }
+
+            Directory.GetFiles(from).Do(f =>
+            {
+                var fFrom = Path.Combine(line.ElementAt(1), Path.GetFileName(f));
+                var fTo = Path.Combine(line.ElementAt(2), Path.GetFileName(f)).ToLower();
+
+                srd.CopyDataFiles.RemoveWhere(s => s.CopyTo == fTo);
+
+                srd.CopyDataFiles.Add(new ScriptCopyDataFile(fFrom, fTo));
             });
         }
     }
