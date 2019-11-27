@@ -471,10 +471,10 @@ namespace OMODFramework.Scripting
                         FunctionCopyDataFolder(line);
                         break;
                     case "PatchPlugin":
-                        //TODO: FunctionPatch(line, true);
+                        FunctionPatch(line, true);
                         break;
                     case "PatchDataFile":
-                        //TODO: FunctionPatch(line, false);
+                        FunctionPatch(line, false);
                         break;
                     case "EditINI":
                         //TODO: FunctionEditINI(line);
@@ -515,13 +515,13 @@ namespace OMODFramework.Scripting
                         break;
                     case "GetFolderName":
                     case "GetDirectoryName":
-                        //TODO: FunctionGetDirectoryName(line);
+                        FunctionGetDirectoryName(line);
                         break;
                     case "GetFileName":
-                        //TODO: FunctionGetFileName(line);
+                        FunctionGetFileName(line);
                         break;
                     case "GetFileNameWithoutExtension":
-                        //TODO: FunctionGetFileNameWithoutExtension(line);
+                        FunctionGetFileNameWithoutExtension(line);
                         break;
                     case "CombinePaths":
                         FunctionCombinePaths(line);
@@ -1874,6 +1874,196 @@ namespace OMODFramework.Scripting
 
                 srd.CopyDataFiles.Add(new ScriptCopyDataFile(fFrom, fTo));
             });
+        }
+
+        private static void FunctionGetDirectoryName(IReadOnlyCollection<string> line)
+        {
+            if (line.Count < 3)
+            {
+                Warn("Missing arguments for 'GetDirectoryName'");
+                return;
+            }
+
+            if(line.Count > 3) Warn("Unexpected arguments for 'GetDirectoryName'");
+
+            try
+            {
+                variables[line.ElementAt(1)] = Path.GetDirectoryName(line.ElementAt(2));
+            }
+            catch
+            {
+                Warn("Invalid argument for 'GetDirectoryName'");
+            }
+        }
+
+        private static void FunctionGetFileName(IReadOnlyCollection<string> line) {
+            if (line.Count < 3)
+            {
+                Warn("Missing arguments for 'GetFileName'");
+                return;
+            }
+
+            if (line.Count > 3) Warn("Unexpected arguments for 'GetFileName'");
+            try
+            {
+                variables[line.ElementAt(1)] = Path.GetFileName(line.ElementAt(2));
+            }
+            catch
+            {
+                Warn("Invalid argument for 'GetFileName'");
+            }
+        }
+
+        private static void FunctionGetFileNameWithoutExtension(IReadOnlyCollection<string> line) {
+            if (line.Count < 3)
+            {
+                Warn("Missing arguments for 'GetFileNameWithoutExtension'");
+                return;
+            }
+
+            if (line.Count > 3) Warn("Unexpected arguments for 'GetFileNameWithoutExtension'");
+            try
+            {
+                variables[line.ElementAt(1)] = Path.GetFileName(line.ElementAt(2));
+            }
+            catch
+            {
+                Warn("Invalid argument for 'GetFileNameWithoutExtension'");
+            }
+        }
+
+        private static void FunctionPatch(IReadOnlyCollection<string> line, bool plugin)
+        {
+            var funcName = "Patch";
+            funcName += plugin ? "Plugin" : "DataFile";
+
+            if (line.Count < 3)
+            {
+                Warn($"Missing arguments for '{funcName}'");
+                return;
+            }
+
+            if(line.Count > 4) Warn($"Unexpected arguments for '{funcName}'");
+
+            var from = line.ElementAt(1);
+            var to = line.ElementAt(2);
+
+            if (!Utils.IsSafeFileName(from) || !Utils.IsSafeFileName(to))
+            {
+                Warn($"Invalid argument for '{funcName}'");
+                return;
+            }
+
+            var pathFrom = plugin ? Path.Combine(Plugins, from) : Path.Combine(DataFiles, from);
+            if(plugin) {
+                if (!File.Exists(pathFrom))
+                {
+                    Warn($"Invalid argument for 'PatchPlugin'\nFile '{from}' does not exist");
+                    return;
+                }
+
+                if (to.IndexOfAny(new[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar}) != -1)
+                {
+                    Warn("Plugins cannot be copied to subdirectories of the data folder");
+                    return;
+                }
+
+                if (!(to.EndsWith(".esp") || to.EndsWith(".esm")))
+                {
+                    Warn("Plugins must have a .esp or .esm extension");
+                    return;
+                }
+            }
+            else
+            {
+                if (!File.Exists(pathFrom))
+                {
+                    Warn($"Invalid argument to PatchDataFile\nFile '{from}' does not exist");
+                    return;
+                }
+
+                if (to.EndsWith(".esp") || to.EndsWith(".esm"))
+                {
+                    Warn("Data files cannot have a .esp or .esm extension");
+                    return;
+                }
+            }
+
+            switch (Framework.CurrentPatchMethod)
+            {
+            case Framework.PatchMethod.CreatePatchGameFolder:
+                if(string.IsNullOrWhiteSpace(Framework.OblivionGameFolder))
+                    throw new OMODFrameworkException($"{Framework.OblivionGameFolder} can not be null or whitespace!");
+
+                var patchFolder = Path.Combine(Framework.OblivionDataFolder, "Patch");
+
+                if (!Directory.Exists(patchFolder))
+                    Directory.CreateDirectory(patchFolder);
+
+                var patchPath = Path.Combine(patchFolder, to);
+                if(File.Exists(patchPath))
+                    throw new OMODFrameworkException($"The file {patchPath} already exists");
+
+                var toDataPath = Path.Combine(Framework.OblivionDataFolder, to);
+                DateTime toTimeStamp = default;
+                if (File.Exists(toDataPath))
+                {
+                    toTimeStamp = File.GetLastWriteTime(toDataPath);
+                }
+
+                try
+                {
+                    File.Copy(pathFrom, patchPath);
+                    if(toTimeStamp != default)
+                        File.SetLastWriteTime(patchPath, toTimeStamp);
+                }
+                catch (Exception e)
+                {
+                    throw new OMODFrameworkException($"The file {pathFrom} could not be copied to {patchPath}\n{e}");
+                }
+
+                break;
+            case Framework.PatchMethod.OverwriteGameFolder:
+                if(string.IsNullOrWhiteSpace(Framework.OblivionGameFolder))
+                    throw new OMODFrameworkException($"{Framework.OblivionGameFolder} can not be null or whitespace!");
+
+                var dataPath = Path.Combine(Framework.OblivionDataFolder, to);
+                DateTime timeStamp = default;
+                if (File.Exists(dataPath))
+                {
+                    timeStamp = File.GetLastWriteTime(dataPath);
+                    try
+                    {
+                        File.Delete(dataPath);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new OMODFrameworkException($"The file {dataPath} could not be deleted!\n{e}");
+                    }
+                }
+                else if (line.Count < 4 || line.ElementAt(3) != "True") return;
+
+                try
+                {
+                    File.Move(pathFrom, dataPath);
+                    File.SetLastWriteTime(dataPath, timeStamp);
+                }
+                catch (Exception e)
+                {
+                    throw new OMODFrameworkException($"The file {pathFrom} could not be moved to {dataPath}\n{e}");
+                }
+
+                break;
+            case Framework.PatchMethod.CreatePatchInMod:
+                srd.PatchFiles.RemoveWhere(s => s.CopyTo == to.ToLower());
+                srd.PatchFiles.Add(new ScriptCopyDataFile(from.ToLower(), to.ToLower()));
+                break;
+            case Framework.PatchMethod.PatchWithInterface:
+                _scriptFunctions.Patch(pathFrom, to);
+                break;
+            default:
+                throw new OMODFrameworkException("Unknown PatchMethod for Framework.CurrentPatchMethod!");
+            }
         }
     }
 }

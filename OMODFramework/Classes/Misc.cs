@@ -278,6 +278,7 @@ namespace OMODFramework
         public readonly HashSet<INIEditInfo> INIEdits = new HashSet<INIEditInfo>();
         public readonly HashSet<SDPEditInfo> SDPEdits = new HashSet<SDPEditInfo>();
         public readonly HashSet<ScriptESPEdit> ESPEdits = new HashSet<ScriptESPEdit>();
+        public readonly HashSet<ScriptCopyDataFile> PatchFiles = new HashSet<ScriptCopyDataFile>();
     }
 
     public class INIEditInfo

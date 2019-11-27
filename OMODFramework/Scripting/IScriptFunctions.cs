@@ -40,5 +40,12 @@ namespace OMODFramework.Scripting
         /// <returns>List with the indices of the selected items or null if canceled</returns>
         List<int> Select(
             List<string> items, string title, bool isMultiSelect, List<string> previews, List<string> descriptions);
+
+        /// <summary>
+        /// This function will only be called if Framework.CurrentPatchMethod is set to PatchWithInterface.
+        /// </summary>
+        /// <param name="from">Absolute path to the file from the OMOD</param>
+        /// <param name="to">Relative path to the file inside the data folder which may or may not exist</param>
+        void Patch(string from, string to);
     }
 }

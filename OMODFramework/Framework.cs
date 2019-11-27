@@ -35,6 +35,26 @@ namespace OMODFramework
 
         public static string TempDir { get; set; } = Path.Combine(Path.GetTempPath(), "OMODFramework");
 
+        /// <summary>
+        /// Absolute path to the Oblivion Game folder where <c>oblivion.exe</c> is located
+        /// </summary>
+        public static string OblivionGameFolder { get; set; } = "";
+
+        internal static string OblivionDataFolder => Path.Combine(OblivionGameFolder, "data");
+
+        /// <summary>
+        /// Methods for patching files.
+        /// <para><c>OverwriteGameFolder</c> - will overwrite the file from the oblivion data folder if found</para>
+        /// <para><c>CreatePatchGameFolder</c> - will create a patch folder in the oblivion data folder containing the patched files</para>
+        /// <para><c>CreatePatchInMod</c> - will populate the <c>ScriptReturnData.PatchFiles</c> HashSet and not write to disk</para>
+        /// <para><c>PathWithInterface</c> - will call <c>IScriptFunctions.Patch</c> and let you decide how to patch something</para>
+        /// </summary>
+        public enum PatchMethod { OverwriteGameFolder, CreatePatchGameFolder, CreatePatchInMod, PatchWithInterface }
+        /// <summary>
+        /// Method used for patching files, see <see cref="PatchMethod"/> for all available options
+        /// </summary>
+        public static PatchMethod CurrentPatchMethod { get; set; } = PatchMethod.CreatePatchInMod;
+
         public static bool EnableWarnings { get; set; } = false;
 
         public static void CleanTempDir(bool deleteRoot = false)
