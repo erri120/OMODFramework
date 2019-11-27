@@ -445,10 +445,10 @@ namespace OMODFramework.Scripting
                         FunctionModifyInstallFolder(line, true);
                         break;
                     case "RegisterBSA":
-                        //TODO: FunctionRegisterBSA(line, true);
+                        FunctionRegisterBSA(line, true);
                         break;
                     case "UnregisterBSA":
-                        //TODO: FunctionRegisterBSA(line, false);
+                        FunctionRegisterBSA(line, false);
                         break;
                     case "FatalError":
                         srd.CancelInstall = true;
@@ -2308,6 +2308,32 @@ namespace OMODFramework.Scripting
                 var text = File.ReadAllText(path, Encoding.UTF8);
                 _scriptFunctions.DisplayText(text, title);
             }
+        }
+
+        private static void FunctionRegisterBSA(IReadOnlyCollection<string> line, bool register)
+        {
+            var funcName = register ? "Register" : "Unregister";
+            funcName += "BSA";
+
+            if (line.Count == 1)
+            {
+                Warn($"Missing arguments for '{funcName}'");
+                return;
+            }
+
+            var esp = line.ElementAt(1).ToLower();
+            if (esp.Contains(",") || esp.Contains(";") || esp.Contains("="))
+            {
+                Warn($"Invalid argument for '{funcName}'\nBSA file names are not allowed to include the characters ',' '=' or ';'");
+                return;
+            }
+
+            if(line.Count > 2) Warn($"Unexpected arguments after '{funcName}'");
+
+            if (register && !srd.RegisterBSASet.Contains(esp))
+                srd.RegisterBSASet.Add(esp);
+            else
+                srd.RegisterBSASet.RemoveWhere(s => s == esp);
         }
     }
 }
