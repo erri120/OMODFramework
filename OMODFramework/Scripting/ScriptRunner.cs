@@ -24,9 +24,9 @@
 
 namespace OMODFramework.Scripting
 {
-    public class ScriptRunner
+    internal class ScriptRunner
     {
-        public static ScriptReturnData ExecuteScript(string script, string dataPath, string pluginsPath, IScriptFunctions scriptFunctions)
+        internal static ScriptReturnData ExecuteScript(string script, string dataPath, string pluginsPath, IScriptFunctions scriptFunctions)
         {
             if (string.IsNullOrWhiteSpace(script)) 
                 return new ScriptReturnData();

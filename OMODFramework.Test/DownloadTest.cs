@@ -37,8 +37,10 @@ namespace OMODFramework.Test
         public abstract int ModID { get; set; }
         public abstract int FileID { get; set; }
 
+        public abstract bool DeleteOnFinish { get; set; }
+
         [TestInitialize]
-        protected void Setup()
+        public void Setup()
         {
             Framework.TempDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestTempDir");
 
@@ -79,9 +81,10 @@ namespace OMODFramework.Test
         }
 
         [TestCleanup]
-        protected void Cleanup()
+        public void Cleanup()
         {
-            Framework.CleanTempDir(true);
+            if(DeleteOnFinish)
+                Framework.CleanTempDir(true);
         }
     }
 }

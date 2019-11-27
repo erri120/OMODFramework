@@ -32,6 +32,7 @@ namespace OMODFramework.Test
         public override string FileName { get; set; } = "DarNified UI 1.3.2.omod";
         public override int ModID { get; set; } = 10763;
         public override int FileID { get; set; } = 34631;
+        public override bool DeleteOnFinish { get; set; } = true;
 
         [TestMethod]
         public void TestOMOD()

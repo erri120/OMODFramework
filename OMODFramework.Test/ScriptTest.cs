@@ -19,19 +19,27 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace OMODFramework.Test
 {
+    [TestClass]
     public class ScriptTest : DownloadTest
     {
         // testing with NoMaaM Breathing Idles from
         // https://www.nexusmods.com/oblivion/mods/40462
         public override string DownloadFileName { get; set; } = "NoMaaM Breathing Idles V1 OMOD-40462-1-0.omod";
         public override string FileName { get; set; } = "NoMaaM Breathing Idles V1 OMOD-40462-1-0.omod";
-        public override int ModID { get; set; } = 10763;
+        public override int ModID { get; set; } = 40462;
         public override int FileID { get; set; } = 85415;
+        public override bool DeleteOnFinish { get; set; } = false; //TODO:
 
         [TestMethod]
         public void TestOBMMScript()
         {
             var omod = new OMOD(FileName);
+
+            Assert.IsNotNull(omod);
+
+            var scriptFunctions = new ScriptFunctions();
+
+            omod.RunScript(scriptFunctions);
         }
     }
 }
