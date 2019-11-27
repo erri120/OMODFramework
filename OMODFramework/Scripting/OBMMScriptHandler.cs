@@ -252,10 +252,10 @@ namespace OMODFramework.Scripting
                     case "Label":
                         break;
                     case "If":
-                        //TODO: FlowControl.Push(new FlowControlStruct(i, FunctionIf(line)));
+                        flowControl.Push(new FlowControlStruct(i, FunctionIf(line)));
                         break;
                     case "IfNot":
-                        //TODO: FlowControl.Push(new FlowControlStruct(i, !FunctionIf(line)));
+                        flowControl.Push(new FlowControlStruct(i, !FunctionIf(line)));
                         break;
                     case "Else":
                         if (flowControl.Count != 0 && flowControl.Peek().type == 0) flowControl.Peek().active = false;
@@ -709,6 +709,177 @@ namespace OMODFramework.Scripting
             if (inVar) Warn("Unterminated variable");
             if (inQuotes) Warn("Unterminated quote");
             return temp.ToArray();
+        }
+
+        private static bool FunctionIf(IReadOnlyCollection<string> line)
+        {
+            if (line.Count == 1)
+            {
+                Warn("Missing arguments for 'If'");
+                return false;
+            }
+
+            switch (line.ElementAt(1))
+            {
+            case "DialogYesNo":
+                int dialogResult;
+                switch (line.Count)
+                {
+                case 2:
+                    Warn("Missing arguments for 'If DialogYesNo'");
+                    return false;
+                case 3:
+                    dialogResult = _scriptFunctions.DialogYesNo(line.ElementAt(2));
+                    if (dialogResult == -1)
+                    {
+                        srd.CancelInstall = true;
+                        return false;
+                    }
+                    else
+                        return dialogResult == 1;
+                case 4:
+                    dialogResult = _scriptFunctions.DialogYesNo(line.ElementAt(2), line.ElementAt(3));
+                    if (dialogResult == -1)
+                    {
+                        srd.CancelInstall = true;
+                        return false;
+                    }
+                    else
+                        return dialogResult == 1;
+                default:
+                    Warn("Unexpected extra arguments after 'If DialogYesNo'");
+                    goto case 4;
+                }
+            case "DataFileExists":
+                if (line.Count != 2)
+                    return _scriptFunctions.DataFileExists(line.ElementAt(2));
+
+                Warn("Missing arguments for 'If DataFileExists'");
+                return false;
+            case "VersionLessThan":
+            case "VersionGreaterThan":
+                var funcName = line.ElementAt(1) == "VersionGreaterThan" ? "VersionGreaterThan" : "VersionLessThan";
+                if (line.Count == 2)
+                {
+                    Warn($"Missing arguments for 'If {funcName}'");
+                    return false;
+                }
+
+                try
+                {
+                    var v = new Version($"{line.ElementAt(2)}.0");
+                    var v2 = new Version($"{Framework.Version}.0");
+                    return line.ElementAt(1) == "VersionGreaterThan" ? v2 > v : v2 < v;
+                }
+                catch
+                {
+                    Warn($"Invalid argument for 'If {funcName}'");
+                    return false;
+                }
+            case "ScriptExtenderPresent":
+                if (line.Count > 2) Warn("Unexpected extra arguments for 'If ScriptExtenderPresent'");
+                return _scriptFunctions.HasScriptExtender();
+            case "ScriptExtenderNewerThan":
+                if (line.Count == 2)
+                {
+                    Warn("Missing arguments for 'If ScriptExtenderNewerThan'");
+                    return false;
+                }
+                if(line.Count > 3) Warn("Unexpected extra arguments for 'If ScriptExtenderNewerThan'");
+                if (!_scriptFunctions.HasScriptExtender()) return false;
+                try
+                {
+                    var v = _scriptFunctions.ScriptExtenderVersion();
+                    var v2 = new Version(line.ElementAt(2));
+                    return v >= v2;
+                }
+                catch
+                {
+                    Warn("Invalid argument for 'If ScriptExtenderNewerThan'");
+                    return false;
+                }
+            case "GraphicsExtenderPresent":
+                if (line.Count > 2) Warn("Unexpected arguments for 'If GraphicsExtenderPresent'");
+                return _scriptFunctions.HasGraphicsExtender();
+            case "GraphicsExtenderNewerThan":
+                if (line.Count == 2)
+                {
+                    Warn("Missing arguments for 'If GraphicsExtenderNewerThan'");
+                    return false;
+                }
+                if(line.Count > 3) Warn("Unexpected extra arguments for 'If GraphicsExtenderNewerThan'");
+                if (!_scriptFunctions.HasGraphicsExtender()) return false;
+                try
+                {
+                    var v = _scriptFunctions.GraphicsExtenderVersion();
+                    var v2 = new Version(line.ElementAt(2));
+                    return v >= v2;
+                }
+                catch
+                {
+                    Warn("Invalid argument for 'If GraphicsExtenderNewerThan'");
+                    return false;
+                }
+            case "OblivionNewerThan":
+                if (line.Count == 2)
+                {
+                    Warn("Missing arguments for 'If OblivionNewerThan'");
+                    return false;
+                }
+                if(line.Count > 3) Warn("Unexpected extra arguments for 'If OblivionNewerThan'");
+                try
+                {
+                    var v = _scriptFunctions.OblivionVersion();
+                    var v2 = new Version(line.ElementAt(2));
+                    return v >= v2;
+                }
+                catch
+                {
+                    Warn("Invalid argument for 'If OblivionNewerThan'");
+                    return false;
+                }
+            case "Equal":
+                if (line.Count >= 4)
+                    return line.ElementAt(2) == line.ElementAt(3);
+
+                Warn("Missing arguments for 'If Equal'");
+                return false;
+            case "GreaterEqual":
+            case "GreaterThan":
+                if (line.Count < 4)
+                {
+                    Warn("Missing arguments for 'If Greater'");
+                    return false;
+                }
+                if(line.Count > 4) Warn("Unexpected extra arguments for 'If Greater'");
+                if (!int.TryParse(line.ElementAt(2), out var iArg1) || !int.TryParse(line.ElementAt(3), out var iArg2))
+                {
+                    Warn("Invalid argument supplied to function 'If Greater'");
+                    return false;
+                }
+
+                if (line.ElementAt(1) == "GreaterEqual") return iArg1 >= iArg2;
+                else return iArg1 > iArg2;
+            case "fGreaterEqual":
+            case "fGreaterThan":
+                if (line.Count < 4)
+                {
+                    Warn("Missing arguments for 'If fGreater'");
+                    return false;
+                }
+                if(line.Count > 4) Warn("Unexpected extra arguments for 'If fGreater'");
+                if (!double.TryParse(line.ElementAt(2), out var fArg1) || !double.TryParse(line.ElementAt(3), out var fArg2))
+                {
+                    Warn("Invalid argument supplied to function 'If fGreater'");
+                    return false;
+                }
+
+                if (line.ElementAt(1) == "fGreaterEqual") return fArg1 >= fArg2;
+                else return fArg1 > fArg2;
+            default:
+                Warn($"Unknown argument '{line.ElementAt(1)}' for 'If'");
+                return false;
+            }
         }
 
         private static FlowControlStruct FunctionFor(IList<string> line, int lineNo)
