@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Directory = Alphaleonis.Win32.Filesystem.Directory;
 using File = Alphaleonis.Win32.Filesystem.File;
 using Path = Alphaleonis.Win32.Filesystem.Path;
@@ -505,10 +506,10 @@ namespace OMODFramework.Scripting
                         FunctionSetESPData(line, typeof(float));
                         break;
                     case "DisplayImage":
-                        //TODO: FunctionDisplayFile(line, true);
+                        FunctionDisplayFile(line, true);
                         break;
                     case "DisplayText":
-                        //TODO: FunctionDisplayFile(line, false);
+                        FunctionDisplayFile(line, false);
                         break;
                     case "SetVar":
                         FunctionSetVar(line);
@@ -536,7 +537,7 @@ namespace OMODFramework.Scripting
                         FunctionStringLength(line);
                         break;
                     case "InputString":
-                        //TODO: FunctionInputString(line);
+                        FunctionInputString(line);
                         break;
                     case "ReadINI":
                         //TODO: FunctionReadINI(line);
@@ -2254,6 +2255,58 @@ namespace OMODFramework.Scripting
                 {
                     throw new OMODFrameworkException($"Could not write to file {pluginPath} in '{funcName}' at {cLine}\n{e}");
                 }
+            }
+        }
+
+        private static void FunctionInputString(IReadOnlyCollection<string> line)
+        {
+            if (line.Count < 2)
+            {
+                Warn("Missing arguments for 'InputString'");
+                return;
+            }
+
+            if(line.Count > 4) Warn("Unexpected arguments for 'InputString'");
+            var title = line.Count > 2 ? line.ElementAt(2) : "";
+            var initialText = line.Count > 3 ? line.ElementAt(3) : "";
+
+            var result = _scriptFunctions.InputString(title, initialText, false);
+            variables[line.ElementAt(1)] = result ?? "";
+        }
+
+        private static void FunctionDisplayFile(IReadOnlyCollection<string> line, bool image)
+        {
+            var funcName = "Display";
+            funcName += image ? "Image" : "Text";
+
+            if (line.Count < 2)
+            {
+                Warn($"Missing arguments for '{funcName}'");
+                return;
+            }
+
+            if(line.Count > 3) Warn($"Unexpected extra arguments for '{funcName}'");
+            if (!Utils.IsSafeFileName(line.ElementAt(1)))
+            {
+                Warn($"Illegal path supplied to '{funcName}'");
+                return;
+            }
+
+            var path = Path.Combine(DataFiles, line.ElementAt(1));
+            if (!File.Exists(path))
+            {
+                Warn($"Invalid argument for '{funcName}'\nFile {path} does not exist");
+                return;
+            }
+
+            var title = line.Count > 2 ? line.ElementAt(2) : line.ElementAt(1);
+
+            if(image)
+                _scriptFunctions.DisplayImage(path, title);
+            else
+            {
+                var text = File.ReadAllText(path, Encoding.UTF8);
+                _scriptFunctions.DisplayText(text, title);
             }
         }
     }
