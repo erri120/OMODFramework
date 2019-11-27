@@ -33,13 +33,16 @@ namespace OMODFramework.Test
         [TestMethod]
         public void TestOBMMScript()
         {
+
             var omod = new OMOD(FileName);
 
             Assert.IsNotNull(omod);
 
             var scriptFunctions = new ScriptFunctions();
 
-            omod.RunScript(scriptFunctions);
+            var srd = omod.RunScript(scriptFunctions);
+
+            Assert.IsNotNull(srd);
         }
     }
 }

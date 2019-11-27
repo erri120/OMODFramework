@@ -230,9 +230,6 @@ namespace OMODFramework.Scripting
                     case "Continue":
                     case "Exit":
                         break;
-                    default:
-                        Warn($"Unrecognized function: {line[0]}!");
-                        break;
                     }
                 }
                 else
@@ -1015,15 +1012,15 @@ namespace OMODFramework.Scripting
 
             for (var i = 0; i < line.Count / argsPerOption; i++)
             {
-                items[i] = line[i * argsPerOption];
+                items.Add(line[i * argsPerOption]);
                 if (hasPreviews)
                 {
-                    previews[i] = line[i * argsPerOption + 1];
-                    if (hasDescriptions) descriptions[i] = line[i * argsPerOption + 2];
+                    previews.Add(line[i * argsPerOption + 1]);
+                    if (hasDescriptions) descriptions.Add(line[i * argsPerOption + 2]);
                 }
                 else
                 {
-                    if (hasDescriptions) descriptions[i] = line[i * argsPerOption + 1];
+                    if (hasDescriptions) descriptions.Add(line[i * argsPerOption + 1]);
                 }
             }
 
