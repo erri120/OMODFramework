@@ -17,6 +17,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using File = Alphaleonis.Win32.Filesystem.File;
 using Path = Alphaleonis.Win32.Filesystem.Path;
@@ -24,37 +25,48 @@ using Path = Alphaleonis.Win32.Filesystem.Path;
 namespace OMODFramework.Test
 {
     [TestClass]
-    public class OMODTests : DownloadTest
+    public class OMODTests : ATest
     {
-        // testing with DarNified UI from
-        // https://www.nexusmods.com/oblivion/mods/10763
-        public override string DownloadFileName { get; set; } = "DarNified UI 1.3.2.zip";
-        public override string FileName { get; set; } = "DarNified UI 1.3.2.omod";
-        public override int ModID { get; set; } = 10763;
-        public override int FileID { get; set; } = 34631;
+        public override HashSet<NexusFile> Files { get; set; } = new HashSet<NexusFile>
+        {
+            new NexusFile
+            { // https://www.nexusmods.com/oblivion/mods/10763
+                DownloadFileName = "DarNified UI 1.3.2.zip",
+                FileName  = "DarNified UI 1.3.2.omod",
+                ModID = 10763,
+                FileID = 34631
+            }
+        };
+
         public override bool DeleteOnFinish { get; set; } = true;
 
         [TestMethod]
         public void TestOMOD()
         {
-            var omod = new OMOD(FileName);
+            Files.Do(f =>
+            {
+                var omod = new OMOD(f.FileName);
 
-            Assert.IsNotNull(omod);
+                Assert.IsNotNull(omod);
+            });
         }
 
         [TestMethod]
         public void TestExtraction()
         {
-            var omod = new OMOD(FileName);
+            Files.Do(f =>
+            {
+                var omod = new OMOD(f.FileName);
 
-            Assert.IsNotNull(omod);
+                Assert.IsNotNull(omod);
 
-            var data = omod.GetDataFiles();
-            Assert.IsNotNull(data);
+                var data = omod.GetDataFiles();
+                Assert.IsNotNull(data);
 
-            var plugins = omod.GetPlugins();
-            Assert.IsTrue(omod.AllPlugins.Count == 0 && plugins == null ||
-                          omod.AllPlugins.Count >= 1 && plugins != null);
+                var plugins = omod.GetPlugins();
+                Assert.IsTrue(omod.AllPlugins.Count == 0 && plugins == null ||
+                              omod.AllPlugins.Count >= 1 && plugins != null);
+            });
         }
 
         [TestMethod]

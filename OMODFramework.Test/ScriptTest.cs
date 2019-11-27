@@ -15,34 +15,79 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace OMODFramework.Test
 {
     [TestClass]
-    public class ScriptTest : DownloadTest
+    public class ScriptTest : ATest
     {
-        // testing with NoMaaM Breathing Idles from
-        // https://www.nexusmods.com/oblivion/mods/40462
-        public override string DownloadFileName { get; set; } = "NoMaaM Breathing Idles V1 OMOD-40462-1-0.omod";
-        public override string FileName { get; set; } = "NoMaaM Breathing Idles V1 OMOD-40462-1-0.omod";
-        public override int ModID { get; set; } = 40462;
-        public override int FileID { get; set; } = 85415;
-        public override bool DeleteOnFinish { get; set; } = false; //TODO:
+        public override HashSet<NexusFile> Files { get; set; } = new HashSet<NexusFile>
+        {
+            new NexusFile // https://www.nexusmods.com/oblivion/mods/40462
+            {
+                DownloadFileName = "NoMaaM Breathing Idles V1 OMOD-40462-1-0.omod",
+                FileName = "NoMaaM Breathing Idles V1 OMOD-40462-1-0.omod",
+                ModID = 40462,
+                FileID = 85415
+            },
+            new NexusFile // https://www.nexusmods.com/oblivion/mods/34442
+            {
+                DownloadFileName = "HGEC Body with BBB v1dot12-34442.omod",
+                FileName = "HGEC Body with BBB v1dot12-34442.omod",
+                ModID = 34442,
+                FileID = 80882
+            },
+            new NexusFile // https://www.nexusmods.com/oblivion/mods/24078
+            {
+                DownloadFileName = "EVE_HGEC_BodyStock and Clothing OMOD-24078.omod",
+                FileName = "EVE_HGEC_BodyStock and Clothing OMOD-24078.omod",
+                ModID = 24078,
+                FileID = 41472
+            },
+            new NexusFile // https://www.nexusmods.com/oblivion/mods/15619
+            {
+                DownloadFileName = "Oblivion XP v415 - OMOD-15619.omod",
+                FileName = "Oblivion XP v415 - OMOD-15619.omod",
+                ModID = 15619,
+                FileID = 46662
+            },
+            new NexusFile // https://www.nexusmods.com/oblivion/mods/35551
+            {
+                DownloadFileName = "NoMaaM BBB Animation Replacer V3_1 OMOD-35551-3-1.omod",
+                FileName = "NoMaaM BBB Animation Replacer V3_1 OMOD-35551-3-1.omod",
+                ModID = 35551,
+                FileID = 87078
+            },
+            /* huge mod (150MB)
+             new NexusFile // https://www.nexusmods.com/oblivion/mods/40532
+            {
+                DownloadFileName = "Robert Male Body Replacer v52 OMOD-40532-1.omod",
+                FileName = "Robert Male Body Replacer v52 OMOD-40532-1.omod",
+                ModID = 40532,
+                FileID = 90010
+            }*/
+        };
+
+        public override bool DeleteOnFinish { get; set; } = false; 
 
         [TestMethod]
         public void TestOBMMScript()
         {
+            Files.Do(f =>
+            {
+                var omod = new OMOD(f.FileName);
 
-            var omod = new OMOD(FileName);
+                Assert.IsNotNull(omod);
 
-            Assert.IsNotNull(omod);
+                var scriptFunctions = new ScriptFunctions();
 
-            var scriptFunctions = new ScriptFunctions();
+                var srd = omod.RunScript(scriptFunctions);
 
-            var srd = omod.RunScript(scriptFunctions);
-
-            Assert.IsNotNull(srd);
+                Assert.IsNotNull(srd);
+                Assert.IsTrue(!srd.CancelInstall);
+            });
         }
     }
 }

@@ -16,7 +16,9 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using ICSharpCode.SharpZipLib.Zip;
@@ -27,15 +29,12 @@ using Path = Alphaleonis.Win32.Filesystem.Path;
 
 namespace OMODFramework.Test
 {
-    public abstract class DownloadTest
+    public abstract class ATest
     {
         private string _apiKey;
         private NexusClient _client;
 
-        public abstract string DownloadFileName { get; set; }
-        public abstract string FileName { get; set; }
-        public abstract int ModID { get; set; }
-        public abstract int FileID { get; set; }
+        public abstract HashSet<NexusFile> Files { get; set; }
 
         public abstract bool DeleteOnFinish { get; set; }
 
@@ -44,7 +43,7 @@ namespace OMODFramework.Test
         {
             Framework.TempDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestTempDir");
 
-            if (File.Exists(DownloadFileName) && File.Exists(FileName))
+            if (Files.All(f => File.Exists(f.DownloadFileName) && File.Exists(f.FileName)))
                 return;
 
             if(!File.Exists("nexus_api_key.txt"))
@@ -56,28 +55,31 @@ namespace OMODFramework.Test
 
             var limits = _client.GetRateLimits().Result;
 
-            if(limits.IsBlocked() && !File.Exists(DownloadFileName))
+            if(limits.IsBlocked())
                 throw new Exception("Rate limit blocks all Nexus Connections!");
 
-            var downloadLinks = _client.ModFiles.GetDownloadLinks("oblivion", ModID, FileID).Result;
-
-            using (var client = new WebClient())
+            Files.Do(f =>
             {
-                client.DownloadFile(downloadLinks[0].Uri, DownloadFileName);
-            }
+                var downloadLinks = _client.ModFiles.GetDownloadLinks("oblivion", f.ModID, f.FileID).Result;
 
-            if(File.Exists(FileName))
-                return;
-
-            using (var zipStream = new ZipFile(File.OpenRead(DownloadFileName)))
-            using (var fs = new FileStream(FileName, FileMode.CreateNew))
-            {
-                foreach (ZipEntry ze in zipStream)
+                using (var client = new WebClient())
                 {
-                    if(ze.IsFile && ze.Name.ToLower().Contains("omod"))
-                        zipStream.GetInputStream(ze).CopyTo(fs);
+                    client.DownloadFile(downloadLinks[0].Uri, f.DownloadFileName);
                 }
-            }
+
+                if(File.Exists(f.FileName))
+                    return;
+
+                using (var zipStream = new ZipFile(File.OpenRead(f.DownloadFileName)))
+                using (var fs = new FileStream(f.FileName, FileMode.CreateNew))
+                {
+                    foreach (ZipEntry ze in zipStream)
+                    {
+                        if(ze.IsFile && ze.Name.ToLower().Contains("omod"))
+                            zipStream.GetInputStream(ze).CopyTo(fs);
+                    }
+                }
+            });
         }
 
         [TestCleanup]
