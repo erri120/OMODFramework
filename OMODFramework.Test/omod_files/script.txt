@@ -1,0 +1,17 @@
+If VersionLessThan 0.9.3  
+    Message "This mod must be installed by OBMM version 0.9.3 or later to prevent script errors."
+    FatalError
+EndIf
+
+DontInstallAnyDataFiles
+
+InstallDataFile "something.txt"
+
+Select "A or B?" "A" "B"
+    Case A
+        CopyDataFolder "A" "Meshes" True
+        Break
+    Case B
+        CopyDataFolder "B" "Meshes" True
+        Break
+EndSelect
