@@ -303,6 +303,16 @@ namespace OMODFramework
             return ScriptRunner.ExecuteScript(GetScript(), GetDataFiles(), GetPlugins(), scriptFunctions);
         }
 
+        public ScriptReturnData RunScript(IScriptFunctions scriptFunctions, string data)
+        {
+            return ScriptRunner.ExecuteScript(GetScript(), data, GetPlugins(), scriptFunctions);
+        }
+
+        public ScriptReturnData RunScript(IScriptFunctions scriptFunctions, string data, string plugin)
+        {
+            return ScriptRunner.ExecuteScript(GetScript(), data, plugin, scriptFunctions);
+        }
+
         private HashSet<string> GetPluginSet()
         {
             var tempStream = ExtractWholeFile("plugins.crc");

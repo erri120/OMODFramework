@@ -113,7 +113,7 @@ namespace OMODFramework.Test
 
             var scriptFunctions = new ScriptFunctions();
 
-            var srd = omod.RunScript(scriptFunctions);
+            var srd = omod.RunScript(scriptFunctions, data);
 
             Assert.IsNotNull(srd);
             Assert.IsTrue(!srd.CancelInstall);
