@@ -70,7 +70,7 @@ namespace OMODFramework.Test
             }*/
         };
 
-        public override bool DeleteOnFinish { get; set; } = false; 
+        public virtual bool DeleteOnFinish { get; set; } = false; 
 
         [TestMethod]
         public void TestOBMMScript()

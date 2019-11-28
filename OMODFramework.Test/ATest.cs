@@ -36,12 +36,15 @@ namespace OMODFramework.Test
 
         public abstract HashSet<NexusFile> Files { get; set; }
 
-        public abstract bool DeleteOnFinish { get; set; }
-
         [TestInitialize]
         public void Setup()
         {
             Framework.TempDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestTempDir");
+
+            if (!Directory.Exists(Framework.TempDir))
+                Directory.CreateDirectory(Framework.TempDir);
+            else
+                Framework.CleanTempDir();
 
             if (Files.All(f => File.Exists(f.DownloadFileName) && File.Exists(f.FileName)))
                 return;
@@ -80,13 +83,6 @@ namespace OMODFramework.Test
                     }
                 }
             });
-        }
-
-        [TestCleanup]
-        public void Cleanup()
-        {
-            if(DeleteOnFinish)
-                Framework.CleanTempDir(true);
         }
     }
 }

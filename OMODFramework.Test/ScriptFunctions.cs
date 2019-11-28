@@ -124,7 +124,7 @@ namespace OMODFramework.Test
 
         public Version OblivionVersion()
         {
-            return new Version(1, 2, 0, 416);
+            return new Version(1, 2, 416, 0);
         }
     }
 }

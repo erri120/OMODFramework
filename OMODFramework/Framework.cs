@@ -111,7 +111,21 @@ namespace OMODFramework
                 return;
 
             var dInfo = new DirectoryInfo(TempDir);
-            dInfo.GetFiles().Do(f => {if(f.Exists && !f.IsReadOnly) f.Delete();});
+            dInfo.GetFiles().Do(f =>
+            {
+                if (!f.Exists || f.IsReadOnly)
+                    return;
+
+                try
+                {
+                    f.Delete();
+                }
+                catch
+                {
+                    // ignored
+                }
+
+            });
             dInfo.GetDirectories().Do(d => {if(d.Exists && !d.Attributes.HasFlag(FileAttributes.ReadOnly)) d.Delete(true);});
 
             if(deleteRoot)
