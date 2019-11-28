@@ -1757,11 +1757,11 @@ namespace OMODFramework.Scripting
         {
             public override List<string> FuncNames { get; set; } = new List<string>
             {
-                "InstallPlugin", "InstallDatFile", "DontInstallPlugin", "DontInstallDataFile"
+                "InstallPlugin", "InstallDataFile", "DontInstallPlugin", "DontInstallDataFile"
             };
 
             public override string FuncName { get; set; } =
-                "InstallPlugin OR InstallDatFile OR DontInstallPlugin OR DontInstallDataFile";
+                "InstallPlugin OR InstallDataFile OR DontInstallPlugin OR DontInstallDataFile";
 
             public override int MinArgs { get; set; } = 2;
             public override int MaxArgs { get; set; } = 2;
