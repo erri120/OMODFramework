@@ -37,8 +37,6 @@ namespace OMODFramework.Test
             }
         };
 
-        public virtual bool DeleteOnFinish { get; set; } = true;
-
         [TestMethod]
         public void TestOMOD()
         {
