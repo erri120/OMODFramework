@@ -3,6 +3,12 @@ If VersionLessThan 0.9.3
     FatalError
 EndIf
 
+Message "Simulated Message"
+
+Message "Simulated Message" "Title"
+
+Message "Simulated Message" "Title" "Something"
+
 DontInstallAnyDataFiles
 
 InstallDataFile "something.txt"
