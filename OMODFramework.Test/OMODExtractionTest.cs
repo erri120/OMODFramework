@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace OMODFramework.Test
 {
+    [TestCategory("OMODExtraction")]
     [TestClass]
     public class OMODExtractionTest : ATest
     {

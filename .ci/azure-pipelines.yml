@@ -48,6 +48,7 @@ steps:
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+    testFiltercriteria: 'TestCategory!=OMODExtraction'
 
 - task: CopyFiles@2
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
