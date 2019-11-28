@@ -35,8 +35,36 @@ using Path = Alphaleonis.Win32.Filesystem.Path;
 
 namespace OMODFramework.Scripting
 {
+    internal abstract class OBMMFunction
+    {
+        public abstract string FuncName { get; set; }
+        public abstract int MinArgs { get; set; }
+        public abstract int MaxArgs { get; set; }
+
+        public abstract void Run(ref IReadOnlyCollection<string> line);
+    }
+
     internal static class OBMMScriptHandler
     {
+
+        private class OBMMFunctionRegistry
+        {
+            private readonly HashSet<Lazy<OBMMFunction>> _functions;
+
+            public OBMMFunctionRegistry()
+            {
+                _functions = new HashSet<Lazy<OBMMFunction>>
+                {
+                    new Lazy<OBMMFunction>(() => new FunctionMessage2())
+                };
+            }
+
+            public OBMMFunction GetFunctionByName(string name)
+            {
+                return _functions.FirstOrDefault(f => f.Value.FuncName == name)?.Value;
+            }
+        }
+
         private class FlowControlStruct
         {
             public readonly int Line;
@@ -90,6 +118,8 @@ namespace OMODFramework.Scripting
 
         private static ScriptReturnData _srd;
         private static Dictionary<string, string> _variables;
+
+        private static readonly OBMMFunctionRegistry Registry = new OBMMFunctionRegistry();
 
         private static string _dataFiles;
         private static string _plugins;
@@ -159,12 +189,12 @@ namespace OMODFramework.Scripting
                     else continue;
                 }
 
-                var line = SplitLine(s);
-                if (line.Length == 0) continue;
+                IReadOnlyCollection<string> line = SplitLine(s);
+                if (line.Count == 0) continue;
 
                 if (flowControl.Count != 0 && !flowControl.Peek().Active)
                 {
-                    switch (line[0])
+                    switch (line.ElementAt(0))
                     {
                     case "":
                         Warn("Empty function");
@@ -234,15 +264,29 @@ namespace OMODFramework.Scripting
                 }
                 else
                 {
-                    switch (line[0])
+                    var function = Registry.GetFunctionByName(line.ElementAt(0));
+                    if (function != null)
+                    {
+                        if (line.Count < function.MinArgs)
+                        {
+                            Warn($"Missing arguments for '{function.FuncName}'");
+                            break;
+                        }
+
+                        if(line.Count > function.MaxArgs)
+                            Warn($"Unexpected arguments for '{function.FuncName}'");
+
+                        function.Run(ref line);
+                    }
+                    switch (line.ElementAt(0))
                     {
                     case "Goto":
-                        if (line.Length < 2)
+                        if (line.Count < 2)
                             Warn("Not enough arguments to function 'Goto'!");
                         else
                         {
-                            if (line.Length > 2) Warn("Unexpected extra arguments to function 'Goto'");
-                            skipTo = $"Label {line[1]}";
+                            if (line.Count > 2) Warn("Unexpected extra arguments to function 'Goto'");
+                            skipTo = $"Label {line.ElementAt(1)}";
                             flowControl.Clear();
                         }
                         break;
@@ -562,7 +606,7 @@ namespace OMODFramework.Scripting
                         allowRunOnLines = true;
                         break;
                     default:
-                        Warn($"Unrecognized function: {line[0]}!");
+                        Warn($"Unrecognized function: {line.ElementAt(0)}!");
                         break;
                     }
                 }
@@ -879,7 +923,7 @@ namespace OMODFramework.Scripting
             }
         }
 
-        private static FlowControlStruct FunctionFor(IList<string> line, int lineNo)
+        private static FlowControlStruct FunctionFor(IReadOnlyCollection<string> line, int lineNo)
         {
             var nullLoop = new FlowControlStruct(3);
             if (line.Count < 3)
@@ -888,8 +932,9 @@ namespace OMODFramework.Scripting
                 return nullLoop;
             }
 
-            if (line[1] == "Each") line[1] = line[2];
-            switch (line[1])
+            var elementAt = line.ElementAt(1);
+            if (elementAt == "Each") elementAt = line.ElementAt(2);
+            switch (elementAt)
             {
             case "Count":
             {
@@ -900,8 +945,8 @@ namespace OMODFramework.Scripting
                 }
                 if (line.Count > 6) Warn("Unexpected extra arguments for 'For Count'");
                 int step = 1;
-                if (!int.TryParse(line[3], out var start) || !int.TryParse(line[4], out var end) ||
-                    line.Count >= 6 && !int.TryParse(line[5], out step))
+                if (!int.TryParse(line.ElementAt(3), out var start) || !int.TryParse(line.ElementAt(4), out var end) ||
+                    line.Count >= 6 && !int.TryParse(line.ElementAt(5), out step))
                 {
                     Warn("Invalid argument to 'For Count'");
                     return nullLoop;
@@ -912,7 +957,7 @@ namespace OMODFramework.Scripting
                     steps.Add(i.ToString());
                 }
 
-                return new FlowControlStruct(steps.ToArray(), line[2], lineNo);
+                return new FlowControlStruct(steps.ToArray(), line.ElementAt(2), lineNo);
             }
             case "DataFolder":
             case "PluginFolder":
@@ -920,32 +965,32 @@ namespace OMODFramework.Scripting
             case "Plugin":
             {
                 string root;
-                if (line[1] == "DataFolder" || line[1] == "DataFile")
+                if (elementAt == "DataFolder" || elementAt == "DataFile")
                     root = _dataFiles;
                 else
                     root = _plugins;
 
                 if (line.Count < 5)
                 {
-                    Warn($"Missing arguments for 'For Each {line[1]}'");
+                    Warn($"Missing arguments for 'For Each {elementAt}'");
                     return nullLoop;
                 }
-                if(line.Count > 7) Warn($"Unexpected extra arguments to 'For Each {line[1]}'");
-                if (!Utils.IsSafeFolderName(line[4]))
+                if(line.Count > 7) Warn($"Unexpected extra arguments to 'For Each {elementAt}'");
+                if (!Utils.IsSafeFolderName(line.ElementAt(4)))
                 {
-                    Warn($"Invalid argument for 'For Each {line[1]}'\nDirectory '{line[4]}' is not valid");
+                    Warn($"Invalid argument for 'For Each {elementAt}'\nDirectory '{line.ElementAt(4)}' is not valid");
                     return nullLoop;
                 }
 
-                if (!Directory.Exists(Path.Combine(root, line[4])))
+                if (!Directory.Exists(Path.Combine(root, line.ElementAt(4))))
                 {
-                    Warn($"Invalid argument for 'For Each {line[1]}'\nDirectory '{line[4]}' does not exist");
+                    Warn($"Invalid argument for 'For Each {elementAt}'\nDirectory '{line.ElementAt(4)}' does not exist");
                 }
 
                 var option = SearchOption.TopDirectoryOnly;
                 if (line.Count > 5)
                 {
-                    switch (line[5])
+                    switch (line.ElementAt(5))
                     {
                     case "True":
                         option = SearchOption.AllDirectories;
@@ -953,25 +998,25 @@ namespace OMODFramework.Scripting
                     case "False":
                         break;
                     default:
-                        Warn($"Invalid argument '{line[5]}' for 'For Each {line[1]}'.\nExpected 'True' or 'False'");
+                        Warn($"Invalid argument '{line.ElementAt(5)}' for 'For Each {elementAt}'.\nExpected 'True' or 'False'");
                         break;
                     }
                 }
 
                 try
                 {
-                    var paths = Directory.GetDirectories(Path.Combine(root, line[4]),
-                        line.Count > 6 ? line[6] : "*", option);
+                    var paths = Directory.GetDirectories(Path.Combine(root, line.ElementAt(4)),
+                        line.Count > 6 ? line.ElementAt(6) : "*", option);
                     for (var i = 0; i < paths.Length; i++)
                     {
                         if (Path.IsPathRooted(paths[i]))
                             paths[i] = paths[i].Substring(root.Length);
                     }
-                    return new FlowControlStruct(paths, line[3], lineNo);
+                    return new FlowControlStruct(paths, line.ElementAt(3), lineNo);
                 }
                 catch
                 {
-                    Warn($"Invalid argument for 'For Each {line[1]}'");
+                    Warn($"Invalid argument for 'For Each {elementAt}'");
                     return nullLoop;
                 }
             }
@@ -981,7 +1026,7 @@ namespace OMODFramework.Scripting
             }
         }
 
-        private static string[] FunctionSelect(IList<string> line, bool isMultiSelect, bool hasPreviews, bool hasDescriptions)
+        private static string[] FunctionSelect(IReadOnlyCollection<string> line, bool isMultiSelect, bool hasPreviews, bool hasDescriptions)
         {
             if (line.Count < 3)
             {
@@ -991,36 +1036,36 @@ namespace OMODFramework.Scripting
 
             int argsPerOption = 1 + (hasPreviews ? 1 : 0) + (hasDescriptions ? 1 : 0);
 
-            var title = line[1];
+            var title = line.ElementAt(1);
             var items = new List<string>(line.Count - 2);
-            var line1 = line;
-            line.Where(s => line1.IndexOf(s) >= 2).Do(items.Add);
-            line = items;
+            var line1 = line.ToList();
+            line1.Where(s => line1.IndexOf(s) >= 2).Do(items.Add);
+            line1 = items;
 
-            if (line.Count % argsPerOption != 0)
+            if (line1.Count % argsPerOption != 0)
             {
                 Warn("Unexpected extra arguments for 'Select'");
                 do
                 {
-                    line.RemoveAt(line.Count - line.Count % argsPerOption);
-                } while (line.Count % argsPerOption != 0);
+                    line1.RemoveAt(line1.Count - line1.Count % argsPerOption);
+                } while (line1.Count % argsPerOption != 0);
             }
 
-            items = new List<string>(line.Count/argsPerOption);
-            var previews = hasPreviews ? new List<string>(line.Count / argsPerOption) : null;
+            items = new List<string>(line1.Count/argsPerOption);
+            var previews = hasPreviews ? new List<string>(line1.Count / argsPerOption) : null;
             var descriptions = hasDescriptions ? new List<string>(line.Count / argsPerOption) : null;
 
-            for (var i = 0; i < line.Count / argsPerOption; i++)
+            for (var i = 0; i < line1.Count / argsPerOption; i++)
             {
-                items.Add(line[i * argsPerOption]);
+                items.Add(line1[i * argsPerOption]);
                 if (hasPreviews)
                 {
-                    previews.Add(line[i * argsPerOption + 1]);
-                    if (hasDescriptions) descriptions.Add(line[i * argsPerOption + 2]);
+                    previews.Add(line1[i * argsPerOption + 1]);
+                    if (hasDescriptions) descriptions.Add(line1[i * argsPerOption + 2]);
                 }
                 else
                 {
-                    if (hasDescriptions) descriptions.Add(line[i * argsPerOption + 1]);
+                    if (hasDescriptions) descriptions.Add(line1[i * argsPerOption + 1]);
                 }
             }
 
@@ -1061,7 +1106,7 @@ namespace OMODFramework.Scripting
             return result;
         }
 
-        private static string[] FunctionSelectVar(IReadOnlyList<string> line, bool isVariable)
+        private static string[] FunctionSelectVar(IReadOnlyCollection<string> line, bool isVariable)
         {
             string funcName = isVariable ? "SelectVar" : "SelectString";
             if (line.Count < 2)
@@ -1072,17 +1117,39 @@ namespace OMODFramework.Scripting
 
             if(line.Count > 2) Warn($"Unexpected arguments for '{funcName}'");
             if (!isVariable)
-                return new[] {$"Case {line[1]}"};
+                return new[] {$"Case {line.ElementAt(1)}"};
 
-            if (_variables.ContainsKey(line[1]))
-                return new[] {$"Case {_variables[line[1]]}"};
+            if (_variables.ContainsKey(line.ElementAt(1)))
+                return new[] {$"Case {_variables[line.ElementAt(1)]}"};
 
-            Warn($"Invalid argument for '{funcName}'\nVariable '{line[1]}' does not exist");
+            Warn($"Invalid argument for '{funcName}'\nVariable '{line.ElementAt(1)}' does not exist");
             return new string[0];
 
         }
 
-        private static void FunctionMessage(IReadOnlyList<string> line)
+        private class FunctionMessage2 : OBMMFunction
+        {
+            public override string FuncName { get; set; } = "Message";
+            public override int MinArgs { get; set; } = 2;
+            public override int MaxArgs { get; set; } = 3;
+
+            public override void Run(ref IReadOnlyCollection<string> line)
+            {
+                switch (line.Count)
+                {
+                case 2:
+                    _scriptFunctions.Message(line.ElementAt(1));
+                    break;
+                case 3:
+                    _scriptFunctions.Message(line.ElementAt(1), line.ElementAt(2));
+                    break;
+                default:
+                    goto case 3;
+                }
+            }
+        }
+
+        private static void FunctionMessage(IReadOnlyCollection<string> line)
         {
             switch(line.Count)
             {
@@ -1090,19 +1157,19 @@ namespace OMODFramework.Scripting
                 Warn("Missing arguments to function 'Message'");
                 break;
             case 2:
-                _scriptFunctions.Message(line[1]);
+                _scriptFunctions.Message(line.ElementAt(1));
                 break;
             case 3:
-                _scriptFunctions.Message(line[1], line[2]);
+                _scriptFunctions.Message(line.ElementAt(1), line.ElementAt(2));
                 break;
             default:
-                _scriptFunctions.Message(line[1], line[2]);
+                _scriptFunctions.Message(line.ElementAt(1), line.ElementAt(2));
                 Warn("Unexpected arguments after 'Message'");
                 break;
             }
         }
 
-        private static void FunctionSetVar(IReadOnlyList<string> line)
+        private static void FunctionSetVar(IReadOnlyCollection<string> line)
         {
             if (line.Count < 3)
             {
@@ -1111,10 +1178,10 @@ namespace OMODFramework.Scripting
             }
 
             if(line.Count > 3) Warn("Unexpected extra arguments for 'SetVar'");
-            _variables[line[1]] = line[2];
+            _variables[line.ElementAt(1)] = line.ElementAt(2);
         }
 
-        private static void FunctionCombinePaths(IReadOnlyList<string> line)
+        private static void FunctionCombinePaths(IReadOnlyCollection<string> line)
         {
             if (line.Count < 4)
             {
@@ -1125,7 +1192,7 @@ namespace OMODFramework.Scripting
             if(line.Count > 4) Warn("Unexpected arguments for 'CombinePaths'");
             try
             {
-                _variables[line[1]] = Path.Combine(line[2], line[3]);
+                _variables[line.ElementAt(1)] = Path.Combine(line.ElementAt(2), line.ElementAt(3));
             }
             catch
             {
@@ -1133,7 +1200,7 @@ namespace OMODFramework.Scripting
             }
         }
 
-        private static void FunctionSubRemoveString(IList<string> line, bool remove)
+        private static void FunctionSubRemoveString(IReadOnlyCollection<string> line, bool remove)
         {
             string funcName = remove ? "RemoveString" : "Substring";
             if (line.Count < 4)
@@ -1145,26 +1212,26 @@ namespace OMODFramework.Scripting
             if (line.Count > 5) Warn($"Unexpected extra arguments for '{funcName}'");
             if (line.Count == 4)
             {
-                if (!int.TryParse(line[3], out int start))
+                if (!int.TryParse(line.ElementAt(3), out int start))
                 {
                     Warn($"Invalid arguments for '{funcName}'");
                     return;
                 }
 
-                _variables[line[1]] = remove ? line[2].Remove(start) : line[2].Substring(start);
+                _variables[line.ElementAt(1)] = remove ? line.ElementAt(2).Remove(start) : line.ElementAt(2).Substring(start);
             }
             else
             {
-                if (!int.TryParse(line[3], out int start) || !int.TryParse(line[4], out int end))
+                if (!int.TryParse(line.ElementAt(3), out int start) || !int.TryParse(line.ElementAt(4), out int end))
                 {
                     Warn($"Invalid arguments for '{funcName}'");
                     return;
                 }
-                _variables[line[1]] = remove ? line[2].Remove(start,end) : line[2].Substring(start, end);
+                _variables[line.ElementAt(1)] = remove ? line.ElementAt(2).Remove(start,end) : line.ElementAt(2).Substring(start, end);
             }
         }
 
-        private static void FunctionStringLength(IList<string> line)
+        private static void FunctionStringLength(IReadOnlyCollection<string> line)
         {
             if (line.Count < 3)
             {
@@ -1173,7 +1240,7 @@ namespace OMODFramework.Scripting
             }
 
             if(line.Count > 3) Warn("Unexpected extra arguments for 'StringLength'");
-            _variables[line[1]] = line[2].Length.ToString();
+            _variables[line.ElementAt(1)] = line.ElementAt(2).Length.ToString();
         }
 
         private static int Set(List<string> func)
@@ -1502,7 +1569,7 @@ namespace OMODFramework.Scripting
             return double.Parse(func[0]);
         }
 
-        private static void FunctionSet(IReadOnlyList<string> line, bool integer)
+        private static void FunctionSet(IReadOnlyCollection<string> line, bool integer)
         {
             if (line.Count < 3)
             {
@@ -1511,7 +1578,7 @@ namespace OMODFramework.Scripting
             }
 
             var func = new List<string>();
-            for(int i = 2; i < line.Count; i++) func.Add(line[i]);
+            for(int i = 2; i < line.Count; i++) func.Add(line.ElementAt(i));
             try
             {
                 string result;
@@ -1526,14 +1593,14 @@ namespace OMODFramework.Scripting
                     result = f.ToString(CultureInfo.CurrentCulture);
                 }
 
-                _variables[line[1]] = result;
+                _variables[line.ElementAt(1)] = result;
             } catch
             {
                 Warn("Invalid arguments for "+(integer ? "iSet":"fSet"));
             }
         }
 
-        private static void FunctionExecLines(IList<string> line, ref Queue<string> queue)
+        private static void FunctionExecLines(IReadOnlyCollection<string> line, ref Queue<string> queue)
         {
             if (line.Count < 2)
             {
@@ -1542,11 +1609,11 @@ namespace OMODFramework.Scripting
             }
 
             if (line.Count > 2) Warn("Unexpected extra arguments for 'ExecLines'");
-            string[] lines = line[1].Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = line.ElementAt(1).Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
             lines.Do(queue.Enqueue);
         }
 
-        private static void FunctionLoadEarly(IList<string> line)
+        private static void FunctionLoadEarly(IReadOnlyCollection<string> line)
         {
             if (line.Count < 2)
             {
@@ -1559,12 +1626,13 @@ namespace OMODFramework.Scripting
                 Warn("Unexpected arguments for 'LoadEarly'");
             }
 
-            line[1] = line[1].ToLower();
-            if (!_srd.EarlyPlugins.Contains(line[1]))
-                _srd.EarlyPlugins.Add(line[1]);
+            var plugin = line.ElementAt(1);
+            plugin = plugin.ToLower();
+            if (!_srd.EarlyPlugins.Contains(plugin))
+                _srd.EarlyPlugins.Add(plugin);
         }
 
-        private static void FunctionLoadOrder(IReadOnlyList<string> line, bool loadAfter)
+        private static void FunctionLoadOrder(IReadOnlyCollection<string> line, bool loadAfter)
         {
             string funcName = loadAfter ? "LoadAfter" : "LoadEarly";
             if (line.Count < 3)
@@ -1578,10 +1646,10 @@ namespace OMODFramework.Scripting
                 Warn($"Unexpected arguments for '{funcName}'");
             }
 
-            _srd.LoadOrderSet.Add(new PluginLoadInfo(line[1], line[2], loadAfter));
+            _srd.LoadOrderSet.Add(new PluginLoadInfo(line.ElementAt(1), line.ElementAt(2), loadAfter));
         }
 
-        private static void FunctionConflicts(IReadOnlyList<string> line, bool conflicts, bool regex)
+        private static void FunctionConflicts(IReadOnlyCollection<string> line, bool conflicts, bool regex)
         {
             var funcName = conflicts ? "ConflictsWith" : "DependsOn";
             if (regex) funcName += "Regex";
@@ -1593,13 +1661,13 @@ namespace OMODFramework.Scripting
                 Warn($"Missing arguments for '${funcName}'");
                 return;
             case 2:
-                cd.File = line[1];
+                cd.File = line.ElementAt(1);
                 break;
             case 3:
-                cd.Comment = line[2];
+                cd.Comment = line.ElementAt(2);
                 goto case 2;
             case 4:
-                switch (line[3])
+                switch (line.ElementAt(3))
                 {
                 case "Unusable":
                     cd.Level = ConflictLevel.Unusable;
@@ -1620,13 +1688,13 @@ namespace OMODFramework.Scripting
                 Warn($"Unexpected arguments for '{funcName}'");
                 break;
             case 6:
-                cd.File = line[1];
+                cd.File = line.ElementAt(1);
                 try
                 {
-                    cd.MinMajorVersion = Convert.ToInt32(line[2]);
-                    cd.MinMinorVersion = Convert.ToInt32(line[3]);
-                    cd.MaxMajorVersion = Convert.ToInt32(line[4]);
-                    cd.MaxMinorVersion = Convert.ToInt32(line[5]);
+                    cd.MinMajorVersion = Convert.ToInt32(line.ElementAt(2));
+                    cd.MinMinorVersion = Convert.ToInt32(line.ElementAt(3));
+                    cd.MaxMajorVersion = Convert.ToInt32(line.ElementAt(4));
+                    cd.MaxMinorVersion = Convert.ToInt32(line.ElementAt(5));
                 }
                 catch
                 {
@@ -1635,10 +1703,10 @@ namespace OMODFramework.Scripting
 
                 break;
             case 7:
-                cd.Comment = line[6];
+                cd.Comment = line.ElementAt(6);
                 goto case 6;
             case 8:
-                switch (line[7])
+                switch (line.ElementAt(7))
                 {
                 case "Unusable":
                     cd.Level = ConflictLevel.Unusable;
@@ -1667,7 +1735,7 @@ namespace OMODFramework.Scripting
                 _srd.DependsOn.Add(cd);
         }
 
-        private static void FunctionUncheckESP(IList<string> line)
+        private static void FunctionUncheckESP(IReadOnlyCollection<string> line)
         {
             if (line.Count == 1)
             {
@@ -1676,18 +1744,19 @@ namespace OMODFramework.Scripting
             }
 
             if(line.Count > 2) Warn("Unexpected arguments for 'UncheckESP'");
-            if (!File.Exists(Path.Combine(_plugins, line[1])))
+            var plugin = line.ElementAt(1);
+            if (!File.Exists(Path.Combine(_plugins, plugin)))
             {
-                Warn($"Invalid argument for 'UncheckESP': {line[1]} does not exist");
+                Warn($"Invalid argument for 'UncheckESP': {plugin} does not exist");
                 return;
             }
 
-            line[1] = line[1].ToLower();
-            if (!_srd.UncheckedPlugins.Contains(line[1]))
-                _srd.UncheckedPlugins.Add(line[1]);
+            plugin = plugin.ToLower();
+            if (!_srd.UncheckedPlugins.Contains(plugin))
+                _srd.UncheckedPlugins.Add(plugin);
         }
 
-        private static void FunctionSetDeactivationWarning(IList<string> line)
+        private static void FunctionSetDeactivationWarning(IReadOnlyCollection<string> line)
         {
             if (line.Count < 3)
             {
@@ -1696,25 +1765,26 @@ namespace OMODFramework.Scripting
             }
 
             if(line.Count > 3) Warn("Unexpected arguments for 'SetDeactivationWarning'");
-            if (!File.Exists(Path.Combine(_plugins, line[1])))
+            var plugin = line.ElementAt(1);
+            if (!File.Exists(Path.Combine(_plugins, plugin)))
             {
-                Warn($"Invalid argument for 'SetDeactivationWarning'\nFile '{line[1]}' does not exist");
+                Warn($"Invalid argument for 'SetDeactivationWarning'\nFile '{plugin}' does not exist");
                 return;
             }
 
-            line[1] = line[1].ToLower();
+            plugin = plugin.ToLower();
 
-            _srd.ESPDeactivation.RemoveWhere(a => a.Plugin == line[1]);
-            switch (line[2])
+            _srd.ESPDeactivation.RemoveWhere(a => a.Plugin == plugin);
+            switch (line.ElementAt(2))
             {
             case "Allow":
-                _srd.ESPDeactivation.Add(new ScriptESPWarnAgainst(line[1], DeactivationStatus.Allow));
+                _srd.ESPDeactivation.Add(new ScriptESPWarnAgainst(plugin, DeactivationStatus.Allow));
                 break;
             case "WarnAgainst":
-                _srd.ESPDeactivation.Add(new ScriptESPWarnAgainst(line[1], DeactivationStatus.WarnAgainst));
+                _srd.ESPDeactivation.Add(new ScriptESPWarnAgainst(plugin, DeactivationStatus.WarnAgainst));
                 break;
             case "Disallow":
-                _srd.ESPDeactivation.Add(new ScriptESPWarnAgainst(line[1], DeactivationStatus.Disallow));
+                _srd.ESPDeactivation.Add(new ScriptESPWarnAgainst(plugin, DeactivationStatus.Disallow));
                 break;
             default:
                 Warn("Invalid argument for 'SetDeactivationWarning'");
@@ -1722,7 +1792,7 @@ namespace OMODFramework.Scripting
             }
         }
 
-        private static void FunctionEditXMLLine(IList<string> line)
+        private static void FunctionEditXMLLine(IReadOnlyCollection<string> line)
         {
             if (line.Count < 4)
             {
@@ -1730,24 +1800,25 @@ namespace OMODFramework.Scripting
                 return;
             }
 
-            var file = Path.Combine(_dataFiles, line[1]);
+            var path = line.ElementAt(1);
+            var file = Path.Combine(_dataFiles, path);
 
             if (line.Count > 4) Warn("Unexpected extra arguments for 'EditXMLLine'");
-            line[1] = line[1].ToLower();
-            if (!Utils.IsSafeFileName(line[1]) || !File.Exists(file))
+            path = path.ToLower();
+            if (!Utils.IsSafeFileName(path) || !File.Exists(file))
             {
                 Warn("Invalid filename supplied for 'EditXMLLine'");
                 return;
             }
 
-            var ext = Path.GetExtension(line[1]);
+            var ext = Path.GetExtension(path);
             if (ext != ".xml" && ext != ".txt" && ext != ".ini" && ext != ".bat")
             {
                 Warn("Invalid filename supplied for 'EditXMLLine'");
                 return;
             }
 
-            if (!int.TryParse(line[2], out var index) || index < 1)
+            if (!int.TryParse(line.ElementAt(2), out var index) || index < 1)
             {
                 Warn("Invalid line number supplied for 'EditXMLLine'");
                 return;
@@ -1761,11 +1832,11 @@ namespace OMODFramework.Scripting
                 return;
             }
 
-            lines[index] = line[3];
+            lines[index] = line.ElementAt(3);
             File.WriteAllLines(file, lines);
         }
 
-        private static void FunctionEditXMLReplace(IList<string> line)
+        private static void FunctionEditXMLReplace(IReadOnlyCollection<string> line)
         {
             if (line.Count < 4)
             {
@@ -1773,10 +1844,11 @@ namespace OMODFramework.Scripting
                 return;
             }
 
-            var file = Path.Combine(_dataFiles, line[1]);
+            var path = line.ElementAt(1);
+            var file = Path.Combine(_dataFiles, path);
             if (line.Count > 4) Warn("Unexpected extra arguments for 'EditXMLReplace'");
-            line[1] = line[1].ToLower();
-            if (!Utils.IsSafeFileName(line[1]) || !File.Exists(file))
+            path = path.ToLower();
+            if (!Utils.IsSafeFileName(path) || !File.Exists(file))
             {
                 Warn("Invalid filename supplied for 'EditXMLReplace'");
                 return;
@@ -1790,7 +1862,7 @@ namespace OMODFramework.Scripting
             }
 
             var text = File.ReadAllText(file);
-            text = text.Replace(line[2], line[3]);
+            text = text.Replace(line.ElementAt(2), line.ElementAt(3));
             File.WriteAllText(file, text);
         }
 
@@ -1856,7 +1928,7 @@ namespace OMODFramework.Scripting
             }
         }
 
-        private static void FunctionModifyInstallFolder(IList<string> line, bool install)
+        private static void FunctionModifyInstallFolder(IReadOnlyCollection<string> line, bool install)
         {
             var funcName = (install ? "Install" : "DontInstall") + "DataFolder";
 
@@ -1867,8 +1939,8 @@ namespace OMODFramework.Scripting
             }
             if(line.Count > 3) Warn($"Unexpected arguments for '{funcName}'");
 
-            line[1] = Utils.MakeValidFolderPath(line[1]);
-            var path = Path.Combine(_dataFiles, line[1]);
+            var validFolderPath = Utils.MakeValidFolderPath(line.ElementAt(1));
+            var path = Path.Combine(_dataFiles, validFolderPath);
 
             if (!Directory.Exists(path))
             {
@@ -1878,7 +1950,7 @@ namespace OMODFramework.Scripting
 
             if (line.Count >= 2)
             {
-                switch (line[2])
+                switch (line.ElementAt(2))
                 {
                 case "True":
                     Directory.GetDirectories(path).Do(d =>
