@@ -15,94 +15,57 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using System.Reflection;
-using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pathoschild.FluentNexus;
 using File = Alphaleonis.Win32.Filesystem.File;
 using Path = Alphaleonis.Win32.Filesystem.Path;
 
 namespace OMODFramework.Test
 {
     [TestClass]
-    public class OMODTests
+    public class OMODTests : ATest
     {
-        private string _apiKey;
-        private NexusClient _client;
-
-        // testing with DarNified UI from
-        // https://www.nexusmods.com/oblivion/mods/10763
-        private const string DownloadFileName = "DarNified UI 1.3.2.zip";
-        private const string FileName = "DarNified UI 1.3.2.omod";
-        private const int ModID = 10763;
-        private const int FileID = 34631;
-
-        [TestInitialize]
-        public void Setup()
+        public override HashSet<NexusFile> Files { get; set; } = new HashSet<NexusFile>
         {
-            Framework.TempDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestTempDir");
-
-            if (File.Exists(DownloadFileName) && File.Exists(FileName))
-                return;
-
-            if(!File.Exists("nexus_api_key.txt"))
-                throw new Exception("Nexus API Key file does not exist!");
-
-            _apiKey = File.ReadAllText("nexus_api_key.txt");
-
-            _client = new NexusClient(_apiKey, "OMODFramework Unit Tests", "0.0.1");
-
-            var limits = _client.GetRateLimits().Result;
-
-            if(limits.IsBlocked() && !File.Exists(DownloadFileName))
-                throw new Exception("Rate limit blocks all Nexus Connections!");
-
-            var downloadLinks = _client.ModFiles.GetDownloadLinks("oblivion", ModID, FileID).Result;
-
-            using (var client = new WebClient())
-            {
-                client.DownloadFile(downloadLinks[0].Uri, DownloadFileName);
+            new NexusFile
+            { // https://www.nexusmods.com/oblivion/mods/10763
+                DownloadFileName = "DarNified UI 1.3.2.zip",
+                FileName  = "DarNified UI 1.3.2.omod",
+                ModID = 10763,
+                FileID = 34631
             }
+        };
 
-            if(File.Exists(FileName))
-                return;
-
-            using (var zipStream = new ZipFile(File.OpenRead(DownloadFileName)))
-            using (var fs = new FileStream(FileName, FileMode.CreateNew))
-            {
-                foreach (ZipEntry ze in zipStream)
-                {
-                    if(ze.IsFile && ze.Name.ToLower().Contains("omod"))
-                        zipStream.GetInputStream(ze).CopyTo(fs);
-                }
-            }
-        }
+        public virtual bool DeleteOnFinish { get; set; } = true;
 
         [TestMethod]
         public void TestOMOD()
         {
-            var omod = new OMOD(FileName);
+            Files.Do(f =>
+            {
+                var omod = new OMOD(f.FileName);
 
-            Assert.IsNotNull(omod);
+                Assert.IsNotNull(omod);
+            });
         }
 
         [TestMethod]
         public void TestExtraction()
         {
-            var omod = new OMOD(FileName);
+            Files.Do(f =>
+            {
+                var omod = new OMOD(f.FileName);
 
-            Assert.IsNotNull(omod);
+                Assert.IsNotNull(omod);
 
-            var data = omod.GetDataFiles();
-            Assert.IsNotNull(data);
+                var data = omod.GetDataFiles();
+                Assert.IsNotNull(data);
 
-            var plugins = omod.GetPlugins();
-            Assert.IsTrue(omod.AllPlugins.Count == 0 && plugins == null ||
-                          omod.AllPlugins.Count >= 1 && plugins != null);
+                var plugins = omod.GetPlugins();
+                Assert.IsTrue(omod.AllPlugins.Count == 0 && plugins == null ||
+                              omod.AllPlugins.Count >= 1 && plugins != null);
+            });
         }
 
         [TestMethod]
@@ -176,12 +139,6 @@ namespace OMODFramework.Test
                 var contents = File.ReadAllText(file);
                 Assert.IsTrue(contents == text1 || contents == text2 || contents == text3);
             });
-        }
-
-        [TestCleanup]
-        public void Cleanup()
-        {
-            Framework.CleanTempDir(true);
         }
     }
 }

@@ -70,8 +70,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompressionTests.cs" />
+    <Compile Include="ATest.cs" />
+    <Compile Include="EndToEndTest.cs" />
+    <Compile Include="NexusFile.cs" />
     <Compile Include="OMODTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScriptFunctions.cs" />
+    <Compile Include="ScriptTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -93,4 +98,7 @@
     <Error Condition="!Exists('$(SolutionDir)\packages\MSTest.TestAdapter.2.0.0\build\net45\MSTest.TestAdapter.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\MSTest.TestAdapter.2.0.0\build\net45\MSTest.TestAdapter.targets'))" />
   </Target>
   <Import Project="$(SolutionDir)\packages\MSTest.TestAdapter.2.0.0\build\net45\MSTest.TestAdapter.targets" Condition="Exists('$(SolutionDir)\packages\MSTest.TestAdapter.2.0.0\build\net45\MSTest.TestAdapter.targets')" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /s/e /y $(ProjectDir)omod_files $(ProjectDir)$(OutDir).</PostBuildEvent>
+  </PropertyGroup>
 </Project>

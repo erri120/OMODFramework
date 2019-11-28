@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using ICSharpCode.SharpZipLib.Zip;
+using OMODFramework.Scripting;
 using Path = Alphaleonis.Win32.Filesystem.Path;
 
 namespace OMODFramework
@@ -208,10 +209,17 @@ namespace OMODFramework
                     ze = new ZipEntry("image");
                     zipStream.PutNextEntry(ze);
 
-                    using (var fs = File.OpenRead(ops.Image))
+                    try
                     {
-                        CompressionHandler.WriteStreamToZip(omodStream, fs);
-                        omodStream.Flush();
+                        using (var fs = File.OpenRead(ops.Image))
+                        {
+                            CompressionHandler.WriteStreamToZip(omodStream, fs);
+                            omodStream.Flush();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        throw new OMODFrameworkException($"There was an exception while trying to read the image at {ops.Image}!\n{e}");
                     }
                 }
 
@@ -288,6 +296,21 @@ namespace OMODFramework
 
                 zipStream.Finish();
             }
+        }
+
+        public ScriptReturnData RunScript(IScriptFunctions scriptFunctions)
+        {
+            return ScriptRunner.ExecuteScript(GetScript(), GetDataFiles(), GetPlugins(), scriptFunctions);
+        }
+
+        public ScriptReturnData RunScript(IScriptFunctions scriptFunctions, string data)
+        {
+            return ScriptRunner.ExecuteScript(GetScript(), data, GetPlugins(), scriptFunctions);
+        }
+
+        public ScriptReturnData RunScript(IScriptFunctions scriptFunctions, string data, string plugin)
+        {
+            return ScriptRunner.ExecuteScript(GetScript(), data, plugin, scriptFunctions);
         }
 
         private HashSet<string> GetPluginSet()
