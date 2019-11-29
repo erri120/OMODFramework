@@ -70,17 +70,15 @@ namespace OMODFramework.Scripting
                 throw new OMODFrameworkException("The script could not be compiled!");
 
             var stdout = ""; //TODO: create interface for script outputs so it lands at the end user
-            foreach (var s in results.Output)
-            {
-                stdout += s + Environment.NewLine;
-            }
+            results.Output.Do(s => { stdout += s + Environment.NewLine; });
 
             if (results.Errors.HasErrors || results.Errors.HasWarnings)
             {
                 var e = "";
                 var w = "";
-                foreach (CompilerError ce in results.Errors)
+                results.Errors.Do(o =>
                 {
+                    var ce = (CompilerError)o;
                     if (ce.IsWarning)
                     {
                         w += $"Warning on Line {ce.Line}: {ce.ErrorText}\n";
@@ -89,8 +87,7 @@ namespace OMODFramework.Scripting
                     {
                         e += $"Error on Line {ce.Line}: {ce.ErrorText}\n";
                     }
-                }
-
+                });
                 if(results.Errors.HasErrors)
                     throw new OMODFrameworkException($"Problems during script compilation: \n{e}\n{w}");
             }

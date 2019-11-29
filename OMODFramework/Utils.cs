@@ -23,6 +23,7 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Directory = Alphaleonis.Win32.Filesystem.Directory;
@@ -100,6 +101,11 @@ namespace OMODFramework
         }
 
         internal static void Do<T>(this IEnumerable<T> coll, Action<T> f)
+        {
+            foreach (var i in coll) f(i);
+        }
+
+        internal static void Do(this IEnumerable coll, Action<object> f)
         {
             foreach (var i in coll) f(i);
         }
