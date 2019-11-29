@@ -40,9 +40,11 @@ namespace OMODFramework.Scripting
                 script = script.Substring(1);
             }
 
+            var handler = new SharedFunctionsHandler(type, ref scriptFunctions);
+
             if (type == ScriptType.OBMMScript)
             {
-                return OBMMScriptHandler.Execute(script, dataPath, pluginsPath, scriptFunctions);
+                return OBMMScriptHandler.Execute(script, dataPath, pluginsPath, ref handler);
             }
 
             //TODO: other script types

@@ -35,68 +35,8 @@ using Path = Alphaleonis.Win32.Filesystem.Path;
 
 namespace OMODFramework.Scripting
 {
-    internal abstract class OBMMFunction
-    {
-        public abstract List<string> FuncNames { get; set; }
-        public abstract string FuncName { get; set; }
-        public abstract int MinArgs { get; set; }
-        public abstract int MaxArgs { get; set; }
-
-        public abstract void Run(ref IReadOnlyCollection<string> line);
-    }
-
     internal static class OBMMScriptHandler
     {
-
-        private class OBMMFunctionRegistry
-        {
-            private readonly HashSet<Lazy<OBMMFunction>> _functions;
-
-            public OBMMFunctionRegistry()
-            {
-                _functions = new HashSet<Lazy<OBMMFunction>>
-                {
-                    new Lazy<OBMMFunction>(() => new FunctionMessage()),
-                    new Lazy<OBMMFunction>(() => new FunctionSetVar()),
-                    new Lazy<OBMMFunction>(() => new FunctionCombinePaths()),
-                    new Lazy<OBMMFunction>(() => new FunctionSubRemoveString()),
-                    new Lazy<OBMMFunction>(() => new FunctionStringLength()),
-                    new Lazy<OBMMFunction>(() => new FunctionSet()),
-                    new Lazy<OBMMFunction>(() => new FunctionExecLines()),
-                    new Lazy<OBMMFunction>(() => new FunctionLoadOrder()),
-                    new Lazy<OBMMFunction>(() => new FunctionConflicts()),
-                    new Lazy<OBMMFunction>(() => new FunctionUncheckESP()),
-                    new Lazy<OBMMFunction>(() => new FunctionSetDeactivationWarning()),
-                    new Lazy<OBMMFunction>(() => new FunctionEditXML()),
-                    new Lazy<OBMMFunction>(() => new FunctionModifyInstall()),
-                    new Lazy<OBMMFunction>(() => new FunctionModifyInstallFolder()),
-                    new Lazy<OBMMFunction>(() => new FunctionCopyDataFile()),
-                    new Lazy<OBMMFunction>(() => new FunctionCopyDataFolder()),
-                    new Lazy<OBMMFunction>(() => new FunctionGetDirectoryFileName()),
-                    new Lazy<OBMMFunction>(() => new FunctionPatch()),
-                    new Lazy<OBMMFunction>(() => new FunctionEditShader()),
-                    new Lazy<OBMMFunction>(() => new FunctionEditINI()),
-                    new Lazy<OBMMFunction>(() => new FunctionSetESPVar()),
-                    new Lazy<OBMMFunction>(() => new FunctionSetESPData()),
-                    new Lazy<OBMMFunction>(() => new FunctionInputString()),
-                    new Lazy<OBMMFunction>(() => new FunctionDisplayFile()),
-                    new Lazy<OBMMFunction>(() => new FunctionRegisterBSA()),
-                    new Lazy<OBMMFunction>(() => new FunctionReadINI()),
-                    new Lazy<OBMMFunction>(() => new FunctionReadRenderer())
-                };
-            }
-
-            public OBMMFunction GetFunctionByName(string name)
-            {
-                return _functions.FirstOrDefault(f =>
-                {
-                    if(f.Value.FuncNames != null && f.Value.FuncNames.Count >= 1)
-                        return f.Value.FuncNames.Contains(name);
-
-                    return f.Value.FuncName == name;
-                })?.Value;
-            }
-        }
 
         private class FlowControlStruct
         {
@@ -149,34 +89,31 @@ namespace OMODFramework.Scripting
             }
         }
 
-        private static ScriptReturnData _srd;
-        private static Dictionary<string, string> _variables;
+        internal static ScriptReturnData Srd;
+        internal static Dictionary<string, string> Variables;
 
-        private static readonly OBMMFunctionRegistry Registry = new OBMMFunctionRegistry();
-        private static readonly Queue<string> ExtraLines = new Queue<string>();
+        private static SharedFunctionsHandler Handler { get; set; }
+        internal static readonly Queue<string> ExtraLines = new Queue<string>();
 
-        private static string _dataFiles;
-        private static string _plugins;
-        private static string _cLine = "0";
+        internal static string DataFiles;
+        internal static string Plugins;
+        internal static string CLine = "0";
 
-        private static IScriptFunctions _scriptFunctions;
-
-        internal static ScriptReturnData Execute(string inputScript, string dataPath, string pluginsPath, IScriptFunctions scriptFunctions)
+        internal static ScriptReturnData Execute(string inputScript, string dataPath, string pluginsPath, ref SharedFunctionsHandler handler)
         {
-            _srd = new ScriptReturnData();
+            Handler = handler;
+            Srd = new ScriptReturnData();
             if (string.IsNullOrWhiteSpace(inputScript))
-                return _srd;
+                return Srd;
 
-            _scriptFunctions = scriptFunctions ?? throw new OMODFrameworkException("The provided script functions can not be null!");
-
-            _dataFiles = dataPath;
-            _plugins = pluginsPath;
-            _variables = new Dictionary<string, string>();
+            DataFiles = dataPath;
+            Plugins = pluginsPath;
+            Variables = new Dictionary<string, string>();
 
             var flowControl = new Stack<FlowControlStruct>();
 
-            _variables["NewLine"] = Environment.NewLine;
-            _variables["Tab"] = "\t";
+            Variables["NewLine"] = Environment.NewLine;
+            Variables["Tab"] = "\t";
 
             var script = inputScript.Replace("\r", "").Split('\n');
             string skipTo = null;
@@ -196,7 +133,7 @@ namespace OMODFramework.Scripting
                     s = script[i].Replace('\t', ' ').Trim();
                 }
 
-                _cLine = i.ToString();
+                CLine = i.ToString();
                 if (allowRunOnLines)
                 {
                     while (s.EndsWith("\\"))
@@ -297,7 +234,8 @@ namespace OMODFramework.Scripting
                 }
                 else
                 {
-                    var function = Registry.GetFunctionByName(line.ElementAt(0));
+                    var registry = new SharedFunctionsRegistry(Handler);
+                    var function = registry.GetFunctionByName(line.ElementAt(0));
                     if (function != null)
                     {
                         if (line.Count < function.MinArgs)
@@ -401,7 +339,7 @@ namespace OMODFramework.Scripting
                         flowControl.Push(fc);
                         if (fc.Line != -1 && fc.Values.Length > 0)
                         {
-                            _variables[fc.Var] = fc.Values[0];
+                            Variables[fc.Var] = fc.Values[0];
                             fc.Active = true;
                         }
 
@@ -423,7 +361,7 @@ namespace OMODFramework.Scripting
                             else
                             {
                                 i = fcs[k].Line;
-                                _variables[fcs[k].Var] = fcs[k].Values[fcs[k].ForCount];
+                                Variables[fcs[k].Var] = fcs[k].Values[fcs[k].ForCount];
                                 for (int j = 0; j < k; j++) flowControl.Pop();
                             }
 
@@ -459,26 +397,26 @@ namespace OMODFramework.Scripting
                             else
                             {
                                 i = fc.Line;
-                                _variables[fc.Var] = fc.Values[fc.ForCount];
+                                Variables[fc.Var] = fc.Values[fc.ForCount];
                             }
                         }
                         else Warn("Unexpected EndFor");
                         break;
                     //Functions
                     case "DontInstallAnyPlugins":
-                        _srd.InstallAllPlugins = false;
+                        Srd.InstallAllPlugins = false;
                         break;
                     case "DontInstallAnyDataFiles":
-                        _srd.InstallAllData = false;
+                        Srd.InstallAllData = false;
                         break;
                     case "InstallAllPlugins":
-                        _srd.InstallAllPlugins = true;
+                        Srd.InstallAllPlugins = true;
                         break;
                     case "InstallAllDataFiles":
-                        _srd.InstallAllData = true;
+                        Srd.InstallAllData = true;
                         break;
                     case "FatalError":
-                        _srd.CancelInstall = true;
+                        Srd.CancelInstall = true;
                         break;
                     case "Return":
                         Break = true;
@@ -491,22 +429,21 @@ namespace OMODFramework.Scripting
                     }
                 }
 
-                if (Break || _srd.CancelInstall) break;
+                if (Break || Srd.CancelInstall) break;
             }
 
             if (skipTo != null) Warn($"Expected: {skipTo}!");
 
-            var temp = _srd;
-            _srd = null;
-            _variables = null;
+            var temp = Srd;
+            Srd = null;
+            Variables = null;
 
             return temp;
         }
 
         private static void Warn(string msg)
         {
-            if(Framework.EnableWarnings)
-                _scriptFunctions.Warn($"'{msg}' at {_cLine}");
+            Handler.Warn(msg);
         }
 
         private static string[] SplitLine(string s)
@@ -530,8 +467,8 @@ namespace OMODFramework.Scripting
                         wasLastSpace = false;
                         if (inVar)
                         {
-                            if (_variables.ContainsKey(currentWord))
-                                currentWord = currentVar + _variables[currentWord];
+                            if (Variables.ContainsKey(currentWord))
+                                currentWord = currentVar + Variables[currentWord];
                             else
                                 currentWord = currentVar + "%" + currentWord + "%";
                             currentVar = "";
@@ -650,19 +587,19 @@ namespace OMODFramework.Scripting
                     Warn("Missing arguments for 'If DialogYesNo'");
                     return false;
                 case 3:
-                    dialogResult = _scriptFunctions.DialogYesNo(line.ElementAt(2));
+                    dialogResult = Handler.ScriptFunctions.DialogYesNo(line.ElementAt(2));
                     if (dialogResult == -1)
                     {
-                        _srd.CancelInstall = true;
+                        Srd.CancelInstall = true;
                         return false;
                     }
                     else
                         return dialogResult == 1;
                 case 4:
-                    dialogResult = _scriptFunctions.DialogYesNo(line.ElementAt(2), line.ElementAt(3));
+                    dialogResult = Handler.ScriptFunctions.DialogYesNo(line.ElementAt(2), line.ElementAt(3));
                     if (dialogResult == -1)
                     {
-                        _srd.CancelInstall = true;
+                        Srd.CancelInstall = true;
                         return false;
                     }
                     else
@@ -673,7 +610,7 @@ namespace OMODFramework.Scripting
                 }
             case "DataFileExists":
                 if (line.Count != 2)
-                    return _scriptFunctions.DataFileExists(line.ElementAt(2));
+                    return Handler.ScriptFunctions.DataFileExists(line.ElementAt(2));
 
                 Warn("Missing arguments for 'If DataFileExists'");
                 return false;
@@ -699,7 +636,7 @@ namespace OMODFramework.Scripting
                 }
             case "ScriptExtenderPresent":
                 if (line.Count > 2) Warn("Unexpected extra arguments for 'If ScriptExtenderPresent'");
-                return _scriptFunctions.HasScriptExtender();
+                return Handler.ScriptFunctions.HasScriptExtender();
             case "ScriptExtenderNewerThan":
                 if (line.Count == 2)
                 {
@@ -707,10 +644,10 @@ namespace OMODFramework.Scripting
                     return false;
                 }
                 if(line.Count > 3) Warn("Unexpected extra arguments for 'If ScriptExtenderNewerThan'");
-                if (!_scriptFunctions.HasScriptExtender()) return false;
+                if (!Handler.ScriptFunctions.HasScriptExtender()) return false;
                 try
                 {
-                    var v = _scriptFunctions.ScriptExtenderVersion();
+                    var v = Handler.ScriptFunctions.ScriptExtenderVersion();
                     var v2 = new Version(line.ElementAt(2));
                     return v >= v2;
                 }
@@ -721,7 +658,7 @@ namespace OMODFramework.Scripting
                 }
             case "GraphicsExtenderPresent":
                 if (line.Count > 2) Warn("Unexpected arguments for 'If GraphicsExtenderPresent'");
-                return _scriptFunctions.HasGraphicsExtender();
+                return Handler.ScriptFunctions.HasGraphicsExtender();
             case "GraphicsExtenderNewerThan":
                 if (line.Count == 2)
                 {
@@ -729,10 +666,10 @@ namespace OMODFramework.Scripting
                     return false;
                 }
                 if(line.Count > 3) Warn("Unexpected extra arguments for 'If GraphicsExtenderNewerThan'");
-                if (!_scriptFunctions.HasGraphicsExtender()) return false;
+                if (!Handler.ScriptFunctions.HasGraphicsExtender()) return false;
                 try
                 {
-                    var v = _scriptFunctions.GraphicsExtenderVersion();
+                    var v = Handler.ScriptFunctions.GraphicsExtenderVersion();
                     var v2 = new Version(line.ElementAt(2));
                     return v >= v2;
                 }
@@ -750,7 +687,7 @@ namespace OMODFramework.Scripting
                 if(line.Count > 3) Warn("Unexpected extra arguments for 'If OblivionNewerThan'");
                 try
                 {
-                    var v = _scriptFunctions.OblivionVersion();
+                    var v = Handler.ScriptFunctions.OblivionVersion();
                     var v2 = new Version(line.ElementAt(2));
                     return v >= v2;
                 }
@@ -846,9 +783,9 @@ namespace OMODFramework.Scripting
             {
                 string root;
                 if (elementAt == "DataFolder" || elementAt == "DataFile")
-                    root = _dataFiles;
+                    root = DataFiles;
                 else
-                    root = _plugins;
+                    root = Plugins;
 
                 if (line.Count < 5)
                 {
@@ -959,21 +896,21 @@ namespace OMODFramework.Scripting
                     } else if (!Utils.IsSafeFileName(previews[i])) {
                         Warn($"Preview file path '{previews[i]}' is invalid");
                         previews[i] = null;
-                    } else if (!File.Exists(Path.Combine(_dataFiles, previews[i]))) {
+                    } else if (!File.Exists(Path.Combine(DataFiles, previews[i]))) {
                         Warn($"Preview file path '{previews[i]}' does not exist");
                         previews[i] = null;
                     }
                     else
                     {
-                        previews[i] = Path.Combine(_dataFiles, previews[i]);
+                        previews[i] = Path.Combine(DataFiles, previews[i]);
                     }
                 }
             }
 
-            var selectedIndex = _scriptFunctions.Select(items, title, isMultiSelect, previews, descriptions);
+            var selectedIndex = Handler.ScriptFunctions.Select(items, title, isMultiSelect, previews, descriptions);
             if (selectedIndex == null || selectedIndex.Count == 0)
             {
-                _srd.CancelInstall = true;
+                Srd.CancelInstall = true;
                 return new string[0];
             }
 
@@ -999,1526 +936,12 @@ namespace OMODFramework.Scripting
             if (!isVariable)
                 return new[] {$"Case {line.ElementAt(1)}"};
 
-            if (_variables.ContainsKey(line.ElementAt(1)))
-                return new[] {$"Case {_variables[line.ElementAt(1)]}"};
+            if (Variables.ContainsKey(line.ElementAt(1)))
+                return new[] {$"Case {Variables[line.ElementAt(1)]}"};
 
             Warn($"Invalid argument for '{funcName}'\nVariable '{line.ElementAt(1)}' does not exist");
             return new string[0];
 
-        }
-
-        private static int Set(List<string> func)
-        {
-            if (func.Count == 0) throw new OMODFrameworkException($"Empty iSet in script at {_cLine}");
-            if (func.Count == 1) return int.Parse(func[0]);
-
-            var index = func.IndexOf("(");
-            while (index != -1)
-            {
-                int count = 1;
-                var newFunc = new List<string>();
-                for (int i = index + 1; i < func.Count; i++)
-                {
-                    if (func[i] == "(") count++;
-                    else if (func[i] == ")") count--;
-
-                    if (count != 0)
-                        continue;
-
-                    func.RemoveRange(index, (i-index) +1);
-                    func.Insert(index, Set(newFunc).ToString());
-                    break;
-                }
-
-                if(count != 0) throw new OMODFrameworkException($"Mismatched brackets in script at {_cLine}");
-                index = func.IndexOf("(");
-            }
-
-            //not
-            index = func.IndexOf("not");
-            while (index != -1)
-            {
-                int i = int.Parse(func[index + 1]);
-                i = ~i;
-                func[index + 1] = i.ToString();
-                func.RemoveAt(index);
-                index = func.IndexOf("not");
-            }
-
-            //and
-            index = func.IndexOf("not");
-            while (index != -1)
-            {
-                int i = int.Parse(func[index - 1]) & int.Parse(func[index + 1]);
-                func[index + 1] = i.ToString();
-                func.RemoveRange(index - 1, 2);
-                index = func.IndexOf("not");
-            }
-
-            //or
-            index = func.IndexOf("or");
-            while (index != -1)
-            {
-                int i = int.Parse(func[index - 1]) | int.Parse(func[index + 1]);
-                func[index + 1] = i.ToString();
-                func.RemoveRange(index - 1, 2);
-                index = func.IndexOf("or");
-            }
-
-            //xor
-            index = func.IndexOf("xor");
-            while (index != -1)
-            {
-                int i = int.Parse(func[index - 1]) ^ int.Parse(func[index + 1]);
-                func[index + 1] = i.ToString();
-                func.RemoveRange(index - 1, 2);
-                index = func.IndexOf("xor");
-            }
-
-            //mod
-            index = func.IndexOf("mod");
-            while (index != -1)
-            {
-                int i = int.Parse(func[index - 1]) % int.Parse(func[index + 1]);
-                func[index + 1] = i.ToString();
-                func.RemoveRange(index - 1, 2);
-                index = func.IndexOf("mod");
-            }
-
-            //mod
-            index = func.IndexOf("%");
-            while (index != -1)
-            {
-                int i = int.Parse(func[index - 1]) % int.Parse(func[index + 1]);
-                func[index + 1] = i.ToString();
-                func.RemoveRange(index - 1, 2);
-                index = func.IndexOf("%");
-            }
-
-            //power
-            index = func.IndexOf("^");
-            while (index != -1)
-            {
-                int i = (int)Math.Pow(int.Parse(func[index - 1]), int.Parse(func[index + 1]));
-                func[index + 1] = i.ToString();
-                func.RemoveRange(index - 1, 2);
-                index = func.IndexOf("^");
-            }
-
-            //division
-            index = func.IndexOf("/");
-            while (index != -1)
-            {
-                int i = int.Parse(func[index - 1]) / int.Parse(func[index + 1]);
-                func[index + 1] = i.ToString();
-                func.RemoveRange(index - 1, 2);
-                index = func.IndexOf("/");
-            }
-
-            //multiplication
-            index = func.IndexOf("*");
-            while (index != -1)
-            {
-                int i = int.Parse(func[index - 1]) * int.Parse(func[index + 1]);
-                func[index + 1] = i.ToString();
-                func.RemoveRange(index - 1, 2);
-                index = func.IndexOf("*");
-            }
-
-            //add
-            index = func.IndexOf("+");
-            while (index != -1)
-            {
-                int i = int.Parse(func[index - 1]) + int.Parse(func[index + 1]);
-                func[index + 1] = i.ToString();
-                func.RemoveRange(index - 1, 2);
-                index = func.IndexOf("+");
-            }
-
-            //sub
-            index = func.IndexOf("-");
-            while (index != -1)
-            {
-                int i = int.Parse(func[index - 1]) - int.Parse(func[index + 1]);
-                func[index + 1] = i.ToString();
-                func.RemoveRange(index - 1, 2);
-                index = func.IndexOf("-");
-            }
-
-            if(func.Count != 1) throw new OMODFrameworkException($"Leftovers in iSet function for script at {_cLine}");
-            return int.Parse(func[0]);
-        }
-
-        private static double FSet(List<string> func)
-        {
-            if (func.Count == 0) throw new OMODFrameworkException($"Empty fSet in script at {_cLine}");
-            if (func.Count == 1) return int.Parse(func[0]);
-            //check for brackets
-
-            var index = func.IndexOf("(");
-            while (index != -1)
-            {
-                int count = 1;
-                var newFunc = new List<string>();
-                for (int i = index; i < func.Count; i++)
-                {
-                    if (func[i] == "(") count++;
-                    else if (func[i] == ")") count--;
-                    if (count == 0)
-                    {
-                        func.RemoveRange(index, i - index);
-                        func.Insert(index, FSet(newFunc).ToString(CultureInfo.CurrentCulture));
-                        break;
-                    }
-
-                    newFunc.Add(func[i]);
-                }
-
-                if (count != 0) throw new OMODFrameworkException($"Mismatched brackets in script at {_cLine}");
-                index = func.IndexOf("(");
-            }
-
-            //sin
-            index = func.IndexOf("sin");
-            while (index != -1)
-            {
-                func[index + 1] = Math.Sin(double.Parse(func[index + 1])).ToString(CultureInfo.CurrentCulture);
-                func.RemoveAt(index);
-                index = func.IndexOf("sin");
-            }
-
-            //cos
-            index = func.IndexOf("cos");
-            while (index != -1)
-            {
-                func[index + 1] = Math.Cos(double.Parse(func[index + 1])).ToString(CultureInfo.CurrentCulture);
-                func.RemoveAt(index);
-                index = func.IndexOf("cos");
-            }
-
-            //tan
-            index = func.IndexOf("tan");
-            while (index != -1)
-            {
-                func[index + 1] = Math.Tan(double.Parse(func[index + 1])).ToString(CultureInfo.CurrentCulture);
-                func.RemoveAt(index);
-                index = func.IndexOf("tan");
-            }
-
-            //sinh
-            index = func.IndexOf("sinh");
-            while (index != -1)
-            {
-                func[index + 1] = Math.Sinh(double.Parse(func[index + 1])).ToString(CultureInfo.CurrentCulture);
-                func.RemoveAt(index);
-                index = func.IndexOf("sinh");
-            }
-
-            //cosh
-            index = func.IndexOf("cosh");
-            while (index != -1)
-            {
-                func[index + 1] = Math.Cosh(double.Parse(func[index + 1])).ToString(CultureInfo.CurrentCulture);
-                func.RemoveAt(index);
-                index = func.IndexOf("cosh");
-            }
-
-            //tanh
-            index = func.IndexOf("tanh");
-            while (index != -1)
-            {
-                func[index + 1] = Math.Tanh(double.Parse(func[index + 1])).ToString(CultureInfo.CurrentCulture);
-                func.RemoveAt(index);
-                index = func.IndexOf("tanh");
-            }
-
-            //exp
-            index = func.IndexOf("exp");
-            while (index != -1)
-            {
-                func[index + 1] = Math.Exp(double.Parse(func[index + 1])).ToString(CultureInfo.CurrentCulture);
-                func.RemoveAt(index);
-                index = func.IndexOf("exp");
-            }
-
-            //log
-            index = func.IndexOf("log");
-            while (index != -1)
-            {
-                func[index + 1] = Math.Log10(double.Parse(func[index + 1])).ToString(CultureInfo.CurrentCulture);
-                func.RemoveAt(index);
-                index = func.IndexOf("log");
-            }
-
-            //ln
-            index = func.IndexOf("ln");
-            while (index != -1)
-            {
-                func[index + 1] = Math.Log(double.Parse(func[index + 1])).ToString(CultureInfo.CurrentCulture);
-                func.RemoveAt(index);
-                index = func.IndexOf("ln");
-            }
-
-            //mod
-            index = func.IndexOf("mod");
-            while (index != -1)
-            {
-                double i = double.Parse(func[index - 1]) % double.Parse(func[index + 1]);
-                func[index + 1] = i.ToString(CultureInfo.CurrentCulture);
-                func.RemoveRange(index - 1, 2);
-                index = func.IndexOf("mod");
-            }
-
-            //mod2
-            index = func.IndexOf("%");
-            while (index != -1)
-            {
-                double i = double.Parse(func[index - 1]) % double.Parse(func[index + 1]);
-                func[index + 1] = i.ToString(CultureInfo.CurrentCulture);
-                func.RemoveRange(index - 1, 2);
-                index = func.IndexOf("%");
-            }
-
-            //power
-            index = func.IndexOf("^");
-            while (index != -1)
-            {
-                double i = Math.Pow(double.Parse(func[index - 1]), double.Parse(func[index + 1]));
-                func[index + 1] = i.ToString(CultureInfo.CurrentCulture);
-                func.RemoveRange(index - 1, 2);
-                index = func.IndexOf("^");
-            }
-
-            //division
-            index = func.IndexOf("/");
-            while (index != -1)
-            {
-                double i = double.Parse(func[index - 1]) / double.Parse(func[index + 1]);
-                func[index + 1] = i.ToString(CultureInfo.CurrentCulture);
-                func.RemoveRange(index - 1, 2);
-                index = func.IndexOf("/");
-            }
-
-            //multiplication
-            index = func.IndexOf("*");
-            while (index != -1)
-            {
-                double i = double.Parse(func[index - 1]) * double.Parse(func[index + 1]);
-                func[index + 1] = i.ToString(CultureInfo.CurrentCulture);
-                func.RemoveRange(index - 1, 2);
-                index = func.IndexOf("*");
-            }
-
-            //add
-            index = func.IndexOf("+");
-            while (index != -1)
-            {
-                double i = double.Parse(func[index - 1]) + double.Parse(func[index + 1]);
-                func[index + 1] = i.ToString(CultureInfo.CurrentCulture);
-                func.RemoveRange(index - 1, 2);
-                index = func.IndexOf("+");
-            }
-
-            //sub
-            index = func.IndexOf("-");
-            while (index != -1)
-            {
-                double i = double.Parse(func[index - 1]) - double.Parse(func[index + 1]);
-                func[index + 1] = i.ToString(CultureInfo.CurrentCulture);
-                func.RemoveRange(index - 1, 2);
-                index = func.IndexOf("-");
-            }
-
-            if (func.Count != 1) throw new OMODFrameworkException($"Leftovers in iSet function for script at {_cLine}");
-            return double.Parse(func[0]);
-        }
-
-        private class FunctionMessage : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; }
-            public override string FuncName { get; set; } = "Message";
-            public override int MinArgs { get; set; } = 2;
-            public override int MaxArgs { get; set; } = 3;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                switch (line.Count)
-                {
-                case 2:
-                    _scriptFunctions.Message(line.ElementAt(1));
-                    break;
-                case 3:
-                    _scriptFunctions.Message(line.ElementAt(1), line.ElementAt(2));
-                    break;
-                default:
-                    goto case 3;
-                }
-            }
-        }
-
-        private class FunctionSetVar : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; }
-            public override string FuncName { get; set; } = "SetVar";
-            public override int MinArgs { get; set; } = 3;
-            public override int MaxArgs { get; set; } = 3;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                _variables[line.ElementAt(1)] = line.ElementAt(2);
-            }
-        }
-
-        private class FunctionCombinePaths : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; }
-            public override string FuncName { get; set; } = "CombinePaths";
-            public override int MinArgs { get; set; } = 4;
-            public override int MaxArgs { get; set; } = 4;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                try
-                {
-                    _variables[line.ElementAt(1)] = Path.Combine(line.ElementAt(2), line.ElementAt(3));
-                }
-                catch
-                {
-                    Warn("Invalid arguments for 'CombinePaths'");
-                }
-            }
-        }
-
-        private class FunctionSubRemoveString : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; } = new List<string>{"RemoveString", "Substring"};
-            public override string FuncName { get; set; } = "RemoveString OR Substring";
-            public override int MinArgs { get; set; } = 4;
-            public override int MaxArgs { get; set; } = 5;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                var remove = line.ElementAt(0) == "RemoveString";
-                FuncName = line.ElementAt(0);
-
-                if (line.Count == 4)
-                {
-                    if (!int.TryParse(line.ElementAt(3), out int start))
-                    {
-                        Warn($"Invalid arguments for '{FuncName}'");
-                        return;
-                    }
-
-                    _variables[line.ElementAt(1)] = remove ? line.ElementAt(2).Remove(start) : line.ElementAt(2).Substring(start);
-                }
-                else
-                {
-                    if (!int.TryParse(line.ElementAt(3), out int start) || !int.TryParse(line.ElementAt(4), out int end))
-                    {
-                        Warn($"Invalid arguments for '{FuncName}'");
-                        return;
-                    }
-                    _variables[line.ElementAt(1)] = remove ? line.ElementAt(2).Remove(start,end) : line.ElementAt(2).Substring(start, end);
-                }
-            }
-        }
-
-        private class FunctionStringLength : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; }
-            public override string FuncName { get; set; } = "StringLength";
-            public override int MinArgs { get; set; } = 3;
-            public override int MaxArgs { get; set; } = 3;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                _variables[line.ElementAt(1)] = line.ElementAt(2).Length.ToString();
-            }
-        }
-
-        private class FunctionSet : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; } = new List<string>{"iSet", "fSet"};
-            public override string FuncName { get; set; } = "iSet OR fSet";
-            public override int MinArgs { get; set; } = 3;
-            public override int MaxArgs { get; set; } = 0;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                var integer = line.ElementAt(0) == "iSet";
-                FuncName = integer ? "iSet" : "fSet";
-
-                var func = new List<string>();
-                for(int i = 2; i < line.Count; i++) func.Add(line.ElementAt(i));
-                try
-                {
-                    string result;
-                    if (integer)
-                    {
-                        int i = Set(func);
-                        result = i.ToString();
-                    }
-                    else
-                    {
-                        float f = (float)FSet(func);
-                        result = f.ToString(CultureInfo.CurrentCulture);
-                    }
-
-                    _variables[line.ElementAt(1)] = result;
-                } 
-                catch
-                {
-                    Warn($"Invalid arguments for {FuncName}");
-                }
-            }
-        }
-
-        private class FunctionExecLines : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; }
-            public override string FuncName { get; set; } = "ExecLines";
-            public override int MinArgs { get; set; } = 2;
-            public override int MaxArgs { get; set; } = 2;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                line.ElementAt(1).Split(new [] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries).Do(ExtraLines.Enqueue);
-            }
-        }
-
-        private class FunctionLoadOrder : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; } = new List<string>{"LoadEarly", "LoadAfter", "LoadBefore"};
-            public override string FuncName { get; set; } = "LoadEarly OR LoadAfter OR LoadBefore";
-            public override int MinArgs { get; set; } = 3;
-            public override int MaxArgs { get; set; } = 3;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                var loadEarly = line.ElementAt(0) == "LoadEarly";
-                var loadAfter = line.ElementAt(0) == "LoadAfter";
-                FuncName = loadEarly ? "LoadEarly" : loadAfter ? "LoadAfter" : "LoadBefore";
-
-                if (loadEarly && line.Count < 2)
-                {
-                    Warn($"Missing arguments for '{FuncName}'");
-                    return;
-                }
-
-                if (loadEarly && line.Count > 2)
-                    Warn($"Unexpected arguments for '{FuncName}'");
-
-                if (loadEarly)
-                {
-                    var plugin = line.ElementAt(1);
-                    plugin = plugin.ToLower();
-                    if (!_srd.EarlyPlugins.Contains(plugin))
-                        _srd.EarlyPlugins.Add(plugin);
-                }
-                else
-                {
-                    _srd.LoadOrderSet.Add(new PluginLoadInfo(line.ElementAt(1), line.ElementAt(2), loadAfter));
-                }
-            }
-        }
-
-        private class FunctionConflicts : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; } = new List<string>
-            {
-                "ConflictsWith", "DependsOn", "ConflictsWithRegex", "DependsOnRegex"
-            };
-
-            public override string FuncName { get; set; } =
-                "ConflictsWith OR DependsOn OR ConflictsWithRegex OR DependsOnRegex";
-
-            public override int MinArgs { get; set; } = 2;
-            public override int MaxArgs { get; set; } = 8;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                var conflicts = line.ElementAt(0).StartsWith("ConflictsWith");
-                var regex = line.ElementAt(0).EndsWith("Regex");
-                FuncName = conflicts ? "ConflictsWith" : "DependsOn";
-                FuncName += regex ? "Regex" : "";
-
-                var cd = new ConflictData {Level = ConflictLevel.MajorConflict};
-            switch (line.Count)
-            { 
-            case 2:
-                cd.File = line.ElementAt(1);
-                break;
-            case 3:
-                cd.Comment = line.ElementAt(2);
-                goto case 2;
-            case 4:
-                switch (line.ElementAt(3))
-                {
-                case "Unusable":
-                    cd.Level = ConflictLevel.Unusable;
-                    break;
-                case "Major":
-                    cd.Level = ConflictLevel.MajorConflict;
-                    break;
-                case "Minor":
-                    cd.Level = ConflictLevel.MinorConflict;
-                    break;
-                default:
-                    Warn($"Unknown conflict level after '{FuncName}'");
-                    break;
-                }
-
-                goto case 3;
-            case 5:
-                Warn($"Unexpected arguments for '{FuncName}'");
-                break;
-            case 6:
-                cd.File = line.ElementAt(1);
-                try
-                {
-                    cd.MinMajorVersion = Convert.ToInt32(line.ElementAt(2));
-                    cd.MinMinorVersion = Convert.ToInt32(line.ElementAt(3));
-                    cd.MaxMajorVersion = Convert.ToInt32(line.ElementAt(4));
-                    cd.MaxMinorVersion = Convert.ToInt32(line.ElementAt(5));
-                }
-                catch
-                {
-                    Warn($"Arguments for '{FuncName}' could not been parsed");
-                }
-
-                break;
-            case 7:
-                cd.Comment = line.ElementAt(6);
-                goto case 6;
-            case 8:
-                switch (line.ElementAt(7))
-                {
-                case "Unusable":
-                    cd.Level = ConflictLevel.Unusable;
-                    break;
-                case "Major":
-                    cd.Level = ConflictLevel.MajorConflict;
-                    break;
-                case "Minor":
-                    cd.Level = ConflictLevel.MinorConflict;
-                    break;
-                default:
-                    Warn($"Unknown conflict level after '{FuncName}'");
-                    break;
-                }
-
-                goto case 7;
-            default:
-                Warn($"Unexpected arguments for '{FuncName}'");
-                goto case 8;
-            }
-
-            cd.Partial = regex;
-            if (conflicts)
-                _srd.ConflictsWith.Add(cd);
-            else
-                _srd.DependsOn.Add(cd);
-            }
-        }
-
-        private class FunctionUncheckESP : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; }
-            public override string FuncName { get; set; } = "UncheckESP";
-            public override int MinArgs { get; set; } = 2;
-            public override int MaxArgs { get; set; } = 2;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                var plugin = line.ElementAt(1);
-                if (!File.Exists(Path.Combine(_plugins, plugin)))
-                {
-                    Warn($"Invalid argument for 'UncheckESP': {plugin} does not exist");
-                    return;
-                }
-
-                plugin = plugin.ToLower();
-                if (!_srd.UncheckedPlugins.Contains(plugin))
-                    _srd.UncheckedPlugins.Add(plugin);
-            }
-        }
-
-        private class FunctionSetDeactivationWarning : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; }
-            public override string FuncName { get; set; } = "SetDeactivationWarning";
-            public override int MinArgs { get; set; } = 3;
-            public override int MaxArgs { get; set; } = 3;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                var plugin = line.ElementAt(1);
-                if (!File.Exists(Path.Combine(_plugins, plugin)))
-                {
-                    Warn($"Invalid argument for 'SetDeactivationWarning'\nFile '{plugin}' does not exist");
-                    return;
-                }
-
-                plugin = plugin.ToLower();
-
-                _srd.ESPDeactivation.RemoveWhere(a => a.Plugin == plugin);
-                switch (line.ElementAt(2))
-                {
-                    case "Allow":
-                        _srd.ESPDeactivation.Add(new ScriptESPWarnAgainst(plugin, DeactivationStatus.Allow));
-                        break;
-                    case "WarnAgainst":
-                        _srd.ESPDeactivation.Add(new ScriptESPWarnAgainst(plugin, DeactivationStatus.WarnAgainst));
-                        break;
-                    case "Disallow":
-                        _srd.ESPDeactivation.Add(new ScriptESPWarnAgainst(plugin, DeactivationStatus.Disallow));
-                        break;
-                    default:
-                        Warn("Invalid argument for 'SetDeactivationWarning'");
-                        return;
-                }
-            }
-        }
-
-        private class FunctionEditXML : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; } = new List<string>{"EditXMLLine", "EditXMLReplace"};
-            public override string FuncName { get; set; } = "EditXMLLine OR EditXMLReplace";
-            public override int MinArgs { get; set; } = 4;
-            public override int MaxArgs { get; set; } = 4;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                var replace = line.ElementAt(0) == "EditXMLReplace";
-                FuncName = replace ? "EditXMLReplace" : "EditXMLLine";
-
-                if (replace)
-                {
-                    var path = line.ElementAt(1);
-                    var file = Path.Combine(_dataFiles, path);
-                    path = path.ToLower();
-                    if (!Utils.IsSafeFileName(path) || !File.Exists(file))
-                    {
-                        Warn($"Invalid filename supplied for '{FuncName}'");
-                        return;
-                    }
-
-                    var ext = Path.GetExtension(file);
-                    if (ext != ".xml" && ext != ".txt" && ext != ".ini" && ext != ".bat")
-                    {
-                        Warn($"Invalid filename supplied for '{FuncName}'");
-                        return;
-                    }
-
-                    var text = File.ReadAllText(file);
-                    text = text.Replace(line.ElementAt(2), line.ElementAt(3));
-                    File.WriteAllText(file, text);
-                }
-                else
-                {
-                    var path = line.ElementAt(1);
-                    var file = Path.Combine(_dataFiles, path);
-
-                    path = path.ToLower();
-                    if (!Utils.IsSafeFileName(path) || !File.Exists(file))
-                    {
-                        Warn($"Invalid filename supplied for '{FuncName}'");
-                        return;
-                    }
-
-                    var ext = Path.GetExtension(path);
-                    if (ext != ".xml" && ext != ".txt" && ext != ".ini" && ext != ".bat")
-                    {
-                        Warn($"Invalid filename supplied for '{FuncName}'");
-                        return;
-                    }
-
-                    if (!int.TryParse(line.ElementAt(2), out var index) || index < 1)
-                    {
-                        Warn($"Invalid line number supplied for '{FuncName}'");
-                        return;
-                    }
-
-                    index -= 1;
-                    var lines = File.ReadAllLines(file);
-                    if (lines.Length <= index)
-                    {
-                        Warn($"Invalid line number supplied for '{FuncName}'");
-                        return;
-                    }
-
-                    lines[index] = line.ElementAt(3);
-                    File.WriteAllLines(file, lines);
-                }
-            }
-        }
-
-        private class FunctionModifyInstall : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; } = new List<string>
-            {
-                "InstallPlugin", "InstallDataFile", "DontInstallPlugin", "DontInstallDataFile"
-            };
-
-            public override string FuncName { get; set; } =
-                "InstallPlugin OR InstallDataFile OR DontInstallPlugin OR DontInstallDataFile";
-
-            public override int MinArgs { get; set; } = 2;
-            public override int MaxArgs { get; set; } = 2;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                var install = line.ElementAt(0).StartsWith("Install");
-                var plugin = line.ElementAt(0).EndsWith("Plugin");
-
-                FuncName = install ? "Install" : "DontInstall";
-                FuncName += plugin ? "Plugin" : "DataFile";
-
-                var l = line.ElementAt(1).ToLower();
-                if (plugin)
-                {
-                    var path = Path.Combine(_plugins, l);
-                    if (!File.Exists(path))
-                    {
-                        Warn($"Invalid argument for '{FuncName}'\nFile '{path}' does not exist");
-                        return;
-                    }
-
-                    if (l.IndexOfAny(new [] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar}) != -1)
-                    {
-                        Warn($"Invalid argument for '{FuncName}'\nThis function cannot be used on plugins stored in subdirectories");
-                    }
-
-                    if (install)
-                    {
-                        _srd.IgnorePlugins.RemoveWhere(s => s == l);
-                        if (!_srd.InstallPlugins.Contains(l))
-                            _srd.InstallPlugins.Add(l);
-                    }
-                    else
-                    {
-                        _srd.InstallPlugins.RemoveWhere(s => s == l);
-                        if (!_srd.IgnorePlugins.Contains(l))
-                            _srd.IgnorePlugins.Add(l);
-                    }
-                }
-                else
-                {
-                    var path = Path.Combine(_dataFiles, l);
-                    if(!File.Exists(path)) {
-                        Warn($"Invalid argument for '{FuncName}'\nFile '{path}' does not exist");
-                        return;
-                    }
-
-                    if (install)
-                    {
-                        _srd.IgnoreData.RemoveWhere(s => s == l);
-                        if (!_srd.InstallData.Contains(l))
-                            _srd.InstallData.Add(l);
-                    } else
-                    {
-                        _srd.InstallData.RemoveWhere(s => s == l);
-                        if (!_srd.IgnoreData.Contains(l))
-                            _srd.IgnoreData.Add(l);
-                    }
-                }
-            }
-        }
-
-        private class FunctionModifyInstallFolder : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; } =
-                new List<string> {"InstallDataFolder", "DontInstallDataFolder"};
-
-            public override string FuncName { get; set; } = "InstallDataFolder OR DontInstallDataFolder";
-            public override int MinArgs { get; set; } = 2;
-            public override int MaxArgs { get; set; } = 3;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                var install = line.ElementAt(0).StartsWith("Install");
-                FuncName = install ? "InstallDataFolder" : "DontInstallDataFolder";
-
-                var validFolderPath = Utils.MakeValidFolderPath(line.ElementAt(1));
-                var path = Path.Combine(_dataFiles, validFolderPath);
-
-                if (!Directory.Exists(path))
-                {
-                    Warn($"Invalid argument for '{FuncName}'\nFolder '{path}' does not exist");
-                    return;
-                }
-
-                if (line.Count >= 2)
-                {
-                    switch (line.ElementAt(2))
-                    {
-                        case "True":
-                            Directory.GetDirectories(path).Do(d =>
-                            {
-                                var a = (IReadOnlyCollection<string>)new List<string>
-                                {
-                                    "InstallDataFolder", d.Substring(_dataFiles.Length), "True"
-                                };
-                                Run(ref a);
-                            });
-                            break;
-                        case "False":
-                            break;
-                        default:
-                            Warn($"Invalid argument for '{FuncName}'\nExpected True or False");
-                            break;
-                    }
-                }
-                Directory.GetFiles(path).Do(f =>
-                {
-                    var name = Path.GetFileName(f);
-                    if (install)
-                    {
-                        _srd.IgnoreData.RemoveWhere(s => s == name);
-                        if (!_srd.InstallData.Contains(name))
-                            _srd.InstallData.Add(name);
-                    }
-                    else
-                    {
-                        _srd.InstallData.RemoveWhere(s => s == name);
-                        if (!_srd.IgnoreData.Contains(name))
-                            _srd.IgnoreData.Add(name);
-                    }
-                });
-            }
-        }
-
-        private class FunctionCopyDataFile : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; } = new List<string>{"CopyPlugin", "CopyDataFile"};
-            public override string FuncName { get; set; }
-            public override int MinArgs { get; set; } = 3;
-            public override int MaxArgs { get; set; } = 3;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                var plugin = line.ElementAt(0).StartsWith("Plugin");
-                FuncName = plugin ? "CopyPlugin" : "CopyDataFile";
-
-                var from = line.ElementAt(1);
-            var to = line.ElementAt(2);
-
-            if (!Utils.IsSafeFileName(from) || !Utils.IsSafeFileName(to))
-            {
-                Warn($"Invalid argument for '{FuncName}'");
-                return;
-            }
-
-            if (from == to)
-            {
-                Warn($"Invalid argument for '{FuncName}'\nYou can not copy a file over itself");
-                return;
-            }
-
-            if(plugin)
-            {
-                var path = Path.Combine(_plugins, from);
-                if (!File.Exists(path))
-                {
-                    Warn($"Invalid argument for '{FuncName}'\nFile '{from}' does not exist");
-                    return;
-                }
-
-                if (to.IndexOfAny(new [] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar}) != -1)
-                {
-                    Warn("Plugins cannot be copied to subdirectories of the data folder");
-                    return;
-                }
-
-                if (!(to.EndsWith("esp") || to.EndsWith(".esm")))
-                {
-                    Warn("Copied plugins must have a .esp or .esm extension");
-                    return;
-                }
-            }
-            else
-            {
-                var path = Path.Combine(_dataFiles, from);
-                if (!File.Exists(path))
-                {
-                    Warn($"Invalid argument for '{FuncName}'\nFile '{from}' does not exist");
-                    return;
-                }
-
-                if (to.EndsWith("esp") || to.EndsWith(".esm"))
-                {
-                    Warn("Copied data files cannot have a .esp or .esm extension");
-                    return;
-                }
-            }
-
-            if (plugin)
-            {
-                _srd.CopyPlugins.RemoveWhere(s => s.CopyTo == to.ToLower());
-                _srd.CopyPlugins.Add(new ScriptCopyDataFile(from.ToLower(), to.ToLower()));
-            }
-            else
-            {
-                _srd.CopyDataFiles.RemoveWhere(s => s.CopyTo == to.ToLower());
-                _srd.CopyDataFiles.Add(new ScriptCopyDataFile(from.ToLower(), to.ToLower()));
-            }
-            }
-        }
-
-        private class FunctionCopyDataFolder : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; }
-            public override string FuncName { get; set; } = "CopyDataFolder";
-            public override int MinArgs { get; set; } = 3;
-            public override int MaxArgs { get; set; } = 4;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                var validFrom = Utils.MakeValidFolderPath(line.ElementAt(1).ToLower());
-                var validTo = Utils.MakeValidFolderPath(line.ElementAt(2).ToLower());
-
-                if (!Utils.IsSafeFolderName(validFrom) || !Utils.IsSafeFolderName(validTo))
-                {
-                    Warn("Invalid argument for 'CopyDataFolder'");
-                    return;
-                }
-
-                var from = Path.Combine(_dataFiles, validFrom);
-                var to = Path.Combine(_dataFiles, validTo);
-
-                if(!Directory.Exists(from))
-                {
-                    Warn($"Invalid argument for 'CopyDataFolder'\nFolder '{from}' does not exist!");
-                    return;
-                }
-
-                if (from == to)
-                {
-                    Warn("Invalid argument for 'CopyDataFolder'\nYou cannot copy a folder over itself");
-                    return;
-                }
-
-                var collection = line;
-                if (line.Count >= 4)
-                {
-                    switch(line.ElementAt(3)) {
-                    case "True":
-                        Directory.GetDirectories(from).Do(d =>
-                        {
-                            var arg2 = d.Substring(_dataFiles.Length);
-                            if (arg2.StartsWith("\\"))
-                                arg2 = arg2.Substring(1);
-                            var l = _dataFiles.Length + collection.ElementAt(1).Length;
-                            var t = d.Substring(l);
-                            var arg3 = collection.ElementAt(2) + t;
-                            var arg = (IReadOnlyCollection<string>)new List<string> {"", arg2, arg3, "True"};
-                            Run(ref arg);
-                        });
-                        break;
-                    case "False":
-                        break;
-                    default:
-                        Warn("Invalid argument for 'CopyDataFolder'\nExpected True or False");
-                        return;
-                    }
-                }
-
-                Directory.GetFiles(from).Do(f =>
-                {
-                    var fFrom = Path.Combine(collection.ElementAt(1), Path.GetFileName(f));
-                    var fTo = Path.Combine(collection.ElementAt(2), Path.GetFileName(f)).ToLower();
-
-                    _srd.CopyDataFiles.RemoveWhere(s => s.CopyTo == fTo);
-
-                    _srd.CopyDataFiles.Add(new ScriptCopyDataFile(fFrom, fTo));
-                });
-            }
-        }
-
-        private class FunctionGetDirectoryFileName : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; } = new List<string>{"GetDirectoryName", "GetFileName", "GetFolderName", "GetFileNameWithoutExtension"};
-            public override string FuncName { get; set; }
-            public override int MinArgs { get; set; } = 3;
-            public override int MaxArgs { get; set; } = 3;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                var file = line.ElementAt(0) == "GetFileName";
-                var extension = line.ElementAt(0) == "GetFileNameWithoutExtension";
-                FuncName = file ? "GetFileName" : line.ElementAt(0);
-
-                try
-                {
-                    if(file)
-                        _variables[line.ElementAt(1)] = Path.GetFileName(line.ElementAt(2));
-                    else
-                        _variables[line.ElementAt(1)] = Path.GetDirectoryName(line.ElementAt(2));
-
-                    if(extension)
-                        _variables[line.ElementAt(1)] = Path.GetFileNameWithoutExtension(line.ElementAt(2));
-                }
-                catch
-                {
-                    Warn($"Invalid argument for '{FuncName}'");
-                }
-            }
-        }
-
-        private class FunctionPatch : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; } = new List<string>{"PatchPlugin", "PatchDataFile"};
-            public override string FuncName { get; set; }
-            public override int MinArgs { get; set; } = 3;
-            public override int MaxArgs { get; set; } = 4;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                var plugin = line.ElementAt(0) == "PatchPlugin";
-                FuncName = plugin ? "PatchPlugin" : "PatchDataFile";
-
-                var from = line.ElementAt(1);
-            var to = line.ElementAt(2);
-
-            if (!Utils.IsSafeFileName(from) || !Utils.IsSafeFileName(to))
-            {
-                Warn($"Invalid argument for '{FuncName}'");
-                return;
-            }
-
-            var pathFrom = plugin ? Path.Combine(_plugins, from) : Path.Combine(_dataFiles, from);
-            if(plugin) {
-                if (!File.Exists(pathFrom))
-                {
-                    Warn($"Invalid argument for 'PatchPlugin'\nFile '{from}' does not exist");
-                    return;
-                }
-
-                if (to.IndexOfAny(new[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar}) != -1)
-                {
-                    Warn("Plugins cannot be copied to subdirectories of the data folder");
-                    return;
-                }
-
-                if (!(to.EndsWith(".esp") || to.EndsWith(".esm")))
-                {
-                    Warn("Plugins must have a .esp or .esm extension");
-                    return;
-                }
-            }
-            else
-            {
-                if (!File.Exists(pathFrom))
-                {
-                    Warn($"Invalid argument to PatchDataFile\nFile '{from}' does not exist");
-                    return;
-                }
-
-                if (to.EndsWith(".esp") || to.EndsWith(".esm"))
-                {
-                    Warn("Data files cannot have a .esp or .esm extension");
-                    return;
-                }
-            }
-
-            switch (Framework.CurrentPatchMethod)
-            {
-            case Framework.PatchMethod.CreatePatchGameFolder:
-                if(string.IsNullOrWhiteSpace(Framework.OblivionGameFolder))
-                    throw new OMODFrameworkException($"{Framework.OblivionGameFolder} can not be null or whitespace!");
-
-                var patchFolder = Path.Combine(Framework.OblivionDataFolder, "Patch");
-
-                if (!Directory.Exists(patchFolder))
-                    Directory.CreateDirectory(patchFolder);
-
-                var patchPath = Path.Combine(patchFolder, to);
-                if(File.Exists(patchPath))
-                    throw new OMODFrameworkException($"The file {patchPath} already exists");
-
-                var toDataPath = Path.Combine(Framework.OblivionDataFolder, to);
-                DateTime toTimeStamp = default;
-                if (File.Exists(toDataPath))
-                {
-                    toTimeStamp = File.GetLastWriteTime(toDataPath);
-                }
-
-                try
-                {
-                    File.Copy(pathFrom, patchPath);
-                    if(toTimeStamp != default)
-                        File.SetLastWriteTime(patchPath, toTimeStamp);
-                }
-                catch (Exception e)
-                {
-                    throw new OMODFrameworkException($"The file {pathFrom} could not be copied to {patchPath}\n{e}");
-                }
-
-                break;
-            case Framework.PatchMethod.OverwriteGameFolder:
-                if(string.IsNullOrWhiteSpace(Framework.OblivionGameFolder))
-                    throw new OMODFrameworkException($"{Framework.OblivionGameFolder} can not be null or whitespace!");
-
-                var dataPath = Path.Combine(Framework.OblivionDataFolder, to);
-                DateTime timeStamp = default;
-                if (File.Exists(dataPath))
-                {
-                    timeStamp = File.GetLastWriteTime(dataPath);
-                    try
-                    {
-                        File.Delete(dataPath);
-                    }
-                    catch (Exception e)
-                    {
-                        throw new OMODFrameworkException($"The file {dataPath} could not be deleted!\n{e}");
-                    }
-                }
-                else if (line.Count < 4 || line.ElementAt(3) != "True") return;
-
-                try
-                {
-                    File.Move(pathFrom, dataPath);
-                    File.SetLastWriteTime(dataPath, timeStamp);
-                }
-                catch (Exception e)
-                {
-                    throw new OMODFrameworkException($"The file {pathFrom} could not be moved to {dataPath}\n{e}");
-                }
-
-                break;
-            case Framework.PatchMethod.CreatePatchInMod:
-                _srd.PatchFiles.RemoveWhere(s => s.CopyTo == to.ToLower());
-                _srd.PatchFiles.Add(new ScriptCopyDataFile(from.ToLower(), to.ToLower()));
-                break;
-            case Framework.PatchMethod.PatchWithInterface:
-                _scriptFunctions.Patch(pathFrom, to);
-                break;
-            default:
-                throw new OMODFrameworkException("Unknown PatchMethod for Framework.CurrentPatchMethod!");
-            }
-            }
-        }
-
-        private class FunctionEditShader : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; } = new List<string>{"EditSDP", "EditShader"};
-            public override string FuncName { get; set; }
-            public override int MinArgs { get; set; } = 4;
-            public override int MaxArgs { get; set; } = 4;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                FuncName = line.ElementAt(0);
-                var shaderPath = Path.Combine(_dataFiles, line.ElementAt(3));
-                if (!Utils.IsSafeFileName(line.ElementAt(3)))
-                {
-                    Warn($"Invalid argument for 'EditShader'\n'{line.ElementAt(3)}' is not a valid file name");
-                    return;
-                }
-
-                if (!File.Exists(shaderPath))
-                {
-                    Warn($"Invalid argument for 'EditShader'\nFile '{line.ElementAt(3)}' does not exist");
-                    return;
-                }
-
-                if (!byte.TryParse(line.ElementAt(1), out var package))
-                {
-                    Warn($"Invalid argument for function 'EditShader'\n'{line.ElementAt(1)}' is not a valid shader package ID");
-                    return;
-                }
-
-                _srd.SDPEdits.Add(new SDPEditInfo(package, line.ElementAt(2), shaderPath));
-            }
-        }
-
-        private class FunctionEditINI : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; }
-            public override string FuncName { get; set; } = "EditINI";
-            public override int MinArgs { get; set; } = 4;
-            public override int MaxArgs { get; set; } = 4;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                _srd.INIEdits.Add(new INIEditInfo(line.ElementAt(1), line.ElementAt(2), line.ElementAt(3)));
-            }
-        }
-
-        private class FunctionSetESPVar : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; } = new List<string>{"SetGMST", "SetGlobal"};
-            public override string FuncName { get; set; }
-            public override int MinArgs { get; set; } = 4;
-            public override int MaxArgs { get; set; } = 4;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                var gmst = line.ElementAt(0) == "SetGMST";
-                FuncName = line.ElementAt(0);
-
-                if (!Utils.IsSafeFileName(line.ElementAt(1)))
-                {
-                    Warn($"Illegal plugin name supplied to '{FuncName}'");
-                    return;
-                }
-
-                if (!File.Exists(Path.Combine(_plugins, line.ElementAt(1))))
-                {
-                    Warn($"Invalid argument for '{FuncName}'\nFile '{line.ElementAt(1)}' does not exist");
-                    return;
-                }
-
-                _srd.ESPEdits.Add(new ScriptESPEdit(gmst, line.ElementAt(1).ToLower(), line.ElementAt(2).ToLower(),
-                    line.ElementAt(3)));
-            }
-        }
-
-        private class FunctionSetESPData : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; } = new List<string>
-            {
-                "SetPluginByte", "SetPluginShort", "SetPluginLong", "SetPluginFloat", "SetPluginInt"
-            };
-            public override string FuncName { get; set; }
-            public override int MinArgs { get; set; } = 4;
-            public override int MaxArgs { get; set; } = 4;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                FuncName = line.ElementAt(0);
-
-                var plugin = line.ElementAt(1);
-                if (!Utils.IsSafeFileName(plugin))
-                {
-                    Warn($"Illegal plugin name supplied to '{FuncName}'");
-                    return;
-                }
-
-                var pluginPath = Path.Combine(_plugins, plugin);
-                if (!File.Exists(pluginPath))
-                {
-                    Warn($"Invalid argument for '{FuncName}'\nFile {plugin} does not exist");
-                    return;
-                }
-
-                byte[] data = null;
-                if (!long.TryParse(line.ElementAt(2), out var offset) || offset < 0)
-                {
-                    Warn($"Invalid argument for '{FuncName}'\nOffset {line.ElementAt(2)} is not valid");
-                    return;
-                }
-
-                var val = line.ElementAt(3);
-                if (FuncName.EndsWith("Byte"))
-                {
-                    if (!byte.TryParse(val, out var value))
-                    {
-                        Warn($"Invalid argument for '{FuncName}'\nValue '{val}' is not valid");
-                        return;
-                    }
-
-                    data = BitConverter.GetBytes(value);
-                }
-
-                if (FuncName.EndsWith("Short"))
-                {
-                    if (!short.TryParse(val, out var value))
-                    {
-                        Warn($"Invalid argument for '{FuncName}'\nValue '{val}' is not valid");
-                        return;
-                    }
-
-                    data = BitConverter.GetBytes(value);
-                }
-
-                if (FuncName.EndsWith("Int"))
-                {
-                    if (!int.TryParse(val, out var value))
-                    {
-                        Warn($"Invalid argument for '{FuncName}'\nValue '{val}' is not valid");
-                        return;
-                    }
-
-                    data = BitConverter.GetBytes(value);
-                }
-
-                if (FuncName.EndsWith("Long"))
-                {
-                    if (!long.TryParse(val, out var value))
-                    {
-                        Warn($"Invalid argument for '{FuncName}'\nValue '{val}' is not valid");
-                        return;
-                    }
-
-                    data = BitConverter.GetBytes(value);
-                }
-
-                if (FuncName.EndsWith("Float"))
-                {
-                    if (!float.TryParse(val, out var value))
-                    {
-                        Warn($"Invalid argument for '{FuncName}'\nValue '{val}' is not valid");
-                        return;
-                    }
-
-                    data = BitConverter.GetBytes(value);
-                }
-
-                if (data == null)
-                {
-                    throw new OMODFrameworkException($"Data in '{FuncName}' can not be null!");
-                }
-
-                using (var fs = File.OpenWrite(pluginPath))
-                {
-                    if (offset + data.Length >= fs.Length)
-                    {
-                        Warn($"Invalid argument for '{FuncName}'\nOffset {line.ElementAt(2)} is out of range");
-                        return;
-                    }
-
-                    fs.Position = offset;
-
-                    try
-                    {
-                        fs.Write(data, 0, data.Length);
-                    }
-                    catch (Exception e)
-                    {
-                        throw new OMODFrameworkException(
-                            $"Could not write to file {pluginPath} in '{FuncName}' at {_cLine}\n{e}");
-                    }
-                }
-            }
-        }
-
-        private class FunctionInputString : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; }
-            public override string FuncName { get; set; } = "InputString";
-            public override int MinArgs { get; set; } = 2;
-            public override int MaxArgs { get; set; } = 4;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                var title = line.Count > 2 ? line.ElementAt(2) : "";
-                var initialText = line.Count > 3 ? line.ElementAt(3) : "";
-
-                var result = _scriptFunctions.InputString(title, initialText, false);
-                _variables[line.ElementAt(1)] = result ?? "";
-            }
-        }
-
-        private class FunctionDisplayFile : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; } = new List<string>{"DisplayText", "DisplayImage"};
-            public override string FuncName { get; set; }
-            public override int MinArgs { get; set; } = 2;
-            public override int MaxArgs { get; set; } = 3;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                var image = line.ElementAt(0) == "DisplayImage";
-                FuncName = line.ElementAt(0);
-
-                if (!Utils.IsSafeFileName(line.ElementAt(1)))
-                {
-                    Warn($"Illegal path supplied to '{FuncName}'");
-                    return;
-                }
-
-                var path = Path.Combine(_dataFiles, line.ElementAt(1));
-                if (!File.Exists(path))
-                {
-                    Warn($"Invalid argument for '{FuncName}'\nFile {path} does not exist");
-                    return;
-                }
-
-                var title = line.Count > 2 ? line.ElementAt(2) : line.ElementAt(1);
-
-                if(image)
-                    _scriptFunctions.DisplayImage(path, title);
-                else
-                {
-                    var text = File.ReadAllText(path, Encoding.UTF8);
-                    _scriptFunctions.DisplayText(text, title);
-                }
-            }
-        }
-
-        private class FunctionRegisterBSA : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; } = new List<string>{"RegisterBSA", "UnregisterBSA"};
-            public override string FuncName { get; set; }
-            public override int MinArgs { get; set; } = 2;
-            public override int MaxArgs { get; set; } = 2;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                var register = line.ElementAt(0) == "RegisterBSA";
-                FuncName = line.ElementAt(0);
-
-                var esp = line.ElementAt(1).ToLower();
-                if (esp.Contains(",") || esp.Contains(";") || esp.Contains("="))
-                {
-                    Warn($"Invalid argument for '{FuncName}'\nBSA file names are not allowed to include the characters ',' '=' or ';'");
-                    return;
-                }
-
-                if (register && !_srd.RegisterBSASet.Contains(esp))
-                    _srd.RegisterBSASet.Add(esp);
-                else
-                    _srd.RegisterBSASet.RemoveWhere(s => s == esp);
-            }
-        }
-
-        private class FunctionReadINI : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; }
-            public override string FuncName { get; set; } = "ReadINI";
-            public override int MinArgs { get; set; } = 4;
-            public override int MaxArgs { get; set; } = 4;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                switch (Framework.CurrentReadINIMethod)
-                {
-                    case Framework.ReadINIMethod.ReadOriginalINI:
-                        _variables[line.ElementAt(1)] = OblivionINI.GetINIValue(line.ElementAt(2), line.ElementAt(3));
-                        break;
-                    case Framework.ReadINIMethod.ReadWithInterface:
-                        var s = _scriptFunctions.ReadOblivionINI(line.ElementAt(2), line.ElementAt(3));
-                        _variables[line.ElementAt(1)] = s ?? throw new OMODFrameworkException("Could not read the oblivion.ini file using the function IScriptFunctions.ReadOblivionINI");
-                        break;
-                    default:
-                        throw new OMODFrameworkException("Unknown ReadINIMethod for Framework.CurrentReadINIMethod!");
-                }
-            }
-        }
-
-        private class FunctionReadRenderer : OBMMFunction
-        {
-            public override List<string> FuncNames { get; set; }
-            public override string FuncName { get; set; } = "ReadRendererInfo";
-            public override int MinArgs { get; set; } = 3;
-            public override int MaxArgs { get; set; } = 3;
-
-            public override void Run(ref IReadOnlyCollection<string> line)
-            {
-                switch (Framework.CurrentReadRendererMethod)
-                {
-                    case Framework.ReadRendererMethod.ReadOriginalRenderer:
-                        _variables[line.ElementAt(1)] = OblivionRenderInfo.GetInfo(line.ElementAt(2));
-                        break;
-                    case Framework.ReadRendererMethod.ReadWithInterface:
-                        var s = _scriptFunctions.ReadRendererInfo(line.ElementAt(2));
-                        _variables[line.ElementAt(1)] = s ?? throw new OMODFrameworkException("Could not read the RenderInfo.txt file using the function IScriptFunctions.ReadRendererInfo");
-                        break;
-                    default:
-                        throw new OMODFrameworkException("Unknown ReadRendererMethod for Framework.CurrentReadRendererMethod!");
-                }
-            }
         }
     }
 }

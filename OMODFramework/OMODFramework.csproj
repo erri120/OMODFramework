@@ -64,6 +64,7 @@
     <Compile Include="Scripting\IScriptFunctions.cs" />
     <Compile Include="Scripting\OBMMScriptHandler.cs" />
     <Compile Include="Scripting\ScriptRunner.cs" />
+    <Compile Include="Scripting\SharedFunction.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
