@@ -28,6 +28,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using Alphaleonis.Win32.Filesystem;
+using OblivionModManager.Scripting;
 using OMODFramework.Classes;
 
 namespace OMODFramework.Scripting
@@ -37,6 +38,8 @@ namespace OMODFramework.Scripting
         internal readonly IScriptFunctions ScriptFunctions;
 
         private readonly ScriptType _type;
+
+        internal SharedFunctionsRegistry Registry;
 
         internal SharedFunctionsHandler(ScriptType type, ref IScriptFunctions scriptFunctions)
         {
@@ -114,7 +117,7 @@ namespace OMODFramework.Scripting
         public abstract int MaxArgs { get; set; }
 
         public abstract void Run(ref IReadOnlyCollection<string> line);
-        public abstract void Execute();
+        public abstract void Execute(ref IReadOnlyCollection<object> args);
 
         protected SharedFunction(ref SharedFunctionsHandler handler)
         {
@@ -145,7 +148,7 @@ namespace OMODFramework.Scripting
             }
         }
 
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
@@ -162,8 +165,7 @@ namespace OMODFramework.Scripting
         {
             OBMMScriptHandler.Variables[line.ElementAt(1)] = line.ElementAt(2);
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
@@ -189,8 +191,7 @@ namespace OMODFramework.Scripting
                 Handler.Warn("Invalid arguments for 'CombinePaths'");
             }
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
@@ -234,8 +235,7 @@ namespace OMODFramework.Scripting
                     : line.ElementAt(2).Substring(start, end);
             }
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
@@ -254,8 +254,7 @@ namespace OMODFramework.Scripting
         {
             OBMMScriptHandler.Variables[line.ElementAt(1)] = line.ElementAt(2).Length.ToString();
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
@@ -628,8 +627,7 @@ namespace OMODFramework.Scripting
                 Handler.Warn($"Invalid arguments for {FuncName}");
             }
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
@@ -649,8 +647,7 @@ namespace OMODFramework.Scripting
             line.ElementAt(1).Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries)
                 .Do(OBMMScriptHandler.ExtraLines.Enqueue);
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
@@ -695,8 +692,7 @@ namespace OMODFramework.Scripting
                     loadAfter));
             }
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
@@ -801,12 +797,10 @@ namespace OMODFramework.Scripting
             else
                 OBMMScriptHandler.Srd.DependsOn.Add(cd);
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
-
         public FunctionConflicts(ref SharedFunctionsHandler handler) : base(ref handler) { }
     }
 
@@ -830,12 +824,10 @@ namespace OMODFramework.Scripting
             if (!OBMMScriptHandler.Srd.UncheckedPlugins.Contains(plugin))
                 OBMMScriptHandler.Srd.UncheckedPlugins.Add(plugin);
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
-
         public FunctionUncheckESP(ref SharedFunctionsHandler handler) : base(ref handler) { }
     }
 
@@ -877,12 +869,10 @@ namespace OMODFramework.Scripting
                     return;
             }
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
-
         public FunctionSetDeactivationWarning(ref SharedFunctionsHandler handler) : base(ref handler) { }
     }
 
@@ -957,12 +947,10 @@ namespace OMODFramework.Scripting
                 File.WriteAllLines(file, lines);
             }
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
-
         public FunctionEditXML(ref SharedFunctionsHandler handler) : base(ref handler) { }
     }
 
@@ -1039,12 +1027,10 @@ namespace OMODFramework.Scripting
                 }
             }
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
-
         public FunctionModifyInstall(ref SharedFunctionsHandler handler) : base(ref handler) { }
     }
 
@@ -1110,12 +1096,10 @@ namespace OMODFramework.Scripting
                 }
             });
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
-
         public FunctionModifyInstallFolder(ref SharedFunctionsHandler handler) : base(ref handler) { }
     }
 
@@ -1194,12 +1178,10 @@ namespace OMODFramework.Scripting
                 OBMMScriptHandler.Srd.CopyDataFiles.Add(new ScriptCopyDataFile(from.ToLower(), to.ToLower()));
             }
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
-
         public FunctionCopyDataFile(ref SharedFunctionsHandler handler) : base(ref handler) { }
     }
 
@@ -1272,12 +1254,10 @@ namespace OMODFramework.Scripting
                 OBMMScriptHandler.Srd.CopyDataFiles.Add(new ScriptCopyDataFile(fFrom, fTo));
             });
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
-
         public FunctionCopyDataFolder(ref SharedFunctionsHandler handler) : base(ref handler) { }
     }
 
@@ -1314,12 +1294,10 @@ namespace OMODFramework.Scripting
                 Handler.Warn($"Invalid argument for '{FuncName}'");
             }
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
-
         public FunctionGetDirectoryFileName(ref SharedFunctionsHandler handler) : base(ref handler) { }
     }
 
@@ -1358,6 +1336,7 @@ namespace OMODFramework.Scripting
                 if (to.IndexOfAny(new[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar}) != -1)
                 {
                     Handler.Warn("OBMMScriptHandler.Plugins cannot be copied to subdirectories of the data folder");
+
                     return;
                 }
 
@@ -1381,6 +1360,43 @@ namespace OMODFramework.Scripting
                     return;
                 }
             }
+
+            Work(from, to, plugin, OBMMScriptHandler.Plugins, OBMMScriptHandler.DataFiles, ref OBMMScriptHandler.Srd, ref line, true);
+        }
+
+        public override void Execute(ref IReadOnlyCollection<object> args)
+        {
+            if (args.Count != 6)
+                return;
+
+            if (!(args.ElementAt(0) is string from))
+                return;
+
+            if (!(args.ElementAt(1) is string to))
+                return;
+
+            if (!(args.ElementAt(2) is bool plugin))
+                return;
+
+            if (!(args.ElementAt(3) is string dataPath))
+                return;
+
+            if (!(args.ElementAt(4) is string pluginPath))
+                return;
+
+            if (!(args.ElementAt(5) is ScriptReturnData srd))
+                return;
+
+            IReadOnlyCollection<string> a = null;
+
+            Work(from, to, plugin, dataPath, pluginPath, ref srd, ref a);
+        }
+
+        private void Work(string from, string to, bool plugin, string dataFilesPath, string pluginPath, ref ScriptReturnData srd, ref IReadOnlyCollection<string> line, bool obmm = false)
+        {
+            var pathFrom = plugin
+                ? Path.Combine(pluginPath, from)
+                : Path.Combine(dataFilesPath, from);
 
             switch (Framework.CurrentPatchMethod)
             {
@@ -1437,7 +1453,7 @@ namespace OMODFramework.Scripting
                             throw new OMODFrameworkException($"The file {dataPath} could not be deleted!\n{e}");
                         }
                     }
-                    else if (line.Count < 4 || line.ElementAt(3) != "True") return;
+                    else if (obmm && (line.Count < 4 || line.ElementAt(3) != "True")) return;
 
                     try
                     {
@@ -1451,8 +1467,8 @@ namespace OMODFramework.Scripting
 
                     break;
                 case Framework.PatchMethod.CreatePatchInMod:
-                    OBMMScriptHandler.Srd.PatchFiles.RemoveWhere(s => s.CopyTo == to.ToLower());
-                    OBMMScriptHandler.Srd.PatchFiles.Add(new ScriptCopyDataFile(from.ToLower(), to.ToLower()));
+                    srd.PatchFiles.RemoveWhere(s => s.CopyTo == to.ToLower());
+                    srd.PatchFiles.Add(new ScriptCopyDataFile(from.ToLower(), to.ToLower()));
                     break;
                 case Framework.PatchMethod.PatchWithInterface:
                     Handler.ScriptFunctions.Patch(pathFrom, to);
@@ -1460,11 +1476,6 @@ namespace OMODFramework.Scripting
                 default:
                     throw new OMODFrameworkException("Unknown PatchMethod for Framework.CurrentPatchMethod!");
             }
-        }
-
-        public override void Execute()
-        {
-            throw new NotImplementedException();
         }
 
         public FunctionPatch(ref SharedFunctionsHandler handler) : base(ref handler) { }
@@ -1502,8 +1513,7 @@ namespace OMODFramework.Scripting
 
             OBMMScriptHandler.Srd.SDPEdits.Add(new SDPEditInfo(package, line.ElementAt(2), shaderPath));
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
@@ -1523,8 +1533,7 @@ namespace OMODFramework.Scripting
             OBMMScriptHandler.Srd.INIEdits.Add(new INIEditInfo(line.ElementAt(1), line.ElementAt(2),
                 line.ElementAt(3)));
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
@@ -1560,8 +1569,7 @@ namespace OMODFramework.Scripting
                 line.ElementAt(2).ToLower(),
                 line.ElementAt(3)));
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
@@ -1691,8 +1699,7 @@ namespace OMODFramework.Scripting
                 }
             }
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
@@ -1715,8 +1722,7 @@ namespace OMODFramework.Scripting
             var result = Handler.ScriptFunctions.InputString(title, initialText, false);
             OBMMScriptHandler.Variables[line.ElementAt(1)] = result ?? "";
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
@@ -1759,8 +1765,7 @@ namespace OMODFramework.Scripting
                 Handler.ScriptFunctions.DisplayText(text, title);
             }
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
@@ -1793,8 +1798,7 @@ namespace OMODFramework.Scripting
             else
                 OBMMScriptHandler.Srd.RegisterBSASet.RemoveWhere(s => s == esp);
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
@@ -1827,8 +1831,7 @@ namespace OMODFramework.Scripting
                     throw new OMODFrameworkException("Unknown ReadINIMethod for Framework.CurrentReadINIMethod!");
             }
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }
@@ -1861,8 +1864,7 @@ namespace OMODFramework.Scripting
                         "Unknown ReadRendererMethod for Framework.CurrentReadRendererMethod!");
             }
         }
-
-        public override void Execute()
+        public override void Execute(ref IReadOnlyCollection<object> args)
         {
             throw new NotImplementedException();
         }

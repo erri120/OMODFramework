@@ -143,5 +143,41 @@ namespace OMODFramework.Scripting
         /// </summary>
         /// <returns></returns>
         Version OblivionVersion();
+
+        /// <summary>
+        /// Gets the <see cref="Version"/> of a plugin in data\\obse\\plugins\\
+        /// </summary>
+        /// <param name="path">Relative path to the plugin based from data\\obse\\plugins\\</param>
+        /// <returns></returns>
+        Version OBSEPluginVersion(string path);
+
+        /// <summary>
+        /// Gets a HashSet of all ESPs, see <see cref="ScriptESP"/> for more info, this should
+        /// include all ESPs
+        /// </summary>
+        /// <returns></returns>
+        HashSet<ScriptESP> GetESPs();
+
+        /// <summary>
+        /// Gets a HashSet with the name of all active OMODs.
+        /// </summary>
+        /// <returns></returns>
+        HashSet<string> GetActiveOMODNames();
+    }
+
+    /// <summary>
+    /// Simple struct for storing information about an ESP used during script executing
+    /// </summary>
+    public struct ScriptESP
+    {
+        /// <summary>
+        /// Name of the ESP without extension
+        /// </summary>
+        public string Name;
+
+        /// <summary>
+        /// Whether the ESP is active or not
+        /// </summary>
+        public bool Active;
     }
 }
