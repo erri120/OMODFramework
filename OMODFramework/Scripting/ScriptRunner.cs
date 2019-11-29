@@ -22,6 +22,8 @@
  * GPLv2: https://opensource.org/licenses/gpl-2.0.php
  */
 
+using System;
+
 namespace OMODFramework.Scripting
 {
     internal class ScriptRunner
@@ -41,15 +43,28 @@ namespace OMODFramework.Scripting
             }
 
             var handler = new SharedFunctionsHandler(type, ref scriptFunctions);
+            var srd = new ScriptReturnData();
+            var dotNetScriptFunctions = new Lazy<DotNetScriptFunctions>(() =>
+                new DotNetScriptFunctions(srd, dataPath, pluginsPath, ref handler)).Value;
 
-            if (type == ScriptType.OBMMScript)
-            {
-                return OBMMScriptHandler.Execute(script, dataPath, pluginsPath, ref handler);
+            switch (type) {
+                case ScriptType.OBMMScript:
+                    return OBMMScriptHandler.Execute(script, dataPath, pluginsPath, ref handler);
+                case ScriptType.Python: //TODO
+                    break;
+                case ScriptType.Csharp:
+                    DotNetScriptHandler.ExecuteCS(script, ref dotNetScriptFunctions);
+                    break;
+                case ScriptType.VB:
+                    DotNetScriptHandler.ExecuteVB(script, ref dotNetScriptFunctions);
+                    break;
+                case ScriptType.Count: //Impossible
+                    break;
+                default: //Impossible
+                    return srd;
             }
 
-            //TODO: other script types
-
-            return null;
+            return srd;
         }
     }
 }
