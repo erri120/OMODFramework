@@ -187,6 +187,23 @@ namespace OMODFramework.Scripting
         /// <param name="file">Relative path to the file inside the data folder</param>
         /// <returns></returns>
         byte[] ReadExistingDataFile(string file);
+
+        /// <summary>
+        /// Gets the contents of a file within a BSA, will only get called when <see cref="Framework.CurrentBSAHandling"/>
+        /// is set to <c>WithInterface</c>
+        /// </summary>
+        /// <param name="file">name of the file within a bsa</param>
+        /// <returns></returns>
+        byte[] GetDataFileFromBSA(string file);
+
+        /// <summary>
+        /// Gets the content of a file within a specific bsa, will only get called when <see cref="Framework.CurrentBSAHandling"/>
+        /// is set to <c>WithInterface</c> 
+        /// </summary>
+        /// <param name="bsa">name of the bsa</param>
+        /// <param name="file">name of the file within a bsa</param>
+        /// <returns></returns>
+        byte[] GetDataFileFromBSA(string bsa, string file);
     }
 
     /// <summary>

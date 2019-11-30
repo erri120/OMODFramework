@@ -809,12 +809,27 @@ namespace OMODFramework.Scripting
 
         public byte[] GetDataFileFromBSA(string file)
         {
-            throw new NotImplementedException();
+            return GetFromBSA(null, file);
         }
 
         public byte[] GetDataFileFromBSA(string bsa, string file)
         {
-            throw new NotImplementedException();
+            return GetFromBSA(bsa, file);
+        }
+
+        private byte[] GetFromBSA(string bsa, string file)
+        {
+            switch (Framework.CurrentBSAHandling)
+            {
+                case Framework.BSAHandling.OriginalOBMM:
+                    return bsa == null ? BSAArchive.GetFileFromBSA(file) : BSAArchive.GetFileFromBSA(bsa, file);
+                case Framework.BSAHandling.WithInterface:
+                    return bsa == null
+                        ? _handler.ScriptFunctions.GetDataFileFromBSA(file)
+                        : _handler.ScriptFunctions.GetDataFileFromBSA(bsa, file);
+                default:
+                    throw new OMODFrameworkException("Unknown BSAHandling for Framework.CurrentBSAHandling!");
+            }
         }
 
         public void GenerateNewDataFile(string file, byte[] data)
