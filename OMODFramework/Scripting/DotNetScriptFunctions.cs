@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using OblivionModManager.Scripting;
+using OMODFramework.Classes;
 using Directory = Alphaleonis.Win32.Filesystem.Directory;
 using File = Alphaleonis.Win32.Filesystem.File;
 using Path = Alphaleonis.Win32.Filesystem.Path;
@@ -53,19 +54,19 @@ namespace OMODFramework.Scripting
                 throw new ScriptingException($"Folder '{path}' does not exist");
         }
 
-        private void GetFilePaths(string path, string pattern, bool recursive, out IReadOnlyCollection<string> list)
+        private static void GetFilePaths(string path, string pattern, bool recursive, out IReadOnlyCollection<string> list)
         {
             list = Directory.GetFiles(path, !string.IsNullOrWhiteSpace(pattern) ? pattern : "*",
                 recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
         }
 
-        private void GetDirectoryPaths(string path, string pattern, bool recursive, out IReadOnlyCollection<string> list)
+        private static void GetDirectoryPaths(string path, string pattern, bool recursive, out IReadOnlyCollection<string> list)
         {
             list = Directory.GetDirectories(path, !string.IsNullOrWhiteSpace(pattern) ? pattern : "*",
                 recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
         }
 
-        private void StripPathList(ref IReadOnlyCollection<string> paths, int baseLength, out IList<string> rList)
+        private static void StripPathList(ref IReadOnlyCollection<string> paths, int baseLength, out IList<string> rList)
         {
             var list = (List<string>)paths;
             paths.Where(Path.IsPathRooted).Do(p => list[list.IndexOf(p)] = p.Substring(baseLength));
@@ -565,107 +566,215 @@ namespace OMODFramework.Scripting
 
         public void RegisterBSA(string path)
         {
-            throw new NotImplementedException();
+            CheckPluginDataSafety(path, false);
+            if(path.Contains(";") || path.Contains(",") || path.Contains("="))
+                throw new ScriptingException("BSA path cannot contain the characters ',', '=' or ';'");
+            if (!_srd.RegisterBSASet.Contains(path.ToLower()))
+                _srd.RegisterBSASet.Add(path.ToLower());
         }
 
         public void UnregisterBSA(string path)
         {
-            throw new NotImplementedException();
+            CheckPluginDataSafety(path, false);
+            if(path.Contains(";") || path.Contains(",") || path.Contains("="))
+                throw new ScriptingException("BSA path cannot contain the characters ',', '=' or ';'");
+            _srd.RegisterBSASet.RemoveWhere(s => s == path.ToLower());
         }
 
         public void EditINI(string section, string key, string value)
         {
-            throw new NotImplementedException();
+            _srd.INIEdits.Add(new INIEditInfo(section, key, value));
         }
 
         public void EditShader(byte package, string name, string path)
         {
-            throw new NotImplementedException();
+            CheckPluginDataSafety(path, false);
+            _srd.SDPEdits.Add(new SDPEditInfo(package, name, Path.Combine(_dataFiles, path)));
         }
 
         public void FatalError()
         {
-            throw new NotImplementedException();
+            _srd.CancelInstall = true;
         }
 
         public void SetGMST(string file, string edid, string value)
         {
-            throw new NotImplementedException();
+            CheckPluginDataSafety(file, true);
+            _srd.ESPEdits.Add(new ScriptESPEdit(true, file.ToLower(), edid, value));
         }
 
         public void SetGlobal(string file, string edid, string value)
         {
-            throw new NotImplementedException();
+            CheckPluginDataSafety(file, true);
+            _srd.ESPEdits.Add(new ScriptESPEdit(false, file.ToLower(), edid, value));
         }
 
         public void SetPluginByte(string file, long offset, byte value)
         {
-            throw new NotImplementedException();
+            SetPluginData(file, offset, value);
         }
 
         public void SetPluginShort(string file, long offset, short value)
         {
-            throw new NotImplementedException();
+            SetPluginData(file, offset, value);
         }
 
         public void SetPluginInt(string file, long offset, int value)
         {
-            throw new NotImplementedException();
+            SetPluginData(file, offset, value);
         }
 
         public void SetPluginLong(string file, long offset, long value)
         {
-            throw new NotImplementedException();
+            SetPluginData(file, offset, value);
         }
 
         public void SetPluginFloat(string file, long offset, float value)
         {
-            throw new NotImplementedException();
+            SetPluginData(file, offset, value);
+        }
+
+        private void SetPluginData(string file, long offset, object value)
+        {
+            CheckPluginDataSafety(file, true);
+            using (var fs = File.OpenWrite(Path.Combine(_plugins, file)))
+            {
+                fs.Position = offset;
+                switch (value) {
+                    case byte b:
+                        fs.WriteByte(b);
+                        break;
+                    case short s: {
+                        var data = BitConverter.GetBytes(s);
+                        fs.Write(data, 0, 2);
+                        break;
+                    }
+                    case int i: {
+                        var data = BitConverter.GetBytes(i);
+                        fs.Write(data, 0, 4);
+                        break;
+                    }
+                    case long l: {
+                        var data = BitConverter.GetBytes(l);
+                        fs.Write(data, 0, 8);
+                        break;
+                    }
+                    case float f: {
+                        var data = BitConverter.GetBytes(f);
+                        fs.Write(data, 0, 4);
+                        break;
+                    }
+                }
+            }
         }
 
         public string InputString()
         {
-            throw new NotImplementedException();
+            return InputString("", "");
         }
 
         public string InputString(string title)
         {
-            throw new NotImplementedException();
+            return InputString(title, "");
         }
 
         public string InputString(string title, string initial)
         {
-            throw new NotImplementedException();
+            var result = _handler.ScriptFunctions.InputString(title, initial, false);
+            if(result == null)
+                FatalError();
+
+            return result ?? "";
         }
 
         public string ReadINI(string section, string value)
         {
-            throw new NotImplementedException();
+            switch (Framework.CurrentReadINIMethod)
+            {
+                case Framework.ReadINIMethod.ReadOriginalINI:
+                    return OblivionINI.GetINIValue(section, value);
+                case Framework.ReadINIMethod.ReadWithInterface:
+                    var s = _handler.ScriptFunctions.ReadOblivionINI(section, value);
+                    return s ?? throw new OMODFrameworkException(
+                               "Could not read the oblivion.ini file using the function IScriptFunctions.ReadOblivionINI");
+                default:
+                    throw new OMODFrameworkException("Unknown ReadINIMethod for Framework.CurrentReadINIMethod!");
+            }
         }
 
         public string ReadRendererInfo(string value)
         {
-            throw new NotImplementedException();
+            switch (Framework.CurrentReadINIMethod)
+            {
+                case Framework.ReadINIMethod.ReadOriginalINI:
+                    return OblivionRenderInfo.GetInfo(value);
+                case Framework.ReadINIMethod.ReadWithInterface:
+                    var s = _handler.ScriptFunctions.ReadRendererInfo(value);
+                    return s ?? throw new OMODFrameworkException(
+                               "Could not read the RenderInfo.txt file using the function IScriptFunctions.ReadRendererInfo");
+                default:
+                    throw new OMODFrameworkException("Unknown ReadRendererMethod for Framework.CurrentReadRendererMethod!");
+            }
         }
 
         public void EditXMLLine(string file, int line, string value)
         {
-            throw new NotImplementedException();
+            EditXML(file, line, value, false, null, null);
         }
 
         public void EditXMLReplace(string file, string find, string replace)
         {
-            throw new NotImplementedException();
+            EditXML(file, 0, null, true, find, replace);
+        }
+
+        private void EditXML(string file, int line, string value, bool doReplace, string find, string replace)
+        {
+            CheckPluginDataSafety(file, false);
+            var ext = Path.GetExtension(file).ToLower();
+            if(ext != ".txt" && ext != ".xml" && ext != ".bat" && ext != ".ini")
+                throw new ScriptingException("Can only edit files with a .xml, .ini, .bat or .txt extension");
+
+            var path = Path.Combine(_dataFiles, file);
+            if (doReplace)
+            {
+                var text = File.ReadAllText(path);
+                text = text.Replace(find, replace);
+
+                try
+                {
+                    File.WriteAllText(path, text);
+                }
+                catch (Exception e)
+                {
+                    throw new OMODFrameworkException($"Exception while trying to write all text to file at '{path}'\n{e}");
+                }
+            }
+            else
+            {
+                var lines = File.ReadAllLines(path);
+                if(line < 0 || line >= lines.Length)
+                    throw new ScriptingException("Invalid line number!");
+                lines[line] = value;
+                try
+                {
+                    File.WriteAllLines(path, lines);
+                }
+                catch (Exception e)
+                {
+                    throw new OMODFrameworkException($"Exception while trying to write all lines to file at '{path}'\n{e}");
+                }
+            }
         }
 
         public Form CreateCustomDialog()
         {
-            throw new NotImplementedException();
+            return new Form();
         }
 
         public byte[] ReadDataFile(string file)
         {
-            throw new NotImplementedException();
+            CheckPluginDataSafety(file, false);
+            return File.ReadAllBytes(Path.Combine(_dataFiles, file));
         }
 
         public byte[] ReadExistingDataFile(string file)
@@ -690,12 +799,16 @@ namespace OMODFramework.Scripting
 
         public void CancelDataFileCopy(string file)
         {
-            throw new NotImplementedException();
+            CheckPathSafety(file);
+            _srd.CopyDataFiles.RemoveWhere(s => s.CopyTo == file.ToLower());
+            //TODO: OBMM deleted the file at Path.Combine(_dataFiles, file); for some reason
         }
 
         public void CancelDataFolderCopy(string folder)
         {
-            throw new NotImplementedException();
+            CheckPathSafety(folder);
+            _srd.CopyDataFiles.RemoveWhere(s => s.CopyTo.StartsWith(folder.ToLower()));
+            //TODO: OBMM deleted the file at Path.Combine(_dataFiles, file); for some reason
         }
 
         public void GenerateBSA(string file, string path, string prefix, int cRatio, int cLevel)

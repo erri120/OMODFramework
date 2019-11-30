@@ -1582,7 +1582,7 @@ namespace OMODFramework.Scripting
         public override List<string> FuncNames { get; set; } = new List<string>
         {
             "SetPluginByte",
-            "SetOBMMScriptHandler.Pluginshort",
+            "SetPluginShort",
             "SetPluginLong",
             "SetPluginFloat",
             "SetPluginInt"
