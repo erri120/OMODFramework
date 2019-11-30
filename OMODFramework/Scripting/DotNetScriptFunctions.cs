@@ -92,8 +92,8 @@ namespace OMODFramework.Scripting
 
         private static void StripPathList(ref IReadOnlyCollection<string> paths, int baseLength, out IList<string> rList)
         {
-            var list = (List<string>)paths;
-            paths.Where(Path.IsPathRooted).Do(p => list[list.IndexOf(p)] = p.Substring(baseLength));
+            var list = paths.ToList();
+            paths.Where(Path.IsPathRooted).Do(p => list[list.IndexOf(p)] = p.Substring(baseLength + 1));
             rList = list;
         }
 
@@ -451,18 +451,12 @@ namespace OMODFramework.Scripting
                     recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).Do(f =>
                 {
                     var file = Path.GetFullPath(f).Substring(plugin ? _plugins.Length : _dataFiles.Length);
+                    if (file.StartsWith("\\")) file =  file.Substring(1);
                     if (install)
                     {
-                        /*if (plugin) haven't seen a DontInstallPluginFolder yet
-                        {
-
-                        }
-                        else
-                        {*/
-                            _srd.IgnoreData.RemoveWhere(s => s == file);
+                        _srd.IgnoreData.RemoveWhere(s => s == file);
                             if (!_srd.InstallData.Contains(file))
                                 _srd.InstallData.Add(file);
-                        //}
                     }
                     else
                     {
