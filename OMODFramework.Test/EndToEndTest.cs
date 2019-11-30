@@ -84,7 +84,7 @@ namespace OMODFramework.Test
 
             // Test extraction
 
-            var data = omod.GetDataFiles();
+            var data = omod.GetDataFiles().Result;
 
             var fList1 = new List<FileInfo>();
             var fList2 = new List<FileInfo>();
