@@ -399,11 +399,12 @@ namespace OMODFramework
 
             compressedStream.Read(buffer, 0, 5);
             decoder.SetDecoderProperties(buffer);
-
+            var progress = Framework.CompressionProgress;
+            progress.Init(sfs.Length, false);
             try
             {
                 decoder.Code(compressedStream, sfs, compressedStream.Length - compressedStream.Position, sfs.Length,
-                    null);
+                    progress);
             }
             finally
             {
@@ -449,10 +450,12 @@ namespace OMODFramework
 
             var fs = Utils.CreateTempFile();
             coder.WriteCoderProperties(fs);
+            var progress = Framework.CompressionProgress;
+            progress.Init(sfs.Length, true);
 
             try
             {
-                coder.Code(sfs, fs, sfs.Length, -1, null);
+                coder.Code(sfs, fs, sfs.Length, -1, progress);
             }
             catch
             {
