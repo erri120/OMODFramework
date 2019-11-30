@@ -24,8 +24,6 @@ This Framework uses a lot of the original algorithms for extraction, compression
 
 This Framework is available on [NuGet](https://www.nuget.org/packages/OMODFramework/), [GitHub Packages](https://github.com/erri120/OMODFramework/packages/63159) and [GitHub Release](https://github.com/erri120/OMODFramework/releases).
 
-Be sure to check the dependencies for the current version on [NuGet](https://www.nuget.org/packages/OMODFramework/) **befor** installing.
-
 ## Usage
 
 ### Extraction
@@ -34,6 +32,7 @@ Be sure to check the dependencies for the current version on [NuGet](https://www
 var omod = new OMOD(path);
 
 // returns the absolute path to the folder containing the data/plugin files
+// this is async so use either .Result or await
 var data = omod.GetDataFiles();
 var plugins = omod.GetPlugins();
 ```
@@ -73,6 +72,7 @@ var omod = new OMOD(path);
 
 var scriptFunctions = new ScriptFunctions(); //custom class that inherits IScriptFunctions
 
+// if you have already extracted the data and or plugins from the omod, use one of the overload function
 var srd = omod.RunScript(scriptFunctions);
 ```
 
