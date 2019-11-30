@@ -121,7 +121,7 @@ namespace OMODFramework.Scripting
 
         public Version GetOBMMVersion()
         {
-            return new Version(Framework.MajorVersion, Framework.MinorVersion, Framework.BuildNumber);
+            return new Version(Framework.MajorVersion, Framework.MinorVersion, Framework.BuildNumber, 0);
         }
 
         public Version GetOBSEVersion()
