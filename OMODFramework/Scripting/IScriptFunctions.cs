@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+    Copyright (C) 2019  erri120
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+using System;
 using System.Collections.Generic;
 
 namespace OMODFramework.Scripting
@@ -143,5 +160,65 @@ namespace OMODFramework.Scripting
         /// </summary>
         /// <returns></returns>
         Version OblivionVersion();
+
+        /// <summary>
+        /// Gets the <see cref="Version"/> of a plugin in data\\obse\\plugins\\
+        /// </summary>
+        /// <param name="path">Relative path to the plugin based from data\\obse\\plugins\\</param>
+        /// <returns></returns>
+        Version OBSEPluginVersion(string path);
+
+        /// <summary>
+        /// Gets a HashSet of all ESPs, see <see cref="ScriptESP"/> for more info, this should
+        /// include all ESPs
+        /// </summary>
+        /// <returns></returns>
+        HashSet<ScriptESP> GetESPs();
+
+        /// <summary>
+        /// Gets a HashSet with the name of all active OMODs.
+        /// </summary>
+        /// <returns></returns>
+        HashSet<string> GetActiveOMODNames();
+
+        /// <summary>
+        /// Use System.IO.File.ReadAllBytes to read the bytes of a file located inside the data folder
+        /// </summary>
+        /// <param name="file">Relative path to the file inside the data folder</param>
+        /// <returns></returns>
+        byte[] ReadExistingDataFile(string file);
+
+        /// <summary>
+        /// Gets the contents of a file within a BSA, will only get called when <see cref="Framework.CurrentBSAHandling"/>
+        /// is set to <c>WithInterface</c>
+        /// </summary>
+        /// <param name="file">name of the file within a bsa</param>
+        /// <returns></returns>
+        byte[] GetDataFileFromBSA(string file);
+
+        /// <summary>
+        /// Gets the content of a file within a specific bsa, will only get called when <see cref="Framework.CurrentBSAHandling"/>
+        /// is set to <c>WithInterface</c> 
+        /// </summary>
+        /// <param name="bsa">name of the bsa</param>
+        /// <param name="file">name of the file within a bsa</param>
+        /// <returns></returns>
+        byte[] GetDataFileFromBSA(string bsa, string file);
+    }
+
+    /// <summary>
+    /// Simple struct for storing information about an ESP used during script executing
+    /// </summary>
+    public struct ScriptESP
+    {
+        /// <summary>
+        /// Name of the ESP without extension
+        /// </summary>
+        public string Name;
+
+        /// <summary>
+        /// Whether the ESP is active or not
+        /// </summary>
+        public bool Active;
     }
 }

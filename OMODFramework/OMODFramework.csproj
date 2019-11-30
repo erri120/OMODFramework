@@ -47,6 +47,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Transactions" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -55,15 +56,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\BSA.cs" />
     <Compile Include="Classes\CompressionHandler.cs" />
     <Compile Include="Classes\Misc.cs" />
     <Compile Include="Classes\Oblivion.cs" />
     <Compile Include="Classes\OMOD.cs" />
     <Compile Include="Framework.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scripting\DotNetScriptFunctions.cs" />
+    <Compile Include="Scripting\DotNetScriptHandler.cs" />
     <Compile Include="Scripting\IScriptFunctions.cs" />
     <Compile Include="Scripting\OBMMScriptHandler.cs" />
+    <Compile Include="Scripting\Public.cs" />
     <Compile Include="Scripting\ScriptRunner.cs" />
+    <Compile Include="Scripting\SharedFunction.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

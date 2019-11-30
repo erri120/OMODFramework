@@ -23,6 +23,7 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Directory = Alphaleonis.Win32.Filesystem.Directory;
@@ -45,6 +46,7 @@ namespace OMODFramework
         internal static bool IsSafeFileName(string s)
         {
             s = s.Replace('/', '\\');
+            if (s.StartsWith("\\")) s = s.Substring(1);
             if (s.IndexOfAny(Path.GetInvalidPathChars()) != -1) return false;
             if (Path.IsPathRooted(s)) return false;
             if (s.StartsWith(".") || Array.IndexOf(Path.GetInvalidFileNameChars(), s[0]) != -1) return false;
@@ -57,6 +59,7 @@ namespace OMODFramework
         {
             if (s.Length == 0) return true;
             s = s.Replace('/', '\\');
+            if (s.StartsWith("\\")) s = s.Substring(1);
             if (s.IndexOfAny(Path.GetInvalidPathChars()) != -1) return false;
             if (Path.IsPathRooted(s)) return false;
             if (s.StartsWith(".") || Array.IndexOf(Path.GetInvalidFileNameChars(), s[0]) != -1) return false;
@@ -100,6 +103,11 @@ namespace OMODFramework
         }
 
         internal static void Do<T>(this IEnumerable<T> coll, Action<T> f)
+        {
+            foreach (var i in coll) f(i);
+        }
+
+        internal static void Do(this IEnumerable coll, Action<object> f)
         {
             foreach (var i in coll) f(i);
         }

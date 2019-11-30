@@ -71,6 +71,7 @@
   <ItemGroup>
     <Compile Include="CompressionTests.cs" />
     <Compile Include="ATest.cs" />
+    <Compile Include="CSharpTest.cs" />
     <Compile Include="EndToEndTest.cs" />
     <Compile Include="NexusFile.cs" />
     <Compile Include="OMODExtractionTest.cs" />
