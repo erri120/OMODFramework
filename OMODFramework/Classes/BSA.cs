@@ -23,6 +23,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using BSAList = System.Collections.Generic.List<OMODFramework.Classes.BSAArchive>;
@@ -226,9 +227,15 @@ namespace OMODFramework.Classes
             }
          */
 
+        internal static void Load(HashSet<string> list)
+        {
+            list.Do(f => new BSAArchive(f, true));
+            Loaded = true;
+        }
+
         internal static byte[] GetFileFromBSA(string path)
         {
-            //if(!Loaded) Load(true);
+            if(!Loaded) throw new OMODFrameworkException("BSAs need to be loaded before getting files from them!");
 
             var hash = GenHash(path);
             return !All.ContainsKey(hash) ? null : All[hash].GetRawData();
@@ -236,7 +243,7 @@ namespace OMODFramework.Classes
 
         internal static byte[] GetFileFromBSA(string bsa, string path)
         {
-            //if(!Loaded) Load(true);
+            if(!Loaded) throw new OMODFrameworkException("BSAs need to be loaded before getting files from them!");
 
             var hash = GenHash(path);
             if (!All.ContainsKey(hash)) return null;

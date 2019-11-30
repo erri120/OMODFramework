@@ -16,7 +16,9 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using OMODFramework.Classes;
 using Path = Alphaleonis.Win32.Filesystem.Path;
 
 namespace OMODFramework
@@ -109,6 +111,38 @@ namespace OMODFramework
         /// </summary>
         public static ReadRendererMethod CurrentReadRendererMethod { get; set; } =
             ReadRendererMethod.ReadOriginalRenderer;
+
+        /// <summary>
+        ///     Methods for handling BSA related functions like getting a file or extracting
+        ///     <para>
+        ///         <c>OriginalOBMM</c> - will use the original methods used by OBMM, requires <see cref="Framework.LoadBSAs"/>
+        ///     </para>
+        ///     <para>
+        ///         <c>WithInterface</c> - will redirect all requests to the interface functions
+        ///     </para>
+        /// </summary>
+        public enum BSAHandling { OriginalOBMM, WithInterface }
+
+        /// <summary>
+        ///     Method used for handling BSA related functions, see <see cref="BSAHandling"/> for all available options
+        /// </summary>
+        public static BSAHandling CurrentBSAHandling { get; set; } = BSAHandling.WithInterface;
+
+        /// <summary>
+        ///     This function will load all BSAs inside the provided HashSet. Do note that
+        ///     this function is required when you 
+        /// </summary>
+        /// <param name="fileList"></param>
+        public static void LoadBSAs(HashSet<string> fileList)
+        {
+            BSAArchive.Load(fileList);
+        }
+
+        /// <summary>
+        ///     This function should be called after you are finished with everything and have set <see cref="CurrentBSAHandling"/>
+        ///     to <c>OriginalOBMM</c>
+        /// </summary>
+        public static void ClearBSAs(){BSAArchive.Clear();}
 
         /// <summary>
         ///     Convenience function that will clean the entire temp folder for you
