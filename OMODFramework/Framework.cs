@@ -55,7 +55,7 @@ namespace OMODFramework
         /// <summary>
         ///     Here you can specify your own progress bar for compression or extraction if you want to
         /// </summary>
-        public static ICodeProgress CompressionProgress {get; set; }
+        public static ICodeProgress CodeProgress {get; set; }
 
         /// <summary>
         ///     Path to OMODFramework.dll if it's not at the default location at <c>Assembly.GetExecutingAssembly().Location</c>

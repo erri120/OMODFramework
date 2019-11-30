@@ -14,7 +14,7 @@ namespace OMODFramework.Example
             Framework.OblivionINIFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 "Oblivion.ini");
 
-            Framework.CompressionProgress = new Progress();
+            Framework.CodeProgress = new Progress();
 
             if(Directory.Exists(Framework.TempDir))
                 Framework.CleanTempDir();
