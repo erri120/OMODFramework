@@ -779,7 +779,8 @@ namespace OMODFramework.Scripting
 
         public byte[] ReadExistingDataFile(string file)
         {
-            throw new NotImplementedException();
+            CheckPathSafety(file);
+            return _handler.ScriptFunctions.ReadExistingDataFile(file);
         }
 
         public byte[] GetDataFileFromBSA(string file)
@@ -794,7 +795,27 @@ namespace OMODFramework.Scripting
 
         public void GenerateNewDataFile(string file, byte[] data)
         {
-            throw new NotImplementedException();
+            CheckPathSafety(file);
+            var path = Path.Combine(_dataFiles, file);
+            if (!File.Exists(path))
+            {
+                var ext = Path.GetExtension(path.ToLower());
+                if(ext == ".esm" || ext == ".esp")
+                    throw new ScriptingException("Copied data files cannot have a .esp or .esm file extension");
+                _srd.CopyDataFiles.RemoveWhere(s => s.CopyTo == file.ToLower());
+                _srd.CopyDataFiles.Add(new ScriptCopyDataFile(file, file));
+            }
+
+            if (!Directory.Exists(Path.GetDirectoryName(path)))
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+            try
+            {
+                File.WriteAllBytes(path, data);
+            }
+            catch (Exception e)
+            {
+                throw new OMODFrameworkException($"Could not write all bytes to file at '{path}'\n{e}");
+            }
         }
 
         public void CancelDataFileCopy(string file)

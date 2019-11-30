@@ -163,6 +163,13 @@ namespace OMODFramework.Scripting
         /// </summary>
         /// <returns></returns>
         HashSet<string> GetActiveOMODNames();
+
+        /// <summary>
+        /// Use System.IO.File.ReadAllBytes to read the bytes of a file located inside the data folder
+        /// </summary>
+        /// <param name="file">Relative path to the file inside the data folder</param>
+        /// <returns></returns>
+        byte[] ReadExistingDataFile(string file);
     }
 
     /// <summary>
