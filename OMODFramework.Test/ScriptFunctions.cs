@@ -126,5 +126,35 @@ namespace OMODFramework.Test
         {
             return new Version(1, 2, 416, 0);
         }
+
+        public Version OBSEPluginVersion(string path)
+        {
+            return new Version(1,0,0,0);
+        }
+
+        public HashSet<ScriptESP> GetESPs()
+        {
+            throw new NotImplementedException();
+        }
+
+        public HashSet<string> GetActiveOMODNames()
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] ReadExistingDataFile(string file)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] GetDataFileFromBSA(string file)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] GetDataFileFromBSA(string bsa, string file)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
