@@ -52,6 +52,14 @@ namespace OMODFramework
         /// </summary>
         public static string TempDir { get; set; } = Path.Combine(Path.GetTempPath(), "OMODFramework");
 
+        /// <summary>
+        ///     Here you can specify your own progress bar for compression or extraction if you want to
+        /// </summary>
+        public static ICodeProgress CodeProgress {get; set; }
+
+        /// <summary>
+        ///     Path to OMODFramework.dll if it's not at the default location at <c>Assembly.GetExecutingAssembly().Location</c>
+        /// </summary>
         public static string DLLPath { get; set; } =
             Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "OMODFramework.dll");
 
