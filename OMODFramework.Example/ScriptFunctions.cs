@@ -1,104 +1,86 @@
-﻿/*
-    Copyright (C) 2019  erri120
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using OMODFramework.Scripting;
 
-namespace OMODFramework.Test
+namespace OMODFramework.Example
 {
-    internal class ScriptFunctions : IScriptFunctions
+    public class ScriptFunctions : IScriptFunctions //IMPORTANT: DO NOT USE OblivionModManager.Scripting.IScriptFunctions
     {
         public void Warn(string msg)
         {
-            Debug.WriteLine($"[Warning]: {msg}");
+            Console.WriteLine($"[Warning]: {msg}");
         }
 
         public void Message(string msg)
         {
-            Debug.WriteLine($"[Message]: {msg}");
+            Console.WriteLine($"[Message]: {msg}");
         }
 
         public void Message(string msg, string title)
         {
-            Debug.WriteLine($"[Message]: {title} - {msg}");
+            Console.WriteLine($"[Message]: {title} - {msg}");
         }
 
         public List<int> Select(List<string> items, string title, bool isMultiSelect, List<string> previews, List<string> descriptions)
         {
-            Debug.WriteLine($"[Select]: {title} multi: {isMultiSelect}");
+            Console.WriteLine($"[Select]: {title} multi: {isMultiSelect}");
             for (var i = 0; i < items.Count; i++)
             {
                 var preview = previews?[i] != null ? previews[i] : "empty";
                 var description = descriptions?[i] != null ? descriptions[i] : "empty";
-                Debug.Write($"Items: {items[i]} | preview: {preview} | description: {description}");
+                Console.Write($"Items: {items[i]} | preview: {preview} | description: {description}");
             }
             return new List<int>{0};
         }
 
         public string InputString(string title, string initialText, bool useRTF)
         {
-            Debug.WriteLine($"[InputString]: {title}, text: {initialText}, rtf: {useRTF}");
+            Console.WriteLine($"[InputString]: {title}, text: {initialText}, rtf: {useRTF}");
             return "Hello World";
         }
 
         public int DialogYesNo(string title)
         {
-            Debug.WriteLine($"[DialogYesNo]: {title}");
+            Console.WriteLine($"[DialogYesNo]: {title}");
             return 1;
         }
 
         public int DialogYesNo(string title, string message)
         {
-            Debug.WriteLine($"[DialogYesNo]: {title} - {message}");
+            Console.WriteLine($"[DialogYesNo]: {title} - {message}");
             return 1;
         }
 
         public void DisplayImage(string path, string title)
         {
-            Debug.WriteLine($"[Image]: {title} - {path}");
+            Console.WriteLine($"[Image]: {title} - {path}");
         }
 
         public void DisplayText(string text, string title)
         {
-            Debug.WriteLine($"[Text]: {title} - {text}");
+            Console.WriteLine($"[Text]: {title} - {text}");
         }
 
         public void Patch(string from, string to)
         {
-            Debug.WriteLine($"[Patch]: {from} - {to}");
+            Console.WriteLine($"[Patch]: {from} - {to}");
         }
 
         public string ReadOblivionINI(string section, string name)
         {
-            Debug.WriteLine($"[ReadOblivionINI]: {section} - {name}");
+            Console.WriteLine($"[ReadOblivionINI]: {section} - {name}");
             return "";
         }
 
         public string ReadRendererInfo(string name)
         {
-            Debug.WriteLine($"[ReadRendererInfo]: {name}");
+            Console.WriteLine($"[ReadRendererInfo]: {name}");
             return "";
         }
 
         public bool DataFileExists(string path)
         {
-            Debug.WriteLine($"[DataFileExists]: {path}");
+            Console.WriteLine($"[DataFileExists]: {path}");
             return false;
         }
 

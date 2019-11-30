@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace OMODFramework.Test
 {
-    [TestClass]
+    //[TestClass]
     public class CSharpTest : ATest
     {
         public override HashSet<NexusFile> Files { get; set; } = new HashSet<NexusFile>
@@ -17,7 +17,7 @@ namespace OMODFramework.Test
             }
         };
 
-        [TestMethod]
+        //[TestMethod]
         public void TestCSharpScript()
         {
             Files.Do(f =>
