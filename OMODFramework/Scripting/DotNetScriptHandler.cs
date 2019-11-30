@@ -33,7 +33,7 @@ namespace OMODFramework.Scripting
                 OutputAssembly = ScriptOutputPath,
                 ReferencedAssemblies =
                 {
-                    //TODO: OMODFramework.dll
+                    Framework.DLLPath,
                     "System.dll",
                     "System.Drawing.dll",
                     "System.Windows.Forms.dll",

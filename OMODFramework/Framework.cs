@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using OMODFramework.Classes;
 using Path = Alphaleonis.Win32.Filesystem.Path;
 
@@ -50,6 +51,9 @@ namespace OMODFramework
         ///     Temp folder used for extraction. Default is %temp%\\OMODFramework\\
         /// </summary>
         public static string TempDir { get; set; } = Path.Combine(Path.GetTempPath(), "OMODFramework");
+
+        public static string DLLPath { get; set; } =
+            Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "OMODFramework.dll");
 
         /// <summary>
         ///     Absolute path to the Oblivion Game folder where <c>oblivion.exe</c> is located
