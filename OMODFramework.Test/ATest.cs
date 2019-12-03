@@ -39,10 +39,10 @@ namespace OMODFramework.Test
         [TestInitialize]
         public void Setup()
         {
-            Framework.TempDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestTempDir");
+            Framework.Settings.TempPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestTempDir");
 
-            if (!Directory.Exists(Framework.TempDir))
-                Directory.CreateDirectory(Framework.TempDir);
+            if (!Directory.Exists(Framework.Settings.TempPath))
+                Directory.CreateDirectory(Framework.Settings.TempPath);
             else
                 Framework.CleanTempDir();
 
