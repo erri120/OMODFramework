@@ -17,7 +17,6 @@
 
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using File = Alphaleonis.Win32.Filesystem.File;
 using Path = Alphaleonis.Win32.Filesystem.Path;
@@ -50,18 +49,18 @@ namespace OMODFramework.Test
         }
 
         [TestMethod]
-        public async Task TestExtraction()
+        public void TestExtraction()
         {
-            Files.Do(async f =>
+            Files.Do(f =>
             {
                 var omod = new OMOD(f.FileName);
 
                 Assert.IsNotNull(omod);
 
-                var data = await omod.GetDataFiles();
+                var data = omod.GetDataFiles();
                 Assert.IsNotNull(data);
 
-                var plugins = await omod.GetPlugins();
+                var plugins = omod.GetPlugins();
                 Assert.IsTrue(omod.AllPlugins.Count == 0 && plugins == null ||
                               omod.AllPlugins.Count >= 1 && plugins != null);
             });
@@ -131,7 +130,7 @@ namespace OMODFramework.Test
             Assert.IsTrue(omod.AllPlugins.Count == ops.ESPs.Count);
             Assert.IsTrue(omod.AllDataFiles.Count == ops.DataFiles.Count);
 
-            var data = omod.GetDataFiles().Result;
+            var data = omod.GetDataFiles();
             
             Directory.EnumerateFiles(data, "*", SearchOption.AllDirectories).Do(file =>
             {

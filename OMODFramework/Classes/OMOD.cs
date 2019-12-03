@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Zip;
 using OMODFramework.Scripting;
 using Path = Alphaleonis.Win32.Filesystem.Path;
@@ -93,7 +92,7 @@ namespace OMODFramework
                 if (_pD.Image != null)
                     return _pD.Image;
 
-                using (var stream = ExtractWholeFile("image").Result)
+                using (var stream = ExtractWholeFile("image"))
                 {
                     if (stream == null) return null;
 
@@ -114,7 +113,7 @@ namespace OMODFramework
             FileName = Path.GetFileName(path);
             LowerFileName = FileName.ToLower();
 
-            using (var configStream = ExtractWholeFile("config").Result)
+            using (var configStream = ExtractWholeFile("config"))
             {
                 if(configStream == null)
                     throw new OMODFrameworkException($"Could not find the configuration data for {FileName} !");
@@ -301,12 +300,12 @@ namespace OMODFramework
 
         public ScriptReturnData RunScript(IScriptFunctions scriptFunctions)
         {
-            return ScriptRunner.ExecuteScript(GetScript(), GetDataFiles().Result, GetPlugins().Result, scriptFunctions);
+            return ScriptRunner.ExecuteScript(GetScript(), GetDataFiles(), GetPlugins(), scriptFunctions);
         }
 
         public ScriptReturnData RunScript(IScriptFunctions scriptFunctions, string data)
         {
-            return ScriptRunner.ExecuteScript(GetScript(), data, GetPlugins().Result, scriptFunctions);
+            return ScriptRunner.ExecuteScript(GetScript(), data, GetPlugins(), scriptFunctions);
         }
 
         public ScriptReturnData RunScript(IScriptFunctions scriptFunctions, string data, string plugin)
@@ -316,7 +315,7 @@ namespace OMODFramework
 
         private HashSet<string> GetPluginSet()
         {
-            var tempStream = ExtractWholeFile("plugins.crc").Result;
+            var tempStream = ExtractWholeFile("plugins.crc");
             if(tempStream == null) return new HashSet<string>(0);
 
             using (var br = new BinaryReader(tempStream))
@@ -335,7 +334,7 @@ namespace OMODFramework
 
         private HashSet<DataFileInfo> GetDataSet()
         {
-            var tempStream = ExtractWholeFile("data.crc").Result;
+            var tempStream = ExtractWholeFile("data.crc");
             if(tempStream == null) return new HashSet<DataFileInfo>(0);
 
             using (var br = new BinaryReader(tempStream))
@@ -352,19 +351,19 @@ namespace OMODFramework
             }
         }
 
-        public async Task<string> GetPlugins()
+        public string GetPlugins()
         {
-            return await ParseCompressedStream("plugins.crc", "plugins");
+            return ParseCompressedStream("plugins.crc", "plugins");
         }
 
-        public async Task<string> GetDataFiles()
+        public string GetDataFiles()
         {
-            return await ParseCompressedStream("data.crc", "data");
+            return ParseCompressedStream("data.crc", "data");
         }
 
         public string GetReadme()
         {
-            var s = ExtractWholeFile("readme").Result;
+            var s = ExtractWholeFile("readme");
             if (s == null) return null;
 
             using (var br = new BinaryReader(s))
@@ -376,7 +375,7 @@ namespace OMODFramework
 
         public string GetScript()
         {
-            var s = ExtractWholeFile("script").Result;
+            var s = ExtractWholeFile("script");
             if (s == null) return null;
 
             using (var br = new BinaryReader(s))
@@ -389,7 +388,7 @@ namespace OMODFramework
         public string GetImage()
         {
             var bitmapPath = "";
-            var s = ExtractWholeFile("image", bitmapPath).Result;
+            var s = ExtractWholeFile("image", ref bitmapPath);
             if (s == null)
                 bitmapPath = null;
             else
@@ -397,14 +396,14 @@ namespace OMODFramework
             return bitmapPath;
         }
 
-        private async Task<string> ParseCompressedStream(string dataInfo, string dataCompressed)
+        private string ParseCompressedStream(string dataInfo, string dataCompressed)
         {
-            var infoStream = await ExtractWholeFile(dataInfo);
+            var infoStream = ExtractWholeFile(dataInfo);
             if (infoStream == null) return null;
 
-            var compressedStream = await ExtractWholeFile(dataCompressed);
+            var compressedStream = ExtractWholeFile(dataCompressed);
 
-            var path = await Task.Run(() => CompressionHandler.DecompressFiles(infoStream, compressedStream, Compression));
+            var path = CompressionHandler.DecompressFiles(infoStream, compressedStream, Compression);
 
             infoStream.Close();
             compressedStream.Close();
@@ -412,38 +411,36 @@ namespace OMODFramework
             return path;
         }
 
-        private async Task<Stream> ExtractWholeFile(string s)
+        private Stream ExtractWholeFile(string s)
         {
-            return await ExtractWholeFile(s, null);
+            string s2 = null;
+            return ExtractWholeFile(s, ref s2);
         }
 
-        private async Task<Stream> ExtractWholeFile(string s, string path)
+        private Stream ExtractWholeFile(string s, ref string path)
         {
             var ze = ModFile.GetEntry(s);
-            return ze == null ? null : await ExtractWholeFile(ze, path);
+            return ze == null ? null : ExtractWholeFile(ze, ref path);
         }
 
-        private async Task<Stream> ExtractWholeFile(ZipEntry ze, string path)
+        private Stream ExtractWholeFile(ZipEntry ze, ref string path)
         {
-            return await Task.Run(() =>
-            {
-                var file = ModFile.GetInputStream(ze);
-                Stream tempStream;
+            var file = ModFile.GetInputStream(ze);
+            Stream tempStream;
 
-                if (path != null || ze.Size > Framework.Settings.MaxMemoryStreamSize)
-                    tempStream = Utils.CreateTempFile(out path);
-                else
-                    tempStream = new MemoryStream((int)ze.Size);
+            if (path != null || ze.Size > Framework.Settings.MaxMemoryStreamSize)
+                tempStream = Utils.CreateTempFile(out path);
+            else
+                tempStream = new MemoryStream((int)ze.Size);
 
-                byte[] buffer = new byte[4096];
-                int i;
+            byte[] buffer = new byte[4096];
+            int i;
 
-                while ((i = file.Read(buffer, 0, 4096)) > 0)
-                    tempStream.Write(buffer, 0, i);
+            while ((i = file.Read(buffer, 0, 4096)) > 0)
+                tempStream.Write(buffer, 0, i);
 
-                tempStream.Position = 0;
-                return tempStream;
-            });
+            tempStream.Position = 0;
+            return tempStream;
         }
     }
 }

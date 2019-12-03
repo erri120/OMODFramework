@@ -32,7 +32,6 @@ This Framework is available on [NuGet](https://www.nuget.org/packages/OMODFramew
 var omod = new OMOD(path);
 
 // returns the absolute path to the folder containing the data/plugin files
-// this is async so use either .Result or await
 var data = omod.GetDataFiles();
 var plugins = omod.GetPlugins();
 ```
