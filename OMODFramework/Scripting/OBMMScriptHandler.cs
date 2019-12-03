@@ -626,7 +626,7 @@ namespace OMODFramework.Scripting
                 try
                 {
                     var v = new Version($"{line.ElementAt(2)}.0");
-                    var v2 = new Version($"{Framework.Version}.0");
+                    var v2 = new Version($"{Framework.Settings.Version}.0");
                     return line.ElementAt(1) == "VersionGreaterThan" ? v2 > v : v2 < v;
                 }
                 catch

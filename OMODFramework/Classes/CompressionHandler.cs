@@ -100,7 +100,7 @@ namespace OMODFramework
             _currentOutputStream?.Close();
 
             _currentOutputStream = File.Create(!Utils.IsSafeFileName(_currentFile)
-                ? Path.Combine(Framework.TempDir, "IllegalFile")
+                ? Path.Combine(Framework.Settings.TempPath, "IllegalFile")
                 : Path.Combine(BaseDirectory, _currentFile));
             _written = 0;
         }
@@ -169,7 +169,7 @@ namespace OMODFramework
                 _currentOutputStream?.Close();
 
                 _currentOutputStream = File.Create(!Utils.IsSafeFileName(_currentFile)
-                    ? Path.Combine(Framework.TempDir, "IllegalFile")
+                    ? Path.Combine(Framework.Settings.TempPath, "IllegalFile")
                     : Path.Combine(BaseDirectory, _currentFile));
             }
 
@@ -399,7 +399,7 @@ namespace OMODFramework
 
             compressedStream.Read(buffer, 0, 5);
             decoder.SetDecoderProperties(buffer);
-            var progress = Framework.CodeProgress;
+            var progress = Framework.Settings.CodeProgress;
             progress?.Init(sfs.Length, false);
             try
             {
@@ -450,7 +450,7 @@ namespace OMODFramework
 
             var fs = Utils.CreateTempFile();
             coder.WriteCoderProperties(fs);
-            var progress = Framework.CodeProgress;
+            var progress = Framework.Settings.CodeProgress;
             progress?.Init(sfs.Length, true);
 
             try

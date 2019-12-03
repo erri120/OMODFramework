@@ -135,6 +135,11 @@ namespace OMODFramework
         public string DllPath = Assembly.GetExecutingAssembly().Location;
 
         /// <summary>
+        ///     Custom code progress class for displaying the progress of compression/decompression
+        /// </summary>
+        public ICodeProgress CodeProgress;
+
+        /// <summary>
         ///     Settings used for Script execution
         /// </summary>
         public ScriptExecutionSettings ScriptExecutionSettings;

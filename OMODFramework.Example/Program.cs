@@ -16,6 +16,11 @@ namespace OMODFramework.Example
 
             Framework.CodeProgress = new Progress();
 
+            var settings = new FrameworkSettings()
+            {
+                
+            };
+
             if(Directory.Exists(Framework.TempDir))
                 Framework.CleanTempDir();
 

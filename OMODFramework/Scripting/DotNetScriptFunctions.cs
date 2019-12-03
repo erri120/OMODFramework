@@ -121,7 +121,7 @@ namespace OMODFramework.Scripting
 
         public Version GetOBMMVersion()
         {
-            return new Version(Framework.MajorVersion, Framework.MinorVersion, Framework.BuildNumber, 0);
+            return new Version(Framework.Settings.MajorVersion, Framework.Settings.MinorVersion, Framework.Settings.BuildNumber, 0);
         }
 
         public Version GetOBSEVersion()
@@ -707,32 +707,22 @@ namespace OMODFramework.Scripting
 
         public string ReadINI(string section, string value)
         {
-            switch (Framework.CurrentReadINIMethod)
-            {
-                case Framework.ReadINIMethod.ReadOriginalINI:
-                    return OblivionINI.GetINIValue(section, value);
-                case Framework.ReadINIMethod.ReadWithInterface:
-                    var s = _handler.ScriptFunctions.ReadOblivionINI(section, value);
-                    return s ?? throw new OMODFrameworkException(
-                               "Could not read the oblivion.ini file using the function IScriptFunctions.ReadOblivionINI");
-                default:
-                    throw new OMODFrameworkException("Unknown ReadINIMethod for Framework.CurrentReadINIMethod!");
-            }
+            if (!Framework.Settings.ScriptExecutionSettings.ReadINIWithInterface)
+                return OblivionINI.GetINIValue(section, value);
+
+            var s = _handler.ScriptFunctions.ReadOblivionINI(section, value);
+            return s ?? throw new OMODFrameworkException(
+                       "Could not read the oblivion.ini file using the function IScriptFunctions.ReadOblivionINI");
         }
 
         public string ReadRendererInfo(string value)
         {
-            switch (Framework.CurrentReadINIMethod)
-            {
-                case Framework.ReadINIMethod.ReadOriginalINI:
-                    return OblivionRenderInfo.GetInfo(value);
-                case Framework.ReadINIMethod.ReadWithInterface:
-                    var s = _handler.ScriptFunctions.ReadRendererInfo(value);
-                    return s ?? throw new OMODFrameworkException(
-                               "Could not read the RenderInfo.txt file using the function IScriptFunctions.ReadRendererInfo");
-                default:
-                    throw new OMODFrameworkException("Unknown ReadRendererMethod for Framework.CurrentReadRendererMethod!");
-            }
+            if (!Framework.Settings.ScriptExecutionSettings.ReadRendererInfoWithInterface)
+                return OblivionRenderInfo.GetInfo(value);
+
+            var s = _handler.ScriptFunctions.ReadRendererInfo(value);
+            return s ?? throw new OMODFrameworkException(
+                       "Could not read the RenderInfo.txt file using the function IScriptFunctions.ReadRendererInfo");
         }
 
         public void EditXMLLine(string file, int line, string value)
@@ -813,17 +803,12 @@ namespace OMODFramework.Scripting
 
         private byte[] GetFromBSA(string bsa, string file)
         {
-            switch (Framework.CurrentBSAHandling)
-            {
-                case Framework.BSAHandling.OriginalOBMM:
-                    return bsa == null ? BSAArchive.GetFileFromBSA(file) : BSAArchive.GetFileFromBSA(bsa, file);
-                case Framework.BSAHandling.WithInterface:
-                    return bsa == null
-                        ? _handler.ScriptFunctions.GetDataFileFromBSA(file)
-                        : _handler.ScriptFunctions.GetDataFileFromBSA(bsa, file);
-                default:
-                    throw new OMODFrameworkException("Unknown BSAHandling for Framework.CurrentBSAHandling!");
-            }
+            if(!Framework.Settings.ScriptExecutionSettings.HandleBSAsWithInterface)
+                return bsa == null ? BSAArchive.GetFileFromBSA(file) : BSAArchive.GetFileFromBSA(bsa, file);
+
+            return bsa == null
+                ? _handler.ScriptFunctions.GetDataFileFromBSA(file)
+                : _handler.ScriptFunctions.GetDataFileFromBSA(bsa, file);
         }
 
         public void GenerateNewDataFile(string file, byte[] data)

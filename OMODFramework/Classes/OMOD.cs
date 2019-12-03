@@ -121,7 +121,7 @@ namespace OMODFramework
                 using (var br = new BinaryReader(configStream))
                 {
                     var fileVersion = br.ReadByte();
-                    if(fileVersion > Framework.CurrentOmodVersion && !Framework.IgnoreVersion)
+                    if(fileVersion > Framework.Settings.CurrentOMODVersion && !Framework.Settings.IgnoreVersionCheck)
                         throw new OMODFrameworkException($"{FileName} was created with a newer version of OBMM and could not be loaded!");
 
                     ModName = br.ReadString();
@@ -227,7 +227,7 @@ namespace OMODFramework
                 ze = new ZipEntry("config");
                 zipStream.PutNextEntry(ze);
 
-                omodStream.Write(Framework.CurrentOmodVersion);
+                omodStream.Write(Framework.Settings.CurrentOMODVersion);
                 omodStream.Write(ops.Name);
                 omodStream.Write(ops.MajorVersion);
                 omodStream.Write(ops.MinorVersion);
@@ -430,7 +430,7 @@ namespace OMODFramework
                 var file = ModFile.GetInputStream(ze);
                 Stream tempStream;
 
-                if (path != null || ze.Size > Framework.MaxMemoryStreamSize)
+                if (path != null || ze.Size > Framework.Settings.MaxMemoryStreamSize)
                     tempStream = Utils.CreateTempFile(out path);
                 else
                     tempStream = new MemoryStream((int)ze.Size);

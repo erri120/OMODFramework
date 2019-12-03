@@ -49,7 +49,7 @@ namespace OMODFramework.Scripting
 
         internal void Warn(string msg)
         {
-            if (!Framework.EnableWarnings)
+            if (!Framework.Settings.ScriptExecutionSettings.EnableWarnings)
                 return;
 
             if (_type == ScriptType.OBMMScript)
@@ -1398,14 +1398,19 @@ namespace OMODFramework.Scripting
                 ? Path.Combine(pluginPath, from)
                 : Path.Combine(dataFilesPath, from);
 
-            switch (Framework.CurrentPatchMethod)
+            if (Framework.Settings.ScriptExecutionSettings.PatchWithInterface)
             {
-                case Framework.PatchMethod.CreatePatchGameFolder:
-                    if (string.IsNullOrWhiteSpace(Framework.OblivionGameFolder))
+                Handler.ScriptFunctions.Patch(pathFrom, to);
+            }
+            else
+            {
+                if (Framework.Settings.ScriptExecutionSettings.UseSafePatching)
+                {
+                    if (string.IsNullOrWhiteSpace(Framework.Settings.ScriptExecutionSettings.OblivionGamePath))
                         throw new OMODFrameworkException(
-                            $"{Framework.OblivionGameFolder} can not be null or whitespace!");
+                            $"{Framework.Settings.ScriptExecutionSettings.OblivionGamePath} can not be null or whitespace!");
 
-                    var patchFolder = Path.Combine(Framework.OblivionDataFolder, "Patch");
+                    var patchFolder = Path.Combine(Framework.Settings.ScriptExecutionSettings.OblivionDataPath, "Patch");
 
                     if (!Directory.Exists(patchFolder))
                         Directory.CreateDirectory(patchFolder);
@@ -1414,7 +1419,7 @@ namespace OMODFramework.Scripting
                     if (File.Exists(patchPath))
                         throw new OMODFrameworkException($"The file {patchPath} already exists");
 
-                    var toDataPath = Path.Combine(Framework.OblivionDataFolder, to);
+                    var toDataPath = Path.Combine(Framework.Settings.ScriptExecutionSettings.OblivionDataPath, to);
                     DateTime toTimeStamp = default;
                     if (File.Exists(toDataPath))
                     {
@@ -1432,14 +1437,14 @@ namespace OMODFramework.Scripting
                         throw new OMODFrameworkException(
                             $"The file {pathFrom} could not be copied to {patchPath}\n{e}");
                     }
-
-                    break;
-                case Framework.PatchMethod.OverwriteGameFolder:
-                    if (string.IsNullOrWhiteSpace(Framework.OblivionGameFolder))
+                }
+                else
+                {
+                    if (string.IsNullOrWhiteSpace(Framework.Settings.ScriptExecutionSettings.OblivionGamePath))
                         throw new OMODFrameworkException(
-                            $"{Framework.OblivionGameFolder} can not be null or whitespace!");
+                            $"{Framework.Settings.ScriptExecutionSettings.OblivionGamePath} can not be null or whitespace!");
 
-                    var dataPath = Path.Combine(Framework.OblivionDataFolder, to);
+                    var dataPath = Path.Combine(Framework.Settings.ScriptExecutionSettings.OblivionDataPath, to);
                     DateTime timeStamp = default;
                     if (File.Exists(dataPath))
                     {
@@ -1464,17 +1469,7 @@ namespace OMODFramework.Scripting
                     {
                         throw new OMODFrameworkException($"The file {pathFrom} could not be moved to {dataPath}\n{e}");
                     }
-
-                    break;
-                case Framework.PatchMethod.CreatePatchInMod:
-                    srd.PatchFiles.RemoveWhere(s => s.CopyTo == to.ToLower());
-                    srd.PatchFiles.Add(new ScriptCopyDataFile(from.ToLower(), to.ToLower()));
-                    break;
-                case Framework.PatchMethod.PatchWithInterface:
-                    Handler.ScriptFunctions.Patch(pathFrom, to);
-                    break;
-                default:
-                    throw new OMODFrameworkException("Unknown PatchMethod for Framework.CurrentPatchMethod!");
+                }
             }
         }
 
@@ -1815,20 +1810,17 @@ namespace OMODFramework.Scripting
 
         public override void Run(ref IReadOnlyCollection<string> line)
         {
-            switch (Framework.CurrentReadINIMethod)
+            if (Framework.Settings.ScriptExecutionSettings.ReadINIWithInterface)
             {
-                case Framework.ReadINIMethod.ReadOriginalINI:
-                    OBMMScriptHandler.Variables[line.ElementAt(1)] =
-                        OblivionINI.GetINIValue(line.ElementAt(2), line.ElementAt(3));
-                    break;
-                case Framework.ReadINIMethod.ReadWithInterface:
-                    var s = Handler.ScriptFunctions.ReadOblivionINI(line.ElementAt(2), line.ElementAt(3));
-                    OBMMScriptHandler.Variables[line.ElementAt(1)] =
-                        s ?? throw new OMODFrameworkException(
-                            "Could not read the oblivion.ini file using the function IScriptFunctions.ReadOblivionINI");
-                    break;
-                default:
-                    throw new OMODFrameworkException("Unknown ReadINIMethod for Framework.CurrentReadINIMethod!");
+                var s = Handler.ScriptFunctions.ReadOblivionINI(line.ElementAt(2), line.ElementAt(3));
+                OBMMScriptHandler.Variables[line.ElementAt(1)] =
+                    s ?? throw new OMODFrameworkException(
+                        "Could not read the oblivion.ini file using the function IScriptFunctions.ReadOblivionINI");
+            }
+            else
+            {
+                OBMMScriptHandler.Variables[line.ElementAt(1)] =
+                    OblivionINI.GetINIValue(line.ElementAt(2), line.ElementAt(3));
             }
         }
         public override void Execute(ref IReadOnlyCollection<object> args)
@@ -1848,20 +1840,16 @@ namespace OMODFramework.Scripting
 
         public override void Run(ref IReadOnlyCollection<string> line)
         {
-            switch (Framework.CurrentReadRendererMethod)
+            if (Framework.Settings.ScriptExecutionSettings.ReadRendererInfoWithInterface)
             {
-                case Framework.ReadRendererMethod.ReadOriginalRenderer:
-                    OBMMScriptHandler.Variables[line.ElementAt(1)] = OblivionRenderInfo.GetInfo(line.ElementAt(2));
-                    break;
-                case Framework.ReadRendererMethod.ReadWithInterface:
-                    var s = Handler.ScriptFunctions.ReadRendererInfo(line.ElementAt(2));
-                    OBMMScriptHandler.Variables[line.ElementAt(1)] =
-                        s ?? throw new OMODFrameworkException(
-                            "Could not read the RenderInfo.txt file using the function IScriptFunctions.ReadRendererInfo");
-                    break;
-                default:
-                    throw new OMODFrameworkException(
-                        "Unknown ReadRendererMethod for Framework.CurrentReadRendererMethod!");
+                var s = Handler.ScriptFunctions.ReadRendererInfo(line.ElementAt(2));
+                OBMMScriptHandler.Variables[line.ElementAt(1)] =
+                    s ?? throw new OMODFrameworkException(
+                        "Could not read the RenderInfo.txt file using the function IScriptFunctions.ReadRendererInfo");
+            }
+            else
+            {
+                OBMMScriptHandler.Variables[line.ElementAt(1)] = OblivionRenderInfo.GetInfo(line.ElementAt(2));
             }
         }
         public override void Execute(ref IReadOnlyCollection<object> args)
