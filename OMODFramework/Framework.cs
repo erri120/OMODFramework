@@ -55,28 +55,28 @@ namespace OMODFramework
             if (!Directory.Exists(Settings.TempPath))
                 return;
 
-            var dInfo = new DirectoryInfo(Settings.TempPath);
-            dInfo.GetFiles().Do(f =>
+            try
             {
-                if (!f.Exists || f.IsReadOnly)
-                    return;
-
-                try
+                var dInfo = new DirectoryInfo(Settings.TempPath);
+                dInfo.GetFiles().Do(f =>
                 {
+                    if (!f.Exists || f.IsReadOnly)
+                        return;
+
                     f.Delete();
-                }
-                catch
+                });
+                dInfo.GetDirectories().Do(d =>
                 {
-                    // ignored, file is used by another process or something/someone fucked up
-                }
-            });
-            dInfo.GetDirectories().Do(d =>
-            {
-                if (d.Exists && !d.Attributes.HasFlag(FileAttributes.ReadOnly)) d.Delete(true);
-            });
+                    if (d.Exists && !d.Attributes.HasFlag(FileAttributes.ReadOnly)) d.Delete(true);
+                });
 
-            if (deleteRoot)
-                Directory.Delete(Settings.TempPath);
+                if (deleteRoot)
+                    Directory.Delete(Settings.TempPath);
+            }
+            catch
+            {
+                // ignored, file is used by another process or something/someone fucked up
+            }
         }
     }
 
