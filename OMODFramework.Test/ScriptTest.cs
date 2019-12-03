@@ -79,12 +79,19 @@ namespace OMODFramework.Test
 
                 Assert.IsNotNull(omod);
 
+                var data = omod.GetDataFiles();
+                var plugins = omod.GetPlugins();
+
                 var scriptFunctions = new ScriptFunctions();
 
-                var srd = omod.RunScript(scriptFunctions);
+                var srd = omod.RunScript(scriptFunctions, data, plugins);
 
                 Assert.IsNotNull(srd);
                 Assert.IsTrue(!srd.CancelInstall);
+
+                srd.Pretty(omod, data, plugins);
+
+                Assert.IsNotNull(srd.InstallFiles);
             });
         }
     }

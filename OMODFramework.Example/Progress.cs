@@ -15,14 +15,9 @@ namespace OMODFramework.Example
 
         public void SetProgress(long inSize, long outSize)
         {
-            if (_compressing)
-            {
-                Console.WriteLine($"Compressing: {outSize} of {_total}");
-            }
-            else
-            {
-                Console.WriteLine($"Decompressing: {inSize} of {_total}");
-            }
+            Console.WriteLine(_compressing
+                ? $"Compressing: {outSize} of {_total}"
+                : $"Decompressing: {inSize} of {_total}");
         }
     }
 }
