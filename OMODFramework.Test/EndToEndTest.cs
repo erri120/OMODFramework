@@ -20,14 +20,14 @@ namespace OMODFramework.Test
         [TestInitialize]
         public void Setup()
         {
-            Framework.TempDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestTempDir");
+            Framework.Settings.TempPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestTempDir");
 
-            if (!Directory.Exists(Framework.TempDir))
-                Directory.CreateDirectory(Framework.TempDir);
+            if (!Directory.Exists(Framework.Settings.TempPath))
+                Directory.CreateDirectory(Framework.Settings.TempPath);
             else
                 Framework.CleanTempDir();
 
-            OMODFile = Path.Combine(Framework.TempDir, "ILoveTesting.omod");
+            OMODFile = Path.Combine(Framework.Settings.TempPath, "ILoveTesting.omod");
             ModFiles = new List<string>();
             FolderStructure = new List<string>();
 

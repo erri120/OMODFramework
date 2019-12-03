@@ -53,12 +53,12 @@ namespace OMODFramework.Classes
 
         internal static void GetINISection(string section, out List<string> list)
         {
-            if(string.IsNullOrWhiteSpace(Framework.OblivionINIFile))
+            if(string.IsNullOrWhiteSpace(Framework.Settings.ScriptExecutionSettings.OblivionINIPath))
                 throw new OMODFrameworkException("OblivionINI.GetINISection requires a path to oblivion.ini");
 
             var contents = new List<string>();
             var inSection = false;
-            using (var sr = new StreamReader(File.OpenRead(Framework.OblivionINIFile), Encoding.UTF8))
+            using (var sr = new StreamReader(File.OpenRead(Framework.Settings.ScriptExecutionSettings.OblivionINIPath), Encoding.UTF8))
             {
                 try
                 {
@@ -81,7 +81,7 @@ namespace OMODFramework.Classes
                 }
                 catch (Exception e)
                 {
-                    throw new OMODFrameworkException($"Could not read from oblivion.ini at {Framework.OblivionINIFile}\n{e}");
+                    throw new OMODFrameworkException($"Could not read from oblivion.ini at {Framework.Settings.ScriptExecutionSettings.OblivionINIPath}\n{e}");
                 }
             }
 
@@ -94,14 +94,14 @@ namespace OMODFramework.Classes
     {
         internal static string GetInfo(string s)
         {
-            if(string.IsNullOrWhiteSpace(Framework.OblivionRenderInfoFile))
+            if(string.IsNullOrWhiteSpace(Framework.Settings.ScriptExecutionSettings.OblivionRendererInfoPath))
                 throw new OMODFrameworkException("OblivionRenderInfo.GetInfo requires a path to the RenderInfo.txt file");
 
             var result = $"Value {s} not found";
 
             try
             {
-                var lines = File.ReadAllLines(Framework.OblivionRenderInfoFile);
+                var lines = File.ReadAllLines(Framework.Settings.ScriptExecutionSettings.OblivionRendererInfoPath);
                 lines.Where(t => t.Trim().ToLower().StartsWith(s)).Do(t =>
                 {
                     var split = t.Split(':');
@@ -111,7 +111,7 @@ namespace OMODFramework.Classes
             }
             catch (Exception e)
             {
-                throw new OMODFrameworkException($"Could not read from RenderInfo.txt file at {Framework.OblivionRenderInfoFile}\n{e}");
+                throw new OMODFrameworkException($"Could not read from RenderInfo.txt file at {Framework.Settings.ScriptExecutionSettings.OblivionRendererInfoPath}\n{e}");
             }
 
             return result;

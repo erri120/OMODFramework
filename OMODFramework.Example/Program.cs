@@ -9,20 +9,25 @@ namespace OMODFramework.Example
         private static void Main(string[] args)
         {
             // set the temp folder if you don't want it at %temp%/OMODFramework/
-            Framework.TempDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestTempDir");
+            Framework.Settings.TempPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestTempDir");
 
-            Framework.OblivionINIFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+            Framework.Settings.ScriptExecutionSettings.OblivionINIPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 "Oblivion.ini");
 
-            Framework.CodeProgress = new Progress();
+            Framework.Settings.CodeProgress = new Progress();
 
-            if(Directory.Exists(Framework.TempDir))
+            var settings = new FrameworkSettings()
+            {
+                
+            };
+
+            if(Directory.Exists(Framework.Settings.TempPath))
                 Framework.CleanTempDir();
 
             var omod = new OMOD("DarNified UI 1.3.2.omod");
 
-            var data = omod.GetDataFiles(); // extracts all data files
-            var plugins = omod.GetPlugins(); // extracts all plugins
+            var data = omod.GetDataFiles().Result; // extracts all data files
+            var plugins = omod.GetPlugins().Result; // extracts all plugins
 
             var scriptFunctions = new ScriptFunctions();
             var srd = omod.RunScript(scriptFunctions, data, plugins);

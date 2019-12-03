@@ -36,7 +36,7 @@ namespace OMODFramework.Test
         [TestInitialize]
         public void Setup()
         {
-            Framework.TempDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestTempDir");
+            Framework.Settings.TempPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestTempDir");
 
             File.WriteAllText(HelloFile, "Hello World!");
         }

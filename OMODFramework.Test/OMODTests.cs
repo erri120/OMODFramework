@@ -72,11 +72,11 @@ namespace OMODFramework.Test
         {
             if(File.Exists("test.omod"))
                 File.Delete("test.omod");
-            Directory.CreateDirectory(Path.Combine(Framework.TempDir, "text_files"));
+            Directory.CreateDirectory(Path.Combine(Framework.Settings.TempPath, "text_files"));
 
-            var file1 = Path.Combine(Framework.TempDir, "file.txt");
-            var file2 = Path.Combine(Framework.TempDir, "file2.txt");
-            var file3 = Path.Combine(Framework.TempDir, "text_files", "file3.txt");
+            var file1 = Path.Combine(Framework.Settings.TempPath, "file.txt");
+            var file2 = Path.Combine(Framework.Settings.TempPath, "file2.txt");
+            var file3 = Path.Combine(Framework.Settings.TempPath, "text_files", "file3.txt");
 
             var text1 = "This is some text";
             var text2 = "This is more text";

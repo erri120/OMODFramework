@@ -21,7 +21,7 @@ namespace OMODFramework.Scripting
         private static readonly CompilerParameters Params;
         private static readonly Evidence Evidence;
 
-        private static readonly string ScriptOutputPath = Path.Combine(Framework.TempDir, "dotnetscript.dll");
+        private static readonly string ScriptOutputPath = Path.Combine(Framework.Settings.TempPath, "dotnetscript.dll");
 
         static DotNetScriptHandler()
         {
@@ -33,7 +33,7 @@ namespace OMODFramework.Scripting
                 OutputAssembly = ScriptOutputPath,
                 ReferencedAssemblies =
                 {
-                    Framework.DLLPath,
+                    Framework.Settings.DllPath,
                     "System.dll",
                     "System.Drawing.dll",
                     "System.Windows.Forms.dll",

@@ -73,13 +73,13 @@ namespace OMODFramework
         {
             for (var i = 0; i < 32000; i++)
             {
-                var s = Path.Combine(Framework.TempDir, "tmp_" + i);
+                var s = Path.Combine(Framework.Settings.TempPath, "tmp_" + i);
                 if (File.Exists(s))
                     continue;
 
                 path = s;
-                if (!Directory.Exists(Framework.TempDir))
-                    Directory.CreateDirectory(Framework.TempDir);
+                if (!Directory.Exists(Framework.Settings.TempPath))
+                    Directory.CreateDirectory(Framework.Settings.TempPath);
                 return File.Create(s);
             }
             throw new OMODFrameworkException("Could not create a new temp file because the directory is full!");
@@ -89,12 +89,12 @@ namespace OMODFramework
         {
             for (var i = 0; i < 32000; i++)
             {
-                var path = Path.Combine(Framework.TempDir, i.ToString());
+                var path = Path.Combine(Framework.Settings.TempPath, i.ToString());
                 if (Directory.Exists(path))
                     continue;
 
-                if (!Directory.Exists(Framework.TempDir))
-                    Directory.CreateDirectory(Framework.TempDir);
+                if (!Directory.Exists(Framework.Settings.TempPath))
+                    Directory.CreateDirectory(Framework.Settings.TempPath);
                 Directory.CreateDirectory(path);
                 return path;
             }
