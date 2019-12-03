@@ -26,54 +26,7 @@ This Framework is available on [NuGet](https://www.nuget.org/packages/OMODFramew
 
 ## Usage
 
-### Extraction
-
-```cSharp
-var omod = new OMOD(path);
-
-// returns the absolute path to the folder containing the data/plugin files
-var data = omod.GetDataFiles();
-var plugins = omod.GetPlugins();
-```
-
-### Creation
-
-```cSharp
-var ops = new OMODCreationOptions
-{
-    Name = "", //required
-    Author = "", //required
-    Email = "",
-    Website = "",
-    Description = "", //required
-    Image = "",
-    MajorVersion = 0, //required
-    MinorVersion = 0, //required
-    BuildVersion = 0, //required
-    CompressionType = CompressionType.SevenZip, //required
-    DataFileCompressionLevel = CompressionLevel.Medium, //required
-    OMODCompressionLevel = CompressionLevel.Medium, //required
-    ESPs = new List<string>(),
-    ESPPaths = new List<string>(),
-    DataFiles = new List<string>(), //required
-    DataFilePaths = new List<string>(), //required
-    Readme = "",
-    Script = ""
-};
-
-OMOD.CreateOMOD(ops, "test.omod");
-```
-
-### Script Execution
-
-```cSharp
-var omod = new OMOD(path);
-
-var scriptFunctions = new ScriptFunctions(); //custom class that inherits IScriptFunctions
-
-// if you have already extracted the data and or plugins from the omod, use one of the overload function
-var srd = omod.RunScript(scriptFunctions);
-```
+Check the [Wiki](https://github.com/erri120/OMODFramework/wiki) here on GitHub.
 
 ## License
 
