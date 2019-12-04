@@ -73,8 +73,6 @@ steps:
     packagesToPack: '**/OMODFramework.csproj'
     packDestination: '$(Build.ArtifactStagingDirectory)/nuget'
     versioningScheme: 'off'
-    includeReferencedProjects: false
-    includeSymbols: true
 
 - task: PublishBuildArtifacts@1
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
