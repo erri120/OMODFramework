@@ -73,6 +73,8 @@ steps:
     packagesToPack: '**/OMODFramework.csproj'
     packDestination: '$(Build.ArtifactStagingDirectory)/nuget'
     versioningScheme: 'off'
+    includeSymbols: true
+    buildProperties: 'dependencies="";requireLicenseAcceptance="true";licenseURL="https://github.com/erri120/OMODFramework/blob/master/LICENSE"'
 
 - task: PublishBuildArtifacts@1
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
