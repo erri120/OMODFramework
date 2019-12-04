@@ -74,7 +74,6 @@ steps:
     packDestination: '$(Build.ArtifactStagingDirectory)/nuget'
     versioningScheme: 'off'
     includeSymbols: true
-    arguments: '-IncludeReferencedProjects false '
 
 - task: PublishBuildArtifacts@1
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
