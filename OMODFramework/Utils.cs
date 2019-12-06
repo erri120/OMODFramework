@@ -114,6 +114,11 @@ namespace OMODFramework
             Logger?.Log(level, s, DateTime.Now);
         }
 
+        internal static void Script(string s)
+        {
+            Log(LoggingLevel.SCRIPT, s);
+        }
+
         internal static void Debug(string s)
         {
             Log(LoggingLevel.DEBUG, s);

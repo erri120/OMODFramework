@@ -41,7 +41,7 @@ namespace OMODFramework
     /// <summary>
     /// Describes the programming language used in the OMOD script
     /// </summary>
-    public enum ScriptType { OBMMScript, Python, Csharp, VB, Count }
+    public enum ScriptType { OBMMScript, Python, CSharp, VB, Count }
 
     /// <summary>
     /// Struct containing conflict information for a file

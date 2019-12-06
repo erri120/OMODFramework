@@ -52,6 +52,8 @@ namespace OMODFramework.Scripting
             if (!Framework.Settings.ScriptExecutionSettings.EnableWarnings)
                 return;
 
+            Utils.Warn($"Script warning: '{msg}'");
+
             if (_type == ScriptType.OBMMScript)
                 ScriptFunctions.Warn($"'{msg}' at {OBMMScriptHandler.CLine}");
         }

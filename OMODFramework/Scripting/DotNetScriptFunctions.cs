@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
 using OblivionModManager.Scripting;
@@ -99,48 +100,56 @@ namespace OMODFramework.Scripting
 
         public bool GetDisplayWarnings()
         {
-            //TODO: original: Settings.ShowScriptWarnings whether to show warnings or not
-            return true;
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
+            return Framework.Settings.ScriptExecutionSettings.EnableWarnings;
         }
 
         public bool DialogYesNo(string msg)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             return DialogYesNo(msg, "Question");
         }
 
         public bool DialogYesNo(string msg, string title)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             return _handler.ScriptFunctions.DialogYesNo(title, msg) == 1;
         }
 
         public bool DataFileExists(string path)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPathSafety(path);
             return _handler.ScriptFunctions.DataFileExists(path);
         }
 
         public Version GetOBMMVersion()
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             return new Version(Framework.Settings.MajorVersion, Framework.Settings.MinorVersion, Framework.Settings.BuildNumber, 0);
         }
 
         public Version GetOBSEVersion()
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             return _handler.ScriptFunctions.ScriptExtenderVersion();
         }
 
         public Version GetOBGEVersion()
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             return _handler.ScriptFunctions.GraphicsExtenderVersion();
         }
 
         public Version GetOblivionVersion()
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             return _handler.ScriptFunctions.OblivionVersion();
         }
 
         public Version GetOBSEPluginVersion(string plugin)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             plugin = Path.ChangeExtension(plugin, ".dll");
             CheckPathSafety(plugin);
             return _handler.ScriptFunctions.OBSEPluginVersion(plugin);
@@ -148,6 +157,7 @@ namespace OMODFramework.Scripting
 
         public string[] GetPlugins(string path, string pattern, bool recurse)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPluginDataFolderSafety(path, true);
             GetFilePaths(Path.Combine(_plugins, path), pattern, recurse, out var paths);
             StripPathList(ref paths, _plugins.Length, out var list);
@@ -156,6 +166,7 @@ namespace OMODFramework.Scripting
 
         public string[] GetDataFiles(string path, string pattern, bool recurse)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPluginDataFolderSafety(path, false);
             GetFilePaths(Path.Combine(_dataFiles, path), pattern, recurse, out var paths);
             StripPathList(ref paths, _dataFiles.Length, out var list);
@@ -164,6 +175,7 @@ namespace OMODFramework.Scripting
 
         public string[] GetPluginFolders(string path, string pattern, bool recurse)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPluginDataFolderSafety(path, true);
             GetDirectoryPaths(Path.Combine(_plugins, path), pattern, recurse, out var paths);
             StripPathList(ref paths, _plugins.Length, out var list);
@@ -172,6 +184,7 @@ namespace OMODFramework.Scripting
 
         public string[] GetDataFolders(string path, string pattern, bool recurse)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPluginDataFolderSafety(path, true);
             GetDirectoryPaths(Path.Combine(_dataFiles, path), pattern, recurse, out var paths);
             StripPathList(ref paths, _dataFiles.Length, out var list);
@@ -180,6 +193,7 @@ namespace OMODFramework.Scripting
 
         public string[] GetActiveEspNames()
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             var a = new List<string>();
             _handler.ScriptFunctions.GetESPs().Where(e => e.Active).OrderBy(e => e.Name).Do(e => a.Add(e.Name));
             return a.ToArray();
@@ -187,6 +201,7 @@ namespace OMODFramework.Scripting
 
         public string[] GetExistingEspNames()
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             var a = new List<string>();
             _handler.ScriptFunctions.GetESPs().OrderBy(e => e.Name).Do(e => a.Add(e.Name));
             return a.ToArray();
@@ -194,42 +209,50 @@ namespace OMODFramework.Scripting
 
         public string[] GetActiveOmodNames()
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             return _handler.ScriptFunctions.GetActiveOMODNames().ToArray();
         }
 
         public string[] Select(string[] items, string[] previews, string[] descs, string title, bool many)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             throw new NotImplementedException();
         }
 
         public void Message(string msg)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             _handler.ScriptFunctions.Message(msg);
         }
 
         public void Message(string msg, string title)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             _handler.ScriptFunctions.Message(msg, title);
         }
 
         public void DisplayImage(string path)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             DisplayImage(path, null);
         }
 
         public void DisplayImage(string path, string title)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPluginDataSafety(path, false);
             _handler.ScriptFunctions.DisplayImage(path, title ?? "");
         }
 
         public void DisplayText(string path)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             DisplayText(path, null);
         }
 
         public void DisplayText(string path, string title)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPluginDataSafety(path, false);
             var s = File.ReadAllText(Path.Combine(_dataFiles, path), Encoding.UTF8);
             _handler.ScriptFunctions.DisplayText(s, title ?? "");
@@ -237,6 +260,7 @@ namespace OMODFramework.Scripting
 
         public void LoadEarly(string plugin)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPathSafety(plugin);
             if (!_srd.EarlyPlugins.Contains(plugin))
                 _srd.EarlyPlugins.Add(plugin);
@@ -244,11 +268,13 @@ namespace OMODFramework.Scripting
 
         public void LoadBefore(string plugin1, string plugin2)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             LoadOrder(plugin1.ToLower(), plugin2.ToLower(), false);
         }
 
         public void LoadAfter(string plugin1, string plugin2)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             LoadOrder(plugin1.ToLower(), plugin2.ToLower(), true);
         }
 
@@ -265,6 +291,7 @@ namespace OMODFramework.Scripting
 
         public void SetNewLoadOrder(string[] plugins)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             // Method is kinda useless
             /*  in OBMM the System.IO.FileInfo.LastWriteTime of the plugin inside the
                 data folder gets overwritten and than OBMM reads all ESPs again to load
@@ -283,6 +310,7 @@ namespace OMODFramework.Scripting
 
         public void UncheckEsp(string plugin)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPluginDataSafety(plugin, true);
             if (!_srd.UncheckedPlugins.Contains(plugin.ToLower()))
                 _srd.UncheckedPlugins.Add(plugin.ToLower());
@@ -290,6 +318,7 @@ namespace OMODFramework.Scripting
 
         public void SetDeactivationWarning(string plugin, DeactivationStatus warning)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPluginDataSafety(plugin, true);
             _srd.ESPDeactivation.RemoveWhere(e => e.Plugin == plugin.ToLower());
             _srd.ESPDeactivation.Add(new ScriptESPWarnAgainst(plugin.ToLower(), warning));
@@ -299,6 +328,8 @@ namespace OMODFramework.Scripting
         {
             ConflictsWith(filename, 0, 0, 0, 0, null, ConflictLevel.MajorConflict, false);
         }
+
+        // original typo from the oblivion mod manager, gg
 
         public void ConslictsWith(string filename, string comment)
         {
@@ -339,6 +370,7 @@ namespace OMODFramework.Scripting
             string comment,
             ConflictLevel level, bool regex)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             var cd = new ConflictData
             {
                 File = name,
@@ -378,6 +410,7 @@ namespace OMODFramework.Scripting
             string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion, string comment,
             bool regex)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             var cd = new ConflictData
             {
                 File = name,
@@ -393,51 +426,61 @@ namespace OMODFramework.Scripting
 
         public void DontInstallAnyPlugins()
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             _srd.InstallAllPlugins = false;
         }
 
         public void DontInstallAnyDataFiles()
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             _srd.InstallAllData = false;
         }
 
         public void InstallAllPlugins()
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             _srd.InstallAllPlugins = true;
         }
 
         public void InstallAllDataFiles()
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             _srd.InstallAllData = true;
         }
 
         public void DontInstallPlugin(string name)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             InstallSomething(name, false, true, false, false);
         }
 
         public void DontInstallDataFile(string name)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             InstallSomething(name, false, false, false, false);
         }
 
         public void DontInstallDataFolder(string folder, bool recurse)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             InstallSomething(folder, true, false, false, true);
         }
 
         public void InstallPlugin(string name)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             InstallSomething(name, false, true, true, false);
         }
 
         public void InstallDataFile(string name)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             InstallSomething(name, false, false, true, false);
         }
 
         public void InstallDataFolder(string folder, bool recurse)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             InstallSomething(folder, true, false, true, recurse);
         }
 
@@ -504,16 +547,19 @@ namespace OMODFramework.Scripting
 
         public void CopyPlugin(string from, string to)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CopySomething(from, to, true, false, false);
         }
 
         public void CopyDataFile(string from, string to)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CopySomething(from, to, false, false, false);
         }
 
         public void CopyDataFolder(string from, string to, bool recurse)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CopySomething(from, to, false, true, recurse);
         }
 
@@ -558,6 +604,7 @@ namespace OMODFramework.Scripting
 
         public void PatchPlugin(string from, string to, bool create)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPluginDataSafety(from, true);
             CheckPathSafety(to);
 
@@ -572,6 +619,7 @@ namespace OMODFramework.Scripting
 
         public void PatchDataFile(string from, string to, bool create)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPluginDataSafety(from, false);
             CheckPathSafety(to);
 
@@ -584,6 +632,7 @@ namespace OMODFramework.Scripting
 
         public void RegisterBSA(string path)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPluginDataSafety(path, false);
             if(path.Contains(";") || path.Contains(",") || path.Contains("="))
                 throw new ScriptingException("BSA path cannot contain the characters ',', '=' or ';'");
@@ -593,6 +642,7 @@ namespace OMODFramework.Scripting
 
         public void UnregisterBSA(string path)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPluginDataSafety(path, false);
             if(path.Contains(";") || path.Contains(",") || path.Contains("="))
                 throw new ScriptingException("BSA path cannot contain the characters ',', '=' or ';'");
@@ -601,54 +651,65 @@ namespace OMODFramework.Scripting
 
         public void EditINI(string section, string key, string value)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             _srd.INIEdits.Add(new INIEditInfo(section, key, value));
         }
 
         public void EditShader(byte package, string name, string path)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPluginDataSafety(path, false);
             _srd.SDPEdits.Add(new SDPEditInfo(package, name, Path.Combine(_dataFiles, path)));
         }
 
         public void FatalError()
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
+            Utils.Error("Script called FatalError!");
             _srd.CancelInstall = true;
         }
 
         public void SetGMST(string file, string edid, string value)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPluginDataSafety(file, true);
             _srd.ESPEdits.Add(new ScriptESPEdit(true, file.ToLower(), edid, value));
         }
 
         public void SetGlobal(string file, string edid, string value)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPluginDataSafety(file, true);
             _srd.ESPEdits.Add(new ScriptESPEdit(false, file.ToLower(), edid, value));
         }
 
         public void SetPluginByte(string file, long offset, byte value)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             SetPluginData(file, offset, value);
         }
 
         public void SetPluginShort(string file, long offset, short value)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             SetPluginData(file, offset, value);
         }
 
         public void SetPluginInt(string file, long offset, int value)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             SetPluginData(file, offset, value);
         }
 
         public void SetPluginLong(string file, long offset, long value)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             SetPluginData(file, offset, value);
         }
 
         public void SetPluginFloat(string file, long offset, float value)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             SetPluginData(file, offset, value);
         }
 
@@ -688,16 +749,19 @@ namespace OMODFramework.Scripting
 
         public string InputString()
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             return InputString("", "");
         }
 
         public string InputString(string title)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             return InputString(title, "");
         }
 
         public string InputString(string title, string initial)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             var result = _handler.ScriptFunctions.InputString(title, initial, false);
             if(result == null)
                 FatalError();
@@ -707,6 +771,7 @@ namespace OMODFramework.Scripting
 
         public string ReadINI(string section, string value)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             if (!Framework.Settings.ScriptExecutionSettings.ReadINIWithInterface)
                 return OblivionINI.GetINIValue(section, value);
 
@@ -717,6 +782,7 @@ namespace OMODFramework.Scripting
 
         public string ReadRendererInfo(string value)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             if (!Framework.Settings.ScriptExecutionSettings.ReadRendererInfoWithInterface)
                 return OblivionRenderInfo.GetInfo(value);
 
@@ -727,11 +793,13 @@ namespace OMODFramework.Scripting
 
         public void EditXMLLine(string file, int line, string value)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             EditXML(file, line, value, false, null, null);
         }
 
         public void EditXMLReplace(string file, string find, string replace)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             EditXML(file, 0, null, true, find, replace);
         }
 
@@ -776,28 +844,33 @@ namespace OMODFramework.Scripting
 
         public Form CreateCustomDialog()
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             return new Form();
         }
 
         public byte[] ReadDataFile(string file)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPluginDataSafety(file, false);
             return File.ReadAllBytes(Path.Combine(_dataFiles, file));
         }
 
         public byte[] ReadExistingDataFile(string file)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPathSafety(file);
             return _handler.ScriptFunctions.ReadExistingDataFile(file);
         }
 
         public byte[] GetDataFileFromBSA(string file)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             return GetFromBSA(null, file);
         }
 
         public byte[] GetDataFileFromBSA(string bsa, string file)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             return GetFromBSA(bsa, file);
         }
 
@@ -813,6 +886,7 @@ namespace OMODFramework.Scripting
 
         public void GenerateNewDataFile(string file, byte[] data)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPathSafety(file);
             var path = Path.Combine(_dataFiles, file);
             if (!File.Exists(path))
@@ -838,6 +912,7 @@ namespace OMODFramework.Scripting
 
         public void CancelDataFileCopy(string file)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPathSafety(file);
             _srd.CopyDataFiles.RemoveWhere(s => s.CopyTo == file.ToLower());
             //TODO: OBMM deleted the file at Path.Combine(_dataFiles, file); for some reason
@@ -845,6 +920,7 @@ namespace OMODFramework.Scripting
 
         public void CancelDataFolderCopy(string folder)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             CheckPathSafety(folder);
             _srd.CopyDataFiles.RemoveWhere(s => s.CopyTo.StartsWith(folder.ToLower()));
             //TODO: OBMM deleted the file at Path.Combine(_dataFiles, file); for some reason
@@ -852,11 +928,13 @@ namespace OMODFramework.Scripting
 
         public void GenerateBSA(string file, string path, string prefix, int cRatio, int cLevel)
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             throw new NotImplementedException();
         }
 
         public bool IsSimulation()
         {
+            Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
             return false;
         }
     }

@@ -106,6 +106,8 @@ namespace OMODFramework
 
         public OMOD(string path)
         {
+            Utils.Info($"Loading OMOD from {path}...");
+
             if(!File.Exists(path))
                 throw new OMODFrameworkException($"The provided file at {path} does not exists!");
 
@@ -113,6 +115,7 @@ namespace OMODFramework
             FileName = Path.GetFileName(path);
             LowerFileName = FileName.ToLower();
 
+            Utils.Debug("Parsing config file from OMOD");
             using (var configStream = ExtractWholeFile("config"))
             {
                 if(configStream == null)
@@ -168,11 +171,13 @@ namespace OMODFramework
                 }
 
                 Close();
+                Utils.Debug("Finished parsing of the config file");
             }
         }
 
         internal void Close()
         {
+            Utils.Debug("Closing internal mod file and image");
             _pD.ModFile?.Close();
             _pD.ModFile = null;
             _pD.Image = null;
@@ -180,6 +185,7 @@ namespace OMODFramework
 
         public static void CreateOMOD(OMODCreationOptions ops, string omodFileName)
         {
+            Utils.Info($"Creating OMOD to {omodFileName}");
             if(File.Exists(omodFileName))
                 throw new OMODFrameworkException($"The provided omodFileName {omodFileName} already exists!");
             using (var zipStream = new ZipOutputStream(File.Open(omodFileName, FileMode.CreateNew)))
@@ -190,6 +196,7 @@ namespace OMODFramework
 
                 if (!string.IsNullOrWhiteSpace(ops.Readme))
                 {
+                    Utils.Debug("Writing readme to OMOD");
                     ze = new ZipEntry("readme");
                     zipStream.PutNextEntry(ze);
                     omodStream.Write(ops.Readme);
@@ -198,6 +205,7 @@ namespace OMODFramework
 
                 if (!string.IsNullOrWhiteSpace(ops.Script))
                 {
+                    Utils.Debug("Writing script to OMOD");
                     ze = new ZipEntry("script");
                     zipStream.PutNextEntry(ze);
                     omodStream.Write(ops.Script);
@@ -206,6 +214,7 @@ namespace OMODFramework
 
                 if (!string.IsNullOrWhiteSpace(ops.Image))
                 {
+                    Utils.Debug("Writing image to OMOD");
                     ze = new ZipEntry("image");
                     zipStream.PutNextEntry(ze);
 
@@ -223,6 +232,7 @@ namespace OMODFramework
                     }
                 }
 
+                Utils.Debug("Writing config to OMOD");
                 ze = new ZipEntry("config");
                 zipStream.PutNextEntry(ze);
 
@@ -246,6 +256,7 @@ namespace OMODFramework
 
                 if (ops.ESPs.Count > 0)
                 {
+                    Utils.Debug("Writing plugins.crc to OMOD");
                     //TODO: find out why OBMM calls GC.Collect here
                     ze = new ZipEntry("plugins.crc");
                     zipStream.PutNextEntry(ze);
@@ -257,6 +268,7 @@ namespace OMODFramework
                     omodStream.Flush();
                     zipStream.SetLevel(0);
 
+                    Utils.Debug("Writing plugins to OMOD");
                     ze = new ZipEntry("plugins");
                     zipStream.PutNextEntry(ze);
 
@@ -271,6 +283,7 @@ namespace OMODFramework
 
                 if (ops.DataFiles.Count > 0)
                 {
+                    Utils.Debug("Writing data.crc to OMOD");
                     //TODO: find out why OBMM calls GC.Collect here
                     ze = new ZipEntry("data.crc");
                     zipStream.PutNextEntry(ze);
@@ -282,6 +295,7 @@ namespace OMODFramework
                     omodStream.Flush();
                     zipStream.SetLevel(0);
 
+                    Utils.Debug("Writing data to OMOD");
                     ze = new ZipEntry("data");
                     zipStream.PutNextEntry(ze);
 
@@ -296,6 +310,8 @@ namespace OMODFramework
 
                 zipStream.Finish();
             }
+
+            Utils.Info("Finished OMOD creation");
         }
 
         public ScriptReturnData RunScript(IScriptFunctions scriptFunctions)
@@ -431,6 +447,8 @@ namespace OMODFramework
 
         private Stream ExtractWholeFile(ZipEntry ze, ref string path)
         {
+            Utils.Debug($"Extracting {ze.Name} from OMOD");
+
             var file = ModFile.GetInputStream(ze);
             Stream tempStream;
 

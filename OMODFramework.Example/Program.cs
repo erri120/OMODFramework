@@ -18,10 +18,11 @@ namespace OMODFramework.Example
             };
 
             Framework.Settings.LoggingSettings.UseLogger = true;
+            Framework.Settings.LoggingSettings.LowestLoggingLevel = LoggingLevel.SCRIPT;
 
             Framework.Settings.CodeProgress = new Progress();
 
-            /*if(Directory.Exists(Framework.Settings.TempPath))
+            if(Directory.Exists(Framework.Settings.TempPath))
                 Framework.CleanTempDir();
 
             var omod = new OMOD("DarNified UI 1.3.2.omod");
@@ -33,7 +34,7 @@ namespace OMODFramework.Example
             var srd = omod.RunScript(scriptFunctions, data, plugins);
 
             if(srd.CancelInstall)
-                Console.WriteLine("Canceled");*/
+                Console.WriteLine("Canceled");
         }
     }
 }

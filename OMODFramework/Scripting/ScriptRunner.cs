@@ -30,9 +30,13 @@ namespace OMODFramework.Scripting
     {
         internal static ScriptReturnData ExecuteScript(string script, string dataPath, string pluginsPath, IScriptFunctions scriptFunctions)
         {
-            if (string.IsNullOrWhiteSpace(script)) 
+            Utils.Info("Starting script execution...");
+            if (string.IsNullOrWhiteSpace(script))
+            {
+                Utils.Error("Script is empty! Returning empty ScriptReturnData");
                 return new ScriptReturnData();
-
+            }
+            
             ScriptType type;
             if ((byte)script[0] >= (byte)ScriptType.Count)
                 type = ScriptType.OBMMScript;
@@ -41,6 +45,8 @@ namespace OMODFramework.Scripting
                 type = (ScriptType)script[0];
                 script = script.Substring(1);
             }
+
+            Utils.Debug($"ScriptType is {type.ToString()}");
 
             var handler = new SharedFunctionsHandler(type, ref scriptFunctions);
             var srd = new ScriptReturnData();
@@ -52,15 +58,17 @@ namespace OMODFramework.Scripting
                     return OBMMScriptHandler.Execute(script, dataPath, pluginsPath, ref handler);
                 case ScriptType.Python: //TODO
                     break;
-                case ScriptType.Csharp:
+                case ScriptType.CSharp:
                     DotNetScriptHandler.ExecuteCS(script, ref dotNetScriptFunctions);
                     break;
                 case ScriptType.VB:
                     DotNetScriptHandler.ExecuteVB(script, ref dotNetScriptFunctions);
                     break;
                 case ScriptType.Count: //Impossible
+                    Utils.Error("Impossible switch case triggered, how dafuq did this happen?");
                     break;
                 default: //Impossible
+                    Utils.Error("Impossible switch case triggered, how dafuq did this happen?");
                     return srd;
             }
 

@@ -393,6 +393,7 @@ namespace OMODFramework
     {
         protected override string DecompressAll(Stream fileList, Stream compressedStream)
         {
+            Utils.Debug("Decompressing archive with SevenZip...");
             var sfs = new SparseFileWriterStream(fileList);
             byte[] buffer = new byte[5];
             var decoder = new Decoder();
@@ -412,11 +413,13 @@ namespace OMODFramework
                 progress?.Dispose();
             }
 
+            Utils.Debug("Decompressing finished");
             return sfs.BaseDirectory;
         }
 
         protected override FileStream CompressAll(List<string> filePaths, CompressionLevel level)
         {
+            Utils.Debug("Compressing archive with SevenZip");
             var sfs = new SparseFileReaderStream(filePaths);
             var coder = new Encoder();
             int size = 0;
@@ -471,6 +474,8 @@ namespace OMODFramework
 
             fs.Flush();
             fs.Position = 0;
+
+            Utils.Debug("Compressing finished");
             return fs;
         }
     }
@@ -500,6 +505,7 @@ namespace OMODFramework
 
         protected override string DecompressAll(Stream fileList, Stream compressedStream)
         {
+            Utils.Debug("Decompressing archive with Zip...");
             var sfs = new SparseFileWriterStream(fileList);
             using (var zip = new ZipFile(compressedStream))
             {
@@ -515,11 +521,13 @@ namespace OMODFramework
                 sfs.Close();
             }
 
+            Utils.Debug("Decompressing finished");
             return sfs.BaseDirectory;
         }
 
         protected override FileStream CompressAll(List<string> filePaths, CompressionLevel level)
         {
+            Utils.Debug("Compressing archive with Zip...");
             var fs = Utils.CreateTempFile(out var tempFileName);
             using (var sfs = new SparseFileReaderStream(filePaths))
             using (var zipStream = new ZipOutputStream(fs))
@@ -547,6 +555,7 @@ namespace OMODFramework
                 zipStream.Finish();
             }
 
+            Utils.Debug("Compressing finished");
             return File.OpenRead(tempFileName);
         }
     }

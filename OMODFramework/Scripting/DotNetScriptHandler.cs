@@ -47,6 +47,7 @@ namespace OMODFramework.Scripting
 
         private static byte[] Compile(string code, ScriptType type)
         {
+            Utils.Debug("Starting compilation...");
             CompilerResults results = null;
             switch (type)
             {
@@ -54,7 +55,7 @@ namespace OMODFramework.Scripting
                     break;
                 case ScriptType.Python:
                     break;
-                case ScriptType.Csharp:
+                case ScriptType.CSharp:
                     results = CSharpCompiler.CompileAssemblyFromSource(Params, code);
                     break;
                 case ScriptType.VB:
@@ -69,28 +70,36 @@ namespace OMODFramework.Scripting
             if(results == null)
                 throw new OMODFrameworkException("The script could not be compiled!");
 
-            var stdout = ""; //TODO: create interface for script outputs so it lands at the end user
+            var stdout = ""; //TODO: maybe do something with this?
+            var warn = 0;
+            var err = 0;
+            var e = "";
+            var w = "";
             results.Output.Do(s => { stdout += s + Environment.NewLine; });
 
             if (results.Errors.HasErrors || results.Errors.HasWarnings)
             {
-                var e = "";
-                var w = "";
                 results.Errors.Do(o =>
                 {
                     var ce = (CompilerError)o;
                     if (ce.IsWarning)
                     {
                         w += $"Warning on Line {ce.Line}: {ce.ErrorText}\n";
+                        Utils.Warn($"Warning on Line {ce.Line}: {ce.ErrorText}");
+                        warn++;
                     }
                     else
                     {
                         e += $"Error on Line {ce.Line}: {ce.ErrorText}\n";
+                        Utils.Warn($"Error on Line {ce.Line}: {ce.ErrorText}");
+                        err++;
                     }
                 });
-                if(results.Errors.HasErrors)
-                    throw new OMODFrameworkException($"Problems during script compilation: \n{e}\n{w}");
+                
             }
+            Utils.Info($"Compilation finished with {warn} Warnings and {err} Errors");
+            if(results.Errors.HasErrors)
+                throw new OMODFrameworkException($"Problems during script compilation: \n{e}\n{w}");
 
             byte[] data = File.ReadAllBytes(results.PathToAssembly);
             return data;
@@ -106,11 +115,12 @@ namespace OMODFramework.Scripting
                 throw new OMODFrameworkException("C# or VB Script did not contain a 'Script' class in the root namespace, or IScript was not implemented");
             }
             s.Execute(functions);
+            Utils.Info("Finished script execution");
         }
 
         internal static void ExecuteCS(string script, ref DotNetScriptFunctions functions)
         {
-            Execute(script, ref functions, ScriptType.Csharp);
+            Execute(script, ref functions, ScriptType.CSharp);
         }
 
         internal static void ExecuteVB(string script, ref DotNetScriptFunctions functions)

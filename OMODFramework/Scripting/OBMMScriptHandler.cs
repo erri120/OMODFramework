@@ -234,6 +234,9 @@ namespace OMODFramework.Scripting
                 }
                 else
                 {
+                    var lineMsg = "";
+                    line.Do(cur => lineMsg+="'"+cur+"' ");
+
                     var registry = new SharedFunctionsRegistry(Handler);
                     var function = registry.GetFunctionByName(line.ElementAt(0));
                     if (function != null)
@@ -247,7 +250,12 @@ namespace OMODFramework.Scripting
                         if(function.MaxArgs != 0 && line.Count > function.MaxArgs)
                             Warn($"Unexpected arguments for '{function.FuncName}'");
 
+                        Utils.Script($"\"{function.FuncName}\" called with line: {lineMsg}");
                         function.Run(ref line);
+                    }
+                    else
+                    {
+                        Utils.Script($"\"{line.ElementAt(0)}\" called with line: {lineMsg}");
                     }
                     switch (line.ElementAt(0))
                     {
@@ -416,6 +424,7 @@ namespace OMODFramework.Scripting
                         Srd.InstallAllData = true;
                         break;
                     case "FatalError":
+                        Utils.Error("Script called FatalError!");
                         Srd.CancelInstall = true;
                         break;
                     case "Return":
