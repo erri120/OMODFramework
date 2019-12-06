@@ -143,6 +143,57 @@ namespace OMODFramework
         ///     Settings used for Script execution
         /// </summary>
         public ScriptExecutionSettings ScriptExecutionSettings;
+
+        /// <summary>
+        ///     Settings used for logging
+        /// </summary>
+        public LoggingSettings LoggingSettings = new LoggingSettings();
+    }
+
+    public class LoggingSettings
+    {
+        /// <summary>
+        ///     Whether you want logging or not
+        /// </summary>
+        private bool _useLogger;
+
+        public bool UseLogger
+        {
+            get => _useLogger;
+            set
+            {
+                _useLogger = value;
+                Utils.Logger.Init();
+            }
+        }
+
+        /// <summary>
+        ///     If <see cref="UseLogger"/> is set to <c>true</c> than you can set this to <c>false</c>
+        ///     and create a custom <see cref="ILogger"/> for <see cref="Logger"/> or set this to <c>true</c>
+        ///     and use the internal logger that logs to the file <c>OMODFramework.log</c>
+        /// </summary>
+        public bool LogToFile = true;
+
+        /// <summary>
+        ///     Set the lowest logging level, any logging that is below that level will not be logged
+        /// </summary>
+        public LoggingLevel LowestLoggingLevel = LoggingLevel.INFO;
+
+        private ILogger _logger;
+
+        /// <summary>
+        ///     Set your custom <see cref="ILogger"/>, only needed when <see cref="LogToFile"/> is set to <c>false</c>
+        /// </summary>
+        public ILogger Logger
+        {
+            get => _logger;
+            set
+            {
+                _logger = value;
+                Utils.Logger = _logger;
+                _logger.Init();
+            }
+        }
     }
 
     public class ScriptExecutionSettings

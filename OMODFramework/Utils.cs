@@ -26,14 +26,114 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using System.Text;
 using Directory = Alphaleonis.Win32.Filesystem.Directory;
 using File = Alphaleonis.Win32.Filesystem.File;
 using Path = Alphaleonis.Win32.Filesystem.Path;
 
 namespace OMODFramework
 {
+    internal class FileLogger : ILogger
+    {
+        private const string LogFile = "OMODFramework.log";
+        private static string LogFilePath => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), LogFile);
+
+        private bool _hasInit;
+
+        public void Init()
+        {
+            if (_hasInit)
+                return;
+
+            _hasInit = true;
+
+            if (File.Exists(LogFilePath))
+            {
+                try
+                {
+                    File.Delete(LogFilePath);
+                }
+                catch (Exception e)
+                {
+                    throw new OMODFrameworkException($"FileLogger could not initialize.\n{e}");
+                }
+            }
+
+            try
+            {
+                File.Create(LogFilePath).Close();
+                Log(LoggingLevel.INFO, "FileLogger started", DateTime.Now);
+            }
+            catch (Exception e)
+            {
+                throw new OMODFrameworkException($"Could not create logging file at {LogFilePath}\n{e}");
+            }
+
+        }
+
+        public void Log(LoggingLevel level, string message, DateTime time)
+        {
+            if (!Framework.Settings.LoggingSettings.LogToFile)
+                return;
+
+            if (Framework.Settings.LoggingSettings.LowestLoggingLevel > level)
+                return;
+
+            if(!File.Exists(LogFilePath))
+                throw new OMODFrameworkException($"FileLogger file at {LogFilePath} does not exist anymore!");
+
+            var msg = $"[{time:HH:mm:ss:fff}][{level.ToString()}]: {message}";
+
+            try
+            {
+                File.AppendAllText(LogFilePath, $"\n{msg}", Encoding.UTF8);
+            }
+            catch (Exception e)
+            {
+                throw new OMODFrameworkException($"Could not write to file {LogFilePath}\n{e}");
+            }
+        }
+    }
+
     public static class Utils
     {
+        static Utils()
+        {
+            Logger = new FileLogger();
+            Logger.Init();
+        }
+
+        internal static ILogger Logger;
+
+        private static void Log(LoggingLevel level, string s)
+        {
+            if (!Framework.Settings.LoggingSettings.UseLogger)
+                return;
+
+            Logger?.Log(level, s, DateTime.Now);
+        }
+
+        internal static void Debug(string s)
+        {
+            Log(LoggingLevel.DEBUG, s);
+        }
+
+        internal static void Info(string s)
+        {
+            Log(LoggingLevel.INFO, s);
+        }
+
+        internal static void Warn(string s)
+        {
+            Log(LoggingLevel.WARNING, s);
+        }
+
+        internal static void Error(string s)
+        {
+            Log(LoggingLevel.ERROR, s);
+        }
+
         internal static string MakeValidFolderPath(string s)
         {
             s = s.Replace('/', '\\');

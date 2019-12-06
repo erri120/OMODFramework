@@ -11,17 +11,17 @@ namespace OMODFramework.Example
             // set the temp folder if you don't want it at %temp%/OMODFramework/
             Framework.Settings.TempPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestTempDir");
 
-            Framework.Settings.ScriptExecutionSettings.OblivionINIPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "Oblivion.ini");
+            Framework.Settings.ScriptExecutionSettings = new ScriptExecutionSettings
+            {
+                OblivionINIPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                    "Oblivion.ini")
+            };
+
+            Framework.Settings.LoggingSettings.UseLogger = true;
 
             Framework.Settings.CodeProgress = new Progress();
 
-            var settings = new FrameworkSettings()
-            {
-                
-            };
-
-            if(Directory.Exists(Framework.Settings.TempPath))
+            /*if(Directory.Exists(Framework.Settings.TempPath))
                 Framework.CleanTempDir();
 
             var omod = new OMOD("DarNified UI 1.3.2.omod");
@@ -33,7 +33,7 @@ namespace OMODFramework.Example
             var srd = omod.RunScript(scriptFunctions, data, plugins);
 
             if(srd.CancelInstall)
-                Console.WriteLine("Canceled");
+                Console.WriteLine("Canceled");*/
         }
     }
 }
