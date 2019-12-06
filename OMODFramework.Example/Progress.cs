@@ -13,6 +13,13 @@ namespace OMODFramework.Example
             _compressing = compressing;
         }
 
+        public void Dispose() 
+        {
+            Console.WriteLine(_compressing 
+                ? $"Compressing finished."
+                : $"Decompressing finished.");
+        }
+
         public void SetProgress(long inSize, long outSize)
         {
             Console.WriteLine(_compressing
