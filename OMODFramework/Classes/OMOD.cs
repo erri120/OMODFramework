@@ -64,11 +64,11 @@ namespace OMODFramework
 
         public string FullFilePath => Path.Combine(FilePath, FileName);
 
-        public HashSet<string> Plugins;
+        /*public HashSet<string> Plugins;
         public HashSet<DataFileInfo> DataFiles;
         public HashSet<string> BSAs;
-        //TODO: public List<INIEditInfo> INIEdits;
-        //TODO: public List<SDPEditInfo> SDPEdits;
+        public HashSet<INIEditInfo> INIEdits;
+        public HashSet<SDPEditInfo> SDPEdits;*/
 
         public ConflictLevel Conflict = ConflictLevel.NoConflict;
 
@@ -171,7 +171,7 @@ namespace OMODFramework
             }
         }
 
-        public void Close()
+        internal void Close()
         {
             _pD.ModFile?.Close();
             _pD.ModFile = null;
@@ -395,6 +395,12 @@ namespace OMODFramework
                 s.Close();
             return bitmapPath;
         }
+
+        public bool HasReadme => ModFile.GetEntry("readme") != null;
+
+        public bool HasScript => ModFile.GetEntry("script") != null;
+
+        public bool HasImage => ModFile.GetEntry("image") != null;
 
         private string ParseCompressedStream(string dataInfo, string dataCompressed)
         {
