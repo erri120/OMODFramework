@@ -216,7 +216,33 @@ namespace OMODFramework.Scripting
         public string[] Select(string[] items, string[] previews, string[] descs, string title, bool many)
         {
             Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
-            throw new NotImplementedException();
+
+            if (previews != null)
+            {
+                for (var i = 0; i < previews.Length; i++)
+                {
+                    if(previews[i] == null)
+                        continue;
+
+                    CheckPluginDataSafety(previews[i], false);
+                    previews[i] = Path.Combine(_dataFiles, previews[i]);
+                }
+            }
+
+            var selectedIndex = _handler.ScriptFunctions.Select(items.ToList(), title, many, previews.ToList(), descs.ToList());
+            if (selectedIndex == null || selectedIndex.Count == 0)
+            {
+                _srd.CancelInstall = true;
+                return new string[0];
+            }
+
+            var result = new string[selectedIndex.Count];
+            for (int i = 0; i < selectedIndex.Count; i++)
+            {
+                result[i] = items[selectedIndex[i]];
+            }
+
+            return result;
         }
 
         public void Message(string msg)
