@@ -2,7 +2,10 @@
 
 namespace OMODFramework
 {
-    public enum LoggingLevel { DEBUG, INFO, WARNING, ERROR }
+    /// <summary>
+    ///     Logging levels, script is the lowest and is will print out every function call within a script
+    /// </summary>
+    public enum LoggingLevel { SCRIPT, DEBUG, INFO, WARNING, ERROR }
 
     public interface ILogger
     {
