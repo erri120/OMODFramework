@@ -917,7 +917,7 @@ namespace OMODFramework.Scripting
             var result = new string[selectedIndex.Count];
             for (int i = 0; i < selectedIndex.Count; i++)
             {
-                result[i] = $"Case {items[selectedIndex[i]]}";
+                result[i] = $"Case {items[selectedIndex[i]].Replace("|","")}";
             }
 
             return result;
