@@ -409,6 +409,7 @@ namespace OMODFramework
             finally
             {
                 sfs.Close();
+                progress?.Dispose();
             }
 
             return sfs.BaseDirectory;
@@ -465,6 +466,7 @@ namespace OMODFramework
             finally
             {
                 sfs.Close();
+                progress?.Dispose();
             }
 
             fs.Flush();
