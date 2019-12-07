@@ -189,17 +189,17 @@ namespace OMODFramework.Scripting
         Version OBSEPluginVersion(string path);
 
         /// <summary>
-        ///     Gets a <see cref="HashSet{T}" /> of all ESPs, see <see cref="ScriptESP" /> for more info, this should
+        ///     Gets a <see cref="IEnumerable{T}" /> of all ESPs, see <see cref="ScriptESP" /> for more info, this should
         ///     include all ESPs
         /// </summary>
         /// <returns></returns>
-        HashSet<ScriptESP> GetESPs();
+        IEnumerable<ScriptESP> GetESPs();
 
         /// <summary>
-        ///     Gets a <see cref="HashSet{T}" /> with the name of all active OMODs.
+        ///     Gets a <see cref="IEnumerable{T}" /> with the name of all active OMODs.
         /// </summary>
         /// <returns></returns>
-        HashSet<string> GetActiveOMODNames();
+        IEnumerable<string> GetActiveOMODNames();
 
         /// <summary>
         ///     Use <see cref="File.ReadAllBytes" /> to read the bytes of a file located inside the data folder

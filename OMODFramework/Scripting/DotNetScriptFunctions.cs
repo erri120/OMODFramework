@@ -323,7 +323,7 @@ namespace OMODFramework.Scripting
                 data folder gets overwritten and than OBMM reads all ESPs again to load
                 the changes... idk
              */
-            if(plugins.Length != _handler.ScriptFunctions.GetESPs().Count)
+            if(plugins.Length != _handler.ScriptFunctions.GetESPs().Count())
                 throw new ScriptingException("SetNewLoadOrder was called with an invalid plugin list!");
             
             plugins.Do(p =>

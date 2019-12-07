@@ -132,7 +132,7 @@ namespace OMODFramework.Test
             return new Version(1,0,0,0);
         }
 
-        public HashSet<ScriptESP> GetESPs()
+        public IEnumerable<ScriptESP> GetESPs()
         {
             return new HashSet<ScriptESP>
             {
@@ -144,7 +144,7 @@ namespace OMODFramework.Test
             };
         }
 
-        public HashSet<string> GetActiveOMODNames()
+        public IEnumerable<string> GetActiveOMODNames()
         {
             throw new NotImplementedException();
         }
