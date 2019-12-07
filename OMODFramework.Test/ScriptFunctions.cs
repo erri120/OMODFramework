@@ -51,9 +51,9 @@ namespace OMODFramework.Test
             return new List<int>{0};
         }
 
-        public string InputString(string title, string initialText, bool useRTF)
+        public string InputString(string title, string initialText)
         {
-            Debug.WriteLine($"[InputString]: {title}, text: {initialText}, rtf: {useRTF}");
+            Debug.WriteLine($"[InputString]: {title}, text: {initialText}");
             return "Hello World";
         }
 

@@ -788,7 +788,7 @@ namespace OMODFramework.Scripting
         public string InputString(string title, string initial)
         {
             Utils.Script($"{MethodBase.GetCurrentMethod().Name} got called");
-            var result = _handler.ScriptFunctions.InputString(title, initial, false);
+            var result = _handler.ScriptFunctions.InputString(title, initial);
             if(result == null)
                 FatalError();
 

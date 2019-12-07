@@ -78,7 +78,7 @@ namespace OMODFramework.Scripting
         /// <param name="initialText">Initial contents of the text box, is never null</param>
         /// <param name="useRTF">Whether to use a System.Windows.Forms.RichTextBox or a normal TextBox</param>
         /// <returns>Contents of the text box or null if the user canceled</returns>
-        string InputString(string title, string initialText, bool useRTF);
+        string InputString(string title, string initialText);
 
         /// <summary>
         ///     Displays a Yes/No dialog

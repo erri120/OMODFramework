@@ -33,9 +33,9 @@ namespace OMODFramework.Example
             return new List<int>{0};
         }
 
-        public string InputString(string title, string initialText, bool useRTF)
+        public string InputString(string title, string initialText)
         {
-            Console.WriteLine($"[InputString]: {title}, text: {initialText}, rtf: {useRTF}");
+            Console.WriteLine($"[InputString]: {title}, text: {initialText}");
             return "Hello World";
         }
 

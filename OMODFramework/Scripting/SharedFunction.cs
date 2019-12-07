@@ -1716,7 +1716,7 @@ namespace OMODFramework.Scripting
             var title = line.Count > 2 ? line.ElementAt(2) : "";
             var initialText = line.Count > 3 ? line.ElementAt(3) : "";
 
-            var result = Handler.ScriptFunctions.InputString(title, initialText, false);
+            var result = Handler.ScriptFunctions.InputString(title, initialText);
             OBMMScriptHandler.Variables[line.ElementAt(1)] = result ?? "";
         }
         public override void Execute(ref IReadOnlyCollection<object> args)
