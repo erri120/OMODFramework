@@ -17,6 +17,7 @@
 
 #define DELETEFILES
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -60,20 +61,26 @@ namespace OMODFramework.Test
                 zf.GetInputStream(zf.GetEntry("hello.txt")).CopyTo(fs);
             }
 
-            byte[] hash1;
-            byte[] hash2;
+            string hash1;
+            string hash2;
 
             using (var md5 = MD5.Create())
             {
                 using (var stream = File.OpenRead("hello.txt"))
-                    hash1 = md5.ComputeHash(stream);
+                {
+                    var hash = md5.ComputeHash(stream);
+                    hash1 = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+                
                 using (var stream = File.OpenRead("hello_out.txt"))
-                    hash2 = md5.ComputeHash(stream);
+                {
+                    var hash = md5.ComputeHash(stream);
+                    hash2 = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
             }
 
             var f1 = new FileInfo("hello.txt");
             var f2 = new FileInfo("hello_out.txt");
-
             Assert.AreEqual(hash1, hash2);
             Assert.AreEqual(f1.Length, f2.Length);
         }
