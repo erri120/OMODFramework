@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using OMODFramework.Classes;
-using Path = Alphaleonis.Win32.Filesystem.Path;
 
 namespace OMODFramework
 {

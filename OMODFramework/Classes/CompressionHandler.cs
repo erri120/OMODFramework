@@ -29,9 +29,6 @@ using ICSharpCode.SharpZipLib.Checksum;
 using ICSharpCode.SharpZipLib.Zip;
 using SevenZip;
 using SevenZip.Compression.LZMA;
-using Directory = Alphaleonis.Win32.Filesystem.Directory;
-using Path = Alphaleonis.Win32.Filesystem.Path;
-using File = Alphaleonis.Win32.Filesystem.File;
 
 namespace OMODFramework
 {

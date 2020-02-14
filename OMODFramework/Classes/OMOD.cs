@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using ICSharpCode.SharpZipLib.Zip;
-using Path = Alphaleonis.Win32.Filesystem.Path;
 
 namespace OMODFramework
 { 
