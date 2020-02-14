@@ -12,10 +12,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OMODFramework.Test", "OMODFramework.Test\OMODFramework.Test.csproj", "{6CE95134-55F1-40E9-910A-A9A4FBB02902}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OMODFramework.Example", "OMODFramework.Example\OMODFramework.Example.csproj", "{082C7745-8F00-48A3-8FB2-9FB83BCF44F7}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OMODExtraction", "OMODExtraction\OMODExtraction.csproj", "{7422E5CE-F7D8-4229-ACE6-249231D8669C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,14 +26,6 @@ Global
 		{6CE95134-55F1-40E9-910A-A9A4FBB02902}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CE95134-55F1-40E9-910A-A9A4FBB02902}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CE95134-55F1-40E9-910A-A9A4FBB02902}.Release|Any CPU.Build.0 = Release|Any CPU
-		{082C7745-8F00-48A3-8FB2-9FB83BCF44F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{082C7745-8F00-48A3-8FB2-9FB83BCF44F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{082C7745-8F00-48A3-8FB2-9FB83BCF44F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{082C7745-8F00-48A3-8FB2-9FB83BCF44F7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7422E5CE-F7D8-4229-ACE6-249231D8669C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7422E5CE-F7D8-4229-ACE6-249231D8669C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7422E5CE-F7D8-4229-ACE6-249231D8669C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7422E5CE-F7D8-4229-ACE6-249231D8669C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
