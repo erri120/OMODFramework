@@ -19,7 +19,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using OMODFramework.Classes;
+
+[assembly: InternalsVisibleTo("OMODFramework.Scripting")]
+[assembly: InternalsVisibleTo("OMODFramework.Test")]
 
 namespace OMODFramework
 {
