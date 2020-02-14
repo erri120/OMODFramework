@@ -315,7 +315,7 @@ namespace OMODFramework
         private HashSet<string> GetPluginSet()
         {
             var tempStream = ExtractWholeFile("plugins.crc");
-            if(tempStream == null) return new HashSet<string>(0);
+            if(tempStream == null) return new HashSet<string>();
 
             using (var br = new BinaryReader(tempStream))
             {
@@ -334,7 +334,7 @@ namespace OMODFramework
         private HashSet<DataFileInfo> GetDataSet()
         {
             var tempStream = ExtractWholeFile("data.crc");
-            if(tempStream == null) return new HashSet<DataFileInfo>(0);
+            if(tempStream == null) return new HashSet<DataFileInfo>();
 
             using (var br = new BinaryReader(tempStream))
             {
