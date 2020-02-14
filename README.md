@@ -21,7 +21,8 @@ This Framework uses a lot of the original algorithms for extraction, compression
 
 ## Download
 
-This Framework is available on [NuGet](https://www.nuget.org/packages/OMODFramework/), [GitHub Packages](https://github.com/erri120/OMODFramework/packages/63159) and [GitHub Release](https://github.com/erri120/OMODFramework/releases).
+- `OMODFramework`: [NuGet](https://www.nuget.org/packages/OMODFramework/), [GitHub Packages](https://github.com/erri120/OMODFramework/packages/63159), [GitHub Release](https://github.com/erri120/OMODFramework/releases)
+- `OMODFramework.Scripting`: [NuGet](https://www.nuget.org/packages/OMODFramework.Scripting/), [GitHub Release](https://github.com/erri120/OMODFramework/releases)
 
 ## Usage
 
