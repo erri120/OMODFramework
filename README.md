@@ -2,7 +2,6 @@
 
 [![Build Status](https://dev.azure.com/erri120/OMODFramework/_apis/build/status/erri120.OMODFramework?branchName=master)](https://dev.azure.com/erri120/OMODFramework/_build/latest?definitionId=3&branchName=master)
 [![Nuget](https://img.shields.io/nuget/v/OMODFramework)](https://www.nuget.org/packages/OMODFramework/)
-[![Discord](https://img.shields.io/discord/648941417783361571?logo=discord)](https://discordapp.com/invite/vvyP2NM)
 
 This project is the continuation and overhaul of my previous `OMOD-Framework`. Aside from the fact that I remove the `-` from the name, this project will be more refined than the last one. I've implemented more features from the [Oblivion Mod Manager](https://www.nexusmods.com/oblivion/mods/2097) and finally use continuous integration with Azure DevOps to build, test and release this project.
 
