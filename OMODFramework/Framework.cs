@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2019  erri120
+    Copyright (C) 2019-2020  erri120
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,8 +19,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using OMODFramework.Classes;
-using Path = Alphaleonis.Win32.Filesystem.Path;
+
+[assembly: InternalsVisibleTo("OMODFramework.Scripting")]
+[assembly: InternalsVisibleTo("OMODFramework.Test")]
 
 namespace OMODFramework
 {

@@ -4,17 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{082C7745-8F00-48A3-8FB2-9FB83BCF44F7}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>OMODFramework.Example</RootNamespace>
-    <AssemblyName>OMODFramework.Example</AssemblyName>
+    <ProjectGuid>{F53B7974-2131-4907-B503-80562EA3DD39}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OMODFramework.Scripting</RootNamespace>
+    <AssemblyName>OMODFramework.Scripting</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +23,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -35,6 +33,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -43,16 +42,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
-    <Compile Include="Progress.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScriptFunctions.cs" />
+    <Compile Include="Scripting\DotNetScriptFunctions.cs" />
+    <Compile Include="Scripting\DotNetScriptHandler.cs" />
+    <Compile Include="Scripting\IScriptFunctions.cs" />
+    <Compile Include="Scripting\OBMMScriptHandler.cs" />
+    <Compile Include="Scripting\Public.cs" />
+    <Compile Include="Scripting\ScriptRunner.cs" />
+    <Compile Include="Scripting\SharedFunction.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="$(SolutionDir)\OMODFramework\OMODFramework.csproj">
+    <ProjectReference Include="..\OMODFramework\OMODFramework.csproj">
       <Project>{715a10c0-cac4-49b2-8a1d-0d6dd2e31f45}</Project>
       <Name>OMODFramework</Name>
     </ProjectReference>

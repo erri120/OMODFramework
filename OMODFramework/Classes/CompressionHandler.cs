@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2019  erri120
+    Copyright (C) 2019-2020  erri120
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,9 +29,6 @@ using ICSharpCode.SharpZipLib.Checksum;
 using ICSharpCode.SharpZipLib.Zip;
 using SevenZip;
 using SevenZip.Compression.LZMA;
-using Directory = Alphaleonis.Win32.Filesystem.Directory;
-using Path = Alphaleonis.Win32.Filesystem.Path;
-using File = Alphaleonis.Win32.Filesystem.File;
 
 namespace OMODFramework
 {

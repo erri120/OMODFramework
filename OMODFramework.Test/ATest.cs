@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2019  erri120
+    Copyright (C) 2019-2020  erri120
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,8 +24,6 @@ using System.Reflection;
 using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pathoschild.FluentNexus;
-using File = Alphaleonis.Win32.Filesystem.File;
-using Path = Alphaleonis.Win32.Filesystem.Path;
 
 namespace OMODFramework.Test
 {

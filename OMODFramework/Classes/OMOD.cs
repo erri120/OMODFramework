@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2019  erri120
+    Copyright (C) 2019-2020  erri120
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,8 +27,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using ICSharpCode.SharpZipLib.Zip;
-using OMODFramework.Scripting;
-using Path = Alphaleonis.Win32.Filesystem.Path;
 
 namespace OMODFramework
 { 
@@ -314,25 +312,10 @@ namespace OMODFramework
             Utils.Info("Finished OMOD creation");
         }
 
-        public ScriptReturnData RunScript(IScriptFunctions scriptFunctions)
-        {
-            return ScriptRunner.ExecuteScript(GetScript(), GetDataFiles(), GetPlugins(), scriptFunctions);
-        }
-
-        public ScriptReturnData RunScript(IScriptFunctions scriptFunctions, string data)
-        {
-            return ScriptRunner.ExecuteScript(GetScript(), data, GetPlugins(), scriptFunctions);
-        }
-
-        public ScriptReturnData RunScript(IScriptFunctions scriptFunctions, string data, string plugin)
-        {
-            return ScriptRunner.ExecuteScript(GetScript(), data, plugin, scriptFunctions);
-        }
-
         private HashSet<string> GetPluginSet()
         {
             var tempStream = ExtractWholeFile("plugins.crc");
-            if(tempStream == null) return new HashSet<string>(0);
+            if(tempStream == null) return new HashSet<string>();
 
             using (var br = new BinaryReader(tempStream))
             {
@@ -351,7 +334,7 @@ namespace OMODFramework
         private HashSet<DataFileInfo> GetDataSet()
         {
             var tempStream = ExtractWholeFile("data.crc");
-            if(tempStream == null) return new HashSet<DataFileInfo>(0);
+            if(tempStream == null) return new HashSet<DataFileInfo>();
 
             using (var br = new BinaryReader(tempStream))
             {
