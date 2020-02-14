@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using ICSharpCode.SharpZipLib.Zip;
-using OMODFramework.Scripting;
 using Path = Alphaleonis.Win32.Filesystem.Path;
 
 namespace OMODFramework
@@ -312,21 +311,6 @@ namespace OMODFramework
             }
 
             Utils.Info("Finished OMOD creation");
-        }
-
-        public ScriptReturnData RunScript(IScriptFunctions scriptFunctions)
-        {
-            return ScriptRunner.ExecuteScript(GetScript(), GetDataFiles(), GetPlugins(), scriptFunctions);
-        }
-
-        public ScriptReturnData RunScript(IScriptFunctions scriptFunctions, string data)
-        {
-            return ScriptRunner.ExecuteScript(GetScript(), data, GetPlugins(), scriptFunctions);
-        }
-
-        public ScriptReturnData RunScript(IScriptFunctions scriptFunctions, string data, string plugin)
-        {
-            return ScriptRunner.ExecuteScript(GetScript(), data, plugin, scriptFunctions);
         }
 
         private HashSet<string> GetPluginSet()

@@ -26,8 +26,23 @@ using System;
 
 namespace OMODFramework.Scripting
 {
-    internal class ScriptRunner
+    public class ScriptRunner
     {
+        public static ScriptReturnData RunScript(OMOD omod, IScriptFunctions scriptFunctions)
+        {
+            return ExecuteScript(omod.GetScript(), omod.GetDataFiles(), omod.GetPlugins(), scriptFunctions);
+        }
+
+        public static ScriptReturnData RunScript(OMOD omod, IScriptFunctions scriptFunctions, string data)
+        {
+            return ExecuteScript(omod.GetScript(), data, omod.GetPlugins(), scriptFunctions);
+        }
+
+        public static ScriptReturnData RunScript(OMOD omod, IScriptFunctions scriptFunctions, string data, string plugin)
+        {
+            return ExecuteScript(omod.GetScript(), data, plugin, scriptFunctions);
+        }
+
         internal static ScriptReturnData ExecuteScript(string script, string dataPath, string pluginsPath, IScriptFunctions scriptFunctions)
         {
             Utils.Info("Starting script execution...");

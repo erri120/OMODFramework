@@ -25,10 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
-using Alphaleonis.Win32.Filesystem;
-using OblivionModManager.Scripting;
 using OMODFramework.Classes;
 
 namespace OMODFramework.Scripting

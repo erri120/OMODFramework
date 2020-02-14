@@ -1,16 +1,11 @@
 ﻿using System;
 using System.CodeDom.Compiler;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Security;
 using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
-using Alphaleonis.Win32.Filesystem;
 using Microsoft.CSharp;
 using Microsoft.VisualBasic;
 using OblivionModManager.Scripting;
-using OMODFramework;
 
 namespace OMODFramework.Scripting
 {
