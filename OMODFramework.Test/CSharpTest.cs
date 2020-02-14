@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OMODFramework.Scripting;
 
 namespace OMODFramework.Test
 {
@@ -28,7 +29,7 @@ namespace OMODFramework.Test
 
                 var scriptFunctions = new ScriptFunctions();
 
-                omod.RunScript(scriptFunctions);
+                ScriptRunner.RunScript(omod, scriptFunctions);
             });
         }
     }

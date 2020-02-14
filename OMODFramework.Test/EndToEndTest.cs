@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OMODFramework.Scripting;
 using Directory = Alphaleonis.Win32.Filesystem.Directory;
 using File = Alphaleonis.Win32.Filesystem.File;
 using Path = Alphaleonis.Win32.Filesystem.Path;
@@ -113,7 +114,7 @@ namespace OMODFramework.Test
 
             var scriptFunctions = new ScriptFunctions();
 
-            var srd = omod.RunScript(scriptFunctions, data);
+            var srd = ScriptRunner.RunScript(omod, scriptFunctions, data);
 
             Assert.IsNotNull(srd);
             Assert.IsTrue(!srd.CancelInstall);

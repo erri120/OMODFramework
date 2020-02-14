@@ -17,6 +17,7 @@
 
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OMODFramework.Scripting;
 
 namespace OMODFramework.Test
 {
@@ -84,7 +85,7 @@ namespace OMODFramework.Test
 
                 var scriptFunctions = new ScriptFunctions();
 
-                var srd = omod.RunScript(scriptFunctions, data, plugins);
+                var srd = ScriptRunner.RunScript(omod, scriptFunctions, data, plugins);
 
                 Assert.IsNotNull(srd);
                 Assert.IsTrue(!srd.CancelInstall);

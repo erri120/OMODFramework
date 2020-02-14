@@ -88,6 +88,10 @@
       <Project>{715a10c0-cac4-49b2-8a1d-0d6dd2e31f45}</Project>
       <Name>OMODFramework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\OMODFramework.Scripting\OMODFramework.Scripting.csproj">
+      <Project>{f53b7974-2131-4907-b503-80562ea3dd39}</Project>
+      <Name>OMODFramework.Scripting</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
