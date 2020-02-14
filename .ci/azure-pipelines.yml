@@ -53,17 +53,34 @@ steps:
 - task: CopyFiles@2
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
-    SourceFolder: '$(System.DefaultWorkingDirectory)/OMODFramework/bin/$(buildConfiguration)/'
+    SourceFolder: '$(System.DefaultWorkingDirectory)/OMODFramework/bin/$(buildConfiguration)/netstandard2.0/'
     Contents: |
+      OMODFramework.deps.json
       OMODFramework.dll
       OMODFramework.pdb
-    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/OMODFramework'
 
 - task: PublishBuildArtifacts@1
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/OMODFramework'
     ArtifactName: 'OMODFramework'
+    publishLocation: 'Container'
+
+- task: CopyFiles@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+  inputs:
+    SourceFolder: '$(System.DefaultWorkingDirectory)/OMODFramework.Scripting/bin/$(buildConfiguration)/'
+    Contents: |
+      OMODFramework.Scripting.dll
+      OMODFramework.Scripting.pdb
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/OMODFramework.Scripting/'
+
+- task: PublishBuildArtifacts@1
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/OMODFramework.Scripting/'
+    ArtifactName: 'OMODFramework.Scripting'
     publishLocation: 'Container'
 
 - task: NuGetCommand@2
@@ -71,13 +88,29 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: '**/OMODFramework.csproj'
-    packDestination: '$(Build.ArtifactStagingDirectory)/nuget'
+    packDestination: '$(Build.ArtifactStagingDirectory)/NuGet/OMODFramework'
     versioningScheme: 'off'
     includeSymbols: true
 
 - task: PublishBuildArtifacts@1
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/nuget'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/NuGet/OMODFramework'
     ArtifactName: 'OMODFramework.NuGet'
+    publishLocation: 'Container'
+
+- task: NuGetCommand@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/OMODFramework.Scripting.csproj'
+    packDestination: '$(Build.ArtifactStagingDirectory)/NuGet/OMODFramework.Scripting/'
+    versioningScheme: 'off'
+    includeSymbols: true
+
+- task: PublishBuildArtifacts@1
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/NuGet/OMODFramework.Scripting/'
+    ArtifactName: 'OMODFramework.Scripting.NuGet'
     publishLocation: 'Container'
