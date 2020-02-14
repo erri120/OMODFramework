@@ -20,11 +20,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Alphaleonis.Win32.Security;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using File = Alphaleonis.Win32.Filesystem.File;
-using Path = Alphaleonis.Win32.Filesystem.Path;
 
 namespace OMODFramework.Test
 {
@@ -61,8 +60,22 @@ namespace OMODFramework.Test
                 zf.GetInputStream(zf.GetEntry("hello.txt")).CopyTo(fs);
             }
 
-            Assert.AreEqual(File.GetSize("hello.txt"), File.GetSize("hello_out.txt"));
-            Assert.AreEqual(File.GetHash("hello.txt", HashType.CRC32), File.GetHash("hello_out.txt", HashType.CRC32));
+            byte[] hash1;
+            byte[] hash2;
+
+            using (var md5 = MD5.Create())
+            {
+                using (var stream = File.OpenRead("hello.txt"))
+                    hash1 = md5.ComputeHash(stream);
+                using (var stream = File.OpenRead("hello_out.txt"))
+                    hash2 = md5.ComputeHash(stream);
+            }
+
+            var f1 = new FileInfo("hello.txt");
+            var f2 = new FileInfo("hello_out.txt");
+
+            Assert.AreEqual(hash1, hash2);
+            Assert.AreEqual(f1.Length, f2.Length);
         }
 
         [TestMethod]
