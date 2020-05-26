@@ -23,7 +23,6 @@ using System.Runtime.CompilerServices;
 using OMODFramework.Classes;
 
 [assembly: InternalsVisibleTo("OMODFramework.Scripting")]
-[assembly: InternalsVisibleTo("OMODFramework.Test")]
 
 namespace OMODFramework
 {

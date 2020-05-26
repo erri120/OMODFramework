@@ -9,6 +9,7 @@
     <PackageProjectUrl>https://github.com/erri120/OMODFramework</PackageProjectUrl>
     <RepositoryUrl>https://github.com/erri120/OMODFramework</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
