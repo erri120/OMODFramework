@@ -1,24 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <Authors>erri120</Authors>
-    <Company>erri120</Company>
-    <Version>2.0.0</Version>
-    <Copyright>Copyright ©  erri120 2019-2020</Copyright>
-    <PackageProjectUrl>https://github.com/erri120/OMODFramework</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/erri120/OMODFramework</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <Platforms>x64</Platforms>
+    <TargetFramework>netstandard2.1</TargetFramework>
+      <LangVersion>8.0</LangVersion>
+      <Nullable>enable</Nullable>
+      <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
+    <PackageReference Include="SevenZip" Version="19.0.0" />
     <PackageReference Include="SharpZipLib" Version="1.2.0" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
 
 </Project>
