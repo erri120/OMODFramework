@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using ICSharpCode.SharpZipLib.Zip;
 using JetBrains.Annotations;
 using OMODFramework.Exceptions;
@@ -264,12 +265,22 @@ namespace OMODFramework
             return list;
         }
 
+        /// <summary>
+        /// Extracts all plugins to a given directory.
+        /// </summary>
+        /// <param name="outputDirectory"></param>
+        /// <param name="entryList"></param>
         public void ExtractPluginFiles(DirectoryInfo outputDirectory, IEnumerable<OMODCompressedEntry>? entryList = null)
         {
             entryList ??= GetPlugins();
             ExtractCompressedData(OMODFile.Data, entryList, outputDirectory);
         }
 
+        /// <summary>
+        /// Extracts all data files to a given directory.
+        /// </summary>
+        /// <param name="outputDirectory"></param>
+        /// <param name="entryList"></param>
         public void ExtractDataFiles(DirectoryInfo outputDirectory, IEnumerable<OMODCompressedEntry>? entryList = null)
         {
             entryList ??= GetDataFileList();
@@ -284,12 +295,17 @@ namespace OMODFramework
             if(!outputDirectory.Exists)
                 outputDirectory.Create();
 
+            var omodCompressedEntries = entryList.ToList();
+
             using var compressedStream = ExtractFile(file);
-            using var decompressedStream = CompressionHandler.DecompressStream(entryList, compressedStream, Config.CompressionType);
+            using var decompressedStream = CompressionHandler.DecompressStream(omodCompressedEntries, compressedStream, Config.CompressionType);
             
-            CompressionHandler.WriteDecompressedStream(entryList, decompressedStream, outputDirectory);
+            CompressionHandler.WriteDecompressedStream(omodCompressedEntries, decompressedStream, outputDirectory);
         }
 
+        /// <summary>
+        /// Disposes the OMOD and closes the underlying zip file.
+        /// </summary>
         public void Dispose()
         {
             _zipFile.Close();

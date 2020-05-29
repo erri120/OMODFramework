@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OMODFramework.Scripting\OMODFramework.Scripting.csproj" />
     <ProjectReference Include="..\OMODFramework\OMODFramework.csproj" />
   </ItemGroup>
 
