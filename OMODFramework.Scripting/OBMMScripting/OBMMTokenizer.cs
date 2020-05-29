@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace OMODFramework.Scripting
@@ -47,7 +48,7 @@ namespace OMODFramework.Scripting
             Case,
             [Line(0)]
             Default,
-            [Line(1, -1)]
+            [Line(1, 6)]
             For,
             [Line(0)]
             EndFor,
@@ -319,12 +320,14 @@ namespace OMODFramework.Scripting
             internal readonly IReadOnlyList<string> Previews;
             internal readonly IReadOnlyList<string> Descriptions;
 
-            internal SelectToken(TokenType type, IReadOnlyList<string> arguments)
+            internal SelectToken(Line line)
             {
-                Title = arguments[0];
-                Type = type;
+                if(line.Arguments == null)
+                    throw new ArgumentException("Arguments of line is null!", nameof(line));
+                Title = line.Arguments[0];
+                Type = line.TokenType;
                 // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-                switch (type)
+                switch (Type)
                 {
                     case TokenType.Select:
                         break;
@@ -358,10 +361,10 @@ namespace OMODFramework.Scripting
                         throw new ArgumentOutOfRangeException();
                 }
                 var argsPerOptions = 1 + (HasPreviews ? 1 : 0) + (HasDescriptions ? 1 : 0);
-                if((arguments.Count-1) % argsPerOptions != 0)
-                    throw new OBMMScriptingTokenizationException(new Line(type){Arguments = arguments.ToList() }.ToString(), $"Select has too many arguments. Amount of arguments: {arguments.Count-1}, has previews: {(HasPreviews ? "true" : "false")}, has descriptions: {(HasDescriptions ? "true" : "false")}, argsPerOptions: {argsPerOptions}. This usually means the script is broken.");
+                if((line.Arguments.Count-1) % argsPerOptions != 0)
+                    throw new OBMMScriptingTokenizationException(line.ToString(), $"Select has too many arguments. Amount of arguments: {line.Arguments.Count-1}, has previews: {(HasPreviews ? "true" : "false")}, has descriptions: {(HasDescriptions ? "true" : "false")}, argsPerOptions: {argsPerOptions}. This usually means the script is broken.");
 
-                var l = arguments.Count - 1 / argsPerOptions;
+                var l = line.Arguments.Count - 1 / argsPerOptions;
 
                 var items = new List<string>();
                 var previews = new List<string>();
@@ -369,25 +372,115 @@ namespace OMODFramework.Scripting
 
                 for (var i = 1; i <= l; i += argsPerOptions)
                 {
-                    if (arguments.Count == i)
+                    if (line.Arguments.Count == i)
                         break;
-                    items.Add(arguments.ElementAt(i));
+                    items.Add(line.Arguments.ElementAt(i));
                     if (HasPreviews)
                     {
-                        previews.Add(arguments.ElementAt(i + 1));
+                        previews.Add(line.Arguments.ElementAt(i + 1));
                         if(HasDescriptions)
-                            descriptions.Add(arguments.ElementAt(i + 2));
+                            descriptions.Add(line.Arguments.ElementAt(i + 2));
                     }
                     else
                     {
                         if(HasDescriptions)
-                            descriptions.Add(arguments.ElementAt(i + 1));
+                            descriptions.Add(line.Arguments.ElementAt(i + 1));
                     }
                 }
 
                 Items = items;
                 Previews = previews;
                 Descriptions = descriptions;
+            }
+        }
+
+        private sealed class ForToken : StartFlowToken
+        {
+            internal override TokenType Type => TokenType.For;
+
+            internal enum ForEnumerationType
+            {
+                Count,
+                DataFolder,
+                PluginFolder,
+                DataFile,
+                Plugin
+            }
+
+            internal readonly ForEnumerationType EnumerationType;
+            internal readonly string Variable;
+
+            //for EnumerationType = Count
+            internal readonly int Start;
+            internal readonly int End;
+            internal readonly int Step;
+
+            //for EnumerationType = DataFolder, DataFile, PluginFolder and Plugin
+            internal readonly string FolderPath;
+            internal readonly bool Recursive;
+            internal readonly string SearchString;
+
+            internal ForToken(Line line)
+            {
+                if (line.Arguments == null)
+                    throw new ArgumentException("Arguments of line is null!", nameof(line));
+
+                var args = line.Arguments.ToList();
+                //Each appears to only be fluff and doesnt do anything "For Each" is the same as "For"
+                if (args[0] == "Each")
+                    args = args.TakeLast(args.Count - 1).ToList();
+
+                var enumerationName = args[0];
+                if(!Utils.TryGetEnum<ForEnumerationType>(enumerationName, out var enumerationType))
+                    throw new OBMMScriptingTokenizationException(line.ToString(), $"Unable to parse Enumeration Type {enumerationName}!");
+
+                EnumerationType = enumerationType;
+                Variable = args[1];
+                args = args.TakeLast(args.Count - 2).ToList();
+
+                FolderPath = string.Empty;
+                SearchString = string.Empty;
+
+                switch (enumerationType)
+                {
+                    case ForEnumerationType.Count:
+                        if (!int.TryParse(args[0], out Start))
+                            throw new OBMMScriptingTokenizationException(line.ToString(), $"Start argument is not an integer: {args[0]}!");
+                        if (!int.TryParse(args[1], out End))
+                            throw new OBMMScriptingTokenizationException(line.ToString(), $"End argument is not an integer: {args[1]}!");
+                        if (args.Count == 2)
+                        {
+                            Step = 1;
+                            break;
+                        }
+                        if (!int.TryParse(args[2], out Step))
+                            throw new OBMMScriptingTokenizationException(line.ToString(), $"Optional step argument is not an integer: {args[2]}!");
+                        break;
+                    case ForEnumerationType.DataFolder:
+                    case ForEnumerationType.PluginFolder:
+                    case ForEnumerationType.DataFile:
+                    case ForEnumerationType.Plugin:
+                        FolderPath = args[0];
+                        if (args.Count == 1)
+                            break;
+
+                        Recursive = args[1] == "True";
+                        if (args.Count == 2)
+                            break;
+                        SearchString = args[2];
+                        if (args.Count == 3)
+                            break;
+                        throw new OBMMScriptingTokenizationException(line.ToString(), "Unexpected extra arguments on line.");
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            public override string ToString()
+            {
+                if(EnumerationType == ForEnumerationType.Count)
+                    return $"{Type}: Type: {EnumerationType}, Variable: {Variable}, Count from {Start} to {End} with {Step} step(s)";
+                return $"{Type}: Type: {EnumerationType}, Variable: {Variable}, Folder {FolderPath}";
             }
         }
 
@@ -471,9 +564,11 @@ namespace OMODFramework.Scripting
 
             var quoteSplit = l.Substring(tokenName.Length+1, l.Length-tokenName.Length-1)
                 .Split("\"")
-                .ToArray();
+                .ToList();
             line.Arguments = new List<string>();
-
+            /*if(split.Length == 32)
+                if(Debugger.IsAttached) Debugger.Break();*/
+            var j = 0;
             for (var i = 0; i < split.Length; i++)
             {
                 var current = split[i];
@@ -495,7 +590,29 @@ namespace OMODFramework.Scripting
                     if (current.EndsWith("\""))
                         current = current[..^1];
 
-                    var first = quoteSplit.First(x => x.StartsWith(current) && line.Arguments.All(y => y != x));
+                    /*
+                     * here we try to find the actual argument in quotes, eg:
+                     *  "Bob Ross"
+                     * would split into
+                     *  "Bob
+                     *  Ross"
+                     * so we search for the first element that starts with Bob.
+                     * Problem is when you have multiple elements that start similar, eg:
+                     *  "Bob Ross"
+                     *  "Bob Marley"
+                     * would split into
+                     *  "Bob
+                     *  Ross"
+                     *  "Bob
+                     *  Marley"
+                     * the first search for Bob would successfully find "Bob Ross" but the second
+                     * one also finds "Bob Ross" instead of "Bob Marley" so what we do is we add a
+                     * little helper variable j that is set to index of the last element we found in
+                     * the quoteSplit list. We then ignore all elements with an index smaller than j
+                     * because we already got them.
+                     */
+                    var first = quoteSplit.First(x => x.StartsWith(current) && quoteSplit.LastIndexOf(x) > j);
+                    j = quoteSplit.IndexOf(first);
                     line.Arguments.Add(first);
                     i += first.Count(x => x == ' ');
                     continue;
@@ -612,13 +729,16 @@ namespace OMODFramework.Scripting
                 return new IfToken(conditionType, line.Arguments.TakeLast(line.Arguments!.Count-1).ToList(), token == TokenType.IfNot);
             }
 
+            if(token == TokenType.For)
+                return new ForToken(line);
+
             if (token == TokenType.Select || token == TokenType.SelectMany ||
                 token == TokenType.SelectManyWithDescriptions ||
                 token == TokenType.SelectManyWithDescriptionsAndPreviews ||
                 token == TokenType.SelectWithDescriptions || token == TokenType.SelectWithDescriptionsAndPreviews ||
                 token == TokenType.SelectWithPreview)
             {
-                return new SelectToken(token, line.Arguments!);
+                return new SelectToken(line);
             }
 
             if(token == TokenType.Else || token == TokenType.Exit || token == TokenType.Goto || token == TokenType.Return || token == TokenType.Break)
