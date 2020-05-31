@@ -141,6 +141,9 @@ namespace OMODFramework
 
         public readonly Config Config = null!;
 
+        internal IEnumerable<OMODCompressedEntry>? DataList { get; set; }
+        internal IEnumerable<OMODCompressedEntry>? PluginsList { get; set; }
+
         public OMOD(FileInfo path, FrameworkSettings? settings = null, bool checkIntegrity = true)
         {
             if (!path.Exists)
@@ -184,7 +187,7 @@ namespace OMODFramework
 
         private string ExtractStringFile(OMODFile file)
         {
-            using var stream = ExtractFile(OMODFile.Script);
+            using var stream = ExtractFile(file);
             using var br = new BinaryReader(stream);
             return br.ReadString();
         }
@@ -227,6 +230,9 @@ namespace OMODFramework
         /// <returns></returns>
         public IEnumerable<OMODCompressedEntry> GetDataFileList()
         {
+            if (DataList != null)
+                return DataList;
+
             using var stream = ExtractFile(OMODFile.DataCRC);
             using var br = new BinaryReader(stream);
 
@@ -239,6 +245,7 @@ namespace OMODFramework
                 list.Add(new OMODCompressedEntry(name, crc, length));
             }
 
+            DataList ??= list;
             return list;
         }
 
@@ -250,6 +257,9 @@ namespace OMODFramework
         /// <exception cref="ZipFileEntryNotFoundException"></exception>
         public IEnumerable<OMODCompressedEntry> GetPlugins()
         {
+            if (PluginsList != null)
+                return PluginsList;
+
             using var stream = ExtractFile(OMODFile.PluginsCRC);
             using var br = new BinaryReader(stream);
 
@@ -262,6 +272,7 @@ namespace OMODFramework
                 list.Add(new OMODCompressedEntry(name, crc, length));
             }
 
+            PluginsList ??= list;
             return list;
         }
 

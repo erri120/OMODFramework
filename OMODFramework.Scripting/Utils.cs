@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace OMODFramework.Scripting
 {
@@ -12,7 +14,49 @@ namespace OMODFramework.Scripting
             return col.Aggregate((x, y) => $"{x}{separator}{y}");
         }
 
-        public static void AddArguments(this IList<string> arguments, IReadOnlyCollection<string> line, int start, int end)
+        internal static IEnumerable<ScriptReturnFile> ToScriptReturnFiles(
+            this IEnumerable<OMODCompressedEntry> enumerable)
+        {
+            return enumerable.Select(x => new ScriptReturnFile(x));
+        }
+
+        internal static IEnumerable<string> FileEnumeration(this IEnumerable<string> enumerable, string path, string pattern,
+            bool recurse)
+        {
+            return enumerable.Where(x =>
+            {
+                if (!x.StartsWith(path, true, null))
+                    return false;
+
+                var dirName = Path.GetDirectoryName(x);
+                if (dirName == null)
+                    return false;
+
+                if (!recurse && !dirName.Equals(path, StringComparison.InvariantCultureIgnoreCase))
+                    return false;
+
+                if (pattern == string.Empty || pattern == "*")
+                {
+                    return true;
+                }
+
+                return x.Contains(pattern);
+            });
+        }
+
+        internal static void AddOrReplace<TKey, TValue>(this Dictionary<TKey, TValue> dic, TKey key, TValue value) where TKey : notnull
+        {
+            if (dic.ContainsKey(key))
+                dic.Remove(key);
+            dic.Add(key, value);
+        }
+
+        internal static void Do<T>(this IEnumerable<T> col,[InstantHandle] Action<T> a)
+        {
+            foreach (var item in col) a(item);
+        }
+
+        internal static void AddArguments(this IList<string> arguments, IReadOnlyCollection<string> line, int start, int end)
         {
             if (start == 0 && end == 0)
                 return;
@@ -29,7 +73,7 @@ namespace OMODFramework.Scripting
             }
         }
 
-        public static bool TryGetEnum<T>(string s,[MaybeNullWhen(false)] out T type)
+        internal static bool TryGetEnum<T>(string s,[MaybeNullWhen(false)] out T type)
         {
             type = default;
             if (!Enum.TryParse(typeof(T), s, true, out var result))

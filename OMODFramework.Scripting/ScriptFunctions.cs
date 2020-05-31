@@ -1,0 +1,490 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using OblivionModManager.Scripting;
+
+namespace OMODFramework.Scripting
+{
+    internal class ScriptFunctions : OblivionModManager.Scripting.IScriptFunctions
+    {
+        private readonly IScriptSettings _settings;
+        private readonly OMOD _omod;
+        private readonly ScriptReturnData _srd;
+        
+        internal ScriptFunctions(IScriptSettings settings, OMOD omod, ScriptReturnData srd)
+        {
+            _settings = settings;
+            _omod = omod;
+            _srd = srd;
+        }
+
+        public bool GetDisplayWarnings()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool DialogYesNo(string msg)
+        {
+            var result = _settings.ScriptFunctions.DialogYesNo("", msg);
+            if (result == DialogResult.Canceled)
+                throw new NotImplementedException();
+            return result == DialogResult.Yes;
+        }
+
+        public bool DialogYesNo(string msg, string title)
+        {
+            var result = _settings.ScriptFunctions.DialogYesNo(title, msg);
+            if (result == DialogResult.Canceled)
+                throw new NotImplementedException();
+            return result == DialogResult.Yes;
+        }
+
+        public bool DataFileExists(string path)
+        {
+            var file = new FileInfo(path);
+            return _settings.ScriptFunctions.DataFileExists(file);
+        }
+
+        public Version GetOBMMVersion()
+        {
+            return _settings.FrameworkSettings.CurrentOBMMVersion;
+        }
+
+        public Version GetOBSEVersion()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Version GetOBGEVersion()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Version GetOblivionVersion()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Version GetOBSEPluginVersion(string plugin)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string[] GetPlugins(string path, string pattern, bool recurse)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string[] GetDataFiles(string path, string pattern, bool recurse)
+        {
+            if(_omod.DataList == null)
+                throw new NotImplementedException();
+
+            return _omod.DataList.Select(x => x.Name).FileEnumeration(path, pattern, recurse).ToArray();
+        }
+
+        public string[] GetPluginFolders(string path, string pattern, bool recurse)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string[] GetDataFolders(string path, string pattern, bool recurse)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string[] GetActiveEspNames()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string[] GetExistingEspNames()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string[] GetActiveOmodNames()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string[] Select(IEnumerable<string> items, IEnumerable<string>? previews, IEnumerable<string>? descs, string title, bool many)
+        {
+            //TODO: extract preview images or provide a Stream/Bitmap object for them
+            IEnumerable<string> enumerable = items.ToList();
+            var result =
+                _settings.ScriptFunctions.Select(enumerable, title, many, previews ?? new string[0], descs ?? new string[0]).ToList();
+
+            return result.Select(x => enumerable.ElementAt(result.IndexOf(x))).ToArray();
+        }
+
+        public void Message(string msg)
+        {
+            _settings.ScriptFunctions.Message(msg);
+        }
+
+        public void Message(string msg, string title)
+        {
+            _settings.ScriptFunctions.Message(msg, title);
+        }
+
+        public void DisplayImage(string path)
+        {
+            //_settings.ScriptFunctions.DisplayImage();
+        }
+
+        public void DisplayImage(string path, string title)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DisplayText(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DisplayText(string path, string title)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LoadEarly(string plugin)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LoadBefore(string plugin1, string plugin2)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LoadAfter(string plugin1, string plugin2)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetNewLoadOrder(string[] plugins)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UncheckEsp(string plugin)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetDeactivationWarning(string plugin, DeactiveStatus warning)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ConflictsWith(string filename)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ConslictsWith(string filename, string comment)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ConflictsWith(string filename, string comment, ConflictLevel level)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion,
+            string comment)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion,
+            string comment, ConflictLevel level)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion,
+            string comment, ConflictLevel level, bool regex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DependsOn(string filename)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DependsOn(string filename, string comment)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DependsOn(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DependsOn(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion,
+            string comment)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DependsOn(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion,
+            string comment, bool regex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DontInstallAnyPlugins()
+        {
+            _srd.PluginFiles.Clear();
+        }
+
+        public void DontInstallAnyDataFiles()
+        {
+            _srd.DataFiles.Clear();
+        }
+
+        public void InstallAllPlugins()
+        {
+            if (_omod.PluginsList == null)
+                throw new NotImplementedException();
+            _srd.PluginFiles = _omod.PluginsList.ToScriptReturnFiles().ToList();
+        }
+
+        public void InstallAllDataFiles()
+        {
+            if (_omod.DataList == null)
+                throw new NotImplementedException();
+            _srd.PluginFiles = _omod.DataList.ToScriptReturnFiles().ToList();
+        }
+
+        public void DontInstallPlugin(string name)
+        {
+            _srd.PluginFiles.Remove(_srd.PluginFiles.First(x => x.OriginalFile.Name == name));
+        }
+
+        public void DontInstallDataFile(string name)
+        {
+            _srd.DataFiles.Remove(_srd.DataFiles.First(x => x.OriginalFile.Name == name));
+        }
+
+        public void DontInstallDataFolder(string folder, bool recurse)
+        {
+            var files = _srd.DataFiles
+                .Select(x => x.OriginalFile.Name)
+                .FileEnumeration(folder, "*", recurse);
+
+            _srd.DataFiles = new List<ScriptReturnFile>(_srd.DataFiles.Where(x => !files.Contains(x.OriginalFile.Name)));
+        }
+
+        public void InstallPlugin(string name)
+        {
+            if (_omod.PluginsList == null)
+                throw new NotImplementedException();
+
+            _srd.PluginFiles.Add(new ScriptReturnFile(_omod.PluginsList.First(x => x.Name == name)));
+        }
+
+        public void InstallDataFile(string name)
+        {
+            if (_omod.DataList == null)
+                throw new NotImplementedException();
+            _srd.PluginFiles.Add(new ScriptReturnFile(_omod.DataList.First(x => x.Name == name)));
+        }
+
+        public void InstallDataFolder(string folder, bool recurse)
+        {
+            if (_omod.DataList == null)
+                throw new NotImplementedException();
+
+            var files = _omod.DataList
+                .Select(x => x.Name)
+                .FileEnumeration(folder, "*", recurse);
+
+            _srd.DataFiles.AddRange(_omod.DataList.Where(x => files.Contains(x.Name)).ToScriptReturnFiles());
+        }
+
+        public void CopyPlugin(string from, string to)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CopyDataFile(string from, string to)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CopyDataFolder(string from, string to, bool recurse)
+        {
+            if (_omod.DataList == null)
+                throw new NotImplementedException();
+
+            var files = _omod.DataList.Select(x => x.Name)
+                .FileEnumeration(from, "*", recurse);
+
+            _srd.DataFiles.AddRange(_omod.DataList
+                .Where(x => files.Contains(x.Name))
+                .Select(x => new ScriptReturnFile(x){Output = x.Name.Replace(from, to)}));
+        }
+
+        public void PatchPlugin(string from, string to, bool create)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void PatchDataFile(string from, string to, bool create)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RegisterBSA(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UnregisterBSA(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void EditINI(string section, string key, string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void EditShader(byte package, string name, string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void FatalError()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetGMST(string file, string edid, string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetGlobal(string file, string edid, string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetPluginByte(string file, long offset, byte value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetPluginShort(string file, long offset, short value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetPluginInt(string file, long offset, int value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetPluginLong(string file, long offset, long value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetPluginFloat(string file, long offset, float value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string InputString()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string InputString(string title)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string InputString(string title, string initial)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string ReadINI(string section, string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string ReadRendererInfo(string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void EditXMLLine(string file, int line, string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void EditXMLReplace(string file, string find, string replace)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] ReadDataFile(string file)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] ReadExistingDataFile(string file)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] GetDataFileFromBSA(string file)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] GetDataFileFromBSA(string bsa, string file)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void GenerateNewDataFile(string file, byte[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CancelDataFileCopy(string file)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CancelDataFolderCopy(string folder)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void GenerateBSA(string file, string path, string prefix, int cRatio, int cLevel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsSimulation()
+        {
+            return false;
+        }
+    }
+}

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace OMODFramework.Scripting
@@ -33,6 +33,8 @@ namespace OMODFramework.Scripting
         /// <summary>
         /// All possible tokens
         /// </summary>
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        [SuppressMessage("ReSharper", "IdentifierTypo")]
         private enum TokenType
         {
             //Logic
@@ -273,6 +275,7 @@ namespace OMODFramework.Scripting
 
         private sealed class IfToken : StartFlowToken
         {
+            [SuppressMessage("ReSharper", "InconsistentNaming")]
             internal enum IfConditionType
             {
                 DialogYesNo,
@@ -296,6 +299,8 @@ namespace OMODFramework.Scripting
             internal readonly IReadOnlyList<string> Arguments;
             internal readonly bool Not;
 
+            internal bool IsTrue { get; set; }
+
             internal IfToken(IfConditionType type, IReadOnlyList<string> arguments, bool not = false)
             {
                 ConditionType = type;
@@ -313,12 +318,14 @@ namespace OMODFramework.Scripting
         {
             internal readonly string Title;
             internal readonly bool IsMany;
-            internal readonly bool HasPreviews;
-            internal readonly bool HasDescriptions;
+            private readonly bool _hasPreviews;
+            private readonly bool _hasDescriptions;
 
             internal readonly IReadOnlyList<string> Items;
             internal readonly IReadOnlyList<string> Previews;
             internal readonly IReadOnlyList<string> Descriptions;
+
+            internal List<string> Results { get; set; } = new List<string>();
 
             internal SelectToken(Line line)
             {
@@ -335,34 +342,34 @@ namespace OMODFramework.Scripting
                         IsMany = true;
                         break;
                     case TokenType.SelectWithPreview:
-                        HasPreviews = true;
+                        _hasPreviews = true;
                         break;
                     case TokenType.SelectManyWithPreview:
                         IsMany = true;
-                        HasPreviews = true;
+                        _hasPreviews = true;
                         break;
                     case TokenType.SelectWithDescriptions:
-                        HasDescriptions = true;
+                        _hasDescriptions = true;
                         break;
                     case TokenType.SelectManyWithDescriptions:
                         IsMany = true;
-                        HasDescriptions = true;
+                        _hasDescriptions = true;
                         break;
                     case TokenType.SelectWithDescriptionsAndPreviews:
-                        HasDescriptions = true;
-                        HasPreviews = true;
+                        _hasDescriptions = true;
+                        _hasPreviews = true;
                         break;
                     case TokenType.SelectManyWithDescriptionsAndPreviews:
                         IsMany = true;
-                        HasDescriptions = true;
-                        HasPreviews = true;
+                        _hasDescriptions = true;
+                        _hasPreviews = true;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-                var argsPerOptions = 1 + (HasPreviews ? 1 : 0) + (HasDescriptions ? 1 : 0);
+                var argsPerOptions = 1 + (_hasPreviews ? 1 : 0) + (_hasDescriptions ? 1 : 0);
                 if((line.Arguments.Count-1) % argsPerOptions != 0)
-                    throw new OBMMScriptingTokenizationException(line.ToString(), $"Select has too many arguments. Amount of arguments: {line.Arguments.Count-1}, has previews: {(HasPreviews ? "true" : "false")}, has descriptions: {(HasDescriptions ? "true" : "false")}, argsPerOptions: {argsPerOptions}. This usually means the script is broken.");
+                    throw new OBMMScriptingTokenizationException(line.ToString(), $"Select has too many arguments. Amount of arguments: {line.Arguments.Count-1}, has previews: {(_hasPreviews ? "true" : "false")}, has descriptions: {(_hasDescriptions ? "true" : "false")}, argsPerOptions: {argsPerOptions}. This usually means the script is broken.");
 
                 var l = line.Arguments.Count - 1 / argsPerOptions;
 
@@ -375,15 +382,15 @@ namespace OMODFramework.Scripting
                     if (line.Arguments.Count == i)
                         break;
                     items.Add(line.Arguments.ElementAt(i));
-                    if (HasPreviews)
+                    if (_hasPreviews)
                     {
                         previews.Add(line.Arguments.ElementAt(i + 1));
-                        if(HasDescriptions)
+                        if(_hasDescriptions)
                             descriptions.Add(line.Arguments.ElementAt(i + 2));
                     }
                     else
                     {
-                        if(HasDescriptions)
+                        if(_hasDescriptions)
                             descriptions.Add(line.Arguments.ElementAt(i + 1));
                     }
                 }
@@ -409,6 +416,10 @@ namespace OMODFramework.Scripting
 
             internal readonly ForEnumerationType EnumerationType;
             internal readonly string Variable;
+
+            internal IEnumerable<string> Enumerable { get; set; } = null!;
+            internal int Current { get; set; }
+            internal int ChildTokens { get; set; }
 
             //for EnumerationType = Count
             internal readonly int Start;
@@ -484,6 +495,23 @@ namespace OMODFramework.Scripting
             }
         }
 
+        private sealed class CaseToken : StartFlowToken
+        {
+            internal override TokenType Type => TokenType.Case;
+
+            internal readonly string Value;
+
+            internal bool IsTrue { get; set; }
+
+            internal CaseToken(Line line)
+            {
+                if (line.Arguments == null)
+                    throw new NotImplementedException();
+
+                Value = line.Arguments.ToAggregatedString(" ");
+            }
+        }
+
         private void TokenizeScript(string script)
         {
             var lines = script
@@ -491,6 +519,7 @@ namespace OMODFramework.Scripting
                 .Split("\n")
                 .Select(x => x.Trim())
                 .Where(x => !string.IsNullOrEmpty(x))
+                .Select(x => x.Contains("\\\\") ? x.Replace("\\\\", "\\") : x)
                 .ToList();
 
             //the code above would work if we have one statement per line but
@@ -720,7 +749,7 @@ namespace OMODFramework.Scripting
             if (token == TokenType.EndIf || token == TokenType.EndFor || token == TokenType.EndSelect)
                 return new EndFlowToken{Type = token};
 
-            if (token == TokenType.If || token == TokenType.If)
+            if (token == TokenType.If || token == TokenType.IfNot)
             {
                 var conditionName = line.Arguments!.First();
                 if(!Utils.TryGetEnum<IfToken.IfConditionType>(conditionName, out var conditionType))
@@ -729,8 +758,11 @@ namespace OMODFramework.Scripting
                 return new IfToken(conditionType, line.Arguments.TakeLast(line.Arguments!.Count-1).ToList(), token == TokenType.IfNot);
             }
 
-            if(token == TokenType.For)
+            if (token == TokenType.For)
                 return new ForToken(line);
+
+            if (token == TokenType.Case)
+                return new CaseToken(line);
 
             if (token == TokenType.Select || token == TokenType.SelectMany ||
                 token == TokenType.SelectManyWithDescriptions ||

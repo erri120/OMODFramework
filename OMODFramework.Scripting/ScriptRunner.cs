@@ -28,6 +28,12 @@ namespace OMODFramework.Scripting
                 script = script.Substring(1);
             }
 
+            if (omod.DataList == null)
+                omod.GetDataFileList();
+
+            if (omod.PluginsList == null && omod.HasFile(OMODFile.PluginsCRC))
+                omod.GetPlugins();
+
             var handler = ScriptHandlers.First(x => x.Key == scriptType).Value.Value;
             return handler.Execute(omod, script, settings);
         }
