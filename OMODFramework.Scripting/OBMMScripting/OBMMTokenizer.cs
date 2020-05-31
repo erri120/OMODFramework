@@ -317,6 +317,21 @@ namespace OMODFramework.Scripting
             }
         }
 
+        private sealed class SelectVarToken : StartFlowToken
+        {
+            internal readonly string Variable;
+
+            internal string Value { get; set; } = string.Empty;
+
+            public SelectVarToken(Line line)
+            {
+                if (line.Arguments == null)
+                    throw new NotImplementedException();
+
+                Variable = line.Arguments[0];
+            }
+        }
+
         private sealed class SelectToken : StartFlowToken
         {
             internal readonly string Title;
@@ -782,6 +797,11 @@ namespace OMODFramework.Scripting
                 token == TokenType.SelectWithPreview)
             {
                 return new SelectToken(line);
+            }
+
+            if (token == TokenType.SelectVar || token == TokenType.SelectString)
+            {
+                return new SelectVarToken(line){Type = token};
             }
 
             if(token == TokenType.Else || token == TokenType.Exit || token == TokenType.Goto || token == TokenType.Return || token == TokenType.Break)

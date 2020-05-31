@@ -305,11 +305,22 @@ namespace OMODFramework.Scripting
                 case TokenType.Case:
                 {
                     var caseToken = (CaseToken) token;
-                    if (!(_stack.Peek() is SelectToken selectToken))
-                        throw new NotImplementedException();
+                    var peek = _stack.Peek();
 
-                    if (selectToken.Results.Contains(caseToken.Value))
-                        caseToken.IsActive = true;
+                    if (peek is SelectToken selectToken)
+                    {
+                        if (selectToken.Results.Contains(caseToken.Value))
+                            caseToken.IsActive = true;
+                    }
+                    else if (peek is SelectVarToken selectVarToken)
+                    {
+                        if (caseToken.Value == selectVarToken.Value)
+                            caseToken.IsActive = true;
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
 
                     _stack.Push(caseToken);
                     break;
@@ -344,7 +355,14 @@ namespace OMODFramework.Scripting
                 }
                 case TokenType.SelectVar:
                 case TokenType.SelectString:
-                    throw new NotImplementedException();
+                {
+                    var selectToken = (SelectVarToken) token;
+                    if (!_variables.TryGetValue(selectToken.Variable, out var value))
+                        throw new NotImplementedException();
+                    selectToken.Value = value;
+                    _stack.Push(selectToken);
+                    break;
+                }
                 case TokenType.Message:
                 {
                     var iToken = (InstructionToken) token;
