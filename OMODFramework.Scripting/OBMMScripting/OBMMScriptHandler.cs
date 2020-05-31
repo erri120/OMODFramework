@@ -92,8 +92,11 @@ namespace OMODFramework.Scripting
         {
             if (token is EndFlowToken)
             {
-                _stack.Pop();
-                return;
+                if (_stack.Peek().Type != TokenType.Case)
+                {
+                    _stack.Pop();
+                    return;
+                }
             }
 
             if (_stack.Count != 0)
@@ -104,15 +107,15 @@ namespace OMODFramework.Scripting
                     forToken.ChildTokens++;
                 }
 
-                if (_stack.Peek() is IfToken ifToken)
+                if (_stack.OfType<ActiveFlowToken>().Any(x => !x.IsActive))
                 {
-                    if (!ifToken.IsTrue && token.Type != TokenType.Else)
+                    if (token is StartFlowToken)
+                    {
+                        _stack.Push(token);
                         return;
-                }
+                    }
 
-                if (_stack.Peek() is CaseToken caseToken)
-                {
-                    if (!caseToken.IsTrue && token.Type != TokenType.Break)
+                    if (!(token is MidFlowToken))
                         return;
                 }
             }
@@ -130,51 +133,51 @@ namespace OMODFramework.Scripting
                     switch (ifToken.ConditionType)
                     {
                         case IfToken.IfConditionType.DialogYesNo:
-                            ifToken.IsTrue = args.Count == 1
+                            ifToken.IsActive = args.Count == 1
                                 ? _scriptFunctions.DialogYesNo(args[0])
                                 : _scriptFunctions.DialogYesNo(args[0], args[1]);
                             break;
 
                         case IfToken.IfConditionType.DataFileExists:
-                            ifToken.IsTrue = _scriptFunctions.DataFileExists(args[0]);
+                            ifToken.IsActive = _scriptFunctions.DataFileExists(args[0]);
                             break;
 
                         case IfToken.IfConditionType.VersionGreaterThan:
                         case IfToken.IfConditionType.VersionLessThan:
                             {
                                 var version = new Version(ifToken.Arguments[0]);
-                                ifToken.IsTrue = ifToken.ConditionType == IfToken.IfConditionType.VersionGreaterThan
+                                ifToken.IsActive = ifToken.ConditionType == IfToken.IfConditionType.VersionGreaterThan
                                     ? version < _scriptFunctions.GetOBMMVersion()
                                     : version > _scriptFunctions.GetOBMMVersion();
                                 break;
                             }
 
                         case IfToken.IfConditionType.ScriptExtenderPresent:
-                            ifToken.IsTrue = _settings.ScriptFunctions.HasScriptExtender();
+                            ifToken.IsActive = _settings.ScriptFunctions.HasScriptExtender();
                             break;
 
                         case IfToken.IfConditionType.ScriptExtenderNewerThan:
                             {
                                 var version = new Version(args[0]);
-                                ifToken.IsTrue = version < _settings.ScriptFunctions.ScriptExtenderVersion();
+                                ifToken.IsActive = version < _settings.ScriptFunctions.ScriptExtenderVersion();
                                 break;
                             }
 
                         case IfToken.IfConditionType.GraphicsExtenderPresent:
-                            ifToken.IsTrue = _settings.ScriptFunctions.HasGraphicsExtender();
+                            ifToken.IsActive = _settings.ScriptFunctions.HasGraphicsExtender();
                             break;
 
                         case IfToken.IfConditionType.GraphicsExtenderNewerThan:
                             {
                                 var version = new Version(args[0]);
-                                ifToken.IsTrue = version < _settings.ScriptFunctions.GraphicsExtenderVersion();
+                                ifToken.IsActive = version < _settings.ScriptFunctions.GraphicsExtenderVersion();
                                 break;
                             }
 
                         case IfToken.IfConditionType.OblivionNewerThan:
                             {
                                 var version = new Version(args[0]);
-                                ifToken.IsTrue = version < _settings.ScriptFunctions.OblivionVersion();
+                                ifToken.IsActive = version < _settings.ScriptFunctions.OblivionVersion();
                                 break;
                             }
 
@@ -187,7 +190,7 @@ namespace OMODFramework.Scripting
                             if (!int.TryParse(args[1], out var i2))
                                 throw new NotImplementedException();
 
-                            ifToken.IsTrue = ifToken.ConditionType switch
+                            ifToken.IsActive = ifToken.ConditionType switch
                             {
                                 IfToken.IfConditionType.Equal => i1 == i2,
                                 IfToken.IfConditionType.GreaterThan => i1 < i2,
@@ -205,7 +208,7 @@ namespace OMODFramework.Scripting
                             if (!float.TryParse(args[1], out var f2))
                                 throw new NotImplementedException();
 
-                            ifToken.IsTrue = ifToken.ConditionType switch
+                            ifToken.IsActive = ifToken.ConditionType switch
                             {
                                 IfToken.IfConditionType.fGreaterEqual => f1 <= f2,
                                 IfToken.IfConditionType.fGreaterThan => f1 < f2,
@@ -219,7 +222,7 @@ namespace OMODFramework.Scripting
                     }
 
                     if (ifToken.Not)
-                        ifToken.IsTrue = !ifToken.IsTrue;
+                        ifToken.IsActive = !ifToken.IsActive;
                     _stack.Push(ifToken);
                     break;
                 }
@@ -257,6 +260,9 @@ namespace OMODFramework.Scripting
                 }
                 case TokenType.Break:
                 {
+                    if(_stack.Count == 0)
+                        throw new NotImplementedException();
+
                     if (!(_stack.Peek() is CaseToken))
                         throw new NotImplementedException();
 
@@ -270,7 +276,7 @@ namespace OMODFramework.Scripting
                         throw new NotImplementedException();
 
                     if (selectToken.Results.Contains(caseToken.Value))
-                        caseToken.IsTrue = true;
+                        caseToken.IsActive = true;
 
                     _stack.Push(caseToken);
                     break;

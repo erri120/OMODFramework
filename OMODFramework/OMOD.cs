@@ -59,6 +59,11 @@ namespace OMODFramework
         {
             return Path.Combine(directory.FullName, Name);
         }
+
+        public override string ToString()
+        {
+            return $"{Name} {Length} bytes ({CRC:x8})";
+        }
     }
 
     internal static partial class Utils

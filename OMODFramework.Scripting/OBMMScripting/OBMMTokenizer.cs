@@ -239,6 +239,11 @@ namespace OMODFramework.Scripting
         private class MidFlowToken : Token { }
         private class EndFlowToken : Token { }
 
+        private class ActiveFlowToken : StartFlowToken
+        {
+            internal bool IsActive { get; set; }
+        }
+
         private class InstructionToken : Token
         {
             internal readonly IReadOnlyList<string> Instructions;
@@ -273,7 +278,7 @@ namespace OMODFramework.Scripting
             }
         }
 
-        private sealed class IfToken : StartFlowToken
+        private sealed class IfToken : ActiveFlowToken
         {
             [SuppressMessage("ReSharper", "InconsistentNaming")]
             internal enum IfConditionType
@@ -298,8 +303,6 @@ namespace OMODFramework.Scripting
             internal readonly IfConditionType ConditionType;
             internal readonly IReadOnlyList<string> Arguments;
             internal readonly bool Not;
-
-            internal bool IsTrue { get; set; }
 
             internal IfToken(IfConditionType type, IReadOnlyList<string> arguments, bool not = false)
             {
@@ -399,6 +402,11 @@ namespace OMODFramework.Scripting
                 Previews = previews;
                 Descriptions = descriptions;
             }
+
+            public override string ToString()
+            {
+                return $"{Type}: {Title}";
+            }
         }
 
         private sealed class ForToken : StartFlowToken
@@ -495,13 +503,11 @@ namespace OMODFramework.Scripting
             }
         }
 
-        private sealed class CaseToken : StartFlowToken
+        private sealed class CaseToken : ActiveFlowToken
         {
             internal override TokenType Type => TokenType.Case;
 
             internal readonly string Value;
-
-            internal bool IsTrue { get; set; }
 
             internal CaseToken(Line line)
             {
@@ -509,6 +515,11 @@ namespace OMODFramework.Scripting
                     throw new NotImplementedException();
 
                 Value = line.Arguments.ToAggregatedString(" ");
+            }
+
+            public override string ToString()
+            {
+                return $"{Type}: {Value} ({(IsActive ? "True" : "False")})";
             }
         }
 
