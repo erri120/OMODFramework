@@ -14,10 +14,16 @@ namespace OMODFramework.Scripting
             return col.Aggregate((x, y) => $"{x}{separator}{y}");
         }
 
-        internal static IEnumerable<ScriptReturnFile> ToScriptReturnFiles(
-            this IEnumerable<OMODCompressedEntry> enumerable)
+        internal static IEnumerable<T> DistinctBy<T, V>(this IEnumerable<T> vs, Func<T, V> select)
         {
-            return enumerable.Select(x => new ScriptReturnFile(x));
+            var set = new HashSet<V>();
+            foreach (var v in vs)
+            {
+                var key = select(v);
+                if (set.Contains(key)) continue;
+                set.Add(key);
+                yield return v;
+            }
         }
 
         internal static IEnumerable<string> FileEnumeration(this IEnumerable<string> enumerable, string path, string pattern,

@@ -108,9 +108,29 @@ namespace OMODFramework.Scripting
     }
 
     [PublicAPI]
+    public sealed class DataFile : ScriptReturnFile
+    {
+        public DataFile(OMODCompressedEntry entry) : base(entry)
+        {
+        }
+    }
+
+    [PublicAPI]
+    public sealed class PluginFile : ScriptReturnFile
+    {
+        public bool IsUnchecked { get; set; }
+
+        public PluginFile(OMODCompressedEntry entry) : base(entry)
+        {
+        }
+    }
+
+    [PublicAPI]
     public class ScriptReturnData
     {
-        public List<ScriptReturnFile> DataFiles { get; set; } = new List<ScriptReturnFile>();
-        public List<ScriptReturnFile> PluginFiles { get; set; } = new List<ScriptReturnFile>();
+        public List<DataFile> DataFiles { get; set; } = new List<DataFile>();
+        public List<PluginFile> PluginFiles { get; set; } = new List<PluginFile>();
+
+        internal List<string> UnCheckedPlugins { get; set; } = new List<string>();
     }
 }

@@ -10,22 +10,54 @@ namespace OMODFramework.Scripting
         private ScriptReturnData _srd = null!;
         private IScriptSettings _settings = null!;
         private ScriptFunctions _scriptFunctions = null!;
+        private OMOD _omod = null!;
 
         private HashSet<Token> _tokens = new HashSet<Token>();
         private readonly Dictionary<string, string> _variables = new Dictionary<string, string>();
         private readonly Stack<Token> _stack = new Stack<Token>();
-        //private readonly Queue<Token> _queue = new Queue<Token>();
+
+        private bool Return { get; set; }
 
         internal override ScriptReturnData Execute(OMOD omod, string script, IScriptSettings settings)
         {
             _settings = settings;
             _srd = new ScriptReturnData();
+            _omod = omod;
             _scriptFunctions = new ScriptFunctions(_settings, omod, _srd);
 
             TokenizeScript(script);
             ParseScript();
 
+            FinishSRD();
+
             return _srd;
+        }
+
+        private void FinishSRD()
+        {
+            _srd.DataFiles = _srd.DataFiles.DistinctBy(x => x.Output).ToList();
+            _srd.PluginFiles = _srd.PluginFiles.DistinctBy(x => x.Output).ToList();
+
+            if (_srd.UnCheckedPlugins.Count != 0)
+            {
+                if (_omod.PluginsList == null)
+                    throw new NotImplementedException();
+
+                _srd.UnCheckedPlugins.Do(p =>
+                {
+                    if (_srd.PluginFiles.Any(x => x.Output.Equals(p, StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        _srd.PluginFiles.First(x => x.Output.Equals(p, StringComparison.InvariantCultureIgnoreCase))
+                            .IsUnchecked = true;
+                    }
+                    else
+                    {
+                        var first = _omod.PluginsList.First(x =>
+                            x.Name.Equals(p, StringComparison.InvariantCultureIgnoreCase));
+                        _srd.PluginFiles.Add(new PluginFile(first){IsUnchecked = true});
+                    }
+                });
+            }
         }
 
         private string ReplaceWithVariable(string s)
@@ -54,8 +86,7 @@ namespace OMODFramework.Scripting
             for (var i = 0; i < tokens.Count; i++)
             {
                 var token = tokens.ElementAt(i);
-                /*if (token.Type == TokenType.Commend)
-                    continue;*/
+                if (Return) return;
 
                 if (token.Type == TokenType.EndFor)
                 {
@@ -90,6 +121,8 @@ namespace OMODFramework.Scripting
 
         private void ParseToken(Token token)
         {
+            if (Return) return;
+
             if (token is EndFlowToken)
             {
                 if (_stack.Peek().Type != TokenType.Case)
@@ -347,26 +380,56 @@ namespace OMODFramework.Scripting
                 case TokenType.InstallAllDataFiles:
                     _scriptFunctions.InstallAllDataFiles();
                     break;
-                case TokenType.InstallPlugin:
-                    throw new NotImplementedException();
-                case TokenType.DontInstallPlugin:
-                    throw new NotImplementedException();
-                case TokenType.InstallDataFile:
-                    throw new NotImplementedException();
-                case TokenType.DontInstallDataFile:
-                    throw new NotImplementedException();
-                case TokenType.DontInstallDataFolder:
-                    throw new NotImplementedException();
                 case TokenType.InstallDataFolder:
-                    throw new NotImplementedException();
+                case TokenType.InstallDataFile:
+                case TokenType.InstallPlugin:
+                case TokenType.DontInstallPlugin:
+                case TokenType.DontInstallDataFile:
+                case TokenType.DontInstallDataFolder:
+                    {
+                    var iToken = (InstructionToken) token;
+                    var path = iToken.Instructions[0];
+
+                    if (iToken.Type == TokenType.InstallPlugin)
+                    {
+                        _scriptFunctions.InstallPlugin(path);
+                    } else if (iToken.Type == TokenType.InstallDataFile)
+                    {
+                        _scriptFunctions.InstallDataFile(path);
+                    } else if (iToken.Type == TokenType.InstallDataFolder)
+                    {
+                        _scriptFunctions.InstallDataFolder(path,
+                            iToken.Instructions.Count != 1 && iToken.Instructions[1]
+                                .Equals("true", StringComparison.InvariantCultureIgnoreCase));
+                    } else if (iToken.Type == TokenType.DontInstallPlugin)
+                    {
+                        _scriptFunctions.DontInstallPlugin(path);
+                    } else if (iToken.Type == TokenType.DontInstallDataFile)
+                    {
+                        _scriptFunctions.DontInstallDataFile(path);
+                    } else if (iToken.Type == TokenType.DontInstallDataFolder)
+                    {
+                        _scriptFunctions.InstallDataFolder(path,
+                            iToken.Instructions.Count != 1 && iToken.Instructions[1]
+                                .Equals("true", StringComparison.InvariantCultureIgnoreCase));
+                    }
+
+                    break;
+                }
                 case TokenType.RegisterBSA:
-                    throw new NotImplementedException();
                 case TokenType.UnregisterBSA:
                     throw new NotImplementedException();
                 case TokenType.Return:
-                    throw new NotImplementedException();
+                {
+                    Return = true;
+                    break;
+                }
                 case TokenType.UncheckESP:
-                    throw new NotImplementedException();
+                {
+                    var iToken = (InstructionToken) token;
+                    _scriptFunctions.UncheckEsp(iToken.Instructions[0]);
+                    break;
+                }
                 case TokenType.SetDeactivationWarning:
                     throw new NotImplementedException();
                 case TokenType.CopyDataFile:
@@ -387,7 +450,7 @@ namespace OMODFramework.Scripting
                             break;
                         case TokenType.CopyDataFolder:
                             if(iToken.Instructions.Count == 3)
-                                _scriptFunctions.CopyDataFolder(from, to, iToken.Instructions[2].ToLower() == "true");
+                                _scriptFunctions.CopyDataFolder(from, to, iToken.Instructions[2].Equals("true", StringComparison.InvariantCultureIgnoreCase));
                             else
                                 _scriptFunctions.CopyDataFolder(from, to, false);
                             break;
@@ -473,7 +536,8 @@ namespace OMODFramework.Scripting
                 case TokenType.EditXMLReplace:
                     throw new NotImplementedException();
                 case TokenType.AllowRunOnLines:
-                    throw new NotImplementedException();
+                    //TODO
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

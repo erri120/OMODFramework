@@ -171,7 +171,7 @@ namespace OMODFramework.Scripting
 
         public void UncheckEsp(string plugin)
         {
-            throw new NotImplementedException();
+            _srd.UnCheckedPlugins.Add(plugin);
         }
 
         public void SetDeactivationWarning(string plugin, DeactiveStatus warning)
@@ -258,14 +258,14 @@ namespace OMODFramework.Scripting
         {
             if (_omod.PluginsList == null)
                 throw new NotImplementedException();
-            _srd.PluginFiles = _omod.PluginsList.ToScriptReturnFiles().ToList();
+            _srd.PluginFiles = _omod.PluginsList.Select(x => new PluginFile(x)).ToList();
         }
 
         public void InstallAllDataFiles()
         {
             if (_omod.DataList == null)
                 throw new NotImplementedException();
-            _srd.PluginFiles = _omod.DataList.ToScriptReturnFiles().ToList();
+            _srd.DataFiles = _omod.DataList.Select(x => new DataFile(x)).ToList();
         }
 
         public void DontInstallPlugin(string name)
@@ -284,7 +284,7 @@ namespace OMODFramework.Scripting
                 .Select(x => x.OriginalFile.Name)
                 .FileEnumeration(folder, "*", recurse);
 
-            _srd.DataFiles = new List<ScriptReturnFile>(_srd.DataFiles.Where(x => !files.Contains(x.OriginalFile.Name)));
+            _srd.DataFiles = new List<DataFile>(_srd.DataFiles.Where(x => !files.Contains(x.OriginalFile.Name)));
         }
 
         public void InstallPlugin(string name)
@@ -292,14 +292,14 @@ namespace OMODFramework.Scripting
             if (_omod.PluginsList == null)
                 throw new NotImplementedException();
 
-            _srd.PluginFiles.Add(new ScriptReturnFile(_omod.PluginsList.First(x => x.Name == name)));
+            _srd.PluginFiles.Add(new PluginFile(_omod.PluginsList.First(x => x.Name == name)));
         }
 
         public void InstallDataFile(string name)
         {
             if (_omod.DataList == null)
                 throw new NotImplementedException();
-            _srd.PluginFiles.Add(new ScriptReturnFile(_omod.DataList.First(x => x.Name == name)));
+            _srd.PluginFiles.Add(new PluginFile(_omod.DataList.First(x => x.Name == name)));
         }
 
         public void InstallDataFolder(string folder, bool recurse)
@@ -311,17 +311,49 @@ namespace OMODFramework.Scripting
                 .Select(x => x.Name)
                 .FileEnumeration(folder, "*", recurse);
 
-            _srd.DataFiles.AddRange(_omod.DataList.Where(x => files.Contains(x.Name)).ToScriptReturnFiles());
+            _srd.DataFiles.AddRange(_omod.DataList.Where(x => files.Contains(x.Name)).Select(x => new DataFile(x)));
         }
 
         public void CopyPlugin(string from, string to)
         {
-            throw new NotImplementedException();
+            if (_omod.PluginsList == null)
+                throw new NotImplementedException();
+
+            if (_srd.PluginFiles.Any(x =>
+                x.OriginalFile.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                var first = _srd.PluginFiles.First(x =>
+                        x.OriginalFile.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase));
+                first.Output = first.Output.Replace(from, to);
+            }
+            else
+            {
+                var file = new PluginFile(_omod.PluginsList
+                    .First(x => x.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase)));
+                file.Output = file.Output.Replace(from, to);
+                _srd.PluginFiles.Add(file);
+            }
         }
 
         public void CopyDataFile(string from, string to)
         {
-            throw new NotImplementedException();
+            if (_omod.DataList == null)
+                throw new NotImplementedException();
+
+            if (_srd.DataFiles.Any(x =>
+                x.OriginalFile.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                var first = _srd.DataFiles.First(x =>
+                    x.OriginalFile.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase));
+                first.Output = first.Output.Replace(from, to);
+            }
+            else
+            {
+                var file = new DataFile(_omod.DataList
+                    .First(x => x.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase)));
+                file.Output = file.Output.Replace(from, to);
+                _srd.DataFiles.Add(file);
+            }
         }
 
         public void CopyDataFolder(string from, string to, bool recurse)
@@ -332,9 +364,15 @@ namespace OMODFramework.Scripting
             var files = _omod.DataList.Select(x => x.Name)
                 .FileEnumeration(from, "*", recurse);
 
+            _srd.DataFiles.Where(x => files.Contains(x.OriginalFile.Name)).Do(f =>
+            {
+                f.Output = f.OriginalFile.Name.Replace(from, to);
+            });
+
             _srd.DataFiles.AddRange(_omod.DataList
                 .Where(x => files.Contains(x.Name))
-                .Select(x => new ScriptReturnFile(x){Output = x.Name.Replace(from, to)}));
+                .Where(x => _srd.DataFiles.All(y => !y.OriginalFile.Equals(x)))
+                .Select(x => new DataFile(x){Output = x.Name.Replace(from, to)}));
         }
 
         public void PatchPlugin(string from, string to, bool create)

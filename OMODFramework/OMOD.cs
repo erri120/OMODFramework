@@ -60,6 +60,19 @@ namespace OMODFramework
             return Path.Combine(directory.FullName, Name);
         }
 
+        public override bool Equals(object obj)
+        {
+            if (!(obj is OMODCompressedEntry entry))
+                return false;
+
+            return CRC == entry.CRC;
+        }
+
+        public override int GetHashCode()
+        {
+            return (int)CRC;
+        }
+
         public override string ToString()
         {
             return $"{Name} {Length} bytes ({CRC:x8})";
