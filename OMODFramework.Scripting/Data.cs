@@ -5,6 +5,27 @@ using JetBrains.Annotations;
 
 namespace OMODFramework.Scripting
 {
+    public class ScriptException : Exception
+    {
+        protected ScriptException(string s) : base(s){ }
+    }
+
+    public class ScriptingNullListException : ScriptException
+    {
+        public ScriptingNullListException(bool isData = true) : base($"The {(isData ? "DataList" : "PluginsList")} of the OMOD is null!") { }
+    }
+
+    public class ScriptingFatalErrorException : ScriptException
+    {
+        public ScriptingFatalErrorException() : base("Fatal Error was triggered in the script!") { }
+    }
+
+    public class ScriptingCanceledException : ScriptException
+    {
+        public ScriptingCanceledException() : base("Script execution was canceled!") { }
+        public ScriptingCanceledException(string s) : base($"Script execution was canceled!\n{s}") { }
+    }
+
     [PublicAPI]
     public enum ScriptType : byte
     {
@@ -41,7 +62,7 @@ namespace OMODFramework.Scripting
         IEnumerable<int> Select(IEnumerable<string> items, string title, bool isMultiSelect, IEnumerable<string> previews,
             IEnumerable<string> descriptions);
 
-        string InputString(string title, string initialText);
+        string InputString(string? title, string? initialText);
 
         DialogResult DialogYesNo(string title);
 
@@ -51,13 +72,13 @@ namespace OMODFramework.Scripting
 
         void DisplayText(string text, string title);
 
-        void Patch(FileInfo from, FileInfo to);
+        void Patch(string from, string to);
 
         string ReadOblivionINI(string section, string name);
 
         string ReadRenderInfo(string name);
 
-        bool DataFileExists(FileInfo file);
+        bool DataFileExists(string file);
 
         bool HasScriptExtender();
 
@@ -69,17 +90,17 @@ namespace OMODFramework.Scripting
 
         Version OblivionVersion();
 
-        Version OBSEPluginVersion(FileInfo file);
+        Version OBSEPluginVersion(string file);
 
         IEnumerable<ScriptESP> GetESPs();
 
         IEnumerable<string> GetActiveOMODNames();
 
-        byte[] ReadExistingDataFile(FileInfo file);
+        byte[] ReadExistingDataFile(string file);
 
-        byte[] GetDataFileFromBSA(FileInfo file);
+        byte[] GetDataFileFromBSA(string file);
 
-        byte[] GetDataFileFromBSA(string bsa, FileInfo file);
+        byte[] GetDataFileFromBSA(string bsa, string file);
     }
 
     [PublicAPI]

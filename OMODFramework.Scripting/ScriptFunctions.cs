@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using OblivionModManager.Scripting;
 
@@ -28,7 +27,7 @@ namespace OMODFramework.Scripting
         {
             var result = _settings.ScriptFunctions.DialogYesNo("", msg);
             if (result == DialogResult.Canceled)
-                throw new NotImplementedException();
+                throw new ScriptingCanceledException($"DialogYesNo returned {result}");
             return result == DialogResult.Yes;
         }
 
@@ -36,14 +35,13 @@ namespace OMODFramework.Scripting
         {
             var result = _settings.ScriptFunctions.DialogYesNo(title, msg);
             if (result == DialogResult.Canceled)
-                throw new NotImplementedException();
+                throw new ScriptingCanceledException($"DialogYesNo returned {result}");
             return result == DialogResult.Yes;
         }
 
         public bool DataFileExists(string path)
         {
-            var file = new FileInfo(path);
-            return _settings.ScriptFunctions.DataFileExists(file);
+            return _settings.ScriptFunctions.DataFileExists(path);
         }
 
         public Version GetOBMMVersion()
@@ -53,22 +51,22 @@ namespace OMODFramework.Scripting
 
         public Version GetOBSEVersion()
         {
-            throw new NotImplementedException();
+            return _settings.ScriptFunctions.ScriptExtenderVersion();
         }
 
         public Version GetOBGEVersion()
         {
-            throw new NotImplementedException();
+            return _settings.ScriptFunctions.GraphicsExtenderVersion();
         }
 
         public Version GetOblivionVersion()
         {
-            throw new NotImplementedException();
+            return _settings.ScriptFunctions.OblivionVersion();
         }
 
         public Version GetOBSEPluginVersion(string plugin)
         {
-            throw new NotImplementedException();
+            return _settings.ScriptFunctions.OBSEPluginVersion(plugin);
         }
 
         public string[] GetPlugins(string path, string pattern, bool recurse)
@@ -79,7 +77,7 @@ namespace OMODFramework.Scripting
         public string[] GetDataFiles(string path, string pattern, bool recurse)
         {
             if(_omod.DataList == null)
-                throw new NotImplementedException();
+                throw new ScriptingNullListException();
 
             return _omod.DataList.Select(x => x.Name).FileEnumeration(path, pattern, recurse).ToArray();
         }
@@ -257,14 +255,14 @@ namespace OMODFramework.Scripting
         public void InstallAllPlugins()
         {
             if (_omod.PluginsList == null)
-                throw new NotImplementedException();
+                throw new ScriptingNullListException(false);
             _srd.PluginFiles = _omod.PluginsList.Select(x => new PluginFile(x)).ToList();
         }
 
         public void InstallAllDataFiles()
         {
             if (_omod.DataList == null)
-                throw new NotImplementedException();
+                throw new ScriptingNullListException();
             _srd.DataFiles = _omod.DataList.Select(x => new DataFile(x)).ToList();
         }
 
@@ -290,7 +288,7 @@ namespace OMODFramework.Scripting
         public void InstallPlugin(string name)
         {
             if (_omod.PluginsList == null)
-                throw new NotImplementedException();
+                throw new ScriptingNullListException(false);
 
             _srd.PluginFiles.Add(new PluginFile(_omod.PluginsList.First(x => x.Name == name)));
         }
@@ -298,14 +296,14 @@ namespace OMODFramework.Scripting
         public void InstallDataFile(string name)
         {
             if (_omod.DataList == null)
-                throw new NotImplementedException();
+                throw new ScriptingNullListException();
             _srd.PluginFiles.Add(new PluginFile(_omod.DataList.First(x => x.Name == name)));
         }
 
         public void InstallDataFolder(string folder, bool recurse)
         {
             if (_omod.DataList == null)
-                throw new NotImplementedException();
+                throw new ScriptingNullListException();
 
             var files = _omod.DataList
                 .Select(x => x.Name)
@@ -317,7 +315,7 @@ namespace OMODFramework.Scripting
         public void CopyPlugin(string from, string to)
         {
             if (_omod.PluginsList == null)
-                throw new NotImplementedException();
+                throw new ScriptingNullListException(false);
 
             if (_srd.PluginFiles.Any(x =>
                 x.OriginalFile.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase)))
@@ -338,7 +336,7 @@ namespace OMODFramework.Scripting
         public void CopyDataFile(string from, string to)
         {
             if (_omod.DataList == null)
-                throw new NotImplementedException();
+                throw new ScriptingNullListException();
 
             if (_srd.DataFiles.Any(x =>
                 x.OriginalFile.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase)))
@@ -359,7 +357,7 @@ namespace OMODFramework.Scripting
         public void CopyDataFolder(string from, string to, bool recurse)
         {
             if (_omod.DataList == null)
-                throw new NotImplementedException();
+                throw new ScriptingNullListException();
 
             var files = _omod.DataList.Select(x => x.Name)
                 .FileEnumeration(from, "*", recurse);
@@ -407,7 +405,7 @@ namespace OMODFramework.Scripting
 
         public void FatalError()
         {
-            throw new NotImplementedException();
+            throw new ScriptingFatalErrorException();
         }
 
         public void SetGMST(string file, string edid, string value)
@@ -447,17 +445,17 @@ namespace OMODFramework.Scripting
 
         public string InputString()
         {
-            throw new NotImplementedException();
+            return _settings.ScriptFunctions.InputString(null, null);
         }
 
         public string InputString(string title)
         {
-            throw new NotImplementedException();
+            return _settings.ScriptFunctions.InputString(title, null);
         }
 
         public string InputString(string title, string initial)
         {
-            throw new NotImplementedException();
+            return _settings.ScriptFunctions.InputString(title, initial);
         }
 
         public string ReadINI(string section, string value)

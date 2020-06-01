@@ -28,7 +28,7 @@ namespace OMODFramework.Test
                 return new List<int>{0};
             }
 
-            public string InputString(string title, string initialText)
+            public string InputString(string? title, string? initialText)
             {
                 throw new NotImplementedException();
             }
@@ -47,7 +47,7 @@ namespace OMODFramework.Test
 
             public void DisplayText(string text, string title) { }
 
-            public void Patch(FileInfo @from, FileInfo to)
+            public void Patch(string from, string to)
             {
                 throw new NotImplementedException();
             }
@@ -62,9 +62,9 @@ namespace OMODFramework.Test
                 throw new NotImplementedException();
             }
 
-            public bool DataFileExists(FileInfo file)
+            public bool DataFileExists(string file)
             {
-                return false;
+                return true;
             }
 
             public bool HasScriptExtender()
@@ -92,7 +92,7 @@ namespace OMODFramework.Test
                 return new Version(1, 2, 214);
             }
 
-            public Version OBSEPluginVersion(FileInfo file)
+            public Version OBSEPluginVersion(string file)
             {
                 throw new NotImplementedException();
             }
@@ -107,17 +107,17 @@ namespace OMODFramework.Test
                 throw new NotImplementedException();
             }
 
-            public byte[] ReadExistingDataFile(FileInfo file)
+            public byte[] ReadExistingDataFile(string file)
             {
                 throw new NotImplementedException();
             }
 
-            public byte[] GetDataFileFromBSA(FileInfo file)
+            public byte[] GetDataFileFromBSA(string file)
             {
                 throw new NotImplementedException();
             }
 
-            public byte[] GetDataFileFromBSA(string bsa, FileInfo file)
+            public byte[] GetDataFileFromBSA(string bsa, string file)
             {
                 throw new NotImplementedException();
             }
@@ -134,10 +134,10 @@ namespace OMODFramework.Test
         {
             var list = new List<FileInfo>
             {
-                //new FileInfo("M:\\Projects\\omod\\NoMaaM BBB Animation Replacer V3_1 OMOD-35551-3-1.omod"),
-                //new FileInfo("M:\\Projects\\omod\\NoMaaM Breathing Idles V1 OMOD-40462-1-0.omod"),
-                //new FileInfo("M:\\Projects\\omod\\HGEC Body with BBB v1dot12-34442.omod"),
-                //new FileInfo("M:\\Projects\\omod\\EVE_HGEC_BodyStock and Clothing OMOD-24078.omod"),
+                new FileInfo("M:\\Projects\\omod\\NoMaaM BBB Animation Replacer V3_1 OMOD-35551-3-1.omod"),
+                new FileInfo("M:\\Projects\\omod\\NoMaaM Breathing Idles V1 OMOD-40462-1-0.omod"), 
+                new FileInfo("M:\\Projects\\omod\\HGEC Body with BBB v1dot12-34442.omod"),
+                new FileInfo("M:\\Projects\\omod\\EVE_HGEC_BodyStock and Clothing OMOD-24078.omod"),
                 new FileInfo("M:\\Projects\\omod\\Robert Male Body Replacer v52 OMOD-40532-1.omod"),
             };
 

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace OMODFramework.Scripting
 {
@@ -41,7 +43,7 @@ namespace OMODFramework.Scripting
             if (_srd.UnCheckedPlugins.Count != 0)
             {
                 if (_omod.PluginsList == null)
-                    throw new NotImplementedException();
+                    throw new ScriptingNullListException(false);
 
                 _srd.UnCheckedPlugins.Do(p =>
                 {
@@ -70,10 +72,8 @@ namespace OMODFramework.Scripting
             for (var i = 1; i < split.Length; i += 2)
             {
                 var current = split[i];
-                if (!_variables.ContainsKey(current))
-                    throw new NotImplementedException();
                 if(!_variables.TryGetValue(current, out var value))
-                    throw new NotImplementedException();
+                    throw new OBMMScriptingVariableNotFoundException(current);
                 result = result.Replace($"%{current}%", value);
             }
 
@@ -154,7 +154,7 @@ namespace OMODFramework.Scripting
             }
 
             if (token is FatalErrorToken)
-                throw new NotImplementedException();
+                throw new ScriptingFatalErrorException();
 
             switch (token.Type)
             {
@@ -358,7 +358,7 @@ namespace OMODFramework.Scripting
                 {
                     var selectToken = (SelectVarToken) token;
                     if (!_variables.TryGetValue(selectToken.Variable, out var value))
-                        throw new NotImplementedException();
+                        throw new OBMMScriptingVariableNotFoundException(selectToken.Variable);
                     selectToken.Value = value;
                     _stack.Push(selectToken);
                     break;
@@ -546,9 +546,25 @@ namespace OMODFramework.Scripting
                 case TokenType.ExecLines:
                     throw new NotImplementedException();
                 case TokenType.iSet:
-                    throw new NotImplementedException();
                 case TokenType.fSet:
-                    throw new NotImplementedException();
+                {
+                    var setToken = (SetToken) token;
+                    
+                    var isInt = token.Type == TokenType.iSet;
+                    var iRes = 0;
+                    var fRes = 0.0;
+
+                    var instructions = setToken.Instructions.Select(ReplaceWithVariable).ToList();
+
+                    if (isInt)
+                        iRes = EvaluateIntExpression(instructions);
+                    else
+                        fRes = EvaluateFloatExpression(instructions);
+
+                    _variables.AddOrReplace(setToken.Variable, isInt ? iRes.ToString() : fRes.ToString(CultureInfo.InvariantCulture));
+
+                    break;
+                }
                 case TokenType.EditXMLLine:
                     throw new NotImplementedException();
                 case TokenType.EditXMLReplace:
@@ -559,6 +575,137 @@ namespace OMODFramework.Scripting
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        internal static int EvaluateIntExpression(List<string> list)
+        {
+            var index = list.IndexOf("(");
+
+            while (index != -1)
+            {
+                var newFunc = new List<string>();
+                var count = 1;
+                for (var i = index + 1; i < list.Count; i++)
+                {
+                    var current = list[i];
+                    if (current == "(") count++;
+                    else if (current == ")") count--;
+                    if (count == 0)
+                    {
+                        list.RemoveRange(index, i - index + 1);
+                        list.Insert(index, EvaluateIntExpression(newFunc).ToString());
+                        break;
+                    }
+                    newFunc.Add(current);
+                }
+
+                index = list.IndexOf("(");
+            }
+
+            var calc = new Action<string, bool, Func<int, int, int>>(
+                (search, single, calcFunc) =>
+                {
+                    index = list.IndexOf(search);
+                    while (index != -1)
+                    {
+                        var i1 = int.Parse(single ? list[index + 1] : list[index - 1]);
+                        var i2 = 0;
+                        if (!single)
+                        {
+                            i2 = int.Parse(list[index + 1]);
+                        }
+
+                        var res = calcFunc(i1, i2);
+                        list[index + 1] = res.ToString();
+                        if(single)
+                            list.RemoveAt(index);
+                        else
+                            list.RemoveRange(index-1, 2);
+                        index = list.IndexOf(search);
+                    }
+                });
+
+            calc("not", true, (o1, o2) => ~o1);
+            calc("and", false, (o1, o2) => o1 & o2);
+            calc("or", false, (o1, o2) => o1 | o2);
+            calc("xor", false, (o1, o2) => o1 ^ o2);
+            calc("mod", false, (o1, o2) => o1 % o2);
+            calc("%", false, (o1, o2) => o1 % o2);
+            calc("^", false, (o1, o2) => (int)Math.Pow(o1, o2));
+            calc("/", false, (o1, o2) => o1 / o2);
+            calc("*", false, (o1, o2) => o1 * o2);
+            calc("+", false, (o1, o2) => o1 + o2);
+            calc("-", false, (o1, o2) => o1 - o2);
+
+            return int.Parse(list[0]);
+        }
+
+        internal static double EvaluateFloatExpression(List<string> list)
+        {
+            var index = list.IndexOf("(");
+
+            while (index != -1)
+            {
+                var newFunc = new List<string>();
+                var count = 1;
+                for (var i = index + 1; i < list.Count; i++)
+                {
+                    var current = list[i];
+                    if (current == "(") count++;
+                    else if (current == ")") count--;
+                    if (count == 0)
+                    {
+                        list.RemoveRange(index, i - index + 1);
+                        list.Insert(index, EvaluateFloatExpression(newFunc).ToString(CultureInfo.InvariantCulture));
+                        break;
+                    }
+                    newFunc.Add(current);
+                }
+
+                index = list.IndexOf("(");
+            }
+
+            var calc = new Action<string, bool, Func<double, double, double>>(
+                (search, single, calcFunc) =>
+                {
+                    index = list.IndexOf(search);
+                    while (index != -1)
+                    {
+                        var i1 = double.Parse(single ? list[index + 1] : list[index - 1]);
+                        double i2 = 0;
+                        if (!single)
+                        {
+                            i2 = double.Parse(list[index + 1]);
+                        }
+
+                        var res = calcFunc(i1, i2);
+                        list[index + 1] = res.ToString(CultureInfo.InvariantCulture);
+                        if (single)
+                            list.RemoveAt(index);
+                        else
+                            list.RemoveRange(index - 1, 2);
+                        index = list.IndexOf(search);
+                    }
+                });
+
+            calc("sin", true, (f, f1) => Math.Sin(f));
+            calc("cos", true, (f, f1) => Math.Cos(f));
+            calc("tan", true, (f, f1) => Math.Tan(f));
+            calc("sinh", true, (f, f1) => Math.Sinh(f));
+            calc("cosh", true, (f, f1) => Math.Cosh(f));
+            calc("tanh", true, (f, f1) => Math.Tanh(f));
+            calc("exp", true, (f, f1) => Math.Exp(f));
+            calc("log", true, (f, f1) => Math.Log10(f));
+            calc("ln", true, (f, f1) => Math.Log(f));
+            calc("mod", false, (f, f1) => f%f1);
+            calc("%", false, (f, f1) => f%f1);
+            calc("^", false, (f, f1) => Math.Pow(f,f1));
+            calc("/", false, (f, f1) => f/f1);
+            calc("*", false, (f, f1) => f*f1);
+            calc("+", false, (f, f1) => f+f1);
+            calc("-", false, (f, f1) => f-f1);
+
+            return double.Parse(list[0]);
         }
     }
 }

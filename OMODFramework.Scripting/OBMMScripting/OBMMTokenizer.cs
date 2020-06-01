@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace OMODFramework.Scripting
 {
@@ -326,7 +327,7 @@ namespace OMODFramework.Scripting
             public SelectVarToken(Line line)
             {
                 if (line.Arguments == null)
-                    throw new NotImplementedException();
+                    throw new ArgumentException("Arguments of line is null!", nameof(line));
 
                 Variable = line.Arguments[0];
             }
@@ -527,7 +528,7 @@ namespace OMODFramework.Scripting
             internal CaseToken(Line line)
             {
                 if (line.Arguments == null)
-                    throw new NotImplementedException();
+                    throw new ArgumentException("Arguments of line is null!", nameof(line));
 
                 Value = line.Arguments.ToAggregatedString(" ");
             }
@@ -535,6 +536,21 @@ namespace OMODFramework.Scripting
             public override string ToString()
             {
                 return $"{Type}: {Value} ({(IsActive ? "True" : "False")})";
+            }
+        }
+
+        private sealed class SetToken : InstructionToken
+        {
+            internal readonly string Variable;
+
+            internal SetToken(IReadOnlyList<string> instructions) : base(instructions.TakeLast(instructions.Count-1).ToList())
+            {
+                Variable = instructions[0];
+            }
+
+            public override string ToString()
+            {
+                return $"{Type}: {Variable} to {Instructions.ToAggregatedString(" ")}";
             }
         }
 
@@ -621,8 +637,6 @@ namespace OMODFramework.Scripting
                 .Split("\"")
                 .ToList();
             line.Arguments = new List<string>();
-            /*if(split.Length == 32)
-                if(Debugger.IsAttached) Debugger.Break();*/
             var j = 0;
             for (var i = 0; i < split.Length; i++)
             {
@@ -705,7 +719,7 @@ namespace OMODFramework.Scripting
             if (attribute.Min == attribute.Max)
             {
                 if(attribute.Min == -1)
-                    throw new NotImplementedException();
+                    throw new Exception("Min and Max are both -1, this should be impossible. Start flaming erri120 on GitHub, I forgot something...");
 
                 if(line.Arguments.Count != attribute.Min)
                     throw new OBMMScriptingTokenizationException(line.ToString(), $"Line can only have {attribute.Min} attributes but has {line.Arguments.Count}!");
@@ -812,6 +826,9 @@ namespace OMODFramework.Scripting
 
             if (token == TokenType.SetVar)
                 return new SetVarToken(line.Arguments!);
+
+            if (token == TokenType.iSet || token == TokenType.fSet)
+                return new SetToken(line.Arguments!) {Type = token};
 
             return new InstructionToken(line.Arguments ?? new List<string>())
             {
