@@ -1,4 +1,6 @@
-﻿namespace OMODFramework.Scripting
+﻿using System;
+
+namespace OMODFramework.Scripting
 {
     public class OBMMScriptingTokenParseException : ScriptException
     {
@@ -15,6 +17,11 @@
     {
         public OBMMScriptingParseException(string token) : base(token) { }
         public OBMMScriptingParseException(string token, string msg) : base($"{msg}\n{token}") { }
+    }
+
+    public class OBMMScriptingNumberParseException : ScriptException
+    {
+        public OBMMScriptingNumberParseException(string token, string text, Type type) : base($"Could not parse text \"{text}\" as a {type}!\n{token}") { }
     }
 
     public class OBMMScriptingVariableNotFoundException : ScriptException

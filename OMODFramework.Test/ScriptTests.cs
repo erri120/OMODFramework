@@ -132,25 +132,33 @@ namespace OMODFramework.Test
         [Fact]
         public void ScriptTest()
         {
-            var list = new List<FileInfo>
+            var dic = new Dictionary<FileInfo, (int, int)>
             {
-                new FileInfo("M:\\Projects\\omod\\NoMaaM BBB Animation Replacer V3_1 OMOD-35551-3-1.omod"),
-                new FileInfo("M:\\Projects\\omod\\NoMaaM Breathing Idles V1 OMOD-40462-1-0.omod"), 
-                new FileInfo("M:\\Projects\\omod\\HGEC Body with BBB v1dot12-34442.omod"),
-                new FileInfo("M:\\Projects\\omod\\EVE_HGEC_BodyStock and Clothing OMOD-24078.omod"),
-                new FileInfo("M:\\Projects\\omod\\Robert Male Body Replacer v52 OMOD-40532-1.omod"),
+                {new FileInfo("M:\\Projects\\omod\\NoMaaM BBB Animation Replacer V3_1 OMOD-35551-3-1.omod"), (315, 0)},
+                {new FileInfo("M:\\Projects\\omod\\NoMaaM Breathing Idles V1 OMOD-40462-1-0.omod"), (26, 0)},
+                {new FileInfo("M:\\Projects\\omod\\HGEC Body with BBB v1dot12-34442.omod"), (134, 0)},
+                {new FileInfo("M:\\Projects\\omod\\EVE_HGEC_BodyStock and Clothing OMOD-24078.omod"), (251, 3)},
+                {new FileInfo("M:\\Projects\\omod\\Robert Male Body Replacer v52 OMOD-40532-1.omod"), (294, 1)}
             };
 
-            var srdList = list.Select(x =>
+            var srdDic = dic.Select(pair =>
             {
-                using var omod = new OMOD(x);
+                var (key, (item1, item2)) = pair;
+                using var omod = new OMOD(key);
                 omod.GetDataFileList();
-                if(omod.HasFile(OMODFile.PluginsCRC))
+                if (omod.HasFile(OMODFile.PluginsCRC))
                     omod.GetPlugins();
-                return ScriptRunner.ExecuteScript(omod, new Settings());
+                return (ScriptRunner.ExecuteScript(omod, new Settings()), item1, item2);
             }).ToList();
 
-            Assert.NotEmpty(srdList);
+            Assert.NotEmpty(srdDic);
+            srdDic.Do(tuple =>
+            {
+                var (scriptReturnData, dataFilesLength, pluginFilesLength) = tuple;
+                Assert.NotEmpty(scriptReturnData.DataFiles);
+                Assert.Equal(dataFilesLength, scriptReturnData.DataFiles.Count);
+                Assert.Equal(pluginFilesLength, scriptReturnData.PluginFiles.Count);
+            });
         }
     }
 }

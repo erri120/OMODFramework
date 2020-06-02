@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection.Emit;
 using JetBrains.Annotations;
 
 namespace OMODFramework.Scripting
@@ -213,6 +214,8 @@ namespace OMODFramework.Scripting
             AllowRunOnLines,
         }
 
+        #region Token Classes
+
         private class Token
         {
             internal virtual TokenType Type { get; set; }
@@ -222,8 +225,6 @@ namespace OMODFramework.Scripting
                 return $"{Type}";
             }
         }
-
-        private class FatalErrorToken : Token { }
 
         private sealed class CommentToken : Token
         {
@@ -236,14 +237,13 @@ namespace OMODFramework.Scripting
             }
         }
 
-        private class StartFlowToken : Token { }
-        private class MidFlowToken : Token { }
-        private class EndFlowToken : Token { }
-
-        private class ActiveFlowToken : StartFlowToken
+        private class StartFlowToken : Token
         {
-            internal bool IsActive { get; set; }
+            internal virtual bool Active { get; set; }
+            internal List<Token> Children { get; } = new List<Token>();
         }
+
+        private class EndFlowToken : Token { }
 
         private class InstructionToken : Token
         {
@@ -279,7 +279,7 @@ namespace OMODFramework.Scripting
             }
         }
 
-        private sealed class IfToken : ActiveFlowToken
+        private sealed class IfToken : StartFlowToken
         {
             [SuppressMessage("ReSharper", "InconsistentNaming")]
             internal enum IfConditionType
@@ -318,7 +318,13 @@ namespace OMODFramework.Scripting
             }
         }
 
-        private sealed class SelectVarToken : StartFlowToken
+        private class SelectiveToken : StartFlowToken
+        {
+            internal bool FoundCase { get; set; }
+            internal override bool Active => true;
+        }
+
+        private sealed class SelectVarToken : SelectiveToken
         {
             internal readonly string Variable;
 
@@ -333,7 +339,7 @@ namespace OMODFramework.Scripting
             }
         }
 
-        private sealed class SelectToken : StartFlowToken
+        private sealed class SelectToken : SelectiveToken
         {
             internal readonly string Title;
             internal readonly bool IsMany;
@@ -348,7 +354,7 @@ namespace OMODFramework.Scripting
 
             internal SelectToken(Line line)
             {
-                if(line.Arguments == null)
+                if (line.Arguments == null)
                     throw new ArgumentException("Arguments of line is null!", nameof(line));
                 Title = line.Arguments[0];
                 Type = line.TokenType;
@@ -387,8 +393,8 @@ namespace OMODFramework.Scripting
                         throw new ArgumentOutOfRangeException();
                 }
                 var argsPerOptions = 1 + (_hasPreviews ? 1 : 0) + (_hasDescriptions ? 1 : 0);
-                if((line.Arguments.Count-1) % argsPerOptions != 0)
-                    throw new OBMMScriptingTokenizationException(line.ToString(), $"Select has too many arguments. Amount of arguments: {line.Arguments.Count-1}, has previews: {(_hasPreviews ? "true" : "false")}, has descriptions: {(_hasDescriptions ? "true" : "false")}, argsPerOptions: {argsPerOptions}. This usually means the script is broken.");
+                if ((line.Arguments.Count - 1) % argsPerOptions != 0)
+                    throw new OBMMScriptingTokenizationException(line.ToString(), $"Select has too many arguments. Amount of arguments: {line.Arguments.Count - 1}, has previews: {(_hasPreviews ? "true" : "false")}, has descriptions: {(_hasDescriptions ? "true" : "false")}, argsPerOptions: {argsPerOptions}. This usually means the script is broken.");
 
                 var l = line.Arguments.Count - 1 / argsPerOptions;
 
@@ -404,12 +410,12 @@ namespace OMODFramework.Scripting
                     if (_hasPreviews)
                     {
                         previews.Add(line.Arguments.ElementAt(i + 1));
-                        if(_hasDescriptions)
+                        if (_hasDescriptions)
                             descriptions.Add(line.Arguments.ElementAt(i + 2));
                     }
                     else
                     {
-                        if(_hasDescriptions)
+                        if (_hasDescriptions)
                             descriptions.Add(line.Arguments.ElementAt(i + 1));
                     }
                 }
@@ -428,6 +434,8 @@ namespace OMODFramework.Scripting
         private sealed class ForToken : StartFlowToken
         {
             internal override TokenType Type => TokenType.For;
+            internal override bool Active { get; set; } = true;
+            internal bool Exit { get; set; }
 
             internal enum ForEnumerationType
             {
@@ -443,7 +451,6 @@ namespace OMODFramework.Scripting
 
             internal IEnumerable<string> Enumerable { get; set; } = null!;
             internal int Current { get; set; }
-            internal int ChildTokens { get; set; }
 
             //for EnumerationType = Count
             internal readonly int Start;
@@ -466,7 +473,7 @@ namespace OMODFramework.Scripting
                     args = args.TakeLast(args.Count - 1).ToList();
 
                 var enumerationName = args[0];
-                if(!Utils.TryGetEnum<ForEnumerationType>(enumerationName, out var enumerationType))
+                if (!Utils.TryGetEnum<ForEnumerationType>(enumerationName, out var enumerationType))
                     throw new OBMMScriptingTokenizationException(line.ToString(), $"Unable to parse Enumeration Type {enumerationName}!");
 
                 EnumerationType = enumerationType;
@@ -513,13 +520,13 @@ namespace OMODFramework.Scripting
 
             public override string ToString()
             {
-                if(EnumerationType == ForEnumerationType.Count)
+                if (EnumerationType == ForEnumerationType.Count)
                     return $"{Type}: Type: {EnumerationType}, Variable: {Variable}, Count from {Start} to {End} with {Step} step(s)";
                 return $"{Type}: Type: {EnumerationType}, Variable: {Variable}, Folder {FolderPath}";
             }
         }
 
-        private sealed class CaseToken : ActiveFlowToken
+        private sealed class CaseToken : StartFlowToken
         {
             internal override TokenType Type => TokenType.Case;
 
@@ -533,9 +540,14 @@ namespace OMODFramework.Scripting
                 Value = line.Arguments.ToAggregatedString(" ");
             }
 
+            internal CaseToken(string s)
+            {
+                Value = s;
+            }
+
             public override string ToString()
             {
-                return $"{Type}: {Value} ({(IsActive ? "True" : "False")})";
+                return $"{Type}: {Value} ({(Active ? "True" : "False")})";
             }
         }
 
@@ -543,7 +555,7 @@ namespace OMODFramework.Scripting
         {
             internal readonly string Variable;
 
-            internal SetToken(IReadOnlyList<string> instructions) : base(instructions.TakeLast(instructions.Count-1).ToList())
+            internal SetToken(IReadOnlyList<string> instructions) : base(instructions.TakeLast(instructions.Count - 1).ToList())
             {
                 Variable = instructions[0];
             }
@@ -553,6 +565,24 @@ namespace OMODFramework.Scripting
                 return $"{Type}: {Variable} to {Instructions.ToAggregatedString(" ")}";
             }
         }
+
+        private sealed class GotoLabelToken : InstructionToken
+        {
+            internal readonly string Label;
+            internal int Index { get; set; }
+
+            internal GotoLabelToken(IReadOnlyList<string> instructions) : base(instructions)
+            {
+                Label = instructions[0];
+            }
+
+            public override string ToString()
+            {
+                return $"{Type}: {Label}";
+            }
+        }
+
+        #endregion
 
         private void TokenizeScript(string script)
         {
@@ -786,7 +816,7 @@ namespace OMODFramework.Scripting
 
             var token = line.TokenType;
 
-            if (token == TokenType.EndIf || token == TokenType.EndFor || token == TokenType.EndSelect)
+            if (token == TokenType.EndIf || token == TokenType.EndFor || token == TokenType.EndSelect || token == TokenType.Break)
                 return new EndFlowToken{Type = token};
 
             if (token == TokenType.If || token == TokenType.IfNot)
@@ -797,6 +827,9 @@ namespace OMODFramework.Scripting
 
                 return new IfToken(conditionType, line.Arguments.TakeLast(line.Arguments!.Count-1).ToList(), token == TokenType.IfNot);
             }
+
+            if (token == TokenType.Else)
+                return new StartFlowToken {Type = TokenType.Else};
 
             if (token == TokenType.For)
                 return new ForToken(line);
@@ -818,11 +851,10 @@ namespace OMODFramework.Scripting
                 return new SelectVarToken(line){Type = token};
             }
 
-            if(token == TokenType.Else || token == TokenType.Exit || token == TokenType.Goto || token == TokenType.Return || token == TokenType.Break)
-                return new MidFlowToken { Type = token };
-
-            if (token == TokenType.FatalError)
-                return new FatalErrorToken { Type = token };
+            if (token == TokenType.Label || token == TokenType.Goto)
+            {
+                return new GotoLabelToken(line.Arguments!) {Type = token};
+            }
 
             if (token == TokenType.SetVar)
                 return new SetVarToken(line.Arguments!);

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 
 namespace OMODFramework.Scripting
@@ -8,11 +6,6 @@ namespace OMODFramework.Scripting
     [PublicAPI]
     public static class ScriptRunner
     {
-        internal static Dictionary<ScriptType, Lazy<AScriptHandler>> ScriptHandlers = new Dictionary<ScriptType, Lazy<AScriptHandler>>
-        {
-            {ScriptType.OBMMScript, new Lazy<AScriptHandler>(() => new OBMMScriptHandler())}
-        };
-
         public static ScriptReturnData ExecuteScript(OMOD omod, IScriptSettings settings)
         {
             if(!omod.HasFile(OMODFile.Script))
@@ -34,7 +27,15 @@ namespace OMODFramework.Scripting
             if (omod.PluginsList == null && omod.HasFile(OMODFile.PluginsCRC))
                 omod.GetPlugins();
 
-            var handler = ScriptHandlers.First(x => x.Key == scriptType).Value.Value;
+            var handler = scriptType switch
+            {
+                ScriptType.OBMMScript => new OBMMScriptHandler(),
+                ScriptType.Python => throw new NotImplementedException(),
+                ScriptType.CSharp => throw new NotImplementedException(),
+                ScriptType.VB => throw new NotImplementedException(),
+                _ => throw new ArgumentOutOfRangeException(nameof(scriptType), scriptType.ToString(), "Unknown script type")
+            };
+
             return handler.Execute(omod, script, settings);
         }
     }

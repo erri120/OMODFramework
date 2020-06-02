@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace OMODFramework.Scripting
 {
@@ -16,7 +15,8 @@ namespace OMODFramework.Scripting
 
         private HashSet<Token> _tokens = new HashSet<Token>();
         private readonly Dictionary<string, string> _variables = new Dictionary<string, string>();
-        private readonly Stack<Token> _stack = new Stack<Token>();
+        private readonly Stack<StartFlowToken> _stack = new Stack<StartFlowToken>();
+        private readonly List<GotoLabelToken> LabelTokens = new List<GotoLabelToken>();
 
         private bool Return { get; set; }
 
@@ -30,12 +30,15 @@ namespace OMODFramework.Scripting
             TokenizeScript(script);
             ParseScript();
 
-            FinishSRD();
+            FinishUpReturnData();
 
             return _srd;
         }
 
-        private void FinishSRD()
+        /// <summary>
+        /// Utility Function that will clean up the script return data
+        /// </summary>
+        private void FinishUpReturnData()
         {
             _srd.DataFiles = _srd.DataFiles.DistinctBy(x => x.Output).ToList();
             _srd.PluginFiles = _srd.PluginFiles.DistinctBy(x => x.Output).ToList();
@@ -86,13 +89,63 @@ namespace OMODFramework.Scripting
             for (var i = 0; i < tokens.Count; i++)
             {
                 var token = tokens.ElementAt(i);
+
+                //the Return variable is being set by the Return instruction
+                //when that thing is called, the entire script exists
                 if (Return) return;
+
+                if (token is GotoLabelToken gotoLabelToken)
+                {
+                    //Label and Goto tokens are actually simpler than I thought they would be
+                    //we just add the Label token to the LabelTokens list with i as Index
+                    //and when we encounter a Goto we simply jump to that Index
+
+                    //ofc this might fuck up a ton of things such as the stack and whatnot
+                    //but you should not do that anyways, I think...
+
+                    if (gotoLabelToken.Type == TokenType.Label)
+                    {
+                        if(!LabelTokens.Contains(gotoLabelToken))
+                        {
+                            gotoLabelToken.Index = i;
+                            LabelTokens.Add(gotoLabelToken);
+                        }
+                        continue;
+                    }
+
+                    if(LabelTokens.All(x => x.Label != gotoLabelToken.Label))
+                        throw new OBMMScriptingParseException(gotoLabelToken.ToString(), $"Unable to find Label token with label {gotoLabelToken.Label}");
+
+                    var first = LabelTokens.First(x => x.Label == gotoLabelToken.Label);
+                    i = first.Index;
+
+                    continue;
+                }
 
                 if (token.Type == TokenType.EndFor)
                 {
                     if(_stack.All(x => x.Type != TokenType.For))
-                        throw new NotImplementedException();
+                        throw new OBMMScriptingParseException(token.ToString(), "The stack does not contain a For Token but EndFor was still called");
                     var forToken = (ForToken)_stack.First(x => x.Type == TokenType.For);
+
+                    //for token not active means that either Exit or Continue was called
+                    if (!forToken.Active)
+                    {
+                        //if Exit was called, we simply pop the for element from the stack
+                        //and continue with the next token outside the for loop
+                        if (forToken.Exit)
+                        {
+                            _stack.Pop();
+                            continue;
+                        }
+
+                        //if it was continue we set active back to true, setting active to
+                        //false was just needed so that  if (_stack.Any(x => !x.Active))
+                        //in the ParseToken function would trigger and we wouldn't
+                        //be executing anything in the for loop
+                        forToken.Active = true;
+                    }
+
                     if (forToken.EnumerationType == ForToken.ForEnumerationType.Count)
                     {
                         throw new NotImplementedException();
@@ -106,8 +159,7 @@ namespace OMODFramework.Scripting
                              * meaning that if we are at index 11 and token is EndFor with For being at index 6
                              * we want to reduce i (atm 11) by 5 so we end up at 6 which becomes 7 in the next iteration
                              */
-                            i -= forToken.ChildTokens+2;
-                            forToken.ChildTokens = 0;
+                            i -= forToken.Children.Count+2;
                             forToken.Current++;
                             _variables.AddOrReplace(forToken.Variable, forToken.Enumerable.ElementAt(forToken.Current));
                             continue;
@@ -121,43 +173,57 @@ namespace OMODFramework.Scripting
 
         private void ParseToken(Token token)
         {
-            if (Return) return;
+            //When we hit an EndFlowToken we pop the top StartFlowToken in the stack
 
             if (token is EndFlowToken)
             {
-                if (_stack.Peek().Type != TokenType.Case)
+                if (_stack.Count == 0)
+                    throw new OBMMScriptingParseException(token.ToString(),
+                        "Hit an EndFlowToken but the stack is empty!");
+
+                var peek = _stack.Peek();
+                if (token.Type == TokenType.EndIf && peek.Type != TokenType.If && peek.Type != TokenType.IfNot)
+                    throw new OBMMScriptingParseException(token.ToString(), $"Type of top token in stack should be If or IfNot but is {peek.Type}");
+
+                if (token.Type == TokenType.EndFor && peek.Type != TokenType.For)
+                    throw new OBMMScriptingParseException(token.ToString(), $"Type of top token in stack should be For but is {peek.Type}");
+
+                if (token.Type == TokenType.EndSelect && !(peek is SelectiveToken))
+                    throw new OBMMScriptingParseException(token.ToString(), $"Type of top token in stack should be Select but is {peek.Type}");
+
+                if(token.Type == TokenType.Break && !(peek is CaseToken))
+                    throw new OBMMScriptingParseException(token.ToString(), $"Type of top token in stack should be Case or Default but is {peek.Type}");
+
+                _stack.Pop();
+                return;
+            }
+
+            //If the stack is not empty then that means we are in some form of
+            //control structure like For, If, Select, Case, Default...
+            //we will add the current token as a child to top element and 
+            //check whether or not we actually wanna execute the instruction
+
+            if (_stack.Count != 0)
+            {
+                var peek = _stack.Peek();
+                if(!peek.Children.Contains(token))
+                    peek.Children.Add(token);
+
+                if (_stack.Any(x => !x.Active))
                 {
-                    _stack.Pop();
+                    //we slap start flow tokens in the stack so that
+                    //end flow tokens will still pop them even if we
+                    //are not executing any instructions
+                    if (token is StartFlowToken startFlowToken)
+                        _stack.Push(startFlowToken);
                     return;
                 }
             }
 
-            if (_stack.Count != 0)
-            {
-                if (_stack.Any(x => x.Type == TokenType.For))
-                {
-                    var forToken = (ForToken) _stack.First(x => x.Type == TokenType.For);
-                    forToken.ChildTokens++;
-                }
-
-                if (_stack.OfType<ActiveFlowToken>().Any(x => !x.IsActive))
-                {
-                    if (token is StartFlowToken)
-                    {
-                        _stack.Push(token);
-                        return;
-                    }
-
-                    if (!(token is MidFlowToken))
-                        return;
-                }
-            }
-
-            if (token is FatalErrorToken)
-                throw new ScriptingFatalErrorException();
-
             switch (token.Type)
             {
+                case TokenType.FatalError:
+                    throw new ScriptingFatalErrorException();
                 case TokenType.If:
                 case TokenType.IfNot:
                 {
@@ -166,51 +232,51 @@ namespace OMODFramework.Scripting
                     switch (ifToken.ConditionType)
                     {
                         case IfToken.IfConditionType.DialogYesNo:
-                            ifToken.IsActive = args.Count == 1
+                            ifToken.Active = args.Count == 1
                                 ? _scriptFunctions.DialogYesNo(args[0])
                                 : _scriptFunctions.DialogYesNo(args[0], args[1]);
                             break;
 
                         case IfToken.IfConditionType.DataFileExists:
-                            ifToken.IsActive = _scriptFunctions.DataFileExists(args[0]);
+                            ifToken.Active = _scriptFunctions.DataFileExists(args[0]);
                             break;
 
                         case IfToken.IfConditionType.VersionGreaterThan:
                         case IfToken.IfConditionType.VersionLessThan:
                             {
                                 var version = new Version(ifToken.Arguments[0]);
-                                ifToken.IsActive = ifToken.ConditionType == IfToken.IfConditionType.VersionGreaterThan
+                                ifToken.Active = ifToken.ConditionType == IfToken.IfConditionType.VersionGreaterThan
                                     ? version < _scriptFunctions.GetOBMMVersion()
                                     : version > _scriptFunctions.GetOBMMVersion();
                                 break;
                             }
 
                         case IfToken.IfConditionType.ScriptExtenderPresent:
-                            ifToken.IsActive = _settings.ScriptFunctions.HasScriptExtender();
+                            ifToken.Active = _settings.ScriptFunctions.HasScriptExtender();
                             break;
 
                         case IfToken.IfConditionType.ScriptExtenderNewerThan:
                             {
                                 var version = new Version(args[0]);
-                                ifToken.IsActive = version < _settings.ScriptFunctions.ScriptExtenderVersion();
+                                ifToken.Active = version < _settings.ScriptFunctions.ScriptExtenderVersion();
                                 break;
                             }
 
                         case IfToken.IfConditionType.GraphicsExtenderPresent:
-                            ifToken.IsActive = _settings.ScriptFunctions.HasGraphicsExtender();
+                            ifToken.Active = _settings.ScriptFunctions.HasGraphicsExtender();
                             break;
 
                         case IfToken.IfConditionType.GraphicsExtenderNewerThan:
                             {
                                 var version = new Version(args[0]);
-                                ifToken.IsActive = version < _settings.ScriptFunctions.GraphicsExtenderVersion();
+                                ifToken.Active = version < _settings.ScriptFunctions.GraphicsExtenderVersion();
                                 break;
                             }
 
                         case IfToken.IfConditionType.OblivionNewerThan:
                             {
                                 var version = new Version(args[0]);
-                                ifToken.IsActive = version < _settings.ScriptFunctions.OblivionVersion();
+                                ifToken.Active = version < _settings.ScriptFunctions.OblivionVersion();
                                 break;
                             }
 
@@ -219,11 +285,11 @@ namespace OMODFramework.Scripting
                         case IfToken.IfConditionType.GreaterEqual:
                         {
                             if (!int.TryParse(args[0], out var i1))
-                                throw new NotImplementedException();
+                                throw new OBMMScriptingNumberParseException(token.ToString(), args[0], typeof(int));
                             if (!int.TryParse(args[1], out var i2))
-                                throw new NotImplementedException();
+                                throw new OBMMScriptingNumberParseException(token.ToString(), args[1], typeof(int));
 
-                            ifToken.IsActive = ifToken.ConditionType switch
+                            ifToken.Active = ifToken.ConditionType switch
                             {
                                 IfToken.IfConditionType.Equal => i1 == i2,
                                 IfToken.IfConditionType.GreaterThan => i1 < i2,
@@ -237,11 +303,11 @@ namespace OMODFramework.Scripting
                         case IfToken.IfConditionType.fGreaterThan:
                         {
                             if (!float.TryParse(args[0], out var f1))
-                                throw new NotImplementedException();
+                                throw new OBMMScriptingNumberParseException(token.ToString(), args[0], typeof(float));
                             if (!float.TryParse(args[1], out var f2))
-                                throw new NotImplementedException();
+                                throw new OBMMScriptingNumberParseException(token.ToString(), args[1], typeof(float));
 
-                            ifToken.IsActive = ifToken.ConditionType switch
+                            ifToken.Active = ifToken.ConditionType switch
                             {
                                 IfToken.IfConditionType.fGreaterEqual => f1 <= f2,
                                 IfToken.IfConditionType.fGreaterThan => f1 < f2,
@@ -255,12 +321,22 @@ namespace OMODFramework.Scripting
                     }
 
                     if (ifToken.Not)
-                        ifToken.IsActive = !ifToken.IsActive;
+                        ifToken.Active = !ifToken.Active;
                     _stack.Push(ifToken);
                     break;
                 }
                 case TokenType.Else:
-                    throw new NotImplementedException();
+                {
+                    var elseToken = (StartFlowToken) token;
+                    var peek = _stack.Peek();
+                    if (!(peek is IfToken ifToken))
+                        throw new OBMMScriptingParseException(token.ToString(), $"Else token encountered but top element in stack is not an If or IfNot token but {peek.Type}!");
+
+                    elseToken.Active = !ifToken.Active;
+                    
+                    _stack.Push(elseToken);
+                    break;
+                }
                 case TokenType.For:
                 {
                     var forToken = (ForToken)token;
@@ -291,17 +367,6 @@ namespace OMODFramework.Scripting
                     _stack.Push(forToken);
                     break;
                 }
-                case TokenType.Break:
-                {
-                    if(_stack.Count == 0)
-                        throw new NotImplementedException();
-
-                    if (!(_stack.Peek() is CaseToken))
-                        throw new NotImplementedException();
-
-                    _stack.Pop();
-                    break;
-                }
                 case TokenType.Case:
                 {
                     var caseToken = (CaseToken) token;
@@ -310,31 +375,70 @@ namespace OMODFramework.Scripting
                     if (peek is SelectToken selectToken)
                     {
                         if (selectToken.Results.Contains(caseToken.Value))
-                            caseToken.IsActive = true;
+                        {
+                            caseToken.Active = true;
+                            selectToken.FoundCase = true;
+                        }
                     }
                     else if (peek is SelectVarToken selectVarToken)
                     {
                         if (caseToken.Value == selectVarToken.Value)
-                            caseToken.IsActive = true;
+                        {
+                            caseToken.Active = true;
+                            selectVarToken.FoundCase = true;
+                        }
                     }
                     else
                     {
-                        throw new NotImplementedException();
+                        throw new OBMMScriptingParseException(token.ToString(), $"The top token in the stack is not a Selective Token but {peek}");
                     }
 
                     _stack.Push(caseToken);
                     break;
                 }
                 case TokenType.Default:
-                    throw new NotImplementedException();
+                {
+                    var peek = _stack.Peek();
+                    //default is basically just a Case token that only gets
+                    //triggered when all other cases did not, we fake this
+                    //by creating a case token with the value of the current
+                    //value/result of the selective token
+
+                    if (peek is SelectiveToken selectiveToken)
+                    {
+                        if (selectiveToken.FoundCase)
+                            return;
+
+                        if (peek is SelectToken selectToken)
+                        {
+                            _stack.Push(new CaseToken(selectToken.Results[0]));
+                        } else if (peek is SelectVarToken selectVarToken)
+                        {
+                            _stack.Push(new CaseToken(selectVarToken.Value));
+                        }
+                    }
+                    else
+                    {
+                        throw new OBMMScriptingParseException(token.ToString(), $"The top token in the stack is not a Selective Token but {peek}");
+                    }
+
+                    break;
+                }
                 case TokenType.Continue:
-                    throw new NotImplementedException();
                 case TokenType.Exit:
-                    throw new NotImplementedException();
-                case TokenType.Label:
-                    throw new NotImplementedException();
-                case TokenType.Goto:
-                    throw new NotImplementedException();
+                {
+                    if(_stack.All(x => x.Type != TokenType.For))
+                        throw new OBMMScriptingParseException(token.ToString(), $"Stack does not contain a For Token but {(token.Type == TokenType.Continue ? "Continue" : "Exit")} was still called");
+
+                    var forToken = (ForToken)_stack.First(x => x is ForToken);
+                    //check the main loop for more info on this
+                    //we basically disable the execution of all coming instructions when setting
+                    //Active to false and use the Exit variable to specify if it was Continue or
+                    //Exit that set Active to false
+                    forToken.Active = false;
+                    forToken.Exit = token.Type == TokenType.Exit;
+                    break;
+                }
                 case TokenType.Select:
                 case TokenType.SelectMany:
                 case TokenType.SelectWithPreview:
@@ -344,6 +448,9 @@ namespace OMODFramework.Scripting
                 case TokenType.SelectWithDescriptionsAndPreviews:
                 case TokenType.SelectManyWithDescriptionsAndPreviews:
                 {
+                    //the vertical bar | at the beginning of an item means it should be auto selected
+                    //this is problematic since we compare strings with strings in the case token
+                    //so we want to remove this bar before continuing
                     var selectToken = (SelectToken) token;
                     selectToken.Results = _scriptFunctions.Select(selectToken.Items, selectToken.Previews,
                         selectToken.Descriptions, selectToken.Title, selectToken.IsMany)
@@ -458,21 +565,14 @@ namespace OMODFramework.Scripting
                     var from = iToken.Instructions[0];
                     var to = iToken.Instructions[1];
 
-                    switch (token.Type)
-                    {
-                        case TokenType.CopyDataFile:
-                            _scriptFunctions.CopyDataFile(from, to);
-                            break;
-                        case TokenType.CopyPlugin:
-                            _scriptFunctions.CopyPlugin(from, to);
-                            break;
-                        case TokenType.CopyDataFolder:
-                            if(iToken.Instructions.Count == 3)
-                                _scriptFunctions.CopyDataFolder(from, to, iToken.Instructions[2].Equals("true", StringComparison.InvariantCultureIgnoreCase));
-                            else
-                                _scriptFunctions.CopyDataFolder(from, to, false);
-                            break;
-                    }
+                    if (token.Type == TokenType.CopyDataFile)
+                        _scriptFunctions.CopyDataFile(from, to);
+                    else if (token.Type == TokenType.CopyPlugin)
+                        _scriptFunctions.CopyPlugin(from, to);
+                    else
+                        _scriptFunctions.CopyDataFolder(from, to,
+                            iToken.Instructions.Count == 3 && iToken.Instructions[2]
+                                .Equals("true", StringComparison.InvariantCultureIgnoreCase));
 
                     break;
                 }
@@ -530,15 +630,77 @@ namespace OMODFramework.Scripting
                     break;
                 }
                 case TokenType.CombinePaths:
-                    throw new NotImplementedException();
                 case TokenType.Substring:
-                    throw new NotImplementedException();
                 case TokenType.RemoveString:
-                    throw new NotImplementedException();
                 case TokenType.StringLength:
-                    throw new NotImplementedException();
+                {
+                    var iToken = (InstructionToken) token;
+                    var instructions = iToken.Instructions.Select(ReplaceWithVariable).ToList();
+                    var variable = instructions[0];
+
+                    var first = instructions[1];
+
+                    if (token.Type == TokenType.CombinePaths)
+                    {
+                        var second = instructions[2];
+                            _variables.AddOrReplace(variable, Path.Combine(first, second));
+                    } else if (token.Type == TokenType.Substring || token.Type == TokenType.RemoveString)
+                    {
+                        var second = instructions[2];
+                        if (!int.TryParse(second, out var start))
+                            throw new OBMMScriptingNumberParseException(token.ToString(), second, typeof(int));
+
+                        if (token.Type == TokenType.Substring)
+                        {
+                            if (instructions.Count == 4)
+                            {
+                                if (!int.TryParse(instructions[3], out var end))
+                                    throw new OBMMScriptingNumberParseException(token.ToString(), instructions[3], typeof(int));
+                                _variables.AddOrReplace(variable, first.Substring(start, end));
+                            }
+                            else
+                            {
+                                _variables.AddOrReplace(variable, first.Substring(start));
+                            }
+                        }
+                        else
+                        {
+                            if (instructions.Count == 4)
+                            {
+                                if (!int.TryParse(instructions[3], out var end))
+                                    throw new OBMMScriptingNumberParseException(token.ToString(), instructions[3], typeof(int));
+                                _variables.AddOrReplace(variable, first.Remove(start, end));
+                            }
+                            else
+                            {
+                                _variables.AddOrReplace(variable, first.Remove(start));
+                            }
+                        }
+
+                    } else if (token.Type == TokenType.StringLength)
+                    {
+                        _variables.AddOrReplace(variable, first.Length.ToString());
+                    }
+
+                    break;
+                }
                 case TokenType.InputString:
-                    throw new NotImplementedException();
+                {
+                    var iToken = (InstructionToken) token;
+                    var variable = iToken.Instructions[0];
+
+                    var title = "";
+                    var initial = "";
+                    if (iToken.Instructions.Count > 1)
+                        title = iToken.Instructions[1];
+                    if (iToken.Instructions.Count > 2)
+                        initial = iToken.Instructions[2];
+
+                    var result = _scriptFunctions.InputString(title, initial);
+                    _variables.AddOrReplace(variable, result);
+
+                    break;
+                }
                 case TokenType.ReadINI:
                     throw new NotImplementedException();
                 case TokenType.ReadRendererInfo:
@@ -579,6 +741,30 @@ namespace OMODFramework.Scripting
 
         internal static int EvaluateIntExpression(List<string> list)
         {
+            /*
+             * nice function that will evaluate an expression from iSet
+             * the same part in OBMM was very repetitive and I replaced
+             * all the same stuff with a simple calc Action that will
+             * do everything for us.
+             *
+             * Main problem here is having to deal with expressions in
+             * brackets. Our first while loop will simply grab the
+             * expression in brackets, put it inside this function (recursive)
+             * and put the result back into the list. eg:
+             *
+             *  1 + ( 2 + 4 )
+             *
+             * the stuff in brackets will get send to this function:
+             *
+             *  2 + 4
+             *
+             * and the result (6) will be put back into the expression
+             *
+             *  1 + 6
+             *
+             * Since this is recursive it can handle any amount of bracket-ception.
+             */
+
             var index = list.IndexOf("(");
 
             while (index != -1)
@@ -642,6 +828,8 @@ namespace OMODFramework.Scripting
 
         internal static double EvaluateFloatExpression(List<string> list)
         {
+            //see comment in EvaluateIntExpression as that basically the same function
+
             var index = list.IndexOf("(");
 
             while (index != -1)
@@ -699,7 +887,7 @@ namespace OMODFramework.Scripting
             calc("ln", true, (f, f1) => Math.Log(f));
             calc("mod", false, (f, f1) => f%f1);
             calc("%", false, (f, f1) => f%f1);
-            calc("^", false, (f, f1) => Math.Pow(f,f1));
+            calc("^", false, Math.Pow);
             calc("/", false, (f, f1) => f/f1);
             calc("*", false, (f, f1) => f*f1);
             calc("+", false, (f, f1) => f+f1);

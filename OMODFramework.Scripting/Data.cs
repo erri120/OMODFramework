@@ -153,5 +153,10 @@ namespace OMODFramework.Scripting
         public List<PluginFile> PluginFiles { get; set; } = new List<PluginFile>();
 
         internal List<string> UnCheckedPlugins { get; set; } = new List<string>();
+
+        public override string ToString()
+        {
+            return $"Data Files: {DataFiles.Count}, Plugins: {PluginFiles.Count}";
+        }
     }
 }
