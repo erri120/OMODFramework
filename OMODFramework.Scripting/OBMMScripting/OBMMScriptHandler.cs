@@ -521,19 +521,105 @@ namespace OMODFramework.Scripting
                     break;
                 }
                 case TokenType.LoadEarly:
-                    throw new NotImplementedException();
+                {
+                    var iToken = (InstructionToken) token;
+                    var plugin = iToken.Instructions[0];
+                    _scriptFunctions.LoadEarly(plugin);
+                    break;
+                }
                 case TokenType.LoadBefore:
-                    throw new NotImplementedException();
                 case TokenType.LoadAfter:
-                    throw new NotImplementedException();
+                {
+                    var iToken = (InstructionToken) token;
+                    var plugin = iToken.Instructions[0];
+                    var target = iToken.Instructions[1];
+
+                    if(token.Type == TokenType.LoadBefore)
+                        _scriptFunctions.LoadBefore(plugin, target);
+                    else
+                        _scriptFunctions.LoadAfter(plugin, target);
+
+                    break;
+                }
                 case TokenType.ConflictsWith:
-                    throw new NotImplementedException();
-                case TokenType.DependsOn:
-                    throw new NotImplementedException();
                 case TokenType.ConflictsWithRegex:
-                    throw new NotImplementedException();
+                case TokenType.DependsOn:
                 case TokenType.DependsOnRegex:
-                    throw new NotImplementedException();
+                {
+                    var iToken = (InstructionToken) token;
+                    var cd = new ConflictData
+                    {
+                        Level = ConflictLevel.MajorConflict,
+                        // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
+                        Type = token.Type switch
+                        {
+                            TokenType.ConflictsWith => ConflictType.Conflicts,
+                            TokenType.ConflictsWithRegex => ConflictType.Conflicts,
+                            TokenType.DependsOn => ConflictType.Depends,
+                            TokenType.DependsOnRegex => ConflictType.Depends,
+                            _ => throw new ArgumentOutOfRangeException(nameof(token.Type), token.Type.ToString(), null)
+                        }
+                    };
+
+                    switch (iToken.Instructions.Count)
+                    {
+                        case 1:
+                            cd.File = iToken.Instructions[0];
+                            break;
+                        case 2:
+                            cd.Comment = iToken.Instructions[1];
+                            goto case 1;
+                        case 3:
+                        {
+                            var levelName = iToken.Instructions[2];
+                            if (!Utils.TryGetEnum<ConflictLevel>(levelName, out var level))
+                                throw new OBMMScriptingParseException(iToken.ToString(), $"Unable to parse ConflictLevel {levelName}!");
+                            if(level == ConflictLevel.Active || level == ConflictLevel.NoConflict)
+                                throw new OBMMScriptingParseException(iToken.ToString(), $"ConflictLevel {level} is not allowed!");
+                            cd.Level = level;
+                            goto case 2;
+                        }
+                        case 5:
+                        {
+                            cd.File = iToken.Instructions[0];
+                            var sMinMajor = iToken.Instructions[1];
+                            var sMinMinor = iToken.Instructions[2];
+                            var sMaxMajor = iToken.Instructions[3];
+                            var sMaxMinor = iToken.Instructions[4];
+
+                            if (!int.TryParse(sMinMajor, out var minMajor))
+                                throw new OBMMScriptingNumberParseException(iToken.ToString(), sMinMajor, typeof(int));
+                            if (!int.TryParse(sMinMinor, out var minMinor))
+                                throw new OBMMScriptingNumberParseException(iToken.ToString(), sMinMinor, typeof(int));
+                            if (!int.TryParse(sMaxMajor, out var maxMajor))
+                                throw new OBMMScriptingNumberParseException(iToken.ToString(), sMaxMajor, typeof(int));
+                            if (!int.TryParse(sMaxMinor, out var maxMinor))
+                                throw new OBMMScriptingNumberParseException(iToken.ToString(), sMaxMinor, typeof(int));
+
+                            cd.MinVersion = new Version(minMajor, minMinor);
+                            cd.MaxVersion = new Version(maxMajor, maxMinor);
+
+                            break;
+                        }
+                        case 6:
+                            cd.Comment = iToken.Instructions[5];
+                            goto case 5;
+                        case 7:
+                        {
+                            var levelName = iToken.Instructions[6];
+                            if (!Utils.TryGetEnum<ConflictLevel>(levelName, out var level))
+                                throw new OBMMScriptingParseException(iToken.ToString(), $"Unable to parse ConflictLevel {levelName}!");
+                            if (level == ConflictLevel.Active || level == ConflictLevel.NoConflict)
+                                throw new OBMMScriptingParseException(iToken.ToString(), $"ConflictLevel {level} is not allowed!");
+                            cd.Level = level;
+                            goto case 6;
+                        }
+                    }
+
+                    cd.Partial = token.Type == TokenType.DependsOnRegex || token.Type == TokenType.ConflictsWithRegex;
+                    _srd.Conflicts.Add(cd);
+                    break;
+                }
                 case TokenType.DontInstallAnyPlugins:
                     _scriptFunctions.DontInstallAnyPlugins();
                     break;
@@ -584,7 +670,17 @@ namespace OMODFramework.Scripting
                 }
                 case TokenType.RegisterBSA:
                 case TokenType.UnregisterBSA:
-                    throw new NotImplementedException();
+                {
+                    var iToken = (InstructionToken) token;
+                    var path = iToken.Instructions[0];
+
+                    if(token.Type == TokenType.RegisterBSA)
+                        _scriptFunctions.RegisterBSA(path);
+                    else
+                        _scriptFunctions.UnregisterBSA(path);
+
+                    break;
+                }
                 case TokenType.Return:
                 {
                     Return = true;

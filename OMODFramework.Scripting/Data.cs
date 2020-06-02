@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
+using OblivionModManager.Scripting;
 
 namespace OMODFramework.Scripting
 {
@@ -147,10 +148,34 @@ namespace OMODFramework.Scripting
     }
 
     [PublicAPI]
+    public enum ConflictType { Conflicts, Depends }
+
+    [PublicAPI]
+    public class ConflictData
+    {
+        public ConflictType Type { get; set; }
+        public ConflictLevel Level { get; set; }
+        public string File { get; set; } = string.Empty;
+        
+        public Version? MinVersion { get; set; }
+        public Version? MaxVersion { get; set; }
+
+        public string? Comment { get; set; }
+        public bool Partial { get; set; }
+
+        public override string ToString()
+        {
+            return $"{(Type == ConflictType.Conflicts ? "Conflicts with" : "Depends on")} {File}";
+        }
+    }
+
+    [PublicAPI]
     public class ScriptReturnData
     {
         public List<DataFile> DataFiles { get; set; } = new List<DataFile>();
         public List<PluginFile> PluginFiles { get; set; } = new List<PluginFile>();
+
+        public List<ConflictData> Conflicts { get; set; } = new List<ConflictData>();
 
         internal List<string> UnCheckedPlugins { get; set; } = new List<string>();
 
