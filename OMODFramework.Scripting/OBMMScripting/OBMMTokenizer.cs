@@ -247,7 +247,7 @@ namespace OMODFramework.Scripting
 
         private class InstructionToken : Token
         {
-            internal readonly IReadOnlyList<string> Instructions;
+            internal IReadOnlyList<string> Instructions { get; set; }
 
             internal InstructionToken(IReadOnlyList<string> instructions)
             {

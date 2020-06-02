@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using OblivionModManager.Scripting;
 
 namespace OMODFramework.Scripting
 {
@@ -16,7 +17,7 @@ namespace OMODFramework.Scripting
         private HashSet<Token> _tokens = new HashSet<Token>();
         private readonly Dictionary<string, string> _variables = new Dictionary<string, string>();
         private readonly Stack<StartFlowToken> _stack = new Stack<StartFlowToken>();
-        private readonly List<GotoLabelToken> LabelTokens = new List<GotoLabelToken>();
+        private readonly List<GotoLabelToken> _labelTokens = new List<GotoLabelToken>();
 
         private bool Return { get; set; }
 
@@ -65,6 +66,12 @@ namespace OMODFramework.Scripting
             }
         }
 
+        /// <summary>
+        /// Utility function for replacing variable placeholders with the actual value
+        /// of the variable from the _variables dictionary
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
         private string ReplaceWithVariable(string s)
         {
             if (!s.Contains("%") || s.Count(x => x == '%') < 2)
@@ -105,18 +112,18 @@ namespace OMODFramework.Scripting
 
                     if (gotoLabelToken.Type == TokenType.Label)
                     {
-                        if(!LabelTokens.Contains(gotoLabelToken))
+                        if(!_labelTokens.Contains(gotoLabelToken))
                         {
                             gotoLabelToken.Index = i;
-                            LabelTokens.Add(gotoLabelToken);
+                            _labelTokens.Add(gotoLabelToken);
                         }
                         continue;
                     }
 
-                    if(LabelTokens.All(x => x.Label != gotoLabelToken.Label))
+                    if(_labelTokens.All(x => x.Label != gotoLabelToken.Label))
                         throw new OBMMScriptingParseException(gotoLabelToken.ToString(), $"Unable to find Label token with label {gotoLabelToken.Label}");
 
-                    var first = LabelTokens.First(x => x.Label == gotoLabelToken.Label);
+                    var first = _labelTokens.First(x => x.Label == gotoLabelToken.Label);
                     i = first.Index;
 
                     continue;
@@ -148,7 +155,13 @@ namespace OMODFramework.Scripting
 
                     if (forToken.EnumerationType == ForToken.ForEnumerationType.Count)
                     {
-                        throw new NotImplementedException();
+                        if (forToken.Current != forToken.End)
+                        {
+                            i -= forToken.Children.Count + 2;
+                            forToken.Current += forToken.Step;
+                            _variables.AddOrReplace(forToken.Variable, forToken.Current.ToString());
+                            continue;
+                        }
                     }
                     else
                     {
@@ -217,6 +230,13 @@ namespace OMODFramework.Scripting
                     if (token is StartFlowToken startFlowToken)
                         _stack.Push(startFlowToken);
                     return;
+                }
+            }
+
+            {
+                if (token is InstructionToken iToken)
+                {
+                    iToken.Instructions = iToken.Instructions.Select(ReplaceWithVariable).ToList();
                 }
             }
 
@@ -343,13 +363,28 @@ namespace OMODFramework.Scripting
                     switch (forToken.EnumerationType)
                     {
                         case ForToken.ForEnumerationType.Count:
-                            throw new NotImplementedException();
+                        {
+                            forToken.Current = forToken.Start;
+                            _variables.AddOrReplace(forToken.Variable, forToken.Start.ToString());
+                            break;
+                        }
+
 
                         case ForToken.ForEnumerationType.DataFolder:
-                            throw new NotImplementedException();
+                        {
+                            forToken.Enumerable = _scriptFunctions.GetDataFolders(forToken.FolderPath,
+                                forToken.SearchString, forToken.Recursive);
+                            _variables.AddOrReplace(forToken.Variable, forToken.Enumerable.ElementAt(0));
+                            break;
+                        }
 
                         case ForToken.ForEnumerationType.PluginFolder:
-                            throw new NotImplementedException();
+                        {
+                            forToken.Enumerable = _scriptFunctions.GetPluginFolders(forToken.FolderPath,
+                                forToken.SearchString, forToken.Recursive);
+                            _variables.AddOrReplace(forToken.Variable, forToken.Enumerable.ElementAt(0));
+                            break;
+                        }
 
                         case ForToken.ForEnumerationType.DataFile:
                         {
@@ -360,7 +395,13 @@ namespace OMODFramework.Scripting
                         }
 
                         case ForToken.ForEnumerationType.Plugin:
-                            throw new NotImplementedException();
+                        {
+                            forToken.Enumerable = _scriptFunctions.GetPlugins(forToken.FolderPath,
+                                forToken.SearchString, forToken.Recursive);
+                            _variables.AddOrReplace(forToken.Variable, forToken.Enumerable.ElementAt(0));
+                            break;
+                        }
+
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
@@ -556,7 +597,16 @@ namespace OMODFramework.Scripting
                     break;
                 }
                 case TokenType.SetDeactivationWarning:
-                    throw new NotImplementedException();
+                {
+                    var iToken = (InstructionToken) token;
+                    var plugin = iToken.Instructions[0];
+                    var warningType = iToken.Instructions[1];
+                    if (!Utils.TryGetEnum<DeactiveStatus>(warningType, out var status))
+                        throw new OBMMScriptingParseException(token.ToString(), $"Unable to parse enum {warningType}!");
+
+                    _scriptFunctions.SetDeactivationWarning(plugin, status);
+                    break;
+                }
                 case TokenType.CopyDataFile:
                 case TokenType.CopyPlugin:
                 case TokenType.CopyDataFolder:
@@ -601,9 +651,24 @@ namespace OMODFramework.Scripting
                 case TokenType.SetPluginFloat:
                     throw new NotImplementedException();
                 case TokenType.DisplayImage:
-                    throw new NotImplementedException();
                 case TokenType.DisplayText:
-                    throw new NotImplementedException();
+                {
+                    var iToken = (InstructionToken) token;
+                    var path = iToken.Instructions[0];
+
+                    if(token.Type == TokenType.DisplayImage)
+                        if(iToken.Instructions.Count == 2)
+                            _scriptFunctions.DisplayImage(path, iToken.Instructions[1]);
+                        else
+                            _scriptFunctions.DisplayImage(path);
+                    else
+                        if (iToken.Instructions.Count == 2)
+                            _scriptFunctions.DisplayText(path, iToken.Instructions[1]);
+                        else
+                            _scriptFunctions.DisplayText(path);
+
+                    break;
+                }
                 case TokenType.SetVar:
                 {
                     var setVarToken = (SetVarToken)token;
@@ -616,15 +681,14 @@ namespace OMODFramework.Scripting
                 case TokenType.GetFileNameWithoutExtension:
                     {
                     var getFileNameToken = (InstructionToken) token;
-                    var instructions = getFileNameToken.Instructions.Select(ReplaceWithVariable).ToList();
-                    var variable = instructions[0];
+                    var variable = getFileNameToken.Instructions[0];
                     if(token.Type == TokenType.GetFolderName || token.Type == TokenType.GetDirectoryName)
-                        _variables.AddOrReplace(variable, Path.GetFileName(instructions[1]));
+                        _variables.AddOrReplace(variable, Path.GetFileName(getFileNameToken.Instructions[1]));
                     else
                     {
                         var value = token.Type == TokenType.GetFileName
-                            ? Path.GetFileName(instructions[1])
-                            : Path.GetFileNameWithoutExtension(instructions[1]);
+                            ? Path.GetFileName(getFileNameToken.Instructions[1])
+                            : Path.GetFileNameWithoutExtension(getFileNameToken.Instructions[1]);
                         _variables.AddOrReplace(variable, value);
                     }
                     break;
@@ -635,27 +699,26 @@ namespace OMODFramework.Scripting
                 case TokenType.StringLength:
                 {
                     var iToken = (InstructionToken) token;
-                    var instructions = iToken.Instructions.Select(ReplaceWithVariable).ToList();
-                    var variable = instructions[0];
+                    var variable = iToken.Instructions[0];
 
-                    var first = instructions[1];
+                    var first = iToken.Instructions[1];
 
                     if (token.Type == TokenType.CombinePaths)
                     {
-                        var second = instructions[2];
+                        var second = iToken.Instructions[2];
                             _variables.AddOrReplace(variable, Path.Combine(first, second));
                     } else if (token.Type == TokenType.Substring || token.Type == TokenType.RemoveString)
                     {
-                        var second = instructions[2];
+                        var second = iToken.Instructions[2];
                         if (!int.TryParse(second, out var start))
                             throw new OBMMScriptingNumberParseException(token.ToString(), second, typeof(int));
 
                         if (token.Type == TokenType.Substring)
                         {
-                            if (instructions.Count == 4)
+                            if (iToken.Instructions.Count == 4)
                             {
-                                if (!int.TryParse(instructions[3], out var end))
-                                    throw new OBMMScriptingNumberParseException(token.ToString(), instructions[3], typeof(int));
+                                if (!int.TryParse(iToken.Instructions[3], out var end))
+                                    throw new OBMMScriptingNumberParseException(token.ToString(), iToken.Instructions[3], typeof(int));
                                 _variables.AddOrReplace(variable, first.Substring(start, end));
                             }
                             else
@@ -665,10 +728,10 @@ namespace OMODFramework.Scripting
                         }
                         else
                         {
-                            if (instructions.Count == 4)
+                            if (iToken.Instructions.Count == 4)
                             {
-                                if (!int.TryParse(instructions[3], out var end))
-                                    throw new OBMMScriptingNumberParseException(token.ToString(), instructions[3], typeof(int));
+                                if (!int.TryParse(iToken.Instructions[3], out var end))
+                                    throw new OBMMScriptingNumberParseException(token.ToString(), iToken.Instructions[3], typeof(int));
                                 _variables.AddOrReplace(variable, first.Remove(start, end));
                             }
                             else

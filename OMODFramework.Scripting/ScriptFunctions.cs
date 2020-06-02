@@ -71,7 +71,10 @@ namespace OMODFramework.Scripting
 
         public string[] GetPlugins(string path, string pattern, bool recurse)
         {
-            throw new NotImplementedException();
+            if(_omod.PluginsList == null)
+                throw new ScriptingNullListException(false);
+
+            return _omod.PluginsList.Select(x => x.Name).FileEnumeration(path, pattern, recurse).ToArray();
         }
 
         public string[] GetDataFiles(string path, string pattern, bool recurse)
@@ -84,12 +87,19 @@ namespace OMODFramework.Scripting
 
         public string[] GetPluginFolders(string path, string pattern, bool recurse)
         {
-            throw new NotImplementedException();
+            //this function is kinda stupid as you can't really have folders with plugins
+            if (_omod.PluginsList == null)
+                throw new ScriptingNullListException();
+
+            return _omod.PluginsList.Select(x => x.Name).DirectoryEnumeration(path, pattern, recurse).ToArray();
         }
 
         public string[] GetDataFolders(string path, string pattern, bool recurse)
         {
-            throw new NotImplementedException();
+            if (_omod.DataList == null)
+                throw new ScriptingNullListException();
+
+            return _omod.DataList.Select(x => x.Name).DirectoryEnumeration(path, pattern, recurse).ToArray();
         }
 
         public string[] GetActiveEspNames()
