@@ -723,29 +723,115 @@ namespace OMODFramework.Scripting
                     break;
                 }
                 case TokenType.PatchPlugin:
-                    throw new NotImplementedException();
                 case TokenType.PatchDataFile:
-                    throw new NotImplementedException();
+                {
+                    var iToken = (InstructionToken) token;
+                    var from = iToken.Instructions[0];
+                    var to = iToken.Instructions[1];
+
+                    var create = iToken.Instructions.Count == 3 && iToken.Instructions[2] == "True";
+
+                    if(token.Type == TokenType.PatchPlugin)
+                        _scriptFunctions.PatchPlugin(from, to, create);
+                    else
+                        _scriptFunctions.PatchDataFile(from, to, create);
+
+                    break;
+                }
                 case TokenType.EditINI:
-                    throw new NotImplementedException();
+                {
+                    var iToken = (InstructionToken) token;
+
+                    var section = iToken.Instructions[0];
+                    var key = iToken.Instructions[1];
+                    var newValue = iToken.Instructions[2];
+
+                    _scriptFunctions.EditINI(section, key, newValue);
+
+                    break;
+                }
                 case TokenType.EditSDP:
-                    throw new NotImplementedException();
                 case TokenType.EditShader:
+                {
+                    var iToken = (InstructionToken) token;
+
+                    var shaderPackage = iToken.Instructions[0];
+                    var shaderName = iToken.Instructions[1];
+                    var binaryObjectPath = iToken.Instructions[2];
+
+                    //TODO: EditShader requires the binary data
                     throw new NotImplementedException();
+                }
                 case TokenType.SetGMST:
-                    throw new NotImplementedException();
                 case TokenType.SetGlobal:
-                    throw new NotImplementedException();
+                {
+                    var iToken = (InstructionToken) token;
+                    var file = iToken.Instructions[0];
+                    var edid = iToken.Instructions[1];
+                    var value = iToken.Instructions[2];
+
+                    if(token.Type == TokenType.SetGMST)
+                        _scriptFunctions.SetGMST(file, edid, value);
+                    else
+                        _scriptFunctions.SetGlobal(file, edid, value);
+
+                    break;
+                }
                 case TokenType.SetPluginByte:
-                    throw new NotImplementedException();
                 case TokenType.SetPluginShort:
-                    throw new NotImplementedException();
                 case TokenType.SetPluginInt:
-                    throw new NotImplementedException();
                 case TokenType.SetPluginLong:
-                    throw new NotImplementedException();
                 case TokenType.SetPluginFloat:
-                    throw new NotImplementedException();
+                {
+                    var iToken = (InstructionToken) token;
+
+                    var file = iToken.Instructions[0];
+                    var sOffset = iToken.Instructions[1];
+
+                    if(!long.TryParse(sOffset, out var offset))
+                        throw new OBMMScriptingNumberParseException(iToken.ToString(), sOffset, typeof(long));
+
+                    var sData = iToken.Instructions[2];
+
+                    //still haven't found a better solution for this mess
+
+                    if (token.Type == TokenType.SetPluginByte)
+                    {
+                        if(!byte.TryParse(sData, out var value))
+                            throw new OBMMScriptingNumberParseException(iToken.ToString(), sData, typeof(byte));
+                        
+                        _scriptFunctions.SetPluginByte(file, offset, value);
+                    } else if (token.Type == TokenType.SetPluginShort)
+                    {
+                        if (!short.TryParse(sData, out var value))
+                            throw new OBMMScriptingNumberParseException(iToken.ToString(), sData, typeof(short));
+
+                        _scriptFunctions.SetPluginShort(file, offset, value);
+                    }
+                    else if (token.Type == TokenType.SetPluginInt)
+                    {
+                        if (!int.TryParse(sData, out var value))
+                            throw new OBMMScriptingNumberParseException(iToken.ToString(), sData, typeof(int));
+
+                        _scriptFunctions.SetPluginInt(file, offset, value);
+                    }
+                    else if (token.Type == TokenType.SetPluginLong)
+                    {
+                        if (!long.TryParse(sData, out var value))
+                            throw new OBMMScriptingNumberParseException(iToken.ToString(), sData, typeof(long));
+
+                        _scriptFunctions.SetPluginLong(file, offset, value);
+                    }
+                    else if (token.Type == TokenType.SetPluginFloat)
+                    {
+                        if (!float.TryParse(sData, out var value))
+                            throw new OBMMScriptingNumberParseException(iToken.ToString(), sData, typeof(float));
+
+                        _scriptFunctions.SetPluginFloat(file, offset, value);
+                    }
+
+                    break;
+                }
                 case TokenType.DisplayImage:
                 case TokenType.DisplayText:
                 {
@@ -861,9 +947,49 @@ namespace OMODFramework.Scripting
                     break;
                 }
                 case TokenType.ReadINI:
-                    throw new NotImplementedException();
                 case TokenType.ReadRendererInfo:
-                    throw new NotImplementedException();
+                {
+                    var iToken = (InstructionToken) token;
+                    var variable = iToken.Instructions[0];
+
+                    if (token.Type == TokenType.ReadINI)
+                    {
+                        var section = iToken.Instructions[1];
+                        var value = iToken.Instructions[2];
+                        var result = "";
+                        try
+                        {
+                            result = _scriptFunctions.ReadINI(section, value);
+                        }
+                        catch (Exception e)
+                        {
+                            result = e.Message;
+                        }
+                        finally
+                        {
+                            _variables.AddOrReplace(variable, result);
+                        }
+                    }
+                    else
+                    {
+                        var value = iToken.Instructions[1];
+                        var result = "";
+                        try
+                        {
+                            result = _scriptFunctions.ReadRendererInfo(value);
+                        }
+                        catch (Exception e)
+                        {
+                            result = e.Message;
+                        }
+                        finally
+                        {
+                            _variables.AddOrReplace(variable, result);
+                        }
+                    }
+
+                    break;
+                }
                 case TokenType.ExecLines:
                     throw new NotImplementedException();
                 case TokenType.iSet:
@@ -887,9 +1013,35 @@ namespace OMODFramework.Scripting
                     break;
                 }
                 case TokenType.EditXMLLine:
-                    throw new NotImplementedException();
                 case TokenType.EditXMLReplace:
-                    throw new NotImplementedException();
+                {
+                    var iToken = (InstructionToken) token;
+                    var file = iToken.Instructions[0];
+                    var extension = Path.GetExtension(file);
+
+                    if(extension != ".xml" && extension != ".txt" && extension != ".ini" && extension != ".bat")
+                        throw new OBMMScriptingParseException(iToken.ToString(), $"Extension of file {file} is not allowed! Allowed are .xml, .txt, .ini and .bat files!");
+
+                    if (token.Type == TokenType.EditXMLLine)
+                    {
+                        var sLineNumber = iToken.Instructions[1];
+                        var line = iToken.Instructions[2];
+
+                        if(!int.TryParse(sLineNumber, out var lineNumber))
+                            throw new OBMMScriptingNumberParseException(iToken.ToString(), sLineNumber, typeof(int));
+
+                        _scriptFunctions.EditXMLLine(file, lineNumber, line);
+                    }
+                    else
+                    {
+                        var toFind = iToken.Instructions[1];
+                        var toReplace = iToken.Instructions[2];
+
+                        _scriptFunctions.EditXMLReplace(file, toFind, toReplace);
+                    }
+
+                    break;
+                }
                 case TokenType.AllowRunOnLines:
                     //TODO
                     break;
