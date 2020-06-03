@@ -67,17 +67,19 @@ namespace OblivionModManager.Scripting
         void SetDeactivationWarning(string plugin, DeactiveStatus warning);
 
         void ConflictsWith(string filename);
-        void ConslictsWith(string filename, string comment);
+        void ConflictsWith(string filename, string comment);
         void ConflictsWith(string filename, string comment, ConflictLevel level);
         void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion);
         void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion, string comment);
         void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion, string comment, ConflictLevel level);
-        void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion, string comment, ConflictLevel level, bool regex);
+        void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion,
+            int maxMinorVersion, string? comment, ConflictLevel level, bool regex);
         void DependsOn(string filename);
         void DependsOn(string filename, string comment);
         void DependsOn(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion);
         void DependsOn(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion, string comment);
-        void DependsOn(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion, string comment, bool regex);
+        void DependsOn(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion,
+            string? comment, bool regex);
 
         void DontInstallAnyPlugins();
         void DontInstallAnyDataFiles();

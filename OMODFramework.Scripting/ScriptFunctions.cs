@@ -20,7 +20,7 @@ namespace OMODFramework.Scripting
 
         public bool GetDisplayWarnings()
         {
-            throw new NotImplementedException();
+            return true;
         }
 
         public bool DialogYesNo(string msg)
@@ -139,7 +139,7 @@ namespace OMODFramework.Scripting
 
         public void DisplayImage(string path)
         {
-            //_settings.ScriptFunctions.DisplayImage();
+            throw new NotImplementedException();
         }
 
         public void DisplayImage(string path, string title)
@@ -189,65 +189,67 @@ namespace OMODFramework.Scripting
 
         public void ConflictsWith(string filename)
         {
-            throw new NotImplementedException();
+            ConflictsWith(filename, 0, 0, 0, 0, null, ConflictLevel.MajorConflict, false);
         }
 
-        public void ConslictsWith(string filename, string comment)
+        public void ConflictsWith(string filename, string comment)
         {
-            throw new NotImplementedException();
+            ConflictsWith(filename, 0, 0, 0, 0, comment, ConflictLevel.MajorConflict, false);
         }
 
         public void ConflictsWith(string filename, string comment, ConflictLevel level)
         {
-            throw new NotImplementedException();
+            ConflictsWith(filename, 0, 0, 0, 0, comment, level, false);
         }
 
         public void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion)
         {
-            throw new NotImplementedException();
+            ConflictsWith(name, minMajorVersion, minMinorVersion, maxMajorVersion, maxMinorVersion, null, ConflictLevel.MajorConflict, false);
         }
 
         public void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion,
             string comment)
         {
-            throw new NotImplementedException();
+            ConflictsWith(name, minMajorVersion, minMinorVersion, maxMajorVersion, maxMinorVersion, comment, ConflictLevel.MajorConflict, false);
         }
 
         public void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion,
             string comment, ConflictLevel level)
         {
-            throw new NotImplementedException();
+            ConflictsWith(name, minMajorVersion, minMinorVersion, maxMajorVersion, maxMinorVersion, comment, level, false);
         }
 
-        public void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion,
-            string comment, ConflictLevel level, bool regex)
+        public void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion,
+            int maxMinorVersion,
+            string? comment, ConflictLevel level, bool regex)
         {
             throw new NotImplementedException();
         }
 
         public void DependsOn(string filename)
         {
-            throw new NotImplementedException();
+            DependsOn(filename, 0, 0, 0, 0, null, false);
         }
 
         public void DependsOn(string filename, string comment)
         {
-            throw new NotImplementedException();
+            DependsOn(filename, 0, 0, 0, 0, comment, false);
         }
 
         public void DependsOn(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion)
         {
-            throw new NotImplementedException();
+            DependsOn(name, minMajorVersion, minMinorVersion, maxMajorVersion, maxMinorVersion, null, false);
         }
 
         public void DependsOn(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion,
             string comment)
         {
-            throw new NotImplementedException();
+            DependsOn(name, minMajorVersion, minMinorVersion, maxMajorVersion, maxMinorVersion, comment, false);
         }
 
-        public void DependsOn(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion,
-            string comment, bool regex)
+        public void DependsOn(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion,
+            int maxMinorVersion,
+            string? comment, bool regex)
         {
             throw new NotImplementedException();
         }
@@ -515,7 +517,9 @@ namespace OMODFramework.Scripting
 
         public void CancelDataFileCopy(string file)
         {
-            throw new NotImplementedException();
+            if (_srd.DataFiles.Any(x => x.Output.Equals(file, StringComparison.InvariantCultureIgnoreCase)))
+                _srd.DataFiles.Remove(_srd.DataFiles.First(x =>
+                    x.Output.Equals(file, StringComparison.InvariantCultureIgnoreCase)));
         }
 
         public void CancelDataFolderCopy(string folder)

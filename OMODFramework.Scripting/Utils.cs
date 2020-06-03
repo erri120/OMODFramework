@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace OMODFramework.Scripting
 {
-    internal static partial class Utils
+    internal static class Utils
     {
         internal static string ToAggregatedString(this IEnumerable<string> col, string separator = ",")
         {
@@ -88,23 +88,6 @@ namespace OMODFramework.Scripting
         internal static void Do<T>(this IEnumerable<T> col,[InstantHandle] Action<T> a)
         {
             foreach (var item in col) a(item);
-        }
-
-        internal static void AddArguments(this IList<string> arguments, IReadOnlyCollection<string> line, int start, int end)
-        {
-            if (start == 0 && end == 0)
-                return;
-
-            if (start == end)
-            {
-                arguments.Add(line.ElementAt(start - 1));
-                return;
-            }
-
-            for (var i = start - 1; i < end; i++)
-            {
-                arguments.Add(line.ElementAt(i));
-            }
         }
 
         internal static bool TryGetEnum<T>(string s,[MaybeNullWhen(false)] out T type)

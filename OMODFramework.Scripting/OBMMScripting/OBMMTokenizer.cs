@@ -2,15 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection.Emit;
-using JetBrains.Annotations;
 
 namespace OMODFramework.Scripting
 {
     public partial class OBMMScriptHandler
     {
         /// <summary>
-        /// Utility attribute for <see cref="TokenType"/>. Used in <see cref="OBMMScriptHandler.ValidateLine"/>
+        /// Utility attribute for <see cref="TokenType"/>. Used in <see cref="ValidateLine"/>
         /// to see if a line has the required amount of arguments.
         /// </summary>
         [AttributeUsage(AttributeTargets.Field)]
@@ -468,7 +466,7 @@ namespace OMODFramework.Scripting
                     throw new ArgumentException("Arguments of line is null!", nameof(line));
 
                 var args = line.Arguments.ToList();
-                //Each appears to only be fluff and doesnt do anything "For Each" is the same as "For"
+                //Each appears to only be fluff and doesn't do anything "For Each" is the same as "For"
                 if (args[0] == "Each")
                     args = args.TakeLast(args.Count - 1).ToList();
 
