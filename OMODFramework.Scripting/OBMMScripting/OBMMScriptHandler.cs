@@ -46,7 +46,7 @@ namespace OMODFramework.Scripting
 
             if (_srd.UnCheckedPlugins.Count != 0)
             {
-                if (_omod.PluginsList == null)
+                if (_omod.OMODFile.PluginsList == null)
                     throw new ScriptingNullListException(false);
 
                 _srd.UnCheckedPlugins.Do(p =>
@@ -58,7 +58,7 @@ namespace OMODFramework.Scripting
                     }
                     else
                     {
-                        var first = _omod.PluginsList.First(x =>
+                        var first = _omod.OMODFile.PluginsList.First(x =>
                             x.Name.Equals(p, StringComparison.InvariantCultureIgnoreCase));
                         _srd.PluginFiles.Add(new PluginFile(first){IsUnchecked = true});
                     }

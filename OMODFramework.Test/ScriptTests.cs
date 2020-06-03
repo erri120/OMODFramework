@@ -146,7 +146,7 @@ namespace OMODFramework.Test
                 var (key, (item1, item2)) = pair;
                 using var omod = new OMOD(key);
                 omod.GetDataFileList();
-                if (omod.HasFile(OMODFile.PluginsCRC))
+                if (omod.HasFile(OMODEntryFileType.PluginsCRC))
                     omod.GetPlugins();
                 return (ScriptRunner.ExecuteScript(omod, new Settings()), item1, item2);
             }).ToList();

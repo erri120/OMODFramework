@@ -15,7 +15,7 @@ namespace OMODFramework
     /// Enum for all possible files in an omod file
     /// </summary>
     [PublicAPI]
-    public enum OMODFile : byte
+    public enum OMODEntryFileType : byte
     {
         DataCRC,
         Data,
@@ -81,19 +81,19 @@ namespace OMODFramework
 
     internal static partial class Utils
     {
-        internal static string ToFileString(this OMODFile file)
+        internal static string ToFileString(this OMODEntryFileType entryFileType)
         {
-            return file switch
+            return entryFileType switch
             {
-                OMODFile.DataCRC => "data.crc",
-                OMODFile.PluginsCRC => "plugins.crc",
-                OMODFile.Config => "config",
-                OMODFile.Readme => "readme",
-                OMODFile.Script => "script",
-                OMODFile.Image => "image",
-                OMODFile.Data => "data",
-                OMODFile.Plugins => "plugins",
-                _ => throw new ArgumentOutOfRangeException(nameof(file), file, "Should not be possible!")
+                OMODEntryFileType.DataCRC => "data.crc",
+                OMODEntryFileType.PluginsCRC => "plugins.crc",
+                OMODEntryFileType.Config => "config",
+                OMODEntryFileType.Readme => "readme",
+                OMODEntryFileType.Script => "script",
+                OMODEntryFileType.Image => "image",
+                OMODEntryFileType.Data => "data",
+                OMODEntryFileType.Plugins => "plugins",
+                _ => throw new ArgumentOutOfRangeException(nameof(entryFileType), entryFileType, "Should not be possible!")
             };
         }
     }
@@ -151,16 +151,48 @@ namespace OMODFramework
         }
     }
 
+    internal class OMODFile : IDisposable
+    {
+        private readonly ZipFile _zipFile;
+
+        internal IEnumerable<OMODCompressedEntry>? DataList { get; set; }
+        internal IEnumerable<OMODCompressedEntry>? PluginsList { get; set; }
+
+        internal OMODFile(FileInfo path)
+        {
+            _zipFile = new ZipFile(path.OpenRead());
+        }
+
+        internal bool CheckIntegrity()
+        {
+            return _zipFile.CheckIntegrity();
+        }
+
+        internal bool HasFile(OMODEntryFileType entryFileType) => _zipFile.HasFile(entryFileType.ToFileString());
+
+        internal Stream ExtractFile(OMODEntryFileType entryFileType)
+        {
+            return _zipFile.ExtractFile(entryFileType.ToFileString());
+        }
+
+        internal Config ReadConfig()
+        {
+            return Config.ParseConfig(ExtractFile(OMODEntryFileType.Config));
+        }
+
+        public void Dispose()
+        {
+            _zipFile.Close();
+        }
+    }
+
     [PublicAPI]
     public class OMOD : IDisposable
     {
         private readonly FrameworkSettings _frameworkSettings = null!;
-        private readonly ZipFile _zipFile;
+        internal readonly OMODFile OMODFile;
 
         public readonly Config Config = null!;
-
-        internal IEnumerable<OMODCompressedEntry>? DataList { get; set; }
-        internal IEnumerable<OMODCompressedEntry>? PluginsList { get; set; }
 
         public OMOD(FileInfo path, FrameworkSettings? settings = null, bool checkIntegrity = true)
         {
@@ -170,15 +202,15 @@ namespace OMODFramework
             if (settings == null)
                 _frameworkSettings = FrameworkSettings.DefaultFrameworkSettings;
 
-            _zipFile = new ZipFile(path.OpenRead());
+            OMODFile = new OMODFile(path);
 
             if (checkIntegrity)
             {
-                if (!_zipFile.CheckIntegrity())
+                if (!OMODFile.CheckIntegrity())
                     return;
             }
 
-            Config = Config.ParseConfig(ExtractFile(OMODFile.Config));
+            Config = OMODFile.ReadConfig();
 
             if(Config.FileVersion > _frameworkSettings.CurrentOMODVersion)
                 throw new OMODInvalidConfigException(Config, $"The file version in the config: {Config.FileVersion} is greater than the set OMOD version in the Framework Settings: {_frameworkSettings.CurrentOMODVersion}!");
@@ -187,25 +219,25 @@ namespace OMODFramework
         /// <summary>
         /// Checks if the OMOD contains the given file
         /// </summary>
-        /// <param name="file">The file</param>
+        /// <param name="entryFileType">The file</param>
         /// <returns></returns>
-        public bool HasFile(OMODFile file) => _zipFile.HasFile(file.ToFileString());
+        public bool HasFile(OMODEntryFileType entryFileType) => OMODFile.HasFile(entryFileType);
 
         /// <summary>
         /// Extract the given file from the OMOD and returns a <see cref="Stream"/> with the data
         /// instead of writing to file.
         /// </summary>
-        /// <param name="file">The file to extract</param>
+        /// <param name="entryFileType">The file to extract</param>
         /// <returns></returns>
         /// <exception cref="ZipFileEntryNotFoundException"></exception>
-        public Stream ExtractFile(OMODFile file)
+        public Stream ExtractFile(OMODEntryFileType entryFileType)
         {
-            return _zipFile.ExtractFile(file.ToFileString());
+            return OMODFile.ExtractFile(entryFileType);
         }
 
-        private string ExtractStringFile(OMODFile file)
+        private string ExtractStringFile(OMODEntryFileType entryFileType)
         {
-            using var stream = ExtractFile(file);
+            using var stream = ExtractFile(entryFileType);
             using var br = new BinaryReader(stream);
             return br.ReadString();
         }
@@ -217,7 +249,7 @@ namespace OMODFramework
         /// <exception cref="ZipFileEntryNotFoundException"></exception>
         public string ExtractReadme()
         {
-            return ExtractStringFile(OMODFile.Readme);
+            return ExtractStringFile(OMODEntryFileType.Readme);
         }
 
         /// <summary>
@@ -227,7 +259,7 @@ namespace OMODFramework
         /// <exception cref="ZipFileEntryNotFoundException"></exception>
         public string ExtractScript()
         {
-            return ExtractStringFile(OMODFile.Script);
+            return ExtractStringFile(OMODEntryFileType.Script);
         }
 
         /// <summary>
@@ -237,7 +269,7 @@ namespace OMODFramework
         /// <exception cref="ZipFileEntryNotFoundException"></exception>
         public Bitmap ExtractImage()
         {
-            using var stream = ExtractFile(OMODFile.Image);
+            using var stream = ExtractFile(OMODEntryFileType.Image);
             var image = Image.FromStream(stream);
             return (Bitmap) image;
         }
@@ -248,10 +280,10 @@ namespace OMODFramework
         /// <returns></returns>
         public IEnumerable<OMODCompressedEntry> GetDataFileList()
         {
-            if (DataList != null)
-                return DataList;
+            if (OMODFile.DataList != null)
+                return OMODFile.DataList;
 
-            using var stream = ExtractFile(OMODFile.DataCRC);
+            using var stream = ExtractFile(OMODEntryFileType.DataCRC);
             using var br = new BinaryReader(stream);
 
             var list = new List<OMODCompressedEntry>();
@@ -263,7 +295,7 @@ namespace OMODFramework
                 list.Add(new OMODCompressedEntry(name, crc, length));
             }
 
-            DataList ??= list;
+            OMODFile.DataList ??= list;
             return list;
         }
 
@@ -275,10 +307,10 @@ namespace OMODFramework
         /// <exception cref="ZipFileEntryNotFoundException"></exception>
         public IEnumerable<OMODCompressedEntry> GetPlugins()
         {
-            if (PluginsList != null)
-                return PluginsList;
+            if (OMODFile.PluginsList != null)
+                return OMODFile.PluginsList;
 
-            using var stream = ExtractFile(OMODFile.PluginsCRC);
+            using var stream = ExtractFile(OMODEntryFileType.PluginsCRC);
             using var br = new BinaryReader(stream);
 
             var list = new List<OMODCompressedEntry>();
@@ -290,7 +322,7 @@ namespace OMODFramework
                 list.Add(new OMODCompressedEntry(name, crc, length));
             }
 
-            PluginsList ??= list;
+            OMODFile.PluginsList ??= list;
             return list;
         }
 
@@ -302,7 +334,7 @@ namespace OMODFramework
         public void ExtractPluginFiles(DirectoryInfo outputDirectory, IEnumerable<OMODCompressedEntry>? entryList = null)
         {
             entryList ??= GetPlugins();
-            ExtractCompressedData(OMODFile.Data, entryList, outputDirectory);
+            ExtractCompressedData(OMODEntryFileType.Data, entryList, outputDirectory);
         }
 
         /// <summary>
@@ -313,20 +345,20 @@ namespace OMODFramework
         public void ExtractDataFiles(DirectoryInfo outputDirectory, IEnumerable<OMODCompressedEntry>? entryList = null)
         {
             entryList ??= GetDataFileList();
-            ExtractCompressedData(OMODFile.Data, entryList, outputDirectory);
+            ExtractCompressedData(OMODEntryFileType.Data, entryList, outputDirectory);
         }
 
-        private void ExtractCompressedData(OMODFile file, IEnumerable<OMODCompressedEntry> entryList, DirectoryInfo outputDirectory)
+        private void ExtractCompressedData(OMODEntryFileType entryFileType, IEnumerable<OMODCompressedEntry> entryList, DirectoryInfo outputDirectory)
         {
-            if(file != OMODFile.Data && file != OMODFile.Plugins)
-                throw new ArgumentException($"Provided OMODFile can only be Data or Plugins but is {file}!", nameof(file));
+            if(entryFileType != OMODEntryFileType.Data && entryFileType != OMODEntryFileType.Plugins)
+                throw new ArgumentException($"Provided OMODFile can only be Data or Plugins but is {entryFileType}!", nameof(entryFileType));
 
             if(!outputDirectory.Exists)
                 outputDirectory.Create();
 
             var omodCompressedEntries = entryList.ToList();
 
-            using var compressedStream = ExtractFile(file);
+            using var compressedStream = ExtractFile(entryFileType);
             using var decompressedStream = CompressionHandler.DecompressStream(omodCompressedEntries, compressedStream, Config.CompressionType);
             
             CompressionHandler.WriteDecompressedStream(omodCompressedEntries, decompressedStream, outputDirectory);
@@ -337,7 +369,7 @@ namespace OMODFramework
         /// </summary>
         public void Dispose()
         {
-            _zipFile.Close();
+            OMODFile.Dispose();
         }
     }
 }

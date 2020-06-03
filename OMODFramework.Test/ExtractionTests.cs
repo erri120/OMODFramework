@@ -22,14 +22,14 @@ namespace OMODFramework.Test
             var isolator = new Action(() =>
             {
                 using var omod = new OMOD(new FileInfo("M:\\Projects\\omod\\DarkUId DarN 16 OMOD Version-11280.omod"));
-                var dic = new Dictionary<OMODFile, long>
+                var dic = new Dictionary<OMODEntryFileType, long>
                 {
-                    {OMODFile.Config, 384},
-                    {OMODFile.Readme, 23297},
-                    {OMODFile.Script, 36141},
-                    {OMODFile.Image, 188845},
-                    {OMODFile.DataCRC, 33071},
-                    {OMODFile.Data, 18427763}
+                    {OMODEntryFileType.Config, 384},
+                    {OMODEntryFileType.Readme, 23297},
+                    {OMODEntryFileType.Script, 36141},
+                    {OMODEntryFileType.Image, 188845},
+                    {OMODEntryFileType.DataCRC, 33071},
+                    {OMODEntryFileType.Data, 18427763}
                 };
 
                 dic.Do(pair =>

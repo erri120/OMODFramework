@@ -8,7 +8,7 @@ namespace OMODFramework.Scripting
     {
         public static ScriptReturnData ExecuteScript(OMOD omod, IScriptSettings settings)
         {
-            if(!omod.HasFile(OMODFile.Script))
+            if(!omod.HasFile(OMODEntryFileType.Script))
                 throw new ArgumentException("The given omod does not contain a script!", nameof(omod));
 
             var script = omod.ExtractScript();
@@ -21,10 +21,10 @@ namespace OMODFramework.Scripting
                 script = script.Substring(1);
             }
 
-            if (omod.DataList == null)
+            if (omod.OMODFile.DataList == null)
                 omod.GetDataFileList();
 
-            if (omod.PluginsList == null && omod.HasFile(OMODFile.PluginsCRC))
+            if (omod.OMODFile.PluginsList == null && omod.HasFile(OMODEntryFileType.PluginsCRC))
                 omod.GetPlugins();
 
             var handler = scriptType switch
