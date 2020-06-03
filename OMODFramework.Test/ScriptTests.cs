@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using OMODFramework.Scripting;
@@ -23,7 +24,7 @@ namespace OMODFramework.Test
                 throw new NotImplementedException();
             }
 
-            public IEnumerable<int> Select(IEnumerable<string> items, string title, bool isMultiSelect, IEnumerable<string> previews, IEnumerable<string> descriptions)
+            public IEnumerable<int> Select(IEnumerable<string> items, string title, bool isMultiSelect, IEnumerable<Bitmap> previews, IEnumerable<string> descriptions)
             {
                 return new List<int>{0};
             }
@@ -43,9 +44,12 @@ namespace OMODFramework.Test
                 return DialogResult.Yes;
             }
 
-            public void DisplayImage(FileInfo file, string title) { }
+            public void DisplayImage(Bitmap image, string? title)
+            {
+                throw new NotImplementedException();
+            }
 
-            public void DisplayText(string text, string title) { }
+            public void DisplayText(string text, string? title) { }
 
             public void Patch(string from, string to)
             {

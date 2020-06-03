@@ -21,11 +21,9 @@ namespace OMODFramework.Scripting
                 script = script.Substring(1);
             }
 
-            if (omod.OMODFile.DataList == null)
-                omod.GetDataFileList();
-
-            if (omod.OMODFile.PluginsList == null && omod.HasFile(OMODEntryFileType.PluginsCRC))
-                omod.GetPlugins();
+            omod.OMODFile.Decompress(OMODEntryFileType.Data);
+            if(omod.HasFile(OMODEntryFileType.PluginsCRC))
+                omod.OMODFile.Decompress(OMODEntryFileType.Plugins);
 
             var handler = scriptType switch
             {

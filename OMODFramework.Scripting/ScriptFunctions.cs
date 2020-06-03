@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using OblivionModManager.Scripting;
 
@@ -119,12 +121,23 @@ namespace OMODFramework.Scripting
 
         public string[] Select(IEnumerable<string> items, IEnumerable<string>? previews, IEnumerable<string>? descs, string title, bool many)
         {
-            //TODO: extract preview images or provide a Stream/Bitmap object for them
-            IEnumerable<string> enumerable = items.ToList();
-            var result =
-                _settings.ScriptFunctions.Select(enumerable, title, many, previews ?? new string[0], descs ?? new string[0]).ToList();
+            var previewList = new List<Bitmap>();
+            if (previews != null)
+            {
+                if(_omod.OMODFile.DataList == null)
+                    throw new ScriptingNullListException();
 
-            return result.Select(x => enumerable.ElementAt(result.IndexOf(x))).ToArray();
+                previewList = previews
+                    //.Where(x => _omod.OMODFile.DataList!.Any(y => y.Name.Equals(x, StringComparison.InvariantCultureIgnoreCase)))
+                    .Select(x => _omod.OMODFile.DataList!.First(
+                            y => y.Name.Equals(x, StringComparison.InvariantCultureIgnoreCase)))
+                    .Select(x => _omod.OMODFile.ExtractDecompressedFile(x))
+                    .Select(x => new Bitmap(x)).ToList();
+            }
+
+            var result = _settings.ScriptFunctions.Select(items, title, many, previewList, descs ?? new string[0]).ToList();
+
+            return result.Select(x => items.ElementAt(result.IndexOf(x))).ToArray();
         }
 
         public void Message(string msg)
@@ -139,22 +152,60 @@ namespace OMODFramework.Scripting
 
         public void DisplayImage(string path)
         {
-            throw new NotImplementedException();
+            if (_omod.OMODFile.DataList == null)
+                throw new ScriptingNullListException();
+
+            var file = _omod.OMODFile.DataList.First(x =>
+                x.Name.Equals(path, StringComparison.InvariantCultureIgnoreCase));
+
+            _settings.ScriptFunctions.DisplayImage(new Bitmap(_omod.OMODFile.ExtractDecompressedFile(file)), null);
         }
 
         public void DisplayImage(string path, string title)
         {
-            throw new NotImplementedException();
+            if (_omod.OMODFile.DataList == null)
+                throw new ScriptingNullListException();
+
+            var file = _omod.OMODFile.DataList.First(x =>
+                x.Name.Equals(path, StringComparison.InvariantCultureIgnoreCase));
+
+            _settings.ScriptFunctions.DisplayImage(new Bitmap(_omod.OMODFile.ExtractDecompressedFile(file)), title);
         }
 
         public void DisplayText(string path)
         {
-            throw new NotImplementedException();
+            if (_omod.OMODFile.DataList == null)
+                throw new ScriptingNullListException();
+
+            var file = _omod.OMODFile.DataList.First(x =>
+                x.Name.Equals(path, StringComparison.InvariantCultureIgnoreCase));
+
+            string text;
+            using (var stream = _omod.OMODFile.ExtractDecompressedFile(file))
+            using (var br = new BinaryReader(stream))
+            {
+                text = br.ReadString();
+            }
+
+            _settings.ScriptFunctions.DisplayText(text, null);
         }
 
         public void DisplayText(string path, string title)
         {
-            throw new NotImplementedException();
+            if (_omod.OMODFile.DataList == null)
+                throw new ScriptingNullListException();
+
+            var file = _omod.OMODFile.DataList.First(x =>
+                x.Name.Equals(path, StringComparison.InvariantCultureIgnoreCase));
+
+            string text;
+            using (var stream = _omod.OMODFile.ExtractDecompressedFile(file))
+            using (var br = new BinaryReader(stream))
+            {
+                text = br.ReadString();
+            }
+
+            _settings.ScriptFunctions.DisplayText(text, title);
         }
 
         public void LoadEarly(string plugin)
@@ -268,6 +319,7 @@ namespace OMODFramework.Scripting
         {
             if (_omod.OMODFile.PluginsList == null)
                 throw new ScriptingNullListException(false);
+
             _srd.PluginFiles = _omod.OMODFile.PluginsList.Select(x => new PluginFile(x)).ToList();
         }
 
@@ -275,6 +327,7 @@ namespace OMODFramework.Scripting
         {
             if (_omod.OMODFile.DataList == null)
                 throw new ScriptingNullListException();
+
             _srd.DataFiles = _omod.OMODFile.DataList.Select(x => new DataFile(x)).ToList();
         }
 
@@ -309,6 +362,7 @@ namespace OMODFramework.Scripting
         {
             if (_omod.OMODFile.DataList == null)
                 throw new ScriptingNullListException();
+
             _srd.PluginFiles.Add(new PluginFile(_omod.OMODFile.DataList.First(x => x.Name == name)));
         }
 
@@ -492,12 +546,22 @@ namespace OMODFramework.Scripting
 
         public byte[] ReadDataFile(string file)
         {
-            throw new NotImplementedException();
+            if (_omod.OMODFile.DataList == null)
+                throw new ScriptingNullListException();
+
+            var first = _omod.OMODFile.DataList.First(x =>
+                x.Name.Equals(file, StringComparison.InvariantCultureIgnoreCase));
+
+            using var stream = _omod.OMODFile.ExtractDecompressedFile(first);
+            byte[] buffer = new byte[first.Length];
+            stream.Read(buffer, 0, (int) first.Length);
+
+            return buffer;
         }
 
         public byte[] ReadExistingDataFile(string file)
         {
-            throw new NotImplementedException();
+            return _settings.ScriptFunctions.ReadExistingDataFile(file);
         }
 
         public byte[] GetDataFileFromBSA(string file)

@@ -759,8 +759,12 @@ namespace OMODFramework.Scripting
                     var shaderName = iToken.Instructions[1];
                     var binaryObjectPath = iToken.Instructions[2];
 
-                    //TODO: EditShader requires the binary data
-                    throw new NotImplementedException();
+                    if(!byte.TryParse(shaderPackage, out var package))
+                        throw new OBMMScriptingNumberParseException(iToken.ToString(), shaderPackage, typeof(byte));
+
+                    _scriptFunctions.EditShader(package, shaderName, binaryObjectPath);
+
+                    break;
                 }
                 case TokenType.SetGMST:
                 case TokenType.SetGlobal:

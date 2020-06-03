@@ -43,12 +43,20 @@ namespace OMODFramework.Test
                 Assert.Equal(1440, image.Width);
                 Assert.Equal(900, image.Height);
 
+                omod.OMODFile.Decompress(OMODEntryFileType.Data);
+
                 var dataFiles = omod.GetDataFileList().ToList();
                 Assert.NotEmpty(dataFiles);
 
+                /*using (var decompressedFileStream = omod.OMODFile.ExtractDecompressedFile(dataFiles.First()))
+                using (var fileStream = File.OpenWrite("first"))
+                {
+                    decompressedFileStream.CopyTo(fileStream);
+                }*/
+
                 var dir = new DirectoryInfo("output");
                 dir.Create();
-                omod.ExtractDataFiles(dir);
+                omod.OMODFile.ExtractAllDecompressedFiles(dir, true);
 
                 var expectedSize = dataFiles.Select(x => x.Length).Aggregate((x, y) => x + y);
                 var actualSize = dir.EnumerateFiles("*", SearchOption.AllDirectories).Select(x => x.Length)

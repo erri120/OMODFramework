@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using JetBrains.Annotations;
 using OblivionModManager.Scripting;
@@ -60,7 +61,7 @@ namespace OMODFramework.Scripting
 
         void Message(string msg, string title);
 
-        IEnumerable<int> Select(IEnumerable<string> items, string title, bool isMultiSelect, IEnumerable<string> previews,
+        IEnumerable<int> Select(IEnumerable<string> items, string title, bool isMultiSelect, IEnumerable<Bitmap> previews,
             IEnumerable<string> descriptions);
 
         string InputString(string? title, string? initialText);
@@ -69,9 +70,9 @@ namespace OMODFramework.Scripting
 
         DialogResult DialogYesNo(string title, string message);
 
-        void DisplayImage(FileInfo file, string title);
+        void DisplayImage(Bitmap image, string? title);
 
-        void DisplayText(string text, string title);
+        void DisplayText(string text, string? title);
 
         void Patch(string from, string to);
 
