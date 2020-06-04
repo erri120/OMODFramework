@@ -149,7 +149,7 @@ namespace OMODFramework.Test
             {
                 {new NexusFile(35551,87078, "NoMaaM BBB Animation Replacer V3_1 OMOD-35551-3-1.omod"), (315, 0)},
                 {new NexusFile(40462,85415, "NoMaaM Breathing Idles V1 OMOD-40462-1-0.omod"), (26, 0)},
-                {new NexusFile(34442,80882, "HGEC Body with BBB v1dot12-34442.omod"), (21346, 0)},
+                {new NexusFile(34442,80882, "HGEC Body with BBB v1dot12-34442.omod"), (134, 0)},
                 {new NexusFile(24078,41472, "EVE_HGEC_BodyStock and Clothing OMOD-24078.omod"), (251, 3)},
                 {new NexusFile(40532,90010, "Robert Male Body Replacer v52 OMOD-40532-1.omod"), (294, 1)},
             };
