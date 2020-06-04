@@ -28,7 +28,7 @@ namespace OMODFramework.Example.CSharp
             if (!output.Exists)
                 output.Create();
 
-            //make sure you are using the "using" statement so that the variable is disposed correctly
+            //make sure you are using the "using" statement so that the OMOD is disposed correctly
             //more info: https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/using-statement
             using var omod = new OMOD(file);
 
@@ -37,7 +37,7 @@ namespace OMODFramework.Example.CSharp
             if (omod.HasFile(OMODEntryFileType.Readme))
             {
                 //you can either use this function to get a Stream or the 
-                //GetScript function to get the readme as a string.
+                //GetReadme function to get the readme as a string.
                 using var stream = omod.ExtractFile(OMODEntryFileType.Script);
                 using var fileStream = File.Create(Path.Combine(output.FullName, "readme.txt"));
                 stream.CopyTo(fileStream);

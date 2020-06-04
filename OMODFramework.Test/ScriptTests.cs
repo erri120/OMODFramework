@@ -13,11 +13,6 @@ namespace OMODFramework.Test
     {
         private class Functions : IScriptFunctions
         {
-            public void Warn(string msg)
-            {
-                throw new NotImplementedException();
-            }
-
             public void Message(string msg) { }
 
             public void Message(string msg, string title)
@@ -161,9 +156,6 @@ namespace OMODFramework.Test
                 Assert.True(res);
 
                 using var omod = new OMOD(new FileInfo(key.Path));
-                omod.GetDataFileList();
-                if (omod.HasFile(OMODEntryFileType.PluginsCRC))
-                    omod.GetPlugins();
                 return (ScriptRunner.ExecuteScript(omod, new Settings()), item1, item2);
             }).ToList();
 

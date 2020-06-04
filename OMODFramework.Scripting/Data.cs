@@ -53,9 +53,16 @@ namespace OMODFramework.Scripting
     }
 
     [PublicAPI]
+    public interface IScriptSettings
+    {
+        FrameworkSettings FrameworkSettings { get; }
+        IScriptFunctions ScriptFunctions { get; }
+    }
+
+    [PublicAPI]
     public interface IScriptFunctions
     {
-        void Warn(string msg);
+        //void Warn(string msg);
 
         void Message(string msg);
 
@@ -103,13 +110,6 @@ namespace OMODFramework.Scripting
         byte[] GetDataFileFromBSA(string file);
 
         byte[] GetDataFileFromBSA(string bsa, string file);
-    }
-
-    [PublicAPI]
-    public interface IScriptSettings
-    {
-        FrameworkSettings FrameworkSettings { get; }
-        IScriptFunctions ScriptFunctions { get; }
     }
 
     [PublicAPI]

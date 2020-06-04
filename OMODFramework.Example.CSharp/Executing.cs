@@ -1,5 +1,10 @@
-﻿using CommandLine;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using CommandLine;
 using JetBrains.Annotations;
+using OMODFramework.Scripting;
 
 namespace OMODFramework.Example.CSharp
 {
@@ -15,7 +20,156 @@ namespace OMODFramework.Example.CSharp
 
         public static int Execute(ExecuteScriptOptions options)
         {
+            var file = new FileInfo(options.Input);
+            if (!file.Exists)
+                throw new ArgumentException($"File {file} does not exist!");
+            if (file.Extension != ".omod")
+                throw new ArgumentException($"File {file} is not an OMOD!");
+
+            var output = new DirectoryInfo(options.Output);
+            if (!output.Exists)
+                output.Create();
+
+            //make sure you are using the "using" statement so that the OMOD is disposed correctly
+            //more info: https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/using-statement
+            using var omod = new OMOD(file);
+
+            Utils.Log($"Starting script execution of OMOD {omod.Config.Name} by {omod.Config.Author}");
+
+            //script execution is more complex than simple extraction as the script might have to 
+            //interact with outside parts such as the oblivion ini or already existing file in the
+            //data folder. It might want to check if OBSE is installed or what's the version of Oblivion
+            //for this reason you need to implement the IScriptSettings interface and provide an instance
+            //of the class.
+
+            //ScriptSettings is defined below
+            var srd = ScriptRunner.ExecuteScript(omod, new ScriptSettings());
+
             return 0;
+        }
+    }
+
+    public class ScriptSettings : IScriptSettings
+    {
+        public FrameworkSettings FrameworkSettings => new FrameworkSettings();
+        public IScriptFunctions ScriptFunctions => new ScriptFunctions();
+    }
+
+    public class ScriptFunctions : IScriptFunctions
+    {
+        public void Message(string msg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Message(string msg, string title)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<int> Select(IEnumerable<string> items, string title, bool isMultiSelect, IEnumerable<Bitmap> previews, IEnumerable<string> descriptions)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string InputString(string? title, string? initialText)
+        {
+            throw new NotImplementedException();
+        }
+
+        public DialogResult DialogYesNo(string title)
+        {
+            throw new NotImplementedException();
+        }
+
+        public DialogResult DialogYesNo(string title, string message)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DisplayImage(Bitmap image, string? title)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DisplayText(string text, string? title)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Patch(string @from, string to)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string ReadOblivionINI(string section, string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string ReadRenderInfo(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool DataFileExists(string file)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool HasScriptExtender()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool HasGraphicsExtender()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Version ScriptExtenderVersion()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Version GraphicsExtenderVersion()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Version OblivionVersion()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Version OBSEPluginVersion(string file)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<ScriptESP> GetESPs()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<string> GetActiveOMODNames()
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] ReadExistingDataFile(string file)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] GetDataFileFromBSA(string file)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] GetDataFileFromBSA(string bsa, string file)
+        {
+            throw new NotImplementedException();
         }
     }
 }
