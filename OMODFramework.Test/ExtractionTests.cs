@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using JetBrains.dotMemoryUnit;
+using Wabbajack.Downloader.Common;
+using Wabbajack.Downloader.NexusMods;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -10,18 +12,25 @@ namespace OMODFramework.Test
 {
     public class ExtractionTests
     {
+        private readonly NexusAPIClient _client;
+
         public ExtractionTests(ITestOutputHelper outputHelper)
         {
             DotMemoryUnitTestOutput.SetOutputMethod(outputHelper.WriteLine);
+            var apiKey = Environment.GetEnvironmentVariable("NEXUSAPIKEY");
+            _client = new NexusAPIClient("OMODFramework.Test", "1.0.0", apiKey);
         }
 
         [Fact]
         [DotMemoryUnit(FailIfRunWithoutSupport = false)]
         public void TestExtraction()
         {
+            var res = Utils.Download(_client, 11280, 37571, "DarkUId DarN 16 OMOD Version - 11280.omod".InDownloadsFolder()).Result;
+            Assert.True(res);
+
             var isolator = new Action(() =>
             {
-                using var omod = new OMOD(new FileInfo("M:\\Projects\\omod\\DarkUId DarN 16 OMOD Version-11280.omod"));
+                using var omod = new OMOD(new FileInfo("DarkUId DarN 16 OMOD Version - 11280.omod".InDownloadsFolder()));
                 var dic = new Dictionary<OMODEntryFileType, long>
                 {
                     {OMODEntryFileType.Config, 384},
@@ -47,12 +56,6 @@ namespace OMODFramework.Test
 
                 var dataFiles = omod.GetDataFileList().ToList();
                 Assert.NotEmpty(dataFiles);
-
-                /*using (var decompressedFileStream = omod.OMODFile.ExtractDecompressedFile(dataFiles.First()))
-                using (var fileStream = File.OpenWrite("first"))
-                {
-                    decompressedFileStream.CopyTo(fileStream);
-                }*/
 
                 var dir = new DirectoryInfo("output");
                 dir.Create();

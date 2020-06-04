@@ -17,10 +17,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OMODFramework.Test", "OMODF
 		{715A10C0-CAC4-49B2-8A1D-0D6DD2E31F45} = {715A10C0-CAC4-49B2-8A1D-0D6DD2E31F45}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OMODFramework.Scripting", "OMODFramework.Scripting\OMODFramework.Scripting.csproj", "{AE2F5843-A44E-44A2-8EF4-200D636D3C3D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OMODFramework.Scripting", "OMODFramework.Scripting\OMODFramework.Scripting.csproj", "{AE2F5843-A44E-44A2-8EF4-200D636D3C3D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{715A10C0-CAC4-49B2-8A1D-0D6DD2E31F45} = {715A10C0-CAC4-49B2-8A1D-0D6DD2E31F45}
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wabbajack.Downloader.Common", "Wabbajack.Downloader\Wabbajack.Downloader.Common\Wabbajack.Downloader.Common.csproj", "{E56B0F18-86E8-4108-9D7F-56B60BEE411B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wabbajack.Downloader.NexusMods", "Wabbajack.Downloader\Wabbajack.Downloader.NexusMods\Wabbajack.Downloader.NexusMods.csproj", "{A5A5CBDF-1664-4915-B256-28ECB44514B6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +44,14 @@ Global
 		{AE2F5843-A44E-44A2-8EF4-200D636D3C3D}.Debug|x64.Build.0 = Debug|x64
 		{AE2F5843-A44E-44A2-8EF4-200D636D3C3D}.Release|x64.ActiveCfg = Release|x64
 		{AE2F5843-A44E-44A2-8EF4-200D636D3C3D}.Release|x64.Build.0 = Release|x64
+		{E56B0F18-86E8-4108-9D7F-56B60BEE411B}.Debug|x64.ActiveCfg = Debug|x64
+		{E56B0F18-86E8-4108-9D7F-56B60BEE411B}.Debug|x64.Build.0 = Debug|x64
+		{E56B0F18-86E8-4108-9D7F-56B60BEE411B}.Release|x64.ActiveCfg = Release|x64
+		{E56B0F18-86E8-4108-9D7F-56B60BEE411B}.Release|x64.Build.0 = Release|x64
+		{A5A5CBDF-1664-4915-B256-28ECB44514B6}.Debug|x64.ActiveCfg = Debug|x64
+		{A5A5CBDF-1664-4915-B256-28ECB44514B6}.Debug|x64.Build.0 = Debug|x64
+		{A5A5CBDF-1664-4915-B256-28ECB44514B6}.Release|x64.ActiveCfg = Release|x64
+		{A5A5CBDF-1664-4915-B256-28ECB44514B6}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
