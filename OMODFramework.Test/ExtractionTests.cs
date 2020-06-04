@@ -48,7 +48,7 @@ namespace OMODFramework.Test
                     Assert.Equal(value, stream.Length);
                 });
 
-                var image = omod.ExtractImage();
+                var image = omod.GetImage();
                 Assert.Equal(1440, image.Width);
                 Assert.Equal(900, image.Height);
 

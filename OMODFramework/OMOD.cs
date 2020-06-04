@@ -125,7 +125,7 @@ namespace OMODFramework
         /// </summary>
         /// <returns></returns>
         /// <exception cref="ZipFileEntryNotFoundException"></exception>
-        public string ExtractReadme()
+        public string GetReadme()
         {
             return ExtractStringFile(OMODEntryFileType.Readme);
         }
@@ -133,21 +133,33 @@ namespace OMODFramework
         /// <summary>
         /// Returns the script of the OMOD
         /// </summary>
+        /// <param name="removeType">Whether to remove the script type identifier from the script.
+        /// This identifier is one byte at the start of the script.</param>
         /// <returns></returns>
         /// <exception cref="ZipFileEntryNotFoundException"></exception>
-        public string ExtractScript()
+        public string GetScript(bool removeType = true)
         {
-            return ExtractStringFile(OMODEntryFileType.Script);
+            var script = ExtractStringFile(OMODEntryFileType.Script);
+
+            if (!removeType)
+                return script;
+
+            if ((byte) script[0] < 4)
+                script = script.Substring(1);
+
+            return script;
         }
 
         /// <summary>
-        /// Extracts the Image in the OMOD
+        /// Extracts the Image in the OMOD and returns a <see cref="Bitmap"/>
         /// </summary>
         /// <returns></returns>
         /// <exception cref="ZipFileEntryNotFoundException"></exception>
-        public Bitmap ExtractImage()
+        public Bitmap GetImage()
         {
-            using var stream = ExtractFile(OMODEntryFileType.Image);
+            //stream has be kept open for the lifetime of the image
+            //see https://docs.microsoft.com/en-us/dotnet/api/system.drawing.image.fromstream?view=dotnet-plat-ext-3.1
+            var stream = ExtractFile(OMODEntryFileType.Image);
             var image = Image.FromStream(stream);
             return (Bitmap) image;
         }

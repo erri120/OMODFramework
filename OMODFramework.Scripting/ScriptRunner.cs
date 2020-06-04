@@ -11,7 +11,7 @@ namespace OMODFramework.Scripting
             if(!omod.HasFile(OMODEntryFileType.Script))
                 throw new ArgumentException("The given omod does not contain a script!", nameof(omod));
 
-            var script = omod.ExtractScript();
+            var script = omod.GetScript();
             ScriptType scriptType;
             if ((byte) script[0] >= 4)
                 scriptType = ScriptType.OBMMScript;
