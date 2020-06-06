@@ -9,19 +9,52 @@ using OMODFramework.Exceptions;
 
 namespace OMODFramework
 {
+    /// <summary>
+    /// Config containing general information like Name, Author and Description about
+    /// an OMOD
+    /// </summary>
     [PublicAPI]
     public class Config
     {
+        /// <summary>
+        /// Name of the OMOD
+        /// </summary>
         public string Name { get; set; } = string.Empty;
         private int _majorVersion, _minorVersion, _buildVersion;
+        /// <summary>
+        /// Version of the OMOD
+        /// </summary>
         public Version Version => new Version(_majorVersion, _minorVersion, _buildVersion);
+        /// <summary>
+        /// Description of the OMOD, can be empty
+        /// </summary>
         public string Description { get; set; } = string.Empty;
+        /// <summary>
+        /// Email of the author, can be empty
+        /// </summary>
         public string Email { get; set; } = string.Empty;
+        /// <summary>
+        /// Website of the OMOD, can be empty
+        /// </summary>
         public string Website { get; set; } = string.Empty;
+        /// <summary>
+        /// Author of the OMOD, can be empty
+        /// </summary>
         public string Author { get; set; } = string.Empty;
 
+        /// <summary>
+        /// <see cref="DateTime"/> of the creation
+        /// </summary>
         public DateTime CreationTime { get; set; }
+
+        /// <summary>
+        /// File Version which is checked against <see cref="FrameworkSettings.CurrentOMODVersion"/>
+        /// </summary>
         public byte FileVersion { get; set; }
+
+        /// <summary>
+        /// <see cref="CompressionType"/> of the OMOD
+        /// </summary>
         public CompressionType CompressionType { get; set; }
 
         internal static Config ParseConfig(Stream stream)
@@ -62,14 +95,26 @@ namespace OMODFramework
         }
     }
 
+    /// <summary>
+    /// OMOD class, implements <see cref="IDisposable"/>
+    /// </summary>
     [PublicAPI]
     public partial class OMOD : IDisposable
     {
         private readonly FrameworkSettings _frameworkSettings = null!;
         internal readonly OMODFile OMODFile;
 
+        /// <summary>
+        /// <see cref="Config"/> of the OMOD
+        /// </summary>
         public readonly Config Config = null!;
 
+        /// <summary>
+        /// Loads the OMOD file and reads the config.
+        /// </summary>
+        /// <param name="path">Path to the .omod file</param>
+        /// <param name="settings">Optional, custom <see cref="FrameworkSettings"/>. Default is <see cref="FrameworkSettings.DefaultFrameworkSettings"/></param>
+        /// <param name="checkIntegrity">Optional, whether to check verify the integrity of the .omod file. Default is <c>true</c></param>
         public OMOD(FileInfo path, FrameworkSettings? settings = null, bool checkIntegrity = true)
         {
             if (!path.Exists)

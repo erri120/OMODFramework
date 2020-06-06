@@ -16,38 +16,107 @@ namespace OMODFramework
         VB
     }
 
+    /// <summary>
+    /// Options used for OMOD Creation, inherits <see cref="Config"/>
+    /// </summary>
     [PublicAPI]
     public class CreationOptions : Config
     {
+        /// <summary>
+        /// Optional, entire Readme as a string
+        /// </summary>
         public string? Readme { get; set; }
+        /// <summary>
+        /// Optional, entire Script as a string
+        /// </summary>
         public string? Script { get; set; }
+        /// <summary>
+        /// Optional but has to be set when <see cref="Script"/> is not null
+        /// </summary>
         public ScriptType ScriptType { get; set; }
+        /// <summary>
+        /// Optional, path to the image
+        /// </summary>
         public FileInfo? ImagePath { get; set; }
 
+        /// <summary>
+        /// Level of compression used for the .omod file. Must not be <see cref="CompressionLevel.None"/>
+        /// </summary>
         public CompressionLevel OMODCompressionLevel { get; set; }
+        /// <summary>
+        /// Level of compression used for the data and plugin files. Must not be <see cref="CompressionLevel.None"/>
+        /// </summary>
         public CompressionLevel DataCompressionLevel { get; set; }
 
+        /// <summary>
+        /// Required, List of all data files
+        /// </summary>
         public List<CreationOptionFile>? DataFiles { get; set; }
+        /// <summary>
+        /// Optional, List of all plugin files
+        /// </summary>
         public List<CreationOptionFile>? PluginFiles { get; set; }
 
-        internal bool VerifyOptions()
+        /// <summary>
+        /// Utility function to verify whether the given Options are valid.
+        /// </summary>
+        /// <param name="throwException">Whether to throw an Exception instead of returning false if an option
+        /// is not valid. Default: true</param>
+        /// <returns></returns>
+        public bool VerifyOptions(bool throwException = true)
         {
             if (string.IsNullOrEmpty(Name))
-                throw new ArgumentException("Name must not be empty!", nameof(Name));
+            {
+                if (throwException)
+                    throw new ArgumentException("Name must not be empty!", nameof(Name));
+                return false;
+            }
 
             if (DataFiles == null)
-                throw new ArgumentException("DataFiles list must not be null!", nameof(DataFiles));
+            {
+                if (throwException)
+                    throw new ArgumentException("DataFiles list must not be null!", nameof(DataFiles));
+                return false;
+            }
 
             if (DataFiles.Count == 0)
-                throw new ArgumentException("DataFiles list must have at least 1 entry!", nameof(DataFiles));
+            {
+                if (throwException)
+                    throw new ArgumentException("DataFiles list must have at least 1 entry!", nameof(DataFiles));
+                return false;
+            }
+
+            if (OMODCompressionLevel == CompressionLevel.None)
+            {
+                if (throwException)
+                    throw new ArgumentException("OMODCompressionLevel must not be None!", nameof(OMODCompressionLevel));
+                return false;
+            }
+
+            if (DataCompressionLevel == CompressionLevel.None)
+            {
+                if (throwException)
+                    throw new ArgumentException("DataCompressionLevel must not be None!", nameof(DataCompressionLevel));
+                return false;
+            }
 
             return true;
         }
 
+        /// <summary>
+        /// Struct for files to be used in <see cref="DataFiles"/> and <see cref="PluginFiles"/>
+        /// </summary>
         [PublicAPI]
         public struct CreationOptionFile
         {
+            /// <summary>
+            /// File on disk to include
+            /// </summary>
             public FileInfo From { get; set; }
+            /// <summary>
+            /// Path of the file to go to in the omod. Do note that plugins
+            /// must not be in a directory.
+            /// </summary>
             public string To { get; set; }
 
             public CreationOptionFile(FileInfo from, string to)
@@ -87,6 +156,12 @@ namespace OMODFramework
             }
         }
 
+        /// <summary>
+        /// Create an OMOD
+        /// </summary>
+        /// <param name="options">Options</param>
+        /// <param name="output">Output file</param>
+        /// <param name="settings">Optional, <see cref="FrameworkSettings"/> to use</param>
         public static void CreateOMOD(CreationOptions options, FileInfo output, FrameworkSettings? settings = null)
         {
             settings ??= FrameworkSettings.DefaultFrameworkSettings;

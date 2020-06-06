@@ -61,13 +61,17 @@ namespace OMODFramework
             var stream = new MemoryStream();
             using var bw = new BinaryWriter(stream, Encoding.Default, true);
 
+            //data structure:
+            //  path      (string)
+            //  CRC       (uint)
+            //  length    (long)
+
             foreach (var file in files)
             {
                 bw.Write(file.To);
                 bw.Write(Utils.CRC32(file.From));
                 bw.Write(file.From.Length);
             }
-            bw.Flush();
 
             stream.Seek(0, SeekOrigin.Begin);
             return stream;
@@ -90,6 +94,8 @@ namespace OMODFramework
             return decompressedStream;
         }
 
+        #region SevenZip
+
         private static Stream SevenZipOMODCompress(IEnumerable<CreationOptions.CreationOptionFile> files,
             CompressionLevel level)
         {
@@ -111,7 +117,7 @@ namespace OMODFramework
                 _ => throw new ArgumentOutOfRangeException(nameof(level), level, null)
             };
 
-            encoder.SetCoderProperties(new[] {CoderPropID.DictionarySize}, new object[] {dictionarySize});
+            encoder.SetCoderProperties(new[] { CoderPropID.DictionarySize }, new object[] { dictionarySize });
 
             var compressedStream = new MemoryStream();
             encoder.WriteCoderProperties(compressedStream);
@@ -138,6 +144,10 @@ namespace OMODFramework
             stream.Seek(0, SeekOrigin.Begin);
             return stream;
         }
+
+        #endregion
+
+        #region Zip
 
         private static Stream ZipOMODCompress(IEnumerable<CreationOptions.CreationOptionFile> files, CompressionLevel level)
         {
@@ -178,10 +188,12 @@ namespace OMODFramework
             inputStream.CopyTo(stream);
 
             stream.Seek(0, SeekOrigin.Begin);
-            if(stream.Length != outSize)
+            if (stream.Length != outSize)
                 throw new Exception($"Expected stream length to be {outSize} but is {stream.Length}!");
 
             return stream;
         }
+
+        #endregion
     }
 }
