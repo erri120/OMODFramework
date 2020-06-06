@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using OMODFramework.Scripting;
 using Xunit;
 
@@ -38,6 +39,25 @@ namespace OMODFramework.Test
                 var result = OBMMScriptHandler.EvaluateFloatExpression(value);
                 Assert.Equal(key, result);
             });
+        }
+
+        [Fact]
+        public void TestCRC32()
+        {
+            const string testString = "Hello World";
+
+            if(File.Exists("crctest.txt"))
+                File.Delete("crctest.txt");
+
+            File.WriteAllText("crctest.txt", testString);
+
+            var file = new FileInfo("crctest.txt");
+
+            var crc = OMODFramework.Utils.CRC32(file);
+            const uint expected = 799677801;
+
+            Assert.Equal($"{expected:x8}", $"{crc:x8}");
+            Assert.Equal(expected, crc);
         }
     }
 }

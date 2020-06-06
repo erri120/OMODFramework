@@ -29,15 +29,6 @@ namespace OMODFramework.Scripting
     }
 
     [PublicAPI]
-    public enum ScriptType : byte
-    {
-        OBMMScript,
-        Python,
-        CSharp,
-        VB
-    }
-
-    [PublicAPI]
     public enum DialogResult
     {
         Yes,

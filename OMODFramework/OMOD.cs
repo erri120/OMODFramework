@@ -63,7 +63,7 @@ namespace OMODFramework
     }
 
     [PublicAPI]
-    public class OMOD : IDisposable
+    public partial class OMOD : IDisposable
     {
         private readonly FrameworkSettings _frameworkSettings = null!;
         internal readonly OMODFile OMODFile;
