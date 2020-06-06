@@ -3,10 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using ICSharpCode.SharpZipLib.Zip;
 using JetBrains.Annotations;
 using SevenZip;
-using SevenZip.Compression.LZMA;
+using Decoder = SevenZip.Compression.LZMA.Decoder;
+using Encoder = SevenZip.Compression.LZMA.Encoder;
 
 namespace OMODFramework
 {
@@ -48,8 +50,8 @@ namespace OMODFramework
             crcStream = GenerateCRCStream(creationOptionFiles);
             compressedStream = type switch
             {
-                CompressionType.SevenZip => SevenZipCompress(creationOptionFiles, level),
-                CompressionType.Zip => ZipCompress(creationOptionFiles, level),
+                CompressionType.SevenZip => SevenZipOMODCompress(creationOptionFiles, level),
+                CompressionType.Zip => ZipOMODCompress(creationOptionFiles, level),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
         }
@@ -57,9 +59,7 @@ namespace OMODFramework
         private static Stream GenerateCRCStream(IEnumerable<CreationOptions.CreationOptionFile> files)
         {
             var stream = new MemoryStream();
-            //can't use "using" here because binary writer will close the
-            //underlying stream when disposed
-            var bw = new BinaryWriter(stream);
+            using var bw = new BinaryWriter(stream, Encoding.Default, true);
 
             foreach (var file in files)
             {
@@ -90,8 +90,14 @@ namespace OMODFramework
             return decompressedStream;
         }
 
-        private static Stream SevenZipCompress(IEnumerable<CreationOptions.CreationOptionFile> files,
+        private static Stream SevenZipOMODCompress(IEnumerable<CreationOptions.CreationOptionFile> files,
             CompressionLevel level)
+        {
+            using var decompressedStream = CreateDecompressedStream(files);
+            return SevenZipCompress(decompressedStream, level);
+        }
+
+        internal static Stream SevenZipCompress(Stream decompressedStream, CompressionLevel level)
         {
             var encoder = new Encoder();
             var dictionarySize = level switch
@@ -110,8 +116,6 @@ namespace OMODFramework
             var compressedStream = new MemoryStream();
             encoder.WriteCoderProperties(compressedStream);
 
-            using var decompressedStream = CreateDecompressedStream(files);
-
             encoder.Code(decompressedStream, compressedStream, decompressedStream.Length, -1, null);
 
             compressedStream.Position = 0;
@@ -119,13 +123,7 @@ namespace OMODFramework
             return compressedStream;
         }
 
-        private static Stream ZipCompress(IEnumerable<CreationOptions.CreationOptionFile> files,
-            CompressionLevel level)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static Stream SevenZipDecompress(Stream compressedStream, long outSize)
+        internal static Stream SevenZipDecompress(Stream compressedStream, long outSize)
         {
             var buffer = new byte[5];
             var decoder = new Decoder();
@@ -141,7 +139,37 @@ namespace OMODFramework
             return stream;
         }
 
-        private static Stream ZipDecompress(Stream compressedStream, long outSize)
+        private static Stream ZipOMODCompress(IEnumerable<CreationOptions.CreationOptionFile> files, CompressionLevel level)
+        {
+            using var decompressedStream = CreateDecompressedStream(files);
+            return ZipCompress(decompressedStream, level);
+        }
+
+        internal static Stream ZipCompress(Stream decompressedStream, CompressionLevel level)
+        {
+            var ms = new MemoryStream();
+            using var baseOutputStream = new MemoryStream();
+            var zipStream = new ZipOutputStream(baseOutputStream);
+
+            zipStream.SetLevel((int)level);
+
+            var entry = new ZipEntry("a");
+            zipStream.PutNextEntry(entry);
+
+            decompressedStream.CopyTo(zipStream);
+
+            zipStream.Finish();
+
+            baseOutputStream.Position = 0;
+            baseOutputStream.CopyTo(ms);
+            ms.Position = 0;
+
+            zipStream.Close();
+
+            return ms;
+        }
+
+        internal static Stream ZipDecompress(Stream compressedStream, long outSize)
         {
             var zip = new ZipFile(compressedStream);
             using var inputStream = zip.GetInputStream(0);
