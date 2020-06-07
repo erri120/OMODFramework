@@ -9,8 +9,7 @@ namespace OMODFramework.Test
 {
     public class CreationTest
     {
-        [Fact]
-        public void TestOMODCreation()
+        public static CreationOptions CreateOptions()
         {
             var random = new Random();
             var generator = new LoremIpsumGenerator(new DateTime().Millisecond);
@@ -23,7 +22,7 @@ namespace OMODFramework.Test
             {
                 var path = Path.Combine("creation", $"{i}.txt");
 
-                if(File.Exists(path))
+                if (File.Exists(path))
                     File.Delete(path);
 
                 var min = random.Next(1, 10);
@@ -37,6 +36,8 @@ namespace OMODFramework.Test
                 dataFiles.Add(creationFile);
             }
 
+            var script = File.ReadAllText("TestScript.txt");
+
             var options = new CreationOptions
             {
                 Name = "Test OMOD",
@@ -44,11 +45,13 @@ namespace OMODFramework.Test
                 Description = "An amazing test mod!",
                 Email = "iLoveOmods@lel.com",
                 Website = "https://www.github.com/erri120/OMODFramework",
-                
+
                 Readme = @"
 This amazing test mod will make you want to download and use the OMODFramework!
 Requires 3 brain cells, 10 buckets of milk and 4 eggs.
 Conflicts with the CTD on Death mod by erri120.",
+                Script = script,
+                ScriptType = ScriptType.OBMMScript,
 
                 CompressionType = CompressionType.SevenZip,
                 DataCompressionLevel = CompressionLevel.Medium,
@@ -56,6 +59,14 @@ Conflicts with the CTD on Death mod by erri120.",
 
                 DataFiles = dataFiles
             };
+
+            return options;
+        }
+
+        [Fact]
+        public void TestOMODCreation()
+        {
+            var options = CreateOptions();
 
             var omodPath = Path.Combine("creation", "output.omod");
             OMOD.CreateOMOD(options, new FileInfo(omodPath));
@@ -72,12 +83,12 @@ Conflicts with the CTD on Death mod by erri120.",
             Assert.Equal(options.Readme, omodReadme);
 
             var omodFiles = omod.GetDataFileList().ToList();
-            Assert.Equal(dataFiles.Count, omodFiles.Count);
+            Assert.Equal(options.DataFiles!.Count, omodFiles.Count);
 
             var extractedDir = new DirectoryInfo(Path.Combine("creation"));
             omod.ExtractDataFiles(extractedDir);
-            
-            dataFiles.Select(x => x.From).Do(x =>
+
+            options.DataFiles!.Select(x => x.From).Do(x =>
             {
                 var crc = OMODFramework.Utils.CRC32(x);
                 var first = omodFiles.FirstOrDefault(y => y.Length == x.Length && y.CRC == crc);

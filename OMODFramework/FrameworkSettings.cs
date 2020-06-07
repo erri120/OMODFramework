@@ -14,11 +14,11 @@ namespace OMODFramework
         /// <summary>
         /// Current OMOD version, Default is 4
         /// </summary>
-        public byte CurrentOMODVersion { get; } = 4;
+        public byte CurrentOMODVersion { get; set; } = 4;
 
         /// <summary>
         /// Current version of the Oblivion Mod Manager, Default is 1.1.12.0
         /// </summary>
-        public Version CurrentOBMMVersion { get; } = new Version(1, 1, 12, 0);
+        public Version CurrentOBMMVersion { get; set; } = new Version(1, 1, 12, 0);
     }
 }

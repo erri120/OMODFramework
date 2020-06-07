@@ -59,5 +59,14 @@ namespace OMODFramework.Test
             Assert.Equal($"{expected:x8}", $"{crc:x8}");
             Assert.Equal(expected, crc);
         }
+
+        [Fact]
+        public void TestEqualsPath()
+        {
+            const string path1 = "files//0.txt";
+            const string path2 = "files\\0.txt";
+
+            Assert.True(path1.EqualsPath(path2));
+        }
     }
 }

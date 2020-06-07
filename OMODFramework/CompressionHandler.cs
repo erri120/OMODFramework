@@ -32,6 +32,8 @@ namespace OMODFramework
 
     internal static class CompressionHandler
     {
+        //TODO: take a look at https://github.com/adoconnection/SevenZipExtractor
+
         internal static Stream DecompressStream(IEnumerable<OMODCompressedEntry> entryList, Stream compressedStream, CompressionType compressionType)
         {
             var outSize = entryList.Select(x => x.Length).Aggregate((x, y) => x + y);

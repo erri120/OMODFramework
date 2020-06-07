@@ -14,6 +14,11 @@ namespace OMODFramework.Scripting
             return col.Aggregate((x, y) => $"{x}{separator}{y}");
         }
 
+        internal static bool EqualsPath(this string path1, string path2)
+        {
+            return Path.GetFullPath(path1).Equals(Path.GetFullPath(path2), StringComparison.InvariantCultureIgnoreCase);
+        }
+
         internal static IEnumerable<T> DistinctBy<T, V>(this IEnumerable<T> vs, Func<T, V> select)
         {
             var set = new HashSet<V>();
@@ -38,7 +43,7 @@ namespace OMODFramework.Scripting
                 if (dirName == null)
                     return false;
 
-                if (!recurse && !dirName.Equals(path, StringComparison.InvariantCultureIgnoreCase))
+                if (!recurse && !dirName.EqualsPath(path))
                     return false;
 
                 if (pattern == string.Empty || pattern == "*")
@@ -61,12 +66,13 @@ namespace OMODFramework.Scripting
             return enumerable
                 .Select(Path.GetDirectoryName)
                 .NotNull()
+                .Distinct()
                 .Where(x =>
                 {
                     if (!x.StartsWith(path, true, null))
                         return false;
 
-                    if (!recurse && !x.Equals(path, StringComparison.InvariantCultureIgnoreCase))
+                    if (!recurse && !x.EqualsPath(path))
                         return false;
 
                     if (pattern == string.Empty || pattern == "*")

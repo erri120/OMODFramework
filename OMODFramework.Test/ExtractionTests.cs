@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using JetBrains.dotMemoryUnit;
-using Wabbajack.Downloader.Common;
 using Wabbajack.Downloader.NexusMods;
 using Xunit;
 using Xunit.Abstractions;

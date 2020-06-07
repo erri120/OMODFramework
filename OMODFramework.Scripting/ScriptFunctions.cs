@@ -128,9 +128,8 @@ namespace OMODFramework.Scripting
                     throw new ScriptingNullListException();
 
                 previewList = previews
-                    //.Where(x => _omod.OMODFile.DataList!.Any(y => y.Name.Equals(x, StringComparison.InvariantCultureIgnoreCase)))
                     .Select(x => _omod.OMODFile.DataList!.First(
-                            y => y.Name.Equals(x, StringComparison.InvariantCultureIgnoreCase)))
+                            y => y.Name.EqualsPath(x)))
                     .Select(x => _omod.OMODFile.ExtractDecompressedFile(x))
                     .Select(x => new Bitmap(x)).ToList();
             }
@@ -384,17 +383,17 @@ namespace OMODFramework.Scripting
                 throw new ScriptingNullListException(false);
 
             if (_srd.PluginFiles.Any(x =>
-                x.OriginalFile.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase)))
+                x.OriginalFile.Name.EqualsPath(from)))
             {
                 var first = _srd.PluginFiles.First(x =>
-                        x.OriginalFile.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase));
+                        x.OriginalFile.Name.EqualsPath(from));
                 first.Output = first.Output.Replace(from, to);
             }
             else
             {
                 var file = new PluginFile(_omod.OMODFile.PluginsList
-                    .First(x => x.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase)));
-                file.Output = file.Output.Replace(from, to);
+                    .First(x => x.Name.EqualsPath(from)));
+                file.Output = file.Output = to;
                 _srd.PluginFiles.Add(file);
             }
         }
@@ -405,17 +404,17 @@ namespace OMODFramework.Scripting
                 throw new ScriptingNullListException();
 
             if (_srd.DataFiles.Any(x =>
-                x.OriginalFile.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase)))
+                x.OriginalFile.Name.EqualsPath(from)))
             {
                 var first = _srd.DataFiles.First(x =>
-                    x.OriginalFile.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase));
+                    x.OriginalFile.Name.EqualsPath(from));
                 first.Output = first.Output.Replace(from, to);
             }
             else
             {
                 var file = new DataFile(_omod.OMODFile.DataList
-                    .First(x => x.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase)));
-                file.Output = file.Output.Replace(from, to);
+                    .First(x => x.Name.EqualsPath(from)));
+                file.Output = file.Output = to;
                 _srd.DataFiles.Add(file);
             }
         }
@@ -550,7 +549,7 @@ namespace OMODFramework.Scripting
                 throw new ScriptingNullListException();
 
             var first = _omod.OMODFile.DataList.First(x =>
-                x.Name.Equals(file, StringComparison.InvariantCultureIgnoreCase));
+                x.Name.EqualsPath(file));
 
             using var stream = _omod.OMODFile.ExtractDecompressedFile(first);
             byte[] buffer = new byte[first.Length];
@@ -581,9 +580,9 @@ namespace OMODFramework.Scripting
 
         public void CancelDataFileCopy(string file)
         {
-            if (_srd.DataFiles.Any(x => x.Output.Equals(file, StringComparison.InvariantCultureIgnoreCase)))
+            if (_srd.DataFiles.Any(x => x.Output.EqualsPath(file)))
                 _srd.DataFiles.Remove(_srd.DataFiles.First(x =>
-                    x.Output.Equals(file, StringComparison.InvariantCultureIgnoreCase)));
+                    x.Output.EqualsPath(file)));
         }
 
         public void CancelDataFolderCopy(string folder)
