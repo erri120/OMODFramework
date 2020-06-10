@@ -173,6 +173,24 @@ namespace OMODFramework
             return stream;
         }
 
+        internal FileStream ExtractDecompressedFile(OMODCompressedEntry entry, FileInfo output, bool data = true)
+        {
+            var decompressedStream = data ? _decompressedDataStream : _decompressedPluginStream;
+
+            if (decompressedStream == null)
+                throw new Exception($"Decompressed Stream ({(data ? "data" : "plugins")}) is null!");
+
+            decompressedStream.Seek(entry.Offset, SeekOrigin.Begin);
+
+            var fs = File.Create(output.FullName, (int) entry.Length);
+            byte[] buffer = new byte[entry.Length];
+
+            decompressedStream.Read(buffer, 0, (int)entry.Length);
+            fs.Write(buffer, 0, (int)entry.Length);
+
+            return fs;
+        }
+
         internal bool HasFile(OMODEntryFileType entryFileType) => _zipFile.HasFile(entryFileType.ToFileString());
 
         internal Stream ExtractFile(OMODEntryFileType entryFileType)

@@ -168,5 +168,24 @@ namespace OMODFramework.Test
                 Assert.Equal(pluginFilesLength, scriptReturnData.PluginFiles.Count);
             });
         }
+
+        [Fact]
+        public void TestExtractionAfterExecution()
+        {
+            var nexusFile = new NexusFile(24078, 41472, "EVE_HGEC_BodyStock and Clothing OMOD-24078.omod");
+            var res = nexusFile.Download(_client);
+            Assert.True(res);
+
+            using var omod = new OMOD(new FileInfo(nexusFile.Path));
+            var srd = ScriptRunner.ExecuteScript(omod, new Settings());
+
+            Assert.Equal(251, srd.DataFiles.Count);
+            Assert.Equal(3, srd.PluginFiles.Count);
+
+            var output = new DirectoryInfo("extraction-script-output");
+            output.Create();
+
+            ScriptRunner.ExtractAllFiles(omod, srd, output);
+        }
     }
 }

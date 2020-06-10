@@ -387,7 +387,7 @@ namespace OMODFramework.Scripting
             {
                 var first = _srd.PluginFiles.First(x =>
                         x.OriginalFile.Name.EqualsPath(from));
-                first.Output = first.Output.Replace(from, to);
+                first.Output = first.Output.ReplaceIgnoreCase(from, to);
             }
             else
             {
@@ -408,7 +408,7 @@ namespace OMODFramework.Scripting
             {
                 var first = _srd.DataFiles.First(x =>
                     x.OriginalFile.Name.EqualsPath(from));
-                first.Output = first.Output.Replace(from, to);
+                first.Output = first.Output.ReplaceIgnoreCase(from, to);
             }
             else
             {
@@ -429,13 +429,13 @@ namespace OMODFramework.Scripting
 
             _srd.DataFiles.Where(x => files.Contains(x.OriginalFile.Name)).Do(f =>
             {
-                f.Output = f.OriginalFile.Name.Replace(from, to);
+                f.Output = f.OriginalFile.Name.ReplaceIgnoreCase(from, to);
             });
 
             _srd.DataFiles.AddRange(_omod.OMODFile.DataList
                 .Where(x => files.Contains(x.Name))
                 .Where(x => _srd.DataFiles.All(y => !y.OriginalFile.Equals(x)))
-                .Select(x => new DataFile(x){Output = x.Name.Replace(from, to)}));
+                .Select(x => new DataFile(x){Output = x.Name.ReplaceIgnoreCase(from, to)}));
         }
 
         public void PatchPlugin(string from, string to, bool create)

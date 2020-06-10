@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using JetBrains.Annotations;
 
 namespace OMODFramework.Scripting
@@ -35,6 +37,32 @@ namespace OMODFramework.Scripting
             };
 
             return handler.Execute(omod, script, settings);
+        }
+
+        public static void ExtractAllFiles(OMOD omod, ScriptReturnData data, DirectoryInfo output)
+        {
+            data.DataFiles.Do(d => ExtractFile(omod, output, d));
+            data.PluginFiles.Where(x => !x.IsUnchecked).Do(p => ExtractFile(omod, output, p));
+        }
+
+        private static void ExtractFile(OMOD omod, DirectoryInfo output, ScriptReturnFile returnFile)
+        {
+            var file = new FileInfo(Path.Combine(output.FullName, returnFile.Output));
+            if (file.Directory == null)
+                throw new NullReferenceException("Directory is null!");
+            if (!file.Directory.Exists)
+                file.Directory.Create();
+
+            if (file.Exists)
+            {
+                if (file.Length == returnFile.OriginalFile.Length)
+                    return;
+                file.Delete();
+            }
+
+            using var fs = omod.OMODFile.ExtractDecompressedFile(returnFile.OriginalFile, file);
+            if (fs.Length != returnFile.OriginalFile.Length)
+                throw new Exception($"Decompressed length does not equal length of the original file: {returnFile.OriginalFile.Name} at {file.FullName}, expected: {returnFile.OriginalFile.Length} actual: {fs.Length}");
         }
     }
 

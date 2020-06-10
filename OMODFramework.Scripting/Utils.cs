@@ -19,6 +19,11 @@ namespace OMODFramework.Scripting
             return Path.GetFullPath(path1).Equals(Path.GetFullPath(path2), StringComparison.InvariantCultureIgnoreCase);
         }
 
+        internal static string ReplaceIgnoreCase(this string s1, string sOld, string sNew)
+        {
+            return s1.Replace(sOld, sNew, StringComparison.InvariantCultureIgnoreCase);
+        }
+
         internal static IEnumerable<T> DistinctBy<T, V>(this IEnumerable<T> vs, Func<T, V> select)
         {
             var set = new HashSet<V>();
