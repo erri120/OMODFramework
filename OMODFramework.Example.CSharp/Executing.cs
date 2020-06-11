@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using CommandLine;
 using JetBrains.Annotations;
 using OMODFramework.Scripting;
@@ -45,6 +46,11 @@ namespace OMODFramework.Example.CSharp
             //ScriptSettings is defined below
             var srd = ScriptRunner.ExecuteScript(omod, new ScriptSettings());
 
+            //after you got the script return data you can call the ExtractAllFiles of ScriptRunner
+            //this will extract only the files needed to be installed instead of extracting every file
+            //to a temp folder and then copying the needed files to the output
+            ScriptRunner.ExtractAllFiles(omod, srd, output);
+
             return 0;
         }
     }
@@ -59,17 +65,32 @@ namespace OMODFramework.Example.CSharp
     {
         public void Message(string msg)
         {
-            throw new NotImplementedException();
+            Console.WriteLine(msg);
         }
 
         public void Message(string msg, string title)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"{title}: {msg}");
         }
 
         public IEnumerable<int> Select(IEnumerable<string> items, string title, bool isMultiSelect, IEnumerable<Bitmap> previews, IEnumerable<string> descriptions)
         {
-            throw new NotImplementedException();
+            Console.WriteLine(title);
+            if(isMultiSelect)
+                Console.WriteLine("(multi select is enabled)");
+            var list = items.ToList();
+            var results = new List<int>();
+            var hasDescriptions = descriptions.Any();
+
+            for (var i = 0; i < list.Count; i++)
+            {
+                Console.WriteLine($"[{i}]: {list[i]} {(hasDescriptions ? descriptions.ElementAt(i) : "")}");
+            }
+
+            var input = Console.Read();
+
+
+            return results;
         }
 
         public string InputString(string? title, string? initialText)
