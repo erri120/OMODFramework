@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using MMLib.RapidPrototyping.Generators;
 using Xunit;
 
 namespace OMODFramework.Test
@@ -12,7 +11,6 @@ namespace OMODFramework.Test
         public static CreationOptions CreateOptions()
         {
             var random = new Random();
-            var generator = new LoremIpsumGenerator(new DateTime().Millisecond);
 
             var dataFiles = new List<CreationOptions.CreationOptionFile>();
 
@@ -27,7 +25,7 @@ namespace OMODFramework.Test
 
                 var min = random.Next(1, 10);
                 var max = random.Next(11, 30);
-                var content = generator.Next(min, max);
+                var content = $"{min}{max}";
 
                 File.WriteAllText(path, content);
                 var file = new FileInfo(path);
