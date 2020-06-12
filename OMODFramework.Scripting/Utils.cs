@@ -24,9 +24,9 @@ namespace OMODFramework.Scripting
             return s1.Replace(sOld, sNew, StringComparison.InvariantCultureIgnoreCase);
         }
 
-        internal static IEnumerable<T> DistinctBy<T, V>(this IEnumerable<T> vs, Func<T, V> select)
+        internal static IEnumerable<T> DistinctBy<T, V>(this IEnumerable<T> vs, Func<T, V> select, IEqualityComparer<V>? comparer = null)
         {
-            var set = new HashSet<V>();
+            var set = comparer == null ? new HashSet<V>() : new HashSet<V>(comparer);
             foreach (var v in vs)
             {
                 var key = select(v);

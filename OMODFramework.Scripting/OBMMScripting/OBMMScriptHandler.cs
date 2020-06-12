@@ -36,13 +36,27 @@ namespace OMODFramework.Scripting
             return _srd;
         }
 
+        internal class PathComparer : IEqualityComparer<string>
+        {
+            public bool Equals(string x, string y)
+            {
+                return x.EqualsPath(y);
+            }
+
+            public int GetHashCode(string obj)
+            {
+                return Path.GetFullPath(obj).GetHashCode(StringComparison.InvariantCultureIgnoreCase);
+            }
+        }
+
         /// <summary>
         /// Utility Function that will clean up the script return data
         /// </summary>
         private void FinishUpReturnData()
         {
-            _srd.DataFiles = _srd.DataFiles.DistinctBy(x => x.Output).ToList();
-            _srd.PluginFiles = _srd.PluginFiles.DistinctBy(x => x.Output).ToList();
+            var comparer = new PathComparer();
+            _srd.DataFiles = _srd.DataFiles.DistinctBy(x => x.Output, comparer).ToList();
+            _srd.PluginFiles = _srd.PluginFiles.DistinctBy(x => x.Output, comparer).ToList();
 
             if (_srd.UnCheckedPlugins.Count != 0)
             {

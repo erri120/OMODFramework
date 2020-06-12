@@ -277,23 +277,40 @@ namespace OMODFramework.Test
             var settings = new OBMMScriptTestSettings(result);
 
             using var omod = new OMOD(new FileInfo(file.Path));
-            //omod.ExtractDataFiles(new DirectoryInfo("obmmscripttest-output"));
             var srd = ScriptRunner.ExecuteScript(omod, settings);
             Assert.NotNull(srd);
 
             if (srd.DataFiles.Count > 0)
+            {
                 Assert.NotNull(result.DataFiles);
+                Assert.NotEmpty(result.DataFiles);
+            }
 
             if (srd.PluginFiles.Count > 0)
+            {
                 Assert.NotNull(result.PluginFiles);
+                Assert.NotEmpty(result.PluginFiles);
+            }
 
-            var dataFiles = srd.DataFiles.Select(x => x.Output).Select(x => x.ToLower()).Distinct().ToList();
+            var dataFiles = srd.DataFiles.Select(x => x.Output).ToList();
            
-            Assert.Equal(result.DataFiles!.Count, dataFiles.Count);
-            var notInResult = dataFiles.Where(x => result.DataFiles!.All(y => !y.EqualsPath(x))).ToList();
-            Assert.Empty(notInResult);
-            var notInDataFiles = result.DataFiles!.Where(x => dataFiles.All(y => !y.EqualsPath(x))).ToList();
-            Assert.Empty(notInDataFiles);
+            VerifyResult(result.DataFiles!, dataFiles);
+
+            if (result.PluginFiles != null)
+            {
+                VerifyResult(result.PluginFiles, srd.PluginFiles.Select(x => x.Output).ToList());
+            }
+        }
+
+        private static void VerifyResult(IReadOnlyCollection<string> expectedFiles, List<string> actualFiles)
+        {
+            actualFiles = actualFiles.Select(x => x.ToLower()).ToList();
+            Assert.Equal(expectedFiles.Count, actualFiles.Count);
+
+            var notInExpected = actualFiles.Where(x => expectedFiles.All(y => !y.Equals(x)));
+            Assert.Empty(notInExpected);
+            var notInActual = expectedFiles.Where(x => actualFiles.All(y => !y.Equals(x)));
+            Assert.Empty(notInActual);
         }
     }
 }
