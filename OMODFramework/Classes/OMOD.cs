@@ -30,7 +30,7 @@ using ICSharpCode.SharpZipLib.Zip;
 
 namespace OMODFramework
 { 
-    public class OMOD
+    public class OMOD : IDisposable
     {
         protected class PrivateData
         {
@@ -171,14 +171,6 @@ namespace OMODFramework
                 Close();
                 Utils.Debug("Finished parsing of the config file");
             }
-        }
-
-        internal void Close()
-        {
-            Utils.Debug("Closing internal mod file and image");
-            _pD.ModFile?.Close();
-            _pD.ModFile = null;
-            _pD.Image = null;
         }
 
         public static void CreateOMOD(OMODCreationOptions ops, string omodFileName)
@@ -448,6 +440,19 @@ namespace OMODFramework
 
             tempStream.Position = 0;
             return tempStream;
+        }
+
+        internal void Close()
+        {
+            Utils.Debug("Closing internal mod file and image");
+            _pD.ModFile?.Close();
+            _pD.ModFile = null;
+            _pD.Image = null;
+        }
+
+        public void Dispose()
+        {
+            Close();
         }
     }
 }
