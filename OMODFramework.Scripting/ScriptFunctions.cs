@@ -12,12 +12,14 @@ namespace OMODFramework.Scripting
         private readonly IScriptSettings _settings;
         private readonly OMOD _omod;
         private readonly ScriptReturnData _srd;
-        
+        private readonly IEqualityComparer<string> _comparer;
+
         internal ScriptFunctions(IScriptSettings settings, OMOD omod, ScriptReturnData srd)
         {
             _settings = settings;
             _omod = omod;
             _srd = srd;
+            _comparer = new PathComparer();
         }
 
         public bool GetDisplayWarnings()
@@ -374,7 +376,12 @@ namespace OMODFramework.Scripting
                 .Select(x => x.Name)
                 .FileEnumeration(folder, "*", recurse);
 
-            _srd.DataFiles.AddRange(_omod.OMODFile.DataList.Where(x => files.Contains(x.Name)).Select(x => new DataFile(x)));
+            var range = _omod.OMODFile.DataList
+                .Where(x => files.Contains(x.Name))
+                .Select(x => new DataFile(x))
+                .ToList();
+
+            _srd.DataFiles.AddRange(range);
         }
 
         public void CopyPlugin(string from, string to)
@@ -427,15 +434,17 @@ namespace OMODFramework.Scripting
             var files = _omod.OMODFile.DataList.Select(x => x.Name)
                 .FileEnumeration(from, "*", recurse);
 
-            _srd.DataFiles.Where(x => files.Contains(x.OriginalFile.Name)).Do(f =>
+            _srd.DataFiles.Where(x => files.Contains(x.OriginalFile.Name, _comparer)).Do(f =>
             {
                 f.Output = f.OriginalFile.Name.ReplaceIgnoreCase(from, to);
             });
 
-            _srd.DataFiles.AddRange(_omod.OMODFile.DataList
-                .Where(x => files.Contains(x.Name))
+            var range = _omod.OMODFile.DataList
+                .Where(x => files.Contains(x.Name, _comparer))
                 .Where(x => _srd.DataFiles.All(y => !y.OriginalFile.Equals(x)))
-                .Select(x => new DataFile(x){Output = x.Name.ReplaceIgnoreCase(from, to)}));
+                .Select(x => new DataFile(x) {Output = x.Name.ReplaceIgnoreCase(from, to)}).ToList();
+
+            _srd.DataFiles.AddRange(range);
         }
 
         public void PatchPlugin(string from, string to, bool create)

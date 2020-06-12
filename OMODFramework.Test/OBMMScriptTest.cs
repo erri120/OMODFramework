@@ -260,51 +260,62 @@ namespace OMODFramework.Test
         [Fact]
         public void CompareScriptResultWithOriginalOBMM()
         {
-            /*var dic = new Dictionary<NexusFile>
+            var fileList = new List<NexusFile>
             {
-                {new NexusFile(35551,87078, "NoMaaM BBB Animation Replacer V3_1 OMOD-35551-3-1.omod")},
-                {new NexusFile(40462,85415, "NoMaaM Breathing Idles V1 OMOD-40462-1-0.omod")},
-                {new NexusFile(34442,80882, "HGEC Body with BBB v1dot12-34442.omod")},
-                {new NexusFile(24078,41472, "EVE_HGEC_BodyStock and Clothing OMOD-24078.omod")},
-                {new NexusFile(40532,90010, "Robert Male Body Replacer v52 OMOD-40532-1.omod")}
-            };*/
-            var file = new NexusFile(35551, 87078, "NoMaaM BBB Animation Replacer V3_1 OMOD-35551-3-1.omod");
-            var res = file.Download(_fixture.Client);
-            Assert.True(res);
+                new NexusFile(35551,87078, "NoMaaM BBB Animation Replacer V3_1 OMOD-35551-3-1.omod"),
+                new NexusFile(40462,85415, "NoMaaM Breathing Idles V1 OMOD-40462-1-0.omod"),
+                //new NexusFile(34442,80882, "HGEC Body with BBB v1dot12-34442.omod"),
+                //new NexusFile(24078,41472, "EVE_HGEC_BodyStock and Clothing OMOD-24078.omod"),
+                //new NexusFile(40532,90010, "Robert Male Body Replacer v52 OMOD-40532-1.omod")
+            };
 
-            var result = _fixture.Results.FirstOrDefault(x => x.ModID == file.ModID && x.FileID == file.FileID);
-            Assert.NotNull(result); 
-            var settings = new OBMMScriptTestSettings(result);
-
-            using var omod = new OMOD(new FileInfo(file.Path));
-            var srd = ScriptRunner.ExecuteScript(omod, settings);
-            Assert.NotNull(srd);
-
-            if (srd.DataFiles.Count > 0)
+            fileList.Do(file =>
             {
-                Assert.NotNull(result.DataFiles);
-                Assert.NotEmpty(result.DataFiles);
-            }
+                var res = file.Download(_fixture.Client);
+                Assert.True(res);
 
-            if (srd.PluginFiles.Count > 0)
-            {
-                Assert.NotNull(result.PluginFiles);
-                Assert.NotEmpty(result.PluginFiles);
-            }
+                var result = _fixture.Results.FirstOrDefault(x => x.ModID == file.ModID && x.FileID == file.FileID);
+                Assert.NotNull(result);
+                var settings = new OBMMScriptTestSettings(result);
 
-            var dataFiles = srd.DataFiles.Select(x => x.Output).ToList();
-           
-            VerifyResult(result.DataFiles!, dataFiles);
+                using var omod = new OMOD(new FileInfo(file.Path));
+                //omod.ExtractDataFiles(new DirectoryInfo("omodscripttest-output"));
+                var srd = ScriptRunner.ExecuteScript(omod, settings);
+                Assert.NotNull(srd);
 
-            if (result.PluginFiles != null)
-            {
-                VerifyResult(result.PluginFiles, srd.PluginFiles.Select(x => x.Output).ToList());
-            }
+                if (srd.DataFiles.Count > 0)
+                {
+                    Assert.NotNull(result.DataFiles);
+                    Assert.NotEmpty(result.DataFiles);
+                }
+
+                if (srd.PluginFiles.Count > 0)
+                {
+                    Assert.NotNull(result.PluginFiles);
+                    Assert.NotEmpty(result.PluginFiles);
+                }
+
+                var dataFiles = srd.DataFiles.Select(x => x.Output).ToList();
+
+                VerifyResult(result.DataFiles!, dataFiles);
+
+                if (result.PluginFiles != null)
+                {
+                    VerifyResult(result.PluginFiles, srd.PluginFiles.Select(x => x.Output).ToList());
+                }
+            });
+        }
+
+        private static void ToFile(IEnumerable<string> list, FileSystemInfo file)
+        {
+            File.WriteAllText(file.FullName, list.OrderBy(x => x).ToAggregatedString("\n"));
         }
 
         private static void VerifyResult(IReadOnlyCollection<string> expectedFiles, List<string> actualFiles)
         {
             actualFiles = actualFiles.Select(x => x.ToLower()).ToList();
+            //ToFile(expectedFiles, new FileInfo("out.txt"));
+            //ToFile(actualFiles, new FileInfo("out2.txt"));
             Assert.Equal(expectedFiles.Count, actualFiles.Count);
 
             var notInExpected = actualFiles.Where(x => expectedFiles.All(y => !y.Equals(x)));

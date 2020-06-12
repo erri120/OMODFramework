@@ -7,6 +7,19 @@ using JetBrains.Annotations;
 
 namespace OMODFramework.Scripting
 {
+    internal class PathComparer : IEqualityComparer<string>
+    {
+        public bool Equals(string x, string y)
+        {
+            return x.EqualsPath(y);
+        }
+
+        public int GetHashCode(string obj)
+        {
+            return Path.GetFullPath(obj).GetHashCode(StringComparison.InvariantCultureIgnoreCase);
+        }
+    }
+
     internal static class Utils
     {
         internal static string ToAggregatedString(this IEnumerable<string> col, string separator = ",")

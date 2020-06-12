@@ -36,19 +36,6 @@ namespace OMODFramework.Scripting
             return _srd;
         }
 
-        internal class PathComparer : IEqualityComparer<string>
-        {
-            public bool Equals(string x, string y)
-            {
-                return x.EqualsPath(y);
-            }
-
-            public int GetHashCode(string obj)
-            {
-                return Path.GetFullPath(obj).GetHashCode(StringComparison.InvariantCultureIgnoreCase);
-            }
-        }
-
         /// <summary>
         /// Utility Function that will clean up the script return data
         /// </summary>
@@ -72,7 +59,7 @@ namespace OMODFramework.Scripting
                     }
                     else
                     {
-                        var first = _omod.OMODFile.PluginsList.First(x =>
+                        var first = (_omod.OMODFile.PluginsList ?? throw new InvalidOperationException()).First(x =>
                             x.Name.Equals(p, StringComparison.InvariantCultureIgnoreCase));
                         _srd.PluginFiles.Add(new PluginFile(first){IsUnchecked = true});
                     }
