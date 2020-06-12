@@ -134,9 +134,9 @@ namespace OMODFramework.Scripting
                     .Select(x => new Bitmap(x)).ToList();
             }
 
-            var result = _settings.ScriptFunctions.Select(items, title, many, previewList, descs ?? new string[0]).ToList();
-
-            return result.Select(x => items.ElementAt(result.IndexOf(x))).ToArray();
+            IEnumerable<string> itemsList = items.ToList();
+            var result = _settings.ScriptFunctions.Select(itemsList, title, many, previewList, descs ?? new string[0]).ToList();
+            return result.Select(x => itemsList.ElementAt(x)).ToArray();
         }
 
         public void Message(string msg)

@@ -312,8 +312,8 @@ namespace OMODFramework.Scripting
                             ifToken.Active = ifToken.ConditionType switch
                             {
                                 IfToken.IfConditionType.Equal => i1 == i2,
-                                IfToken.IfConditionType.GreaterThan => i1 < i2,
-                                IfToken.IfConditionType.GreaterEqual => i1 <= i2,
+                                IfToken.IfConditionType.GreaterThan => i1 > i2,
+                                IfToken.IfConditionType.GreaterEqual => i1 >= i2,
                                 _ => throw new ArgumentOutOfRangeException()
                             };
 
