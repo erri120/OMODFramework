@@ -1,6 +1,0 @@
-﻿;I'm a nice comment!
-
-If VersionLessThan 0.9.13
-	Message "This mod must be installed by OBMM version 0.9.13 or later to prevent script errors."
-	FatalError
-EndIf
