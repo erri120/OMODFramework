@@ -4,12 +4,11 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using OMODFramework.Scripting;
-using Wabbajack.Downloader.NexusMods;
 using Xunit;
 
 namespace OMODFramework.Test
 {
-    public class ScriptTests
+    public class ScriptTests : IClassFixture<NexusTestFixture>
     {
         private class Functions : IScriptFunctions
         {
@@ -129,12 +128,11 @@ namespace OMODFramework.Test
             public IScriptFunctions ScriptFunctions => new Functions();
         }
 
-        private readonly NexusAPIClient _client;
+        private readonly NexusTestFixture _fixture;
 
-        public ScriptTests()
+        public ScriptTests(NexusTestFixture fixture)
         {
-            var apiKey = Environment.GetEnvironmentVariable("NEXUSAPIKEY");
-            _client = new NexusAPIClient("OMODFramework.Test", "1.0.0", apiKey);
+            _fixture = fixture;
         }
 
         [Fact]
@@ -152,7 +150,7 @@ namespace OMODFramework.Test
             var srdDic = dic.Select(pair =>
             {
                 var (key, (item1, item2)) = pair;
-                var res = key.Download(_client);
+                var res = key.Download(_fixture.Client);
                 Assert.True(res);
 
                 using var omod = new OMOD(new FileInfo(key.Path));
@@ -173,7 +171,7 @@ namespace OMODFramework.Test
         public void TestExtractionAfterExecution()
         {
             var nexusFile = new NexusFile(24078, 41472, "EVE_HGEC_BodyStock and Clothing OMOD-24078.omod");
-            var res = nexusFile.Download(_client);
+            var res = nexusFile.Download(_fixture.Client);
             Assert.True(res);
 
             using var omod = new OMOD(new FileInfo(nexusFile.Path));

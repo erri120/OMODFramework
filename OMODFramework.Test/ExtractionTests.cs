@@ -3,28 +3,26 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using JetBrains.dotMemoryUnit;
-using Wabbajack.Downloader.NexusMods;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace OMODFramework.Test
 {
-    public class ExtractionTests
+    public class ExtractionTests : IClassFixture<NexusTestFixture>
     {
-        private readonly NexusAPIClient _client;
+        private readonly NexusTestFixture _fixture;
 
-        public ExtractionTests(ITestOutputHelper outputHelper)
+        public ExtractionTests(ITestOutputHelper outputHelper, NexusTestFixture fixture)
         {
             DotMemoryUnitTestOutput.SetOutputMethod(outputHelper.WriteLine);
-            var apiKey = Environment.GetEnvironmentVariable("NEXUSAPIKEY");
-            _client = new NexusAPIClient("OMODFramework.Test", "1.0.0", apiKey);
+            _fixture = fixture;
         }
 
         [Fact]
         [DotMemoryUnit(FailIfRunWithoutSupport = false)]
         public void TestExtraction()
         {
-            var res = Utils.Download(_client, 11280, 37571, "DarkUId DarN 16 OMOD Version - 11280.omod".InDownloadsFolder()).Result;
+            var res = Utils.Download(_fixture.Client, 11280, 37571, "DarkUId DarN 16 OMOD Version - 11280.omod".InDownloadsFolder()).Result;
             Assert.True(res);
 
             var isolator = new Action(() =>
