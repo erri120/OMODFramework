@@ -28,6 +28,13 @@ namespace OMODFramework.Scripting
             _omod = omod;
             _scriptFunctions = new ScriptFunctions(_settings, omod, _srd);
 
+            //OBMM installs everything by default, which is kinda stupid. For that reason
+            //we call those two functions so all data and plugin files are to be installed
+            //normally every script calls DontInstallAnyDataFiles at the start anyway...
+            _scriptFunctions.InstallAllDataFiles();
+            if(_omod.HasFile(OMODEntryFileType.PluginsCRC))
+                _scriptFunctions.InstallAllPlugins();
+
             TokenizeScript(script);
             ParseScript();
 
