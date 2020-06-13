@@ -1,0 +1,445 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>OMODFramework</name>
+    </assembly>
+    <members>
+        <member name="T:OMODFramework.Exceptions.OMODInvalidConfigException">
+            <summary>
+            The Exception that is thrown when the parsed config of an OMOD is not valid
+            </summary>
+        </member>
+        <member name="T:OMODFramework.Exceptions.ZipFileIntegrityException">
+            <summary>
+            The Exception that is thrown when the archive test for a <see cref="T:ICSharpCode.SharpZipLib.Zip.ZipFile"/> failed
+            </summary>
+        </member>
+        <member name="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException">
+            <summary>
+            The Exception that is thrown when an entry was not found in a <see cref="T:ICSharpCode.SharpZipLib.Zip.ZipFile"/>
+            </summary>
+        </member>
+        <member name="T:OMODFramework.Exceptions.ZipFileExtractionException">
+            <summary>
+            The Exception that is thrown when a file could not be extracted from a <see cref="T:ICSharpCode.SharpZipLib.Zip.ZipFile"/>
+            </summary>
+        </member>
+        <member name="P:OMODFramework.FrameworkSettings.DefaultFrameworkSettings">
+            <summary>
+            Default Framework Settings used when they are not provided
+            </summary>
+        </member>
+        <member name="P:OMODFramework.FrameworkSettings.CurrentOMODVersion">
+            <summary>
+            Current OMOD version, Default is 4
+            </summary>
+        </member>
+        <member name="P:OMODFramework.FrameworkSettings.CurrentOBMMVersion">
+            <summary>
+            Current version of the Oblivion Mod Manager, Default is 1.1.12.0
+            </summary>
+        </member>
+        <member name="P:OMODFramework.FrameworkSettings.CodeProgress">
+            <summary>
+            Progress reporter for compression and decompression of SevenZip archives.
+            </summary>
+        </member>
+        <member name="T:OMODFramework.Config">
+            <summary>
+            Config containing general information like Name, Author and Description about
+            an OMOD
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Config.Name">
+            <summary>
+            Name of the OMOD
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Config.Version">
+            <summary>
+            Version of the OMOD
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Config.Description">
+            <summary>
+            Description of the OMOD, can be empty
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Config.Email">
+            <summary>
+            Email of the author, can be empty
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Config.Website">
+            <summary>
+            Website of the OMOD, can be empty
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Config.Author">
+            <summary>
+            Author of the OMOD, can be empty
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Config.CreationTime">
+            <summary>
+            <see cref="T:System.DateTime"/> of the creation
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Config.FileVersion">
+            <summary>
+            File Version which is checked against <see cref="P:OMODFramework.FrameworkSettings.CurrentOMODVersion"/>
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Config.CompressionType">
+            <summary>
+            <see cref="P:OMODFramework.Config.CompressionType"/> of the OMOD
+            </summary>
+        </member>
+        <member name="T:OMODFramework.OMOD">
+            <summary>
+            OMOD class, implements <see cref="T:System.IDisposable"/>
+            </summary>
+        </member>
+        <member name="F:OMODFramework.OMOD.Config">
+            <summary>
+            <see cref="F:OMODFramework.OMOD.Config"/> of the OMOD
+            </summary>
+        </member>
+        <member name="M:OMODFramework.OMOD.#ctor(System.IO.FileInfo,OMODFramework.FrameworkSettings,System.Boolean)">
+            <summary>
+            Loads the OMOD file and reads the config.
+            </summary>
+            <param name="path">Path to the .omod file</param>
+            <param name="settings">Optional, custom <see cref="T:OMODFramework.FrameworkSettings"/>. Default is <see cref="P:OMODFramework.FrameworkSettings.DefaultFrameworkSettings"/></param>
+            <param name="checkIntegrity">Optional, whether to check verify the integrity of the .omod file. Default is <c>true</c></param>
+        </member>
+        <member name="M:OMODFramework.OMOD.HasFile(OMODFramework.OMODEntryFileType)">
+            <summary>
+            Checks if the OMOD contains the given file
+            </summary>
+            <param name="entryFileType">The file</param>
+            <returns></returns>
+        </member>
+        <member name="M:OMODFramework.OMOD.ExtractFile(OMODFramework.OMODEntryFileType)">
+            <summary>
+            Extract the given file from the OMOD and returns a <see cref="T:System.IO.Stream"/> with the data
+            instead of writing to file.
+            </summary>
+            <param name="entryFileType">The file to extract</param>
+            <returns></returns>
+            <exception cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException"></exception>
+        </member>
+        <member name="M:OMODFramework.OMOD.GetReadme">
+            <summary>
+            Returns the readme of the OMOD
+            </summary>
+            <returns></returns>
+            <exception cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException"></exception>
+        </member>
+        <member name="M:OMODFramework.OMOD.GetScript(System.Boolean)">
+            <summary>
+            Returns the script of the OMOD
+            </summary>
+            <param name="removeType">Whether to remove the script type identifier from the script.
+            This identifier is one byte at the start of the script.</param>
+            <returns></returns>
+            <exception cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException"></exception>
+        </member>
+        <member name="M:OMODFramework.OMOD.GetImage">
+            <summary>
+            Extracts the Image in the OMOD and returns a <see cref="T:System.Drawing.Bitmap"/>
+            </summary>
+            <returns></returns>
+            <exception cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException"></exception>
+        </member>
+        <member name="M:OMODFramework.OMOD.GetDataFiles">
+            <summary>
+            Returns an enumerable of all data files.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OMODFramework.OMOD.GetPlugins">
+            <summary>
+            Returns an enumerable for all plugins. Use <see cref="M:OMODFramework.OMOD.HasFile(OMODFramework.OMODEntryFileType)"/> beforehand
+            so you don't get a <see cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException"/>!
+            </summary>
+            <returns></returns>
+            <exception cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException"></exception>
+        </member>
+        <member name="M:OMODFramework.OMOD.ExtractPluginFiles(System.IO.DirectoryInfo)">
+            <summary>
+            Extracts all plugins to a given directory.
+            </summary>
+            <param name="outputDirectory"></param>
+        </member>
+        <member name="M:OMODFramework.OMOD.ExtractDataFiles(System.IO.DirectoryInfo)">
+            <summary>
+            Extracts all data files to a given directory.
+            </summary>
+            <param name="outputDirectory"></param>
+        </member>
+        <member name="M:OMODFramework.OMOD.Dispose">
+            <summary>
+            Disposes the OMOD and closes the underlying zip file.
+            </summary>
+        </member>
+        <member name="M:OMODFramework.OMOD.CreateOMOD(OMODFramework.CreationOptions,System.IO.FileInfo,OMODFramework.FrameworkSettings)">
+            <summary>
+            Create an OMOD
+            </summary>
+            <param name="options">Options</param>
+            <param name="output">Output file</param>
+            <param name="settings">Optional, <see cref="T:OMODFramework.FrameworkSettings"/> to use</param>
+        </member>
+        <member name="T:OMODFramework.CreationOptions">
+            <summary>
+            Options used for OMOD Creation, inherits <see cref="T:OMODFramework.Config"/>
+            </summary>
+        </member>
+        <member name="P:OMODFramework.CreationOptions.Readme">
+            <summary>
+            Optional, entire Readme as a string
+            </summary>
+        </member>
+        <member name="P:OMODFramework.CreationOptions.Script">
+            <summary>
+            Optional, entire Script as a string
+            </summary>
+        </member>
+        <member name="P:OMODFramework.CreationOptions.ScriptType">
+            <summary>
+            Optional but has to be set when <see cref="P:OMODFramework.CreationOptions.Script"/> is not null
+            </summary>
+        </member>
+        <member name="P:OMODFramework.CreationOptions.ImagePath">
+            <summary>
+            Optional, path to the image
+            </summary>
+        </member>
+        <member name="P:OMODFramework.CreationOptions.OMODCompressionLevel">
+            <summary>
+            Level of compression used for the .omod file. Must not be <see cref="F:OMODFramework.CompressionLevel.None"/>
+            </summary>
+        </member>
+        <member name="P:OMODFramework.CreationOptions.DataCompressionLevel">
+            <summary>
+            Level of compression used for the data and plugin files. Must not be <see cref="F:OMODFramework.CompressionLevel.None"/>
+            </summary>
+        </member>
+        <member name="P:OMODFramework.CreationOptions.DataFiles">
+            <summary>
+            Required, List of all data files
+            </summary>
+        </member>
+        <member name="P:OMODFramework.CreationOptions.PluginFiles">
+            <summary>
+            Optional, List of all plugin files
+            </summary>
+        </member>
+        <member name="M:OMODFramework.CreationOptions.VerifyOptions(System.Boolean)">
+            <summary>
+            Utility function to verify whether the given Options are valid.
+            </summary>
+            <param name="throwException">Whether to throw an Exception instead of returning false if an option
+            is not valid. Default: true</param>
+            <returns></returns>
+        </member>
+        <member name="T:OMODFramework.CreationOptions.CreationOptionFile">
+            <summary>
+            Struct for files to be used in <see cref="P:OMODFramework.CreationOptions.DataFiles"/> and <see cref="P:OMODFramework.CreationOptions.PluginFiles"/>
+            </summary>
+        </member>
+        <member name="P:OMODFramework.CreationOptions.CreationOptionFile.From">
+            <summary>
+            File on disk to include
+            </summary>
+        </member>
+        <member name="P:OMODFramework.CreationOptions.CreationOptionFile.To">
+            <summary>
+            Path of the file to go to in the omod. Do note that plugins
+            must not be in a directory.
+            </summary>
+        </member>
+        <member name="T:OMODFramework.OMODEntryFileType">
+            <summary>
+            Enum for all possible files in an omod file
+            </summary>
+        </member>
+        <member name="T:OMODFramework.OMODCompressedEntry">
+            <summary>
+            Files inside .crc entries
+            </summary>
+        </member>
+        <member name="F:OMODFramework.OMODCompressedEntry.Name">
+            <summary>
+            Path and Name of the file
+            </summary>
+        </member>
+        <member name="F:OMODFramework.OMODCompressedEntry.CRC">
+            <summary>
+            CRC32 of the file
+            </summary>
+        </member>
+        <member name="F:OMODFramework.OMODCompressedEntry.Length">
+            <summary>
+            Length (in bytes) of the file
+            </summary>
+        </member>
+        <member name="P:OMODFramework.OMODCompressedEntry.Offset">
+            <summary>
+            Offset in the decompressed data
+            </summary>
+        </member>
+        <member name="M:OMODFramework.Utils.HasFile(ICSharpCode.SharpZipLib.Zip.ZipFile,System.String,System.Boolean)">
+            <summary>
+            Checks if the given <see cref="T:ICSharpCode.SharpZipLib.Zip.ZipFile"/> contains a file
+            </summary>
+            <param name="zipFile">The ZipFile</param>
+            <param name="file">The file to find</param>
+            <param name="ignoreCase">Whether to ignore case or not</param>
+            <returns></returns>
+        </member>
+        <member name="M:OMODFramework.Utils.CheckIntegrity(ICSharpCode.SharpZipLib.Zip.ZipFile,System.Boolean)">
+            <summary>
+            Tests the <see cref="T:ICSharpCode.SharpZipLib.Zip.ZipFile"/> for integrity
+            </summary>
+            <param name="file">The ZipFile to test</param>
+            <param name="throwIfNotValid">Whether to throw a <see cref="T:OMODFramework.Exceptions.ZipFileIntegrityException"/> if the archive is not valid</param>
+            <returns></returns>
+            <exception cref="T:OMODFramework.Exceptions.ZipFileIntegrityException"></exception>
+        </member>
+        <member name="M:OMODFramework.Utils.ExtractFile(ICSharpCode.SharpZipLib.Zip.ZipFile,System.String)">
+            <summary>
+            Extracts a file from <see cref="T:ICSharpCode.SharpZipLib.Zip.ZipFile"/> and returns a <see cref="T:System.IO.Stream"/>
+            </summary>
+            <param name="file">The archive</param>
+            <param name="name">The file to extract</param>
+            <returns></returns>
+            <exception cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException"></exception>
+        </member>
+        <member name="T:SevenZip.DataErrorException">
+            <summary>
+            The exception that is thrown when an error in input stream occurs during decoding.
+            </summary>
+        </member>
+        <member name="T:SevenZip.InvalidParamException">
+            <summary>
+            The exception that is thrown when the value of an argument is outside the allowable range.
+            </summary>
+        </member>
+        <member name="M:SevenZip.ICodeProgress.SetProgress(System.Int64,System.Int64)">
+            <summary>
+            Callback progress.
+            </summary>
+            <param name="inSize">
+            input size. -1 if unknown.
+            </param>
+            <param name="outSize">
+            output size. -1 if unknown.
+            </param>
+        </member>
+        <member name="M:SevenZip.ICoder.Code(System.IO.Stream,System.IO.Stream,System.Int64,System.Int64,SevenZip.ICodeProgress)">
+            <summary>
+            Codes streams.
+            </summary>
+            <param name="inStream">
+            input Stream.
+            </param>
+            <param name="outStream">
+            output Stream.
+            </param>
+            <param name="inSize">
+            input Size. -1 if unknown.
+            </param>
+            <param name="outSize">
+            output Size. -1 if unknown.
+            </param>
+            <param name="progress">
+            callback progress reference.
+            </param>
+            <exception cref="T:SevenZip.DataErrorException">
+            if input stream is not valid
+            </exception>
+        </member>
+        <member name="T:SevenZip.CoderPropID">
+            <summary>
+            Provides the fields that represent properties idenitifiers for compressing.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.DefaultProp">
+            <summary>
+            Specifies default property.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.DictionarySize">
+            <summary>
+            Specifies size of dictionary.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.UsedMemorySize">
+            <summary>
+            Specifies size of memory for PPM*.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.Order">
+            <summary>
+            Specifies order for PPM methods.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.BlockSize">
+            <summary>
+            Specifies Block Size.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.PosStateBits">
+            <summary>
+            Specifies number of postion state bits for LZMA (0 &lt;= x &lt;= 4).
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.LitContextBits">
+            <summary>
+            Specifies number of literal context bits for LZMA (0 &lt;= x &lt;= 8).
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.LitPosBits">
+            <summary>
+            Specifies number of literal position bits for LZMA (0 &lt;= x &lt;= 4).
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.NumFastBytes">
+            <summary>
+            Specifies number of fast bytes for LZ*.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.MatchFinder">
+            <summary>
+            Specifies match finder. LZMA: "BT2", "BT4" or "BT4B".
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.MatchFinderCycles">
+            <summary>
+            Specifies the number of match finder cyckes.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.NumPasses">
+            <summary>
+            Specifies number of passes.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.Algorithm">
+            <summary>
+            Specifies number of algorithm.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.NumThreads">
+            <summary>
+            Specifies the number of threads.
+            </summary>
+        </member>
+        <member name="F:SevenZip.CoderPropID.EndMarker">
+            <summary>
+            Specifies mode with end marker.
+            </summary>
+        </member>
+    </members>
+</doc>

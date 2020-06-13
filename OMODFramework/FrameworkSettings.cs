@@ -3,6 +3,9 @@ using JetBrains.Annotations;
 
 namespace OMODFramework
 {
+    /// <summary>
+    /// Settings for the entire Framework
+    /// </summary>
     [PublicAPI]
     public class FrameworkSettings
     {
@@ -21,6 +24,9 @@ namespace OMODFramework
         /// </summary>
         public Version CurrentOBMMVersion { get; set; } = new Version(1, 1, 12, 0);
 
+        /// <summary>
+        /// Progress reporter for compression and decompression of SevenZip archives.
+        /// </summary>
         public ICodeProgress? CodeProgress { get; set; }
     }
 }

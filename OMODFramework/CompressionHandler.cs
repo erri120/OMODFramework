@@ -12,27 +12,68 @@ using Encoder = SevenZip.Compression.LZMA.Encoder;
 
 namespace OMODFramework
 {
+    /// <summary>
+    /// CompressionType enum for the OMOD
+    /// </summary>
     [PublicAPI]
     public enum CompressionType : byte
     {
+        /// <summary>
+        /// LZMA
+        /// </summary>
         SevenZip,
+
+        /// <summary>
+        /// Zip
+        /// </summary>
         Zip
     }
 
+    /// <summary>
+    /// Level of compression. 
+    /// </summary>
     [PublicAPI]
     public enum CompressionLevel
     {
-        VeryHigh = 9, 
-        High = 7, 
+        /// <summary>
+        /// SevenZip: 1 left shift 26 dictionary size
+        /// </summary>
+        VeryHigh = 9,
+        /// <summary>
+        /// SevenZip: 1 left shift 25 dictionary size
+        /// </summary>
+        High = 7,
+        /// <summary>
+        /// SevenZip: 1 left shift 23 dictionary size
+        /// </summary>
         Medium = 5,
+        /// <summary>
+        /// SevenZip: 1 left shift 21 dictionary size
+        /// </summary>
         Low = 3,
+        /// <summary>
+        /// SevenZip: 1 left shift 19 dictionary size
+        /// </summary>
         VeryLow = 1,
+        /// <summary>
+        /// SevenZip: 0 dictionary size
+        /// </summary>
         None = 0
     }
 
+    /// <summary>
+    /// Progress Reporter interface for compression and decompression of SevenZip archives
+    /// </summary>
     [PublicAPI]
     public interface ICodeProgress : SevenZip.ICodeProgress, IDisposable
     {
+        /// <summary>
+        /// Init function that is called before compression/decompression starts. Return
+        /// whether or not this progress reporter should be used.
+        /// </summary>
+        /// <param name="totalSize">Total size to be compressed/decompressed</param>
+        /// <param name="compressing">Whether we are compression or decompression</param>
+        /// <returns></returns>
         bool Init(long totalSize, bool compressing);
     }
 
