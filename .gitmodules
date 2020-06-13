@@ -1,3 +1,6 @@
 [submodule "Wabbajack.Downloader"]
 	path = Wabbajack.Downloader
 	url = https://github.com/wabbajack-tools/Wabbajack.Downloader.git
+[submodule "LZMA-SDK"]
+	path = LZMA-SDK
+	url = https://github.com/erri120/LZMA-SDK.git
