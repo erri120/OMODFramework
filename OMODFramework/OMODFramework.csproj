@@ -10,9 +10,37 @@
   <ItemGroup>
     <PackageReference Include="Crc32.NET" Version="1.2.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
-    <PackageReference Include="LZMA-SDK" Version="19.0.0" />
     <PackageReference Include="SharpZipLib" Version="1.2.0" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Include="..\LZMA-SDK\src\SevenZip\Common\CRC.cs" Link="SevenZip\Common\CRC.cs" />
+    <Compile Include="..\LZMA-SDK\src\SevenZip\Common\InBuffer.cs" Link="SevenZip\Common\InBuffer.cs" />
+    <Compile Include="..\LZMA-SDK\src\SevenZip\Common\OutBuffer.cs" Link="SevenZip\Common\OutBuffer.cs" />
+    <!--
+    <Compile Include="..\LZMA-SDK\src\SevenZip\Compress\LzmaAlone\LzmaAlone.cs" Link="SevenZip\Compress\LzmaAlone\LzmaAlone.cs" />
+    <Compile Include="..\LZMA-SDK\src\SevenZip\Compress\LzmaAlone\LzmaBench.cs" Link="SevenZip\Compress\LzmaAlone\LzmaBench.cs" />
+    -->
+    <Compile Include="..\LZMA-SDK\src\SevenZip\Compress\LZMA\LzmaBase.cs" Link="SevenZip\Compress\LZMA\LzmaBase.cs" />
+    <Compile Include="..\LZMA-SDK\src\SevenZip\Compress\LZMA\LzmaDecoder.cs" Link="SevenZip\Compress\LZMA\LzmaDecoder.cs" />
+    <Compile Include="..\LZMA-SDK\src\SevenZip\Compress\LZMA\LzmaEncoder.cs" Link="SevenZip\Compress\LZMA\LzmaEncoder.cs" />
+    <Compile Include="..\LZMA-SDK\src\SevenZip\Compress\LZ\IMatchFinder.cs" Link="SevenZip\Compress\LZ\IMatchFinder.cs" />
+    <Compile Include="..\LZMA-SDK\src\SevenZip\Compress\LZ\LzBinTree.cs" Link="SevenZip\Compress\LZ\LzBinTree.cs" />
+    <Compile Include="..\LZMA-SDK\src\SevenZip\Compress\LZ\LzInWindow.cs" Link="SevenZip\Compress\LZ\LzInWindow.cs" />
+    <Compile Include="..\LZMA-SDK\src\SevenZip\Compress\LZ\LzOutWindow.cs" Link="SevenZip\Compress\LZ\LzOutWindow.cs" />
+    <Compile Include="..\LZMA-SDK\src\SevenZip\Compress\RangeCoder\RangeCoder.cs" Link="SevenZip\Compress\RangeCoder\RangeCoder.cs" />
+    <Compile Include="..\LZMA-SDK\src\SevenZip\Compress\RangeCoder\RangeCoderBit.cs" Link="SevenZip\Compress\RangeCoder\RangeCoderBit.cs" />
+    <Compile Include="..\LZMA-SDK\src\SevenZip\Compress\RangeCoder\RangeCoderBitTree.cs" Link="SevenZip\Compress\RangeCoder\RangeCoderBitTree.cs" />
+    <Compile Include="..\LZMA-SDK\src\SevenZip\ICoder.cs" Link="SevenZip\ICoder.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="SevenZip\Common\" />
+    <Folder Include="SevenZip\Compress\LZ\" />
+    <Folder Include="SevenZip\Compress\LZMA\" />
+    <Folder Include="SevenZip\Compress\LzmaAlone\" />
+    <Folder Include="SevenZip\Compress\RangeCoder\" />
   </ItemGroup>
 
 </Project>
