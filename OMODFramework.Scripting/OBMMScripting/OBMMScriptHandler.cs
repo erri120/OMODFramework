@@ -41,13 +41,13 @@ namespace OMODFramework.Scripting
         /// </summary>
         private void FinishUpReturnData()
         {
-            var comparer = new PathComparer();
-            _srd.DataFiles = _srd.DataFiles.DistinctBy(x => x.Output, comparer).ToList();
-            _srd.PluginFiles = _srd.PluginFiles.DistinctBy(x => x.Output, comparer).ToList();
+            //var comparer = new PathComparer();
+            //_srd.DataFiles = _srd.DataFiles.DistinctBy(x => x.Output, comparer).ToList();
+            //_srd.PluginFiles = _srd.PluginFiles.DistinctBy(x => x.Output, comparer).ToList();
 
             if (_srd.UnCheckedPlugins.Count != 0)
             {
-                if (_omod.OMODFile.PluginsList == null)
+                if (_omod.OMODFile.Plugins == null)
                     throw new ScriptingNullListException(false);
 
                 _srd.UnCheckedPlugins.Do(p =>
@@ -59,7 +59,7 @@ namespace OMODFramework.Scripting
                     }
                     else
                     {
-                        var first = (_omod.OMODFile.PluginsList ?? throw new InvalidOperationException()).First(x =>
+                        var first = (_omod.OMODFile.Plugins ?? throw new InvalidOperationException()).First(x =>
                             x.Name.Equals(p, StringComparison.InvariantCultureIgnoreCase));
                         _srd.PluginFiles.Add(new PluginFile(first){IsUnchecked = true});
                     }

@@ -67,12 +67,12 @@ namespace OMODFramework
             if (!(obj is OMODCompressedEntry entry))
                 return false;
 
-            return CRC == entry.CRC;
+            return CRC == entry.CRC && Path.GetFullPath(Name).Equals(Path.GetFullPath(entry.Name), StringComparison.InvariantCultureIgnoreCase);
         }
 
         public override int GetHashCode()
         {
-            return (int)CRC;
+            return Name.GetHashCode(StringComparison.InvariantCultureIgnoreCase);
         }
 
         public override string ToString()
@@ -87,8 +87,8 @@ namespace OMODFramework
         private MemoryStream? _decompressedDataStream;
         private MemoryStream? _decompressedPluginStream;
 
-        internal IEnumerable<OMODCompressedEntry>? DataList { get; private set; }
-        internal IEnumerable<OMODCompressedEntry>? PluginsList { get; private set; }
+        internal HashSet<OMODCompressedEntry>? DataFiles { get; private set; }
+        internal HashSet<OMODCompressedEntry>? Plugins { get; private set; }
 
         internal CompressionType CompressionType { get; set; }
 
@@ -106,24 +106,24 @@ namespace OMODFramework
         {
             if (entryFileType == OMODEntryFileType.Data)
             {
-                DataList ??= GetCRCList(true);
+                DataFiles ??= GetCRCSet(true);
 
                 _decompressedDataStream ??=
-                    (MemoryStream)CompressionHandler.DecompressStream(DataList, ExtractFile(OMODEntryFileType.Data), CompressionType);
+                    (MemoryStream)CompressionHandler.DecompressStream(DataFiles, ExtractFile(OMODEntryFileType.Data), CompressionType);
             }
             else
             {
-                PluginsList ??= GetCRCList(false);
+                Plugins ??= GetCRCSet(false);
 
                 _decompressedPluginStream ??=
-                    (MemoryStream)CompressionHandler.DecompressStream(PluginsList, ExtractFile(OMODEntryFileType.Plugins), CompressionType);
+                    (MemoryStream)CompressionHandler.DecompressStream(Plugins, ExtractFile(OMODEntryFileType.Plugins), CompressionType);
             }
         }
 
         internal void ExtractAllDecompressedFiles(DirectoryInfo output, bool data)
         {
             var decompressedStream = data ? _decompressedDataStream : _decompressedPluginStream;
-            IEnumerable<OMODCompressedEntry>? enumerable = data ? DataList : PluginsList;
+            IEnumerable<OMODCompressedEntry>? enumerable = data ? DataFiles : Plugins;
 
             if (decompressedStream == null)
                 throw new Exception($"Decompressed Stream ({(data ? "data" : "plugins")}) is null!");
@@ -203,43 +203,44 @@ namespace OMODFramework
             return Config.ParseConfig(ExtractFile(OMODEntryFileType.Config));
         }
 
-        internal IEnumerable<OMODCompressedEntry> GetDataFileList()
+        internal IEnumerable<OMODCompressedEntry> GetDataFiles()
         {
-            if (DataList != null)
-                return DataList;
+            if (DataFiles != null)
+                return DataFiles;
 
-            DataList ??= GetCRCList(true);
-            return DataList;
+            DataFiles ??= GetCRCSet(true);
+            return DataFiles;
         }
 
         internal IEnumerable<OMODCompressedEntry> GetPlugins()
         {
-            if (PluginsList != null)
-                return PluginsList;
+            if (Plugins != null)
+                return Plugins;
 
-            PluginsList ??= GetCRCList(false);
-            return PluginsList;
+            Plugins ??= GetCRCSet(false);
+            return Plugins;
         }
 
-        private IEnumerable<OMODCompressedEntry> GetCRCList(bool data)
+        private HashSet<OMODCompressedEntry> GetCRCSet(bool data)
         {
             var entry = data ? OMODEntryFileType.DataCRC : OMODEntryFileType.PluginsCRC;
 
             using var stream = ExtractFile(entry);
             using var br = new BinaryReader(stream);
 
-            var list = new List<OMODCompressedEntry>();
+            var set = new HashSet<OMODCompressedEntry>();
             long offset = 0;
             while (br.PeekChar() != -1)
             {
                 var name = br.ReadString();
                 var crc = br.ReadUInt32();
                 var length = br.ReadInt64();
-                list.Add(new OMODCompressedEntry(name, crc, length) { Offset = offset });
+                var res = set.Add(new OMODCompressedEntry(name, crc, length) { Offset = offset });
+                //TODO: check res
                 offset += length;
             }
 
-            return list;
+            return set;
         }
 
         public void Dispose()

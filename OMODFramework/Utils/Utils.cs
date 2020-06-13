@@ -43,9 +43,9 @@ namespace OMODFramework
             using var crc = new Crc32CAlgorithm();
 
             byte[] bytes = crc.ComputeHash(fs);
-            var crc32c = BitConverter.ToUInt32(bytes, 0);
+            var crc32C = BitConverter.ToUInt32(bytes, 0);
 
-            return crc32c;
+            return crc32C;
         }
 
         internal static void Debug(string s)

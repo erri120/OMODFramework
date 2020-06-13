@@ -32,9 +32,9 @@ namespace OMODFramework
 
     internal static class CompressionHandler
     {
-        internal static Stream DecompressStream(IEnumerable<OMODCompressedEntry> entryList, Stream compressedStream, CompressionType compressionType)
+        internal static Stream DecompressStream(IEnumerable<OMODCompressedEntry> entries, Stream compressedStream, CompressionType compressionType)
         {
-            var outSize = entryList.Select(x => x.Length).Aggregate((x, y) => x + y);
+            var outSize = entries.Select(x => x.Length).Aggregate((x, y) => x + y);
             return compressionType switch
             {
                 CompressionType.SevenZip => SevenZipDecompress(compressedStream, outSize),
@@ -43,15 +43,14 @@ namespace OMODFramework
             };
         }
 
-        internal static void CompressFiles(IEnumerable<CreationOptions.CreationOptionFile> files, CompressionType type,
+        internal static void CompressFiles(HashSet<CreationOptions.CreationOptionFile> files, CompressionType type,
             CompressionLevel level, out Stream compressedStream, out Stream crcStream)
         {
-            IEnumerable<CreationOptions.CreationOptionFile> creationOptionFiles = files.ToList();
-            crcStream = GenerateCRCStream(creationOptionFiles);
+            crcStream = GenerateCRCStream(files);
             compressedStream = type switch
             {
-                CompressionType.SevenZip => SevenZipOMODCompress(creationOptionFiles, level),
-                CompressionType.Zip => ZipOMODCompress(creationOptionFiles, level),
+                CompressionType.SevenZip => SevenZipOMODCompress(files, level),
+                CompressionType.Zip => ZipOMODCompress(files, level),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
         }
@@ -77,13 +76,12 @@ namespace OMODFramework
             return stream;
         }
 
-        private static Stream CreateDecompressedStream(IEnumerable<CreationOptions.CreationOptionFile> files)
+        private static Stream CreateDecompressedStream(HashSet<CreationOptions.CreationOptionFile> files)
         {
-            var list = files.ToList();
-            var length = list.Select(x => x.From.Length).Aggregate((x, y) => x + y);
+            var length = files.Select(x => x.From.Length).Aggregate((x, y) => x + y);
 
             var decompressedStream = new MemoryStream((int)length);
-            foreach (var file in list.Select(x => x.From))
+            foreach (var file in files.Select(x => x.From))
             {
                 using var fs = file.OpenRead();
                 fs.CopyTo(decompressedStream);
@@ -96,7 +94,7 @@ namespace OMODFramework
 
         #region SevenZip
 
-        private static Stream SevenZipOMODCompress(IEnumerable<CreationOptions.CreationOptionFile> files,
+        private static Stream SevenZipOMODCompress(HashSet<CreationOptions.CreationOptionFile> files,
             CompressionLevel level)
         {
             using var decompressedStream = CreateDecompressedStream(files);
@@ -149,7 +147,7 @@ namespace OMODFramework
 
         #region Zip
 
-        private static Stream ZipOMODCompress(IEnumerable<CreationOptions.CreationOptionFile> files, CompressionLevel level)
+        private static Stream ZipOMODCompress(HashSet<CreationOptions.CreationOptionFile> files, CompressionLevel level)
         {
             using var decompressedStream = CreateDecompressedStream(files);
             return ZipCompress(decompressedStream, level);

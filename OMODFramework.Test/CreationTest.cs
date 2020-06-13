@@ -8,11 +8,14 @@ namespace OMODFramework.Test
 {
     public class CreationTest
     {
-        public static CreationOptions CreateOptions()
+        private static CreationOptions CreateOptions()
         {
             var random = new Random();
 
-            var dataFiles = new List<CreationOptions.CreationOptionFile>();
+            var dataFiles = new HashSet<CreationOptions.CreationOptionFile>();
+
+            if(Directory.Exists("creation"))
+                Directory.Delete("creation", true);
 
             Directory.CreateDirectory("creation");
 
@@ -80,7 +83,7 @@ Conflicts with the CTD on Death mod by erri120.",
             var omodReadme = omod.GetReadme();
             Assert.Equal(options.Readme, omodReadme);
 
-            var omodFiles = omod.GetDataFileList().ToList();
+            var omodFiles = omod.GetDataFiles().ToHashSet();
             Assert.Equal(options.DataFiles!.Count, omodFiles.Count);
 
             var extractedDir = new DirectoryInfo(Path.Combine("creation"));

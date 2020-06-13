@@ -75,35 +75,35 @@ namespace OMODFramework.Scripting
 
         public string[] GetPlugins(string path, string pattern, bool recurse)
         {
-            if(_omod.OMODFile.PluginsList == null)
+            if(_omod.OMODFile.Plugins == null)
                 throw new ScriptingNullListException(false);
 
-            return _omod.OMODFile.PluginsList.Select(x => x.Name).FileEnumeration(path, pattern, recurse).ToArray();
+            return _omod.OMODFile.Plugins.Select(x => x.Name).FileEnumeration(path, pattern, recurse).ToArray();
         }
 
         public string[] GetDataFiles(string path, string pattern, bool recurse)
         {
-            if(_omod.OMODFile.DataList == null)
+            if(_omod.OMODFile.DataFiles == null)
                 throw new ScriptingNullListException();
 
-            return _omod.OMODFile.DataList.Select(x => x.Name).FileEnumeration(path, pattern, recurse).ToArray();
+            return _omod.OMODFile.DataFiles.Select(x => x.Name).FileEnumeration(path, pattern, recurse).ToArray();
         }
 
         public string[] GetPluginFolders(string path, string pattern, bool recurse)
         {
             //this function is kinda stupid as you can't really have folders with plugins
-            if (_omod.OMODFile.PluginsList == null)
+            if (_omod.OMODFile.Plugins == null)
                 throw new ScriptingNullListException();
 
-            return _omod.OMODFile.PluginsList.Select(x => x.Name).DirectoryEnumeration(path, pattern, recurse).ToArray();
+            return _omod.OMODFile.Plugins.Select(x => x.Name).DirectoryEnumeration(path, pattern, recurse).ToArray();
         }
 
         public string[] GetDataFolders(string path, string pattern, bool recurse)
         {
-            if (_omod.OMODFile.DataList == null)
+            if (_omod.OMODFile.DataFiles == null)
                 throw new ScriptingNullListException();
 
-            return _omod.OMODFile.DataList.Select(x => x.Name).DirectoryEnumeration(path, pattern, recurse).ToArray();
+            return _omod.OMODFile.DataFiles.Select(x => x.Name).DirectoryEnumeration(path, pattern, recurse).ToArray();
         }
 
         public string[] GetActiveEspNames()
@@ -126,11 +126,11 @@ namespace OMODFramework.Scripting
             var previewList = new List<Bitmap>();
             if (previews != null)
             {
-                if(_omod.OMODFile.DataList == null)
+                if(_omod.OMODFile.DataFiles == null)
                     throw new ScriptingNullListException();
 
                 previewList = previews
-                    .Select(x => _omod.OMODFile.DataList!.First(
+                    .Select(x => _omod.OMODFile.DataFiles!.First(
                             y => y.Name.EqualsPath(x)))
                     .Select(x => _omod.OMODFile.ExtractDecompressedFile(x))
                     .Select(x => new Bitmap(x)).ToList();
@@ -153,10 +153,10 @@ namespace OMODFramework.Scripting
 
         public void DisplayImage(string path)
         {
-            if (_omod.OMODFile.DataList == null)
+            if (_omod.OMODFile.DataFiles == null)
                 throw new ScriptingNullListException();
 
-            var file = _omod.OMODFile.DataList.First(x =>
+            var file = _omod.OMODFile.DataFiles.First(x =>
                 x.Name.Equals(path, StringComparison.InvariantCultureIgnoreCase));
 
             _settings.ScriptFunctions.DisplayImage(new Bitmap(_omod.OMODFile.ExtractDecompressedFile(file)), null);
@@ -164,10 +164,10 @@ namespace OMODFramework.Scripting
 
         public void DisplayImage(string path, string title)
         {
-            if (_omod.OMODFile.DataList == null)
+            if (_omod.OMODFile.DataFiles == null)
                 throw new ScriptingNullListException();
 
-            var file = _omod.OMODFile.DataList.First(x =>
+            var file = _omod.OMODFile.DataFiles.First(x =>
                 x.Name.Equals(path, StringComparison.InvariantCultureIgnoreCase));
 
             _settings.ScriptFunctions.DisplayImage(new Bitmap(_omod.OMODFile.ExtractDecompressedFile(file)), title);
@@ -175,10 +175,10 @@ namespace OMODFramework.Scripting
 
         public void DisplayText(string path)
         {
-            if (_omod.OMODFile.DataList == null)
+            if (_omod.OMODFile.DataFiles == null)
                 throw new ScriptingNullListException();
 
-            var file = _omod.OMODFile.DataList.First(x =>
+            var file = _omod.OMODFile.DataFiles.First(x =>
                 x.Name.Equals(path, StringComparison.InvariantCultureIgnoreCase));
 
             string text;
@@ -193,10 +193,10 @@ namespace OMODFramework.Scripting
 
         public void DisplayText(string path, string title)
         {
-            if (_omod.OMODFile.DataList == null)
+            if (_omod.OMODFile.DataFiles == null)
                 throw new ScriptingNullListException();
 
-            var file = _omod.OMODFile.DataList.First(x =>
+            var file = _omod.OMODFile.DataFiles.First(x =>
                 x.Name.Equals(path, StringComparison.InvariantCultureIgnoreCase));
 
             string text;
@@ -318,18 +318,18 @@ namespace OMODFramework.Scripting
 
         public void InstallAllPlugins()
         {
-            if (_omod.OMODFile.PluginsList == null)
+            if (_omod.OMODFile.Plugins == null)
                 throw new ScriptingNullListException(false);
 
-            _srd.PluginFiles = _omod.OMODFile.PluginsList.Select(x => new PluginFile(x)).ToList();
+            _srd.PluginFiles = _omod.OMODFile.Plugins.Select(x => new PluginFile(x)).ToHashSet();
         }
 
         public void InstallAllDataFiles()
         {
-            if (_omod.OMODFile.DataList == null)
+            if (_omod.OMODFile.DataFiles == null)
                 throw new ScriptingNullListException();
 
-            _srd.DataFiles = _omod.OMODFile.DataList.Select(x => new DataFile(x)).ToList();
+            _srd.DataFiles = _omod.OMODFile.DataFiles.Select(x => new DataFile(x)).ToHashSet();
         }
 
         public void DontInstallPlugin(string name)
@@ -348,45 +348,46 @@ namespace OMODFramework.Scripting
                 .Select(x => x.OriginalFile.Name)
                 .FileEnumeration(folder, "*", recurse);
 
-            _srd.DataFiles = new List<DataFile>(_srd.DataFiles.Where(x => !files.Contains(x.OriginalFile.Name)));
+            _srd.DataFiles.ExceptWith(_srd.DataFiles.Where(x => files.Contains(x.OriginalFile.Name)).ToList());
+            //_srd.DataFiles = new HashSet<DataFile>(_srd.DataFiles.Where(x => !files.Contains(x.OriginalFile.Name)));
         }
 
         public void InstallPlugin(string name)
         {
-            if (_omod.OMODFile.PluginsList == null)
+            if (_omod.OMODFile.Plugins == null)
                 throw new ScriptingNullListException(false);
 
-            _srd.PluginFiles.Add(new PluginFile(_omod.OMODFile.PluginsList.First(x => x.Name == name)));
+            _srd.PluginFiles.Add(new PluginFile(_omod.OMODFile.Plugins.First(x => x.Name == name)));
         }
 
         public void InstallDataFile(string name)
         {
-            if (_omod.OMODFile.DataList == null)
+            if (_omod.OMODFile.DataFiles == null)
                 throw new ScriptingNullListException();
 
-            _srd.PluginFiles.Add(new PluginFile(_omod.OMODFile.DataList.First(x => x.Name == name)));
+            _srd.PluginFiles.Add(new PluginFile(_omod.OMODFile.DataFiles.First(x => x.Name == name)));
         }
 
         public void InstallDataFolder(string folder, bool recurse)
         {
-            if (_omod.OMODFile.DataList == null)
+            if (_omod.OMODFile.DataFiles == null)
                 throw new ScriptingNullListException();
 
-            var files = _omod.OMODFile.DataList
+            var files = _omod.OMODFile.DataFiles
                 .Select(x => x.Name)
                 .FileEnumeration(folder, "*", recurse);
 
-            var range = _omod.OMODFile.DataList
+            var range = _omod.OMODFile.DataFiles
                 .Where(x => files.Contains(x.Name))
                 .Select(x => new DataFile(x))
                 .ToList();
 
-            _srd.DataFiles.AddRange(range);
+            _srd.DataFiles.UnionWith(range);
         }
 
         public void CopyPlugin(string from, string to)
         {
-            if (_omod.OMODFile.PluginsList == null)
+            if (_omod.OMODFile.Plugins == null)
                 throw new ScriptingNullListException(false);
 
             if (_srd.PluginFiles.Any(x =>
@@ -398,7 +399,7 @@ namespace OMODFramework.Scripting
             }
             else
             {
-                var file = new PluginFile(_omod.OMODFile.PluginsList
+                var file = new PluginFile(_omod.OMODFile.Plugins
                     .First(x => x.Name.EqualsPath(from)));
                 file.Output = file.Output = to;
                 _srd.PluginFiles.Add(file);
@@ -407,7 +408,7 @@ namespace OMODFramework.Scripting
 
         public void CopyDataFile(string from, string to)
         {
-            if (_omod.OMODFile.DataList == null)
+            if (_omod.OMODFile.DataFiles == null)
                 throw new ScriptingNullListException();
 
             if (_srd.DataFiles.Any(x =>
@@ -419,7 +420,7 @@ namespace OMODFramework.Scripting
             }
             else
             {
-                var file = new DataFile(_omod.OMODFile.DataList
+                var file = new DataFile(_omod.OMODFile.DataFiles
                     .First(x => x.Name.EqualsPath(from)));
                 file.Output = file.Output = to;
                 _srd.DataFiles.Add(file);
@@ -428,10 +429,10 @@ namespace OMODFramework.Scripting
 
         public void CopyDataFolder(string from, string to, bool recurse)
         {
-            if (_omod.OMODFile.DataList == null)
+            if (_omod.OMODFile.DataFiles == null)
                 throw new ScriptingNullListException();
 
-            var files = _omod.OMODFile.DataList.Select(x => x.Name)
+            var files = _omod.OMODFile.DataFiles.Select(x => x.Name)
                 .FileEnumeration(from, "*", recurse);
 
             _srd.DataFiles.Where(x => files.Contains(x.OriginalFile.Name, _comparer)).Do(f =>
@@ -439,12 +440,12 @@ namespace OMODFramework.Scripting
                 f.Output = f.OriginalFile.Name.ReplaceIgnoreCase(from, to);
             });
 
-            var range = _omod.OMODFile.DataList
+            var range = _omod.OMODFile.DataFiles
                 .Where(x => files.Contains(x.Name, _comparer))
                 .Where(x => _srd.DataFiles.All(y => !y.OriginalFile.Equals(x)))
                 .Select(x => new DataFile(x) {Output = x.Name.ReplaceIgnoreCase(from, to)}).ToList();
 
-            _srd.DataFiles.AddRange(range);
+            _srd.DataFiles.UnionWith(range);
         }
 
         public void PatchPlugin(string from, string to, bool create)
@@ -554,10 +555,10 @@ namespace OMODFramework.Scripting
 
         public byte[] ReadDataFile(string file)
         {
-            if (_omod.OMODFile.DataList == null)
+            if (_omod.OMODFile.DataFiles == null)
                 throw new ScriptingNullListException();
 
-            var first = _omod.OMODFile.DataList.First(x =>
+            var first = _omod.OMODFile.DataFiles.First(x =>
                 x.Name.EqualsPath(file));
 
             using var stream = _omod.OMODFile.ExtractDecompressedFile(first);

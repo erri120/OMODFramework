@@ -13,7 +13,7 @@ namespace OMODFramework.Scripting
 
     public class ScriptingNullListException : ScriptException
     {
-        public ScriptingNullListException(bool isData = true) : base($"The {(isData ? "DataList" : "PluginsList")} of the OMOD is null!") { }
+        public ScriptingNullListException(bool isData = true) : base($"The {(isData ? "DataFiles" : "Plugins")} of the OMOD is null!") { }
     }
 
     public class ScriptingFatalErrorException : ScriptException
@@ -118,6 +118,19 @@ namespace OMODFramework.Scripting
         {
             return $"{OriginalFile.Name} to {Output}";
         }
+
+        public override bool Equals(object? obj)
+        {
+            if (!(obj is ScriptReturnFile file))
+                return false;
+
+            return file.OriginalFile.Equals(OriginalFile);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(OriginalFile);
+        }
     }
 
     [PublicAPI]
@@ -163,8 +176,8 @@ namespace OMODFramework.Scripting
     [PublicAPI]
     public class ScriptReturnData
     {
-        public List<DataFile> DataFiles { get; set; } = new List<DataFile>();
-        public List<PluginFile> PluginFiles { get; set; } = new List<PluginFile>();
+        public HashSet<DataFile> DataFiles { get; set; } = new HashSet<DataFile>();
+        public HashSet<PluginFile> PluginFiles { get; set; } = new HashSet<PluginFile>();
 
         public List<ConflictData> Conflicts { get; set; } = new List<ConflictData>();
 

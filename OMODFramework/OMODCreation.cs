@@ -51,11 +51,11 @@ namespace OMODFramework
         /// <summary>
         /// Required, List of all data files
         /// </summary>
-        public List<CreationOptionFile>? DataFiles { get; set; }
+        public HashSet<CreationOptionFile>? DataFiles { get; set; }
         /// <summary>
         /// Optional, List of all plugin files
         /// </summary>
-        public List<CreationOptionFile>? PluginFiles { get; set; }
+        public HashSet<CreationOptionFile>? PluginFiles { get; set; }
 
         /// <summary>
         /// Utility function to verify whether the given Options are valid.
@@ -112,12 +112,12 @@ namespace OMODFramework
             /// <summary>
             /// File on disk to include
             /// </summary>
-            public FileInfo From { get; set; }
+            public FileInfo From { get; }
             /// <summary>
             /// Path of the file to go to in the omod. Do note that plugins
             /// must not be in a directory.
             /// </summary>
-            public string To { get; set; }
+            public string To { get; }
 
             public CreationOptionFile(FileInfo from, string to)
             {
@@ -131,6 +131,19 @@ namespace OMODFramework
             public override string ToString()
             {
                 return $"{From.FullName} to {To}";
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (!(obj is CreationOptionFile file))
+                    return false;
+
+                return To.Equals(file.To, StringComparison.InvariantCultureIgnoreCase) && From.FullName.Equals(file.From.FullName, StringComparison.InvariantCultureIgnoreCase);
+            }
+
+            public override int GetHashCode()
+            {
+                return From.FullName.GetHashCode(StringComparison.InvariantCultureIgnoreCase);
             }
         }
     }

@@ -60,13 +60,13 @@ namespace OMODFramework.Test
                     current = current.Substring(1);
                     if (current == "Data")
                     {
-                        currentResult!.DataFiles = new List<string>();
+                        currentResult!.DataFiles = new HashSet<string>();
                         inData = true;
                         if (inPlugin)
                             inPlugin = false;
                     } else if (current == "Plugin")
                     {
-                        currentResult!.PluginFiles = new List<string>();
+                        currentResult!.PluginFiles = new HashSet<string>();
                         inPlugin = true;
                         if (inData)
                             inData = false;
@@ -91,8 +91,8 @@ namespace OMODFramework.Test
         {
             public int ModID { get; set; }
             public int FileID { get; set; }
-            public List<string>? DataFiles { get; set; }
-            public List<string>? PluginFiles { get; set; }
+            public HashSet<string>? DataFiles { get; set; }
+            public HashSet<string>? PluginFiles { get; set; }
             public Dictionary<string, string>? Selects { get; set; }
         }
     }
@@ -295,13 +295,13 @@ namespace OMODFramework.Test
                     Assert.NotEmpty(result.PluginFiles);
                 }
 
-                var dataFiles = srd.DataFiles.Select(x => x.Output).ToList();
+                var dataFiles = srd.DataFiles.Select(x => x.Output).ToHashSet();
 
                 VerifyResult(result.DataFiles!, dataFiles);
 
                 if (result.PluginFiles != null)
                 {
-                    VerifyResult(result.PluginFiles, srd.PluginFiles.Select(x => x.Output).ToList());
+                    VerifyResult(result.PluginFiles, srd.PluginFiles.Select(x => x.Output).ToHashSet());
                 }
             });
         }
@@ -311,9 +311,9 @@ namespace OMODFramework.Test
             File.WriteAllText(file.FullName, list.OrderBy(x => x).ToAggregatedString("\n"));
         }
 
-        private static void VerifyResult(IReadOnlyCollection<string> expectedFiles, List<string> actualFiles)
+        private static void VerifyResult(HashSet<string> expectedFiles, HashSet<string> actualFiles)
         {
-            actualFiles = actualFiles.Select(x => x.ToLower()).ToList();
+            actualFiles = actualFiles.Select(x => x.ToLower()).ToHashSet();
             //ToFile(expectedFiles, new FileInfo("out.txt"));
             //ToFile(actualFiles, new FileInfo("out2.txt"));
             Assert.Equal(expectedFiles.Count, actualFiles.Count);

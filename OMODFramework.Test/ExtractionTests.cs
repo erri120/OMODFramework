@@ -51,7 +51,7 @@ namespace OMODFramework.Test
 
                 omod.OMODFile.Decompress(OMODEntryFileType.Data);
 
-                var dataFiles = omod.GetDataFileList().ToList();
+                var dataFiles = omod.GetDataFiles().ToHashSet();
                 Assert.NotEmpty(dataFiles);
 
                 var dir = new DirectoryInfo("output");

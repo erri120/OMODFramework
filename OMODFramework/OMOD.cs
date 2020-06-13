@@ -213,9 +213,9 @@ namespace OMODFramework
         /// Returns an enumerable of all data files.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<OMODCompressedEntry> GetDataFileList()
+        public IEnumerable<OMODCompressedEntry> GetDataFiles()
         {
-            return OMODFile.GetDataFileList();
+            return OMODFile.GetDataFiles();
         }
 
         /// <summary>
