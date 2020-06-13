@@ -106,12 +106,18 @@ namespace OMODFramework.Scripting
     public class ScriptReturnFile
     {
         public readonly OMODCompressedEntry OriginalFile;
-        public string Output { get; set; }
+        public string Output { get; }
 
         public ScriptReturnFile(OMODCompressedEntry entry)
         {
             OriginalFile = entry;
             Output = OriginalFile.Name;
+        }
+
+        public ScriptReturnFile(OMODCompressedEntry entry, string output)
+        {
+            OriginalFile = entry;
+            Output = output;
         }
 
         public override string ToString()
@@ -124,21 +130,21 @@ namespace OMODFramework.Scripting
             if (!(obj is ScriptReturnFile file))
                 return false;
 
-            return file.OriginalFile.Equals(OriginalFile);
+            return file.OriginalFile.Equals(OriginalFile) && file.Output.Equals(Output, StringComparison.InvariantCultureIgnoreCase);
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(OriginalFile);
+            return HashCode.Combine(OriginalFile, Output);
         }
     }
 
     [PublicAPI]
     public sealed class DataFile : ScriptReturnFile
     {
-        public DataFile(OMODCompressedEntry entry) : base(entry)
-        {
-        }
+        public DataFile(OMODCompressedEntry entry) : base(entry) { }
+
+        public DataFile(OMODCompressedEntry entry, string output) : base(entry, output) { }
     }
 
     [PublicAPI]
@@ -146,9 +152,8 @@ namespace OMODFramework.Scripting
     {
         public bool IsUnchecked { get; set; }
 
-        public PluginFile(OMODCompressedEntry entry) : base(entry)
-        {
-        }
+        public PluginFile(OMODCompressedEntry entry) : base(entry) { }
+        public PluginFile(OMODCompressedEntry entry, string output) : base(entry, output) { }
     }
 
     [PublicAPI]

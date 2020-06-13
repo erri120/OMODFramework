@@ -135,13 +135,27 @@ namespace OMODFramework.Test
                 var result = new List<int>();
 
                 var list = items.Select(x => x.StartsWith("|") ? x.Substring(1) : x).ToList();
-                var index = list.IndexOf(select);
+                if (select.Contains("|"))
+                {
+                    var split = select.Split("|");
+                    split.Do(s =>
+                    {
+                        var i = list.IndexOf(s);
+                        if(i == -1)
+                            throw new Exception();
+                        result.Add(i);
+                    });
+                }
+                else
+                {
+                    var index = list.IndexOf(select);
 
-                if (index == -1)
-                    throw new Exception();
+                    if (index == -1)
+                        throw new Exception();
 
-                result.Add(index);
-
+                    result.Add(index);
+                }
+                
                 return result;
             }
 
@@ -266,7 +280,7 @@ namespace OMODFramework.Test
                 new NexusFile(40462,85415, "NoMaaM Breathing Idles V1 OMOD-40462-1-0.omod"),
                 new NexusFile(34442,80882, "HGEC Body with BBB v1dot12-34442.omod"),
                 new NexusFile(24078,41472, "EVE_HGEC_BodyStock and Clothing OMOD-24078.omod"),
-                //new NexusFile(40532,90010, "Robert Male Body Replacer v52 OMOD-40532-1.omod")
+                new NexusFile(40532,90010, "Robert Male Body Replacer v52 OMOD-40532-1.omod")
             };
 
             fileList.Do(file =>

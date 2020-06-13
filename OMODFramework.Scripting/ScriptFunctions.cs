@@ -390,7 +390,7 @@ namespace OMODFramework.Scripting
             if (_omod.OMODFile.Plugins == null)
                 throw new ScriptingNullListException(false);
 
-            if (_srd.PluginFiles.Any(x =>
+            /*if (_srd.PluginFiles.Any(x =>
                 x.OriginalFile.Name.EqualsPath(from)))
             {
                 var first = _srd.PluginFiles.First(x =>
@@ -398,12 +398,11 @@ namespace OMODFramework.Scripting
                 first.Output = first.Output.ReplaceIgnoreCase(from, to);
             }
             else
-            {
-                var file = new PluginFile(_omod.OMODFile.Plugins
-                    .First(x => x.Name.EqualsPath(from)));
-                file.Output = file.Output = to;
-                _srd.PluginFiles.Add(file);
-            }
+            {*/
+            var file = new PluginFile(_omod.OMODFile.Plugins
+                .First(x => x.Name.EqualsPath(from)), to);
+            _srd.PluginFiles.Add(file);
+            //}
         }
 
         public void CopyDataFile(string from, string to)
@@ -411,7 +410,7 @@ namespace OMODFramework.Scripting
             if (_omod.OMODFile.DataFiles == null)
                 throw new ScriptingNullListException();
 
-            if (_srd.DataFiles.Any(x =>
+            /*if (_srd.DataFiles.Any(x =>
                 x.OriginalFile.Name.EqualsPath(from)))
             {
                 var first = _srd.DataFiles.First(x =>
@@ -419,12 +418,11 @@ namespace OMODFramework.Scripting
                 first.Output = first.Output.ReplaceIgnoreCase(from, to);
             }
             else
-            {
-                var file = new DataFile(_omod.OMODFile.DataFiles
-                    .First(x => x.Name.EqualsPath(from)));
-                file.Output = file.Output = to;
-                _srd.DataFiles.Add(file);
-            }
+            {*/
+            var file = new DataFile(_omod.OMODFile.DataFiles
+                .First(x => x.Name.EqualsPath(from)), to);
+            _srd.DataFiles.Add(file);
+            //}
         }
 
         public void CopyDataFolder(string from, string to, bool recurse)
@@ -435,15 +433,15 @@ namespace OMODFramework.Scripting
             var files = _omod.OMODFile.DataFiles.Select(x => x.Name)
                 .FileEnumeration(from, "*", recurse);
 
-            _srd.DataFiles.Where(x => files.Contains(x.OriginalFile.Name, _comparer)).Do(f =>
+            /*_srd.DataFiles.Where(x => files.Contains(x.OriginalFile.Name, _comparer)).Do(f =>
             {
                 f.Output = f.OriginalFile.Name.ReplaceIgnoreCase(from, to);
-            });
+            });*/
 
             var range = _omod.OMODFile.DataFiles
                 .Where(x => files.Contains(x.Name, _comparer))
                 .Where(x => _srd.DataFiles.All(y => !y.OriginalFile.Equals(x)))
-                .Select(x => new DataFile(x) {Output = x.Name.ReplaceIgnoreCase(from, to)}).ToList();
+                .Select(x => new DataFile(x, x.Name.ReplaceIgnoreCase(from, to))).ToList();
 
             _srd.DataFiles.UnionWith(range);
         }
