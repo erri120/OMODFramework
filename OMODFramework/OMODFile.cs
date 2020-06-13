@@ -84,6 +84,7 @@ namespace OMODFramework
     internal class OMODFile : IDisposable
     {
         private readonly ZipFile _zipFile;
+        private readonly FrameworkSettings _settings;
         private MemoryStream? _decompressedDataStream;
         private MemoryStream? _decompressedPluginStream;
 
@@ -92,9 +93,10 @@ namespace OMODFramework
 
         internal CompressionType CompressionType { get; set; }
 
-        internal OMODFile(FileInfo path)
+        internal OMODFile(FileInfo path, FrameworkSettings? settings = null)
         {
             _zipFile = new ZipFile(path.OpenRead());
+            _settings = settings ?? FrameworkSettings.DefaultFrameworkSettings;
         }
 
         internal bool CheckIntegrity()
@@ -109,14 +111,14 @@ namespace OMODFramework
                 DataFiles ??= GetCRCSet(true);
 
                 _decompressedDataStream ??=
-                    (MemoryStream)CompressionHandler.DecompressStream(DataFiles, ExtractFile(OMODEntryFileType.Data), CompressionType);
+                    (MemoryStream)CompressionHandler.DecompressStream(DataFiles, ExtractFile(OMODEntryFileType.Data), CompressionType, _settings.CodeProgress);
             }
             else
             {
                 Plugins ??= GetCRCSet(false);
 
                 _decompressedPluginStream ??=
-                    (MemoryStream)CompressionHandler.DecompressStream(Plugins, ExtractFile(OMODEntryFileType.Plugins), CompressionType);
+                    (MemoryStream)CompressionHandler.DecompressStream(Plugins, ExtractFile(OMODEntryFileType.Plugins), CompressionType, _settings.CodeProgress);
             }
         }
 

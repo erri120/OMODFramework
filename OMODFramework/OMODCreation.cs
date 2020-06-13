@@ -248,7 +248,7 @@ namespace OMODFramework
             {
                 var entry = new ZipEntry("plugins.crc");
                 zipStream.PutNextEntry(entry);
-                CompressionHandler.CompressFiles(options.PluginFiles, options.CompressionType, options.DataCompressionLevel, out var pluginsCompressed, out var pluginsCRC);
+                CompressionHandler.CompressFiles(options.PluginFiles, options.CompressionType, options.DataCompressionLevel, out var pluginsCompressed, out var pluginsCRC, settings.CodeProgress);
                 WriteStreamToZip(bw, pluginsCRC);
                 bw.Flush();
 
@@ -267,7 +267,7 @@ namespace OMODFramework
             {
                 var entry = new ZipEntry("data.crc");
                 zipStream.PutNextEntry(entry);
-                CompressionHandler.CompressFiles(options.DataFiles, options.CompressionType, options.DataCompressionLevel, out var dataCompressed, out var dataCRC);
+                CompressionHandler.CompressFiles(options.DataFiles, options.CompressionType, options.DataCompressionLevel, out var dataCompressed, out var dataCRC, settings.CodeProgress);
                 WriteStreamToZip(bw, dataCRC);
                 bw.Flush();
 

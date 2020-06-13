@@ -30,26 +30,32 @@ namespace OMODFramework
         None = 0
     }
 
+    [PublicAPI]
+    public interface ICodeProgress : SevenZip.ICodeProgress, IDisposable
+    {
+        bool Init(long totalSize, bool compressing);
+    }
+
     internal static class CompressionHandler
     {
-        internal static Stream DecompressStream(IEnumerable<OMODCompressedEntry> entries, Stream compressedStream, CompressionType compressionType)
+        internal static Stream DecompressStream(IEnumerable<OMODCompressedEntry> entries, Stream compressedStream, CompressionType compressionType, ICodeProgress? progress = null)
         {
             var outSize = entries.Select(x => x.Length).Aggregate((x, y) => x + y);
             return compressionType switch
             {
-                CompressionType.SevenZip => SevenZipDecompress(compressedStream, outSize),
+                CompressionType.SevenZip => SevenZipDecompress(compressedStream, outSize, progress),
                 CompressionType.Zip => ZipDecompress(compressedStream, outSize),
                 _ => throw new ArgumentOutOfRangeException(nameof(compressionType), compressionType, null)
             };
         }
 
         internal static void CompressFiles(HashSet<CreationOptions.CreationOptionFile> files, CompressionType type,
-            CompressionLevel level, out Stream compressedStream, out Stream crcStream)
+            CompressionLevel level, out Stream compressedStream, out Stream crcStream, ICodeProgress? progress = null)
         {
             crcStream = GenerateCRCStream(files);
             compressedStream = type switch
             {
-                CompressionType.SevenZip => SevenZipOMODCompress(files, level),
+                CompressionType.SevenZip => SevenZipOMODCompress(files, level, progress),
                 CompressionType.Zip => ZipOMODCompress(files, level),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
@@ -95,13 +101,13 @@ namespace OMODFramework
         #region SevenZip
 
         private static Stream SevenZipOMODCompress(HashSet<CreationOptions.CreationOptionFile> files,
-            CompressionLevel level)
+            CompressionLevel level, ICodeProgress? progress)
         {
             using var decompressedStream = CreateDecompressedStream(files);
-            return SevenZipCompress(decompressedStream, level);
+            return SevenZipCompress(decompressedStream, level, progress);
         }
 
-        internal static Stream SevenZipCompress(Stream decompressedStream, CompressionLevel level)
+        internal static Stream SevenZipCompress(Stream decompressedStream, CompressionLevel level, ICodeProgress? progress)
         {
             var encoder = new Encoder();
             var dictionarySize = level switch
@@ -120,14 +126,18 @@ namespace OMODFramework
             var compressedStream = new MemoryStream();
             encoder.WriteCoderProperties(compressedStream);
 
-            encoder.Code(decompressedStream, compressedStream, decompressedStream.Length, -1, null);
+            var res = false;
+            if (progress != null)
+                res = progress.Init(decompressedStream.Length, true);
+
+            encoder.Code(decompressedStream, compressedStream, decompressedStream.Length, -1, res ? progress : null);
 
             compressedStream.Position = 0;
 
             return compressedStream;
         }
 
-        internal static Stream SevenZipDecompress(Stream compressedStream, long outSize)
+        internal static Stream SevenZipDecompress(Stream compressedStream, long outSize, ICodeProgress? progress)
         {
             var buffer = new byte[5];
             var decoder = new Decoder();
@@ -137,7 +147,11 @@ namespace OMODFramework
             var inSize = compressedStream.Length - compressedStream.Position;
             var stream = new MemoryStream((int)outSize);
 
-            decoder.Code(compressedStream, stream, inSize, outSize, null);
+            var res = false;
+            if (progress != null)
+                res = progress.Init(outSize, false);
+
+            decoder.Code(compressedStream, stream, inSize, outSize, res ? progress : null);
 
             stream.Seek(0, SeekOrigin.Begin);
             return stream;

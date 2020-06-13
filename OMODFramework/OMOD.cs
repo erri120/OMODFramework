@@ -123,7 +123,7 @@ namespace OMODFramework
             if (settings == null)
                 _frameworkSettings = FrameworkSettings.DefaultFrameworkSettings;
 
-            OMODFile = new OMODFile(path);
+            OMODFile = new OMODFile(path, _frameworkSettings);
 
             if (checkIntegrity)
             {

@@ -20,5 +20,7 @@ namespace OMODFramework
         /// Current version of the Oblivion Mod Manager, Default is 1.1.12.0
         /// </summary>
         public Version CurrentOBMMVersion { get; set; } = new Version(1, 1, 12, 0);
+
+        public ICodeProgress? CodeProgress { get; set; }
     }
 }

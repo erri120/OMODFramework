@@ -6,6 +6,18 @@ namespace OMODFramework.Test
 {
     public class CompressionTests
     {
+        private class CodeProgress : ICodeProgress
+        {
+            public bool Init(long totalSize, bool compressing)
+            {
+                return true;
+            }
+
+            public void SetProgress(long inSize, long outSize) { }
+
+            public void Dispose() { }
+        }
+
         [Fact]
         public void TestSevenZipCompression()
         {
@@ -16,8 +28,11 @@ namespace OMODFramework.Test
             ms.Write(bytes, 0, bytes.Length);
             ms.Position = 0;
 
-            using var compressedStream = CompressionHandler.SevenZipCompress(ms, CompressionLevel.Medium);
-            using var decompressedStream = CompressionHandler.SevenZipDecompress(compressedStream, bytes.Length);
+            using var compressionProgress = new CodeProgress();
+            using var decompressionProgress = new CodeProgress();
+
+            using var compressedStream = CompressionHandler.SevenZipCompress(ms, CompressionLevel.Medium, compressionProgress);
+            using var decompressedStream = CompressionHandler.SevenZipDecompress(compressedStream, bytes.Length, decompressionProgress);
 
             var buffer = new byte[bytes.Length];
             decompressedStream.Read(buffer, 0, bytes.Length);
