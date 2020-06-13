@@ -34,7 +34,7 @@ namespace OMODFramework.Test
                 dataFiles.Add(creationFile);
             }
 
-            var script = File.ReadAllText("TestScript.txt");
+            //var script = File.ReadAllText("TestScript.txt");
 
             var options = new CreationOptions
             {
@@ -48,8 +48,8 @@ namespace OMODFramework.Test
 This amazing test mod will make you want to download and use the OMODFramework!
 Requires 3 brain cells, 10 buckets of milk and 4 eggs.
 Conflicts with the CTD on Death mod by erri120.",
-                Script = script,
-                ScriptType = ScriptType.OBMMScript,
+                //Script = script,
+                //ScriptType = ScriptType.OBMMScript,
 
                 CompressionType = CompressionType.SevenZip,
                 DataCompressionLevel = CompressionLevel.Medium,
