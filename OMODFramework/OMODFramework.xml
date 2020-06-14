@@ -4,6 +4,70 @@
         <name>OMODFramework</name>
     </assembly>
     <members>
+        <member name="T:OMODFramework.CompressionType">
+            <summary>
+            CompressionType enum for the OMOD
+            </summary>
+        </member>
+        <member name="F:OMODFramework.CompressionType.SevenZip">
+            <summary>
+            LZMA
+            </summary>
+        </member>
+        <member name="F:OMODFramework.CompressionType.Zip">
+            <summary>
+            Zip
+            </summary>
+        </member>
+        <member name="T:OMODFramework.CompressionLevel">
+            <summary>
+            Level of compression. 
+            </summary>
+        </member>
+        <member name="F:OMODFramework.CompressionLevel.VeryHigh">
+            <summary>
+            SevenZip: 1 left shift 26 dictionary size
+            </summary>
+        </member>
+        <member name="F:OMODFramework.CompressionLevel.High">
+            <summary>
+            SevenZip: 1 left shift 25 dictionary size
+            </summary>
+        </member>
+        <member name="F:OMODFramework.CompressionLevel.Medium">
+            <summary>
+            SevenZip: 1 left shift 23 dictionary size
+            </summary>
+        </member>
+        <member name="F:OMODFramework.CompressionLevel.Low">
+            <summary>
+            SevenZip: 1 left shift 21 dictionary size
+            </summary>
+        </member>
+        <member name="F:OMODFramework.CompressionLevel.VeryLow">
+            <summary>
+            SevenZip: 1 left shift 19 dictionary size
+            </summary>
+        </member>
+        <member name="F:OMODFramework.CompressionLevel.None">
+            <summary>
+            SevenZip: 0 dictionary size
+            </summary>
+        </member>
+        <member name="T:OMODFramework.ICodeProgress">
+            <summary>
+            Progress Reporter interface for compression and decompression of SevenZip archives
+            </summary>
+        </member>
+        <member name="M:OMODFramework.ICodeProgress.Init(System.Int64,System.Boolean)">
+            <summary>
+            Init function that is called before compression/decompression starts. Return
+            whether or not this progress reporter should be used.
+            </summary>
+            <param name="totalSize">Total size to be compressed/decompressed</param>
+            <param name="compressing">Whether we are compression or decompression</param>
+            <returns></returns>
+        </member>
         <member name="T:OMODFramework.Exceptions.OMODInvalidConfigException">
             <summary>
             The Exception that is thrown when the parsed config of an OMOD is not valid
@@ -22,6 +86,11 @@
         <member name="T:OMODFramework.Exceptions.ZipFileExtractionException">
             <summary>
             The Exception that is thrown when a file could not be extracted from a <see cref="T:ICSharpCode.SharpZipLib.Zip.ZipFile"/>
+            </summary>
+        </member>
+        <member name="T:OMODFramework.FrameworkSettings">
+            <summary>
+            Settings for the entire Framework
             </summary>
         </member>
         <member name="P:OMODFramework.FrameworkSettings.DefaultFrameworkSettings">
@@ -43,6 +112,74 @@
             <summary>
             Progress reporter for compression and decompression of SevenZip archives.
             </summary>
+        </member>
+        <member name="P:OMODFramework.FrameworkSettings.Logger">
+            <summary>
+            Logger to use. Default value is an internal FileLogger that will create a OMODFramework.log file.
+            Can be set to null if you don't want any logging at all.
+            </summary>
+        </member>
+        <member name="T:OMODFramework.Logging.LoggingLevel">
+            <summary>
+            Logging levels. Lower values mean more verbose output.
+            </summary>
+        </member>
+        <member name="F:OMODFramework.Logging.LoggingLevel.Debug">
+            <summary>
+            Lowest value. This is very verbose and will even report
+            on every function call during script execution. 
+            </summary>
+        </member>
+        <member name="F:OMODFramework.Logging.LoggingLevel.Info">
+            <summary>
+            Default value.
+            </summary>
+        </member>
+        <member name="T:OMODFramework.Logging.ILogger">
+            <summary>
+            Interface for a custom Logger
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Logging.ILogger.LowestLevel">
+            <summary>
+            Lowest level that will be reported. <see cref="M:OMODFramework.Logging.ILogger.Log(OMODFramework.Logging.LoggingLevel,System.String,System.DateTime)"/> won't be called
+            if the level of the log is below this LowestLevel.
+            </summary>
+        </member>
+        <member name="M:OMODFramework.Logging.ILogger.Log(OMODFramework.Logging.LoggingLevel,System.String,System.DateTime)">
+            <summary>
+            Log a message
+            </summary>
+            <param name="level">Level of the message, will always be higher than <see cref="P:OMODFramework.Logging.ILogger.LowestLevel"/></param>
+            <param name="message">The message (can be multiline)</param>
+            <param name="time">Time of the log</param>
+        </member>
+        <member name="M:OMODFramework.Utils.HasFile(ICSharpCode.SharpZipLib.Zip.ZipFile,System.String,System.Boolean)">
+            <summary>
+            Checks if the given <see cref="T:ICSharpCode.SharpZipLib.Zip.ZipFile"/> contains a file
+            </summary>
+            <param name="zipFile">The ZipFile</param>
+            <param name="file">The file to find</param>
+            <param name="ignoreCase">Whether to ignore case or not</param>
+            <returns></returns>
+        </member>
+        <member name="M:OMODFramework.Utils.CheckIntegrity(ICSharpCode.SharpZipLib.Zip.ZipFile,System.Boolean)">
+            <summary>
+            Tests the <see cref="T:ICSharpCode.SharpZipLib.Zip.ZipFile"/> for integrity
+            </summary>
+            <param name="file">The ZipFile to test</param>
+            <param name="throwIfNotValid">Whether to throw a <see cref="T:OMODFramework.Exceptions.ZipFileIntegrityException"/> if the archive is not valid</param>
+            <returns></returns>
+            <exception cref="T:OMODFramework.Exceptions.ZipFileIntegrityException"></exception>
+        </member>
+        <member name="M:OMODFramework.Utils.ExtractFile(ICSharpCode.SharpZipLib.Zip.ZipFile,System.String)">
+            <summary>
+            Extracts a file from <see cref="T:ICSharpCode.SharpZipLib.Zip.ZipFile"/> and returns a <see cref="T:System.IO.Stream"/>
+            </summary>
+            <param name="file">The archive</param>
+            <param name="name">The file to extract</param>
+            <returns></returns>
+            <exception cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException"></exception>
         </member>
         <member name="T:OMODFramework.Config">
             <summary>
@@ -289,33 +426,6 @@
             <summary>
             Offset in the decompressed data
             </summary>
-        </member>
-        <member name="M:OMODFramework.Utils.HasFile(ICSharpCode.SharpZipLib.Zip.ZipFile,System.String,System.Boolean)">
-            <summary>
-            Checks if the given <see cref="T:ICSharpCode.SharpZipLib.Zip.ZipFile"/> contains a file
-            </summary>
-            <param name="zipFile">The ZipFile</param>
-            <param name="file">The file to find</param>
-            <param name="ignoreCase">Whether to ignore case or not</param>
-            <returns></returns>
-        </member>
-        <member name="M:OMODFramework.Utils.CheckIntegrity(ICSharpCode.SharpZipLib.Zip.ZipFile,System.Boolean)">
-            <summary>
-            Tests the <see cref="T:ICSharpCode.SharpZipLib.Zip.ZipFile"/> for integrity
-            </summary>
-            <param name="file">The ZipFile to test</param>
-            <param name="throwIfNotValid">Whether to throw a <see cref="T:OMODFramework.Exceptions.ZipFileIntegrityException"/> if the archive is not valid</param>
-            <returns></returns>
-            <exception cref="T:OMODFramework.Exceptions.ZipFileIntegrityException"></exception>
-        </member>
-        <member name="M:OMODFramework.Utils.ExtractFile(ICSharpCode.SharpZipLib.Zip.ZipFile,System.String)">
-            <summary>
-            Extracts a file from <see cref="T:ICSharpCode.SharpZipLib.Zip.ZipFile"/> and returns a <see cref="T:System.IO.Stream"/>
-            </summary>
-            <param name="file">The archive</param>
-            <param name="name">The file to extract</param>
-            <returns></returns>
-            <exception cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException"></exception>
         </member>
         <member name="T:SevenZip.DataErrorException">
             <summary>

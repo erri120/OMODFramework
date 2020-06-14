@@ -10,7 +10,7 @@ namespace OMODFramework.Exceptions
     /// The Exception that is thrown when the archive test for a <see cref="ZipFile"/> failed
     /// </summary>
     [PublicAPI]
-    public class ZipFileIntegrityException : Exception
+    public class ZipFileIntegrityException : OMODException
     {
         public ZipFileIntegrityException(string s) 
             : base(s){}
@@ -23,7 +23,7 @@ namespace OMODFramework.Exceptions
     /// The Exception that is thrown when an entry was not found in a <see cref="ZipFile"/>
     /// </summary>
     [PublicAPI]
-    public class ZipFileEntryNotFoundException : Exception
+    public class ZipFileEntryNotFoundException : OMODException
     {
         public ZipFileEntryNotFoundException(string name) 
             : base($"Could not find entry {name}") {}
@@ -36,7 +36,7 @@ namespace OMODFramework.Exceptions
     /// The Exception that is thrown when a file could not be extracted from a <see cref="ZipFile"/>
     /// </summary>
     [PublicAPI]
-    public class ZipFileExtractionException : Exception
+    public class ZipFileExtractionException : OMODException
     {
         public ZipFileExtractionException(string name) 
             : base($"Could not extract file {name}!"){}

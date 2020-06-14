@@ -1,5 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
+using OMODFramework.Logging;
 
 namespace OMODFramework
 {
@@ -28,5 +29,22 @@ namespace OMODFramework
         /// Progress reporter for compression and decompression of SevenZip archives.
         /// </summary>
         public ICodeProgress? CodeProgress { get; set; }
+
+        /// <summary>
+        /// Logger to use. Default value is an internal FileLogger that will create a OMODFramework.log file.
+        /// Can be set to null if you don't want any logging at all.
+        /// </summary>
+        public ILogger? Logger
+        {
+            get => _logger;
+            set
+            {
+                _logger = value;
+                if(Utils.Logger != _logger)
+                    Utils.Logger?.Dispose();
+                Utils.Logger = value;
+            }
+        }
+        private ILogger? _logger = Utils.Logger;
     }
 }
