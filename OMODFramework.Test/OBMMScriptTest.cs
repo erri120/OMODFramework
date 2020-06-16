@@ -234,7 +234,7 @@ namespace OMODFramework.Test
                 throw new NotImplementedException();
             }
 
-            public IEnumerable<ScriptESP> GetESPs()
+            public IEnumerable<ESP> GetESPs()
             {
                 throw new NotImplementedException();
             }

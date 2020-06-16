@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using JetBrains.Annotations;
 using OblivionModManager.Scripting;
 
@@ -8,7 +9,7 @@ namespace OMODFramework.Scripting
 {
     public class ScriptException : Exception
     {
-        protected ScriptException(string s) : base(s){ }
+        public ScriptException(string s) : base(s){ }
     }
 
     public class ScriptingNullListException : ScriptException
@@ -36,7 +37,7 @@ namespace OMODFramework.Scripting
     }
 
     [PublicAPI]
-    public struct ScriptESP
+    public struct ESP
     {
         public string Name { get; set; }
         public bool Active { get; set; }
@@ -91,7 +92,7 @@ namespace OMODFramework.Scripting
 
         Version OBSEPluginVersion(string file);
 
-        IEnumerable<ScriptESP> GetESPs();
+        IEnumerable<ESP> GetESPs();
 
         IEnumerable<string> GetActiveOMODNames();
 
@@ -152,6 +153,12 @@ namespace OMODFramework.Scripting
     {
         public bool IsUnchecked { get; set; }
 
+        public DeactiveStatus? Warning { get; set; }
+        public bool LoadEarly { get; set; }
+
+        public List<PluginFile> LoadBefore { get; set; } = new List<PluginFile>();
+        public List<PluginFile> LoadAfter { get; set; } = new List<PluginFile>();
+
         public PluginFile(OMODCompressedEntry entry) : base(entry) { }
         public PluginFile(OMODCompressedEntry entry, string output) : base(entry, output) { }
     }
@@ -179,14 +186,59 @@ namespace OMODFramework.Scripting
     }
 
     [PublicAPI]
+    public struct INIEditInfo
+    {
+        public readonly string Section;
+        public readonly string Name;
+        public readonly string NewValue;
+
+        public INIEditInfo(string section, string name, string newValue)
+        {
+            Section = section;
+            Name = name;
+            NewValue = newValue;
+        }
+
+        public override string ToString()
+        {
+            return $"[{Section}]{Name}:{NewValue}";
+        }
+    }
+
+    [PublicAPI]
+    public struct SDPEditInfo
+    {
+        public readonly byte Package;
+        public readonly string Shader;
+        public readonly string BinaryObject;
+
+        public SDPEditInfo(byte package, string shader, string binaryObject)
+        {
+            Package = package;
+            Shader = shader;
+            BinaryObject = binaryObject;
+        }
+    }
+
+    [PublicAPI]
     public class ScriptReturnData
     {
         public HashSet<DataFile> DataFiles { get; set; } = new HashSet<DataFile>();
         public HashSet<PluginFile> PluginFiles { get; set; } = new HashSet<PluginFile>();
 
-        public List<ConflictData> Conflicts { get; set; } = new List<ConflictData>();
+        public List<ConflictData> Conflicts { get; } = new List<ConflictData>();
 
-        internal List<string> UnCheckedPlugins { get; set; } = new List<string>();
+        public HashSet<string> RegisteredBSAs { get; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+
+        public List<INIEditInfo> INIEdits { get; } = new List<INIEditInfo>();
+        public List<SDPEditInfo> SDPEditInfos { get; } = new List<SDPEditInfo>();
+
+        public bool HasDataFiles => DataFiles.Any();
+        public bool HasPlugins => PluginFiles.Any();
+        public bool HasConflicts => Conflicts.Any();
+        public bool HasRegisteredBSAs => RegisteredBSAs.Any();
+        public bool HasINIEdits => INIEdits.Any();
+        public bool HasSDPEdits => SDPEditInfos.Any();
 
         public override string ToString()
         {

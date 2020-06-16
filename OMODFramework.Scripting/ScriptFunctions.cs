@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using OblivionModManager.Scripting;
+using OMODFramework.Exceptions;
 
 namespace OMODFramework.Scripting
 {
@@ -17,6 +18,10 @@ namespace OMODFramework.Scripting
         internal ScriptFunctions(IScriptSettings settings, OMOD omod, ScriptReturnData srd)
         {
             _settings = settings;
+            if(settings.FrameworkSettings.ScriptExecutionSettings == null)
+                throw new BadSettingsException("ScriptExecutionSettings must not be null!", nameof(settings.FrameworkSettings.ScriptExecutionSettings));
+            if (!settings.FrameworkSettings.ScriptExecutionSettings.VerifySettings())
+                throw new BadSettingsException("Bad ScriptExecutionSettings! Check previous exceptions!");
             _omod = omod;
             _srd = srd;
             _comparer = new PathComparer();
@@ -108,17 +113,17 @@ namespace OMODFramework.Scripting
 
         public string[] GetActiveEspNames()
         {
-            throw new NotImplementedException();
+            return _settings.ScriptFunctions.GetESPs().Where(x => x.Active).Select(x => x.Name).ToArray();
         }
 
         public string[] GetExistingEspNames()
         {
-            throw new NotImplementedException();
+            return _settings.ScriptFunctions.GetESPs().Select(x => x.Name).ToArray();
         }
 
         public string[] GetActiveOmodNames()
         {
-            throw new NotImplementedException();
+            return _settings.ScriptFunctions.GetActiveOMODNames().ToArray();
         }
 
         public string[] Select(IEnumerable<string> items, IEnumerable<string>? previews, IEnumerable<string>? descs, string title, bool many)
@@ -211,17 +216,26 @@ namespace OMODFramework.Scripting
 
         public void LoadEarly(string plugin)
         {
-            throw new NotImplementedException();
+            _srd.PluginFiles.First(x => x.Output.Equals(plugin, StringComparison.InvariantCultureIgnoreCase))
+                .LoadEarly = true;
         }
 
         public void LoadBefore(string plugin1, string plugin2)
         {
-            throw new NotImplementedException();
+            var plugin =
+                _srd.PluginFiles.First(x => x.Output.Equals(plugin1, StringComparison.InvariantCultureIgnoreCase));
+            var otherPlugin = _srd.PluginFiles.First(x => x.Output.Equals(plugin2, StringComparison.InvariantCultureIgnoreCase));
+
+            plugin.LoadBefore.Add(otherPlugin);
         }
 
         public void LoadAfter(string plugin1, string plugin2)
         {
-            throw new NotImplementedException();
+            var plugin =
+                _srd.PluginFiles.First(x => x.Output.Equals(plugin1, StringComparison.InvariantCultureIgnoreCase));
+            var otherPlugin = _srd.PluginFiles.First(x => x.Output.Equals(plugin2, StringComparison.InvariantCultureIgnoreCase));
+
+            plugin.LoadAfter.Add(otherPlugin);
         }
 
         public void SetNewLoadOrder(string[] plugins)
@@ -231,12 +245,14 @@ namespace OMODFramework.Scripting
 
         public void UncheckEsp(string plugin)
         {
-            _srd.UnCheckedPlugins.Add(plugin);
+            _srd.PluginFiles.First(x => x.Output.Equals(plugin, StringComparison.InvariantCultureIgnoreCase))
+                .IsUnchecked = true;
         }
 
         public void SetDeactivationWarning(string plugin, DeactiveStatus warning)
         {
-            throw new NotImplementedException();
+            _srd.PluginFiles.First(x => x.Output.Equals(plugin, StringComparison.InvariantCultureIgnoreCase))
+                .Warning = warning;
         }
 
         public void ConflictsWith(string filename)
@@ -275,7 +291,18 @@ namespace OMODFramework.Scripting
             int maxMinorVersion,
             string? comment, ConflictLevel level, bool regex)
         {
-            throw new NotImplementedException();
+            var cd = new ConflictData
+            {
+                File = name,
+                Comment = comment,
+                MinVersion = new Version(minMinorVersion, minMinorVersion),
+                MaxVersion = new Version(maxMajorVersion, maxMinorVersion),
+                Partial = regex,
+                Level = level,
+                Type = ConflictType.Conflicts
+            };
+
+            _srd.Conflicts.Add(cd);
         }
 
         public void DependsOn(string filename)
@@ -303,7 +330,17 @@ namespace OMODFramework.Scripting
             int maxMinorVersion,
             string? comment, bool regex)
         {
-            throw new NotImplementedException();
+            var cd = new ConflictData
+            {
+                File = name,
+                Comment = comment,
+                MinVersion = new Version(minMinorVersion, minMinorVersion),
+                MaxVersion = new Version(maxMajorVersion, maxMinorVersion),
+                Partial = regex,
+                Type = ConflictType.Depends
+            };
+
+            _srd.Conflicts.Add(cd);
         }
 
         public void DontInstallAnyPlugins()
@@ -448,32 +485,51 @@ namespace OMODFramework.Scripting
 
         public void PatchPlugin(string from, string to, bool create)
         {
+            var extension = Path.GetExtension(to);
+            if(extension == null || extension != ".esp" || extension != ".esm")
+                throw new ScriptException($"Extension of {to} is not allowed!");
+
+            if (_omod.OMODFile.Plugins == null)
+                throw new ScriptingNullListException(false);
+
+            var file = _omod.OMODFile.Plugins.First(x => x.Name.EqualsPath(from));
             throw new NotImplementedException();
         }
 
         public void PatchDataFile(string from, string to, bool create)
         {
+            var extension = Path.GetExtension(to);
+            if (extension == null || extension == ".esp" || extension == ".esm")
+                throw new ScriptException($"Extension of {to} is not allowed!");
+
+            if (_omod.OMODFile.DataFiles == null)
+                throw new ScriptingNullListException();
             throw new NotImplementedException();
         }
 
         public void RegisterBSA(string path)
         {
-            throw new NotImplementedException();
+            _srd.RegisteredBSAs.Add(path);
         }
 
         public void UnregisterBSA(string path)
         {
-            throw new NotImplementedException();
+            _srd.RegisteredBSAs.Remove(path);
         }
 
         public void EditINI(string section, string key, string value)
         {
-            throw new NotImplementedException();
+            _srd.INIEdits.Add(new INIEditInfo(section, key, value));
         }
 
         public void EditShader(byte package, string name, string path)
         {
-            throw new NotImplementedException();
+            if (_omod.OMODFile.DataFiles == null)
+                throw new ScriptingNullListException();
+
+            var file = _omod.OMODFile.DataFiles.First(x => x.Name.EqualsPath(path));
+
+            _srd.SDPEditInfos.Add(new SDPEditInfo(package, name, file.Name));
         }
 
         public void FatalError()
@@ -533,12 +589,16 @@ namespace OMODFramework.Scripting
 
         public string ReadINI(string section, string value)
         {
-            throw new NotImplementedException();
+            return _settings.FrameworkSettings.ScriptExecutionSettings!.ReadINIWithInterface 
+                ? _settings.ScriptFunctions.ReadOblivionINI(section, value) 
+                : OblivionINI.GetINIValue(_settings.FrameworkSettings.ScriptExecutionSettings!.OblivionINIPath!, section, value);
         }
 
         public string ReadRendererInfo(string value)
         {
-            throw new NotImplementedException();
+            return _settings.FrameworkSettings.ScriptExecutionSettings!.ReadRendererInfoWithInterface
+                ? _settings.ScriptFunctions.ReadRenderInfo(value)
+                : OblivionRenderInfo.GetInfo(_settings.FrameworkSettings.ScriptExecutionSettings!.OblivionRendererInfoPath!, value);
         }
 
         public void EditXMLLine(string file, int line, string value)
@@ -588,14 +648,22 @@ namespace OMODFramework.Scripting
 
         public void CancelDataFileCopy(string file)
         {
-            if (_srd.DataFiles.Any(x => x.Output.EqualsPath(file)))
-                _srd.DataFiles.Remove(_srd.DataFiles.First(x =>
-                    x.Output.EqualsPath(file)));
+            var res = _srd.DataFiles.Remove(_srd.DataFiles.First(x =>
+                x.Output.EqualsPath(file)));
+
+            if (!res)
+            {
+                OMODFramework.Utils.Debug($"Unable to Cancel Data File Copy of file {file} because it was not found in DataFiles!");
+            }
         }
 
         public void CancelDataFolderCopy(string folder)
         {
-            throw new NotImplementedException();
+            var other = _srd.DataFiles
+                .Where(x => x.Output.StartsWith(folder, StringComparison.InvariantCultureIgnoreCase))
+                .ToList();
+             
+            _srd.DataFiles.ExceptWith(other);
         }
 
         public void GenerateBSA(string file, string path, string prefix, int cRatio, int cLevel)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Force.Crc32;
 
@@ -6,6 +7,11 @@ namespace OMODFramework
 {
     internal static partial class Utils
     {
+        internal static void Do<T>(this IEnumerable<T> col, Action<T> a)
+        {
+            foreach(var item in col) a(item);
+        }
+
         internal static string ToFileString(this OMODEntryFileType entryFileType)
         {
             return entryFileType switch

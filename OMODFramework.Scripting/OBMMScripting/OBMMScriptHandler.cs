@@ -38,11 +38,11 @@ namespace OMODFramework.Scripting
             TokenizeScript(script);
             ParseScript();
 
-            FinishUpReturnData();
+            //FinishUpReturnData();
 
             return _srd;
         }
-
+/*
         /// <summary>
         /// Utility Function that will clean up the script return data
         /// </summary>
@@ -72,7 +72,7 @@ namespace OMODFramework.Scripting
                     }
                 });
             }
-        }
+        }*/
 
         /// <summary>
         /// Utility function for replacing variable placeholders with the actual value

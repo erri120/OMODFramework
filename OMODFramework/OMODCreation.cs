@@ -223,7 +223,6 @@ namespace OMODFramework
                 zipStream.PutNextEntry(entry);
 
                 using var fs = options.ImagePath.OpenRead();
-                //TODO: check if this actually works
                 fs.CopyTo(zipStream);
                 bw.Flush();
             }

@@ -110,11 +110,6 @@ namespace OMODFramework.Scripting
             dic.Add(key, value);
         }
 
-        internal static void Do<T>(this IEnumerable<T> col,[InstantHandle] Action<T> a)
-        {
-            foreach (var item in col) a(item);
-        }
-
         internal static bool TryGetEnum<T>(string s,[MaybeNullWhen(false)] out T type)
         {
             type = default;

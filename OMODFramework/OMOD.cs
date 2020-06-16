@@ -107,7 +107,7 @@ namespace OMODFramework
         /// <summary>
         /// <see cref="Config"/> of the OMOD
         /// </summary>
-        public readonly Config Config = null!;
+        public readonly Config Config;
 
         /// <summary>
         /// Loads the OMOD file and reads the config.
@@ -123,20 +123,26 @@ namespace OMODFramework
             if (settings == null)
                 _frameworkSettings = FrameworkSettings.DefaultFrameworkSettings;
 
+            Utils.Info($"Opening OMOD from {path.FullName}");
+
             OMODFile = new OMODFile(path, _frameworkSettings);
 
             if (checkIntegrity)
             {
+                Utils.Debug("Verifying integrity of the OMOD.");
                 if (!OMODFile.CheckIntegrity())
-                    return;
+                    throw new OMODException("OMOD failed the integrity check!");
             }
 
+            Utils.Debug("Reading Config from OMOD.");
             Config = OMODFile.ReadConfig();
 
             if(Config.FileVersion > _frameworkSettings.CurrentOMODVersion)
                 throw new OMODInvalidConfigException(Config, $"The file version in the config: {Config.FileVersion} is greater than the set OMOD version in the Framework Settings: {_frameworkSettings.CurrentOMODVersion}!");
 
             OMODFile.CompressionType = Config.CompressionType;
+
+            Utils.Info($"Successfully loaded OMOD {Config.Name}");
         }
 
         /// <summary>
@@ -266,6 +272,7 @@ namespace OMODFramework
         /// </summary>
         public void Dispose()
         {
+            Utils.Debug("Disposing OMOD.");
             OMODFile.Dispose();
         }
     }
