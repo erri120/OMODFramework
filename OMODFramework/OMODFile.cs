@@ -14,13 +14,37 @@ namespace OMODFramework
     [PublicAPI]
     public enum OMODEntryFileType : byte
     {
+        /// <summary>
+        /// File containing information about the data files
+        /// </summary>
         DataCRC,
+        /// <summary>
+        /// Raw compressed data
+        /// </summary>
         Data,
+        /// <summary>
+        /// File containing information about the plugins
+        /// </summary>
         PluginsCRC,
+        /// <summary>
+        /// Raw compressed plugins (optional)
+        /// </summary>
         Plugins,
+        /// <summary>
+        /// Config file (optional)
+        /// </summary>
         Config,
+        /// <summary>
+        /// Readme file
+        /// </summary>
         Readme,
+        /// <summary>
+        /// Script file (optional)
+        /// </summary>
         Script,
+        /// <summary>
+        /// Image file (optional)
+        /// </summary>
         Image
     }
 
@@ -125,16 +149,14 @@ namespace OMODFramework
         internal void ExtractAllDecompressedFiles(DirectoryInfo output, bool data)
         {
             var decompressedStream = data ? _decompressedDataStream : _decompressedPluginStream;
-            IEnumerable<OMODCompressedEntry>? enumerable = data ? DataFiles : Plugins;
+            HashSet<OMODCompressedEntry>? enumerable = data ? DataFiles : Plugins;
 
             if (decompressedStream == null)
                 throw new Exception($"Decompressed Stream ({(data ? "data" : "plugins")}) is null!");
             if (enumerable == null)
                 throw new Exception($"Enumerable for ({(data ? "data" : "plugins")}) is null!");
 
-            var list = enumerable.ToList();
-
-            foreach (var current in list)
+            foreach (var current in enumerable)
             {
                 decompressedStream.Seek(current.Offset, SeekOrigin.Begin);
 
