@@ -44,7 +44,7 @@ namespace OMODFramework.Example.CSharp
             //of the class.
 
             //ScriptSettings is defined below
-            var srd = ScriptRunner.ExecuteScript(omod, new ScriptSettings());
+            var srd = ScriptRunner.ExecuteScript(omod, new ScriptSettings(new ScriptFunctions(), new FrameworkSettings()));
 
             //after you got the script return data you can call the ExtractAllFiles of ScriptRunner
             //this will extract only the files needed to be installed instead of extracting every file
@@ -53,12 +53,6 @@ namespace OMODFramework.Example.CSharp
 
             return 0;
         }
-    }
-
-    public class ScriptSettings : IScriptSettings
-    {
-        public FrameworkSettings FrameworkSettings => new FrameworkSettings();
-        public IScriptFunctions ScriptFunctions => new ScriptFunctions();
     }
 
     public class ScriptFunctions : IScriptFunctions

@@ -8,7 +8,7 @@ namespace OMODFramework.Scripting
     [PublicAPI]
     public static class ScriptRunner
     {
-        public static ScriptReturnData ExecuteScript(OMOD omod, IScriptSettings settings)
+        public static ScriptReturnData ExecuteScript(OMOD omod, ScriptSettings settings)
         {
             if(!omod.HasFile(OMODEntryFileType.Script))
                 throw new ArgumentException("The given omod does not contain a script!", nameof(omod));
@@ -68,6 +68,6 @@ namespace OMODFramework.Scripting
 
     public abstract class AScriptHandler
     {
-        internal abstract ScriptReturnData Execute(OMOD omod, string script, IScriptSettings settings);
+        internal abstract ScriptReturnData Execute(OMOD omod, string script, ScriptSettings settings);
     }
 }

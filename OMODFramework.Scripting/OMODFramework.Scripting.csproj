@@ -7,6 +7,10 @@
     <Platforms>x64</Platforms>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DocumentationFile>M:\Projects\OMODFramework\OMODFramework.Scripting\OMODFramework.Scripting.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
   </ItemGroup>

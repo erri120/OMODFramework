@@ -10,7 +10,7 @@ namespace OMODFramework.Scripting
     public partial class OBMMScriptHandler : AScriptHandler
     {
         private ScriptReturnData _srd = null!;
-        private IScriptSettings _settings = null!;
+        private ScriptSettings _settings = null!;
         private ScriptFunctions _scriptFunctions = null!;
         private OMOD _omod = null!;
 
@@ -21,7 +21,7 @@ namespace OMODFramework.Scripting
 
         private bool Return { get; set; }
 
-        internal override ScriptReturnData Execute(OMOD omod, string script, IScriptSettings settings)
+        internal override ScriptReturnData Execute(OMOD omod, string script, ScriptSettings settings)
         {
             _settings = settings;
             _srd = new ScriptReturnData();

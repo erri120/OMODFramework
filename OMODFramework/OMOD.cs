@@ -66,18 +66,25 @@ namespace OMODFramework
 
             config.FileVersion = br.ReadByte();
             Utils.Debug($"File Version: {config.FileVersion}");
+
             config.Name = br.ReadString();
             Utils.Debug($"Name: {config.Name}");
+
             config._majorVersion = br.ReadInt32();
             Utils.Debug($"Major Version: {config._majorVersion}");
+
             config._minorVersion = br.ReadInt32();
             Utils.Debug($"Minor Version: {config._minorVersion}");
+
             config.Author = br.ReadString();
             Utils.Debug($"Author: {config.Author}");
+
             config.Email = br.ReadString();
             Utils.Debug($"Email: {config.Email}");
+
             config.Website = br.ReadString();
             Utils.Debug($"Website: {config.Website}");
+
             config.Description = br.ReadString();
             Utils.Debug($"Description: {config.Description}");
 
