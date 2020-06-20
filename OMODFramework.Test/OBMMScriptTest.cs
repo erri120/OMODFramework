@@ -99,11 +99,8 @@ namespace OMODFramework.Test
 
     public class OBMMScriptTestSettings : ScriptSettings
     {
-        private readonly ScriptResults.ScriptResult _result;
-
-        public OBMMScriptTestSettings(ScriptResults.ScriptResult result) : base(new OBMMScriptTestFunctions(result), FrameworkSettings.DefaultFrameworkSettings)
+        public OBMMScriptTestSettings(ScriptResults.ScriptResult result) : base(new OBMMScriptTestFunctions(result), new FrameworkSettings {ScriptExecutionSettings = new ScriptExecutionSettings()})
         {
-            _result = result;
         }
 
         private class OBMMScriptTestFunctions : IScriptFunctions

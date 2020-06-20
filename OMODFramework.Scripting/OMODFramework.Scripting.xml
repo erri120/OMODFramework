@@ -1,0 +1,304 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>OMODFramework.Scripting</name>
+    </assembly>
+    <members>
+        <member name="T:OMODFramework.Scripting.ScriptException">
+            <summary>
+            Thrown during script execution
+            </summary>
+        </member>
+        <member name="T:OMODFramework.Scripting.ScriptingFatalErrorException">
+            <summary>
+            Thrown when FatalError was triggered
+            </summary>
+        </member>
+        <member name="T:OMODFramework.Scripting.ScriptingCanceledException">
+            <summary>
+            Thrown when script execution was canceled
+            </summary>
+        </member>
+        <member name="T:OMODFramework.Scripting.DialogResult">
+            <summary>
+            Results for Dialogs
+            </summary>
+        </member>
+        <member name="F:OMODFramework.Scripting.DialogResult.Yes">
+            <summary>
+            Yes
+            </summary>
+        </member>
+        <member name="F:OMODFramework.Scripting.DialogResult.No">
+            <summary>
+            No
+            </summary>
+        </member>
+        <member name="F:OMODFramework.Scripting.DialogResult.Canceled">
+            <summary>
+            Canceled, this will throw <see cref="T:OMODFramework.Scripting.ScriptingCanceledException"/>
+            </summary>
+        </member>
+        <member name="T:OMODFramework.Scripting.ESP">
+            <summary>
+            ESP/ESM/Plugin struct
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Scripting.ESP.Name">
+            <summary>
+            Name of the plugin without extension
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Scripting.ESP.Active">
+            <summary>
+            Whether the plugin is active or not
+            </summary>
+        </member>
+        <member name="T:OMODFramework.Scripting.ScriptSettings">
+            <summary>
+            Settings for Script Execution
+            </summary>
+        </member>
+        <member name="F:OMODFramework.Scripting.ScriptSettings.FrameworkSettings">
+            <summary>
+            Framework Settings
+            </summary>
+        </member>
+        <member name="F:OMODFramework.Scripting.ScriptSettings.ScriptFunctions">
+            <summary>
+            Script Functions
+            </summary>
+        </member>
+        <member name="T:OMODFramework.Scripting.IScriptFunctions">
+            <summary>
+            Scripts Functions that you have to implement
+            </summary>
+        </member>
+        <member name="M:OMODFramework.Scripting.IScriptFunctions.Message(System.String)">
+            <summary>
+            Message for the user
+            </summary>
+            <param name="msg">Message to be displayed</param>
+        </member>
+        <member name="M:OMODFramework.Scripting.IScriptFunctions.Message(System.String,System.String)">
+            <summary>
+            Message for the user
+            </summary>
+            <param name="msg">Message to be displayed</param>
+            <param name="title">Title of the window</param>
+        </member>
+        <member name="M:OMODFramework.Scripting.IScriptFunctions.Select(System.Collections.Generic.IEnumerable{System.String},System.String,System.Boolean,System.Collections.Generic.IEnumerable{System.Drawing.Bitmap},System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Let the user select one or multiple items from an enumerable of items.
+            </summary>
+            <param name="items">Enumerable of all items to select from</param>
+            <param name="title">Title of the window</param>
+            <param name="isMultiSelect">Whether the user can select one or multiple items</param>
+            <param name="previews">Enumerable containing <see cref="T:System.Drawing.Bitmap"/> previews. Can be empty! Preview for items[i] is previews[i].</param>
+            <param name="descriptions">Enumerable containing descriptions of the items. Can be empty! Description for items[i] is descriptions[i]</param>
+            <returns>Enumerable with the indices of the selected items.</returns>
+        </member>
+        <member name="M:OMODFramework.Scripting.IScriptFunctions.InputString(System.String,System.String)">
+            <summary>
+            Let the user input a string
+            </summary>
+            <param name="title">Title of the window (can be null)</param>
+            <param name="initialText">Initial text (can be null)</param>
+            <returns></returns>
+        </member>
+        <member name="M:OMODFramework.Scripting.IScriptFunctions.DialogYesNo(System.String)">
+            <summary>
+            Yes, No dialog prompt
+            </summary>
+            <param name="title">Title of the window</param>
+            <returns></returns>
+        </member>
+        <member name="M:OMODFramework.Scripting.IScriptFunctions.DialogYesNo(System.String,System.String)">
+            <summary>
+            Yes, No dialog prompt
+            </summary>
+            <param name="title">Title of the window</param>
+            <param name="message">Message ot be displayewd</param>
+            <returns></returns>
+        </member>
+        <member name="M:OMODFramework.Scripting.IScriptFunctions.DisplayImage(System.Drawing.Bitmap,System.String)">
+            <summary>
+            Display an image
+            </summary>
+            <param name="image"><see cref="T:System.Drawing.Bitmap"/> of the image. Make sure you dispose of it!</param>
+            <param name="title">Title of the window</param>
+        </member>
+        <member name="M:OMODFramework.Scripting.IScriptFunctions.DisplayText(System.String,System.String)">
+            <summary>
+            Display text to the user
+            </summary>
+            <param name="text">Text to be displayed</param>
+            <param name="title">Title of the window (can be null)</param>
+        </member>
+        <member name="M:OMODFramework.Scripting.IScriptFunctions.HasScriptExtender">
+            <summary>
+            Check if the Oblivion Script Extender is installed or not
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OMODFramework.Scripting.IScriptFunctions.HasGraphicsExtender">
+            <summary>
+            Check if the Oblivion Graphics Extender is installed or not
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OMODFramework.Scripting.IScriptFunctions.ScriptExtenderVersion">
+            <summary>
+            Get the <see cref="T:System.Version"/> of the Oblivion Script Extender
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OMODFramework.Scripting.IScriptFunctions.GraphicsExtenderVersion">
+            <summary>
+            Get the <see cref="T:System.Version"/> of the Oblivion Graphics Extender
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OMODFramework.Scripting.IScriptFunctions.OblivionVersion">
+            <summary>
+            Get the <see cref="T:System.Version"/> of the Oblivion executable
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OMODFramework.Scripting.IScriptFunctions.OBSEPluginVersion(System.String)">
+            <summary>
+            Get the <see cref="T:System.Version"/> of an Oblivion Script Extender Plugin inside the
+            <c>data\obse\plugin</c> folder.
+            </summary>
+            <param name="file"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OMODFramework.Scripting.IScriptFunctions.GetESPs">
+            <summary>
+            Get an enumerable of all Plugins, active and non-active
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OMODFramework.Scripting.IScriptFunctions.GetActiveOMODNames">
+            <summary>
+            Get an enumerable of the names of all active OMODs
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:OMODFramework.Scripting.ConflictType">
+            <summary>
+            Conflict Types for <see cref="T:OMODFramework.Scripting.ConflictData"/>
+            </summary>
+        </member>
+        <member name="F:OMODFramework.Scripting.ConflictType.Conflicts">
+            <summary>
+            Conflict with another file
+            </summary>
+        </member>
+        <member name="F:OMODFramework.Scripting.ConflictType.Depends">
+            <summary>
+            Depends on another file
+            </summary>
+        </member>
+        <member name="T:OMODFramework.Scripting.ConflictData">
+            <summary>
+            Conflict Data class
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Scripting.ConflictData.Type">
+            <summary>
+            Type of Conflict
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Scripting.ConflictData.Level">
+            <summary>
+            Level of the Conflict
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Scripting.ConflictData.File">
+            <summary>
+            File that teh current OMOD conflicts with/depends on
+            </summary>
+        </member>
+        <member name="T:OMODFramework.Scripting.INIEditInfo">
+            <summary>
+            INI Edit Info
+            </summary>
+        </member>
+        <member name="F:OMODFramework.Scripting.INIEditInfo.Section">
+            <summary>
+            Section in the INI
+            </summary>
+        </member>
+        <member name="F:OMODFramework.Scripting.INIEditInfo.Name">
+            <summary>
+            Name of the variable
+            </summary>
+        </member>
+        <member name="F:OMODFramework.Scripting.INIEditInfo.NewValue">
+            <summary>
+            New Value
+            </summary>
+        </member>
+        <member name="T:OMODFramework.Scripting.SDPEditInfo">
+            <summary>
+            Shader package edits
+            </summary>
+        </member>
+        <member name="T:OMODFramework.Scripting.ScriptReturnData">
+            <summary>
+            Script Return Data. This class holds information about everything that
+            gets returned and modified during script exeuction.
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Scripting.ScriptReturnData.DataFiles">
+            <summary>
+            Data Files to be installed
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Scripting.ScriptReturnData.PluginFiles">
+            <summary>
+            Plugins to be installed
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Scripting.ScriptReturnData.Conflicts">
+            <summary>
+            Conflicts with other files
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Scripting.ScriptReturnData.RegisteredBSAs">
+            <summary>
+            BSAs to be registered
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Scripting.ScriptReturnData.INIEdits">
+            <summary>
+            INI Edits to be made
+            </summary>
+        </member>
+        <member name="P:OMODFramework.Scripting.ScriptReturnData.SDPEditInfos">
+            <summary>
+            Shader Package Edits to be made
+            </summary>
+        </member>
+        <member name="M:OMODFramework.Scripting.OBMMScriptHandler.ReplaceWithVariable(System.String)">
+            <summary>
+            Utility function for replacing variable placeholders with the actual value
+            of the variable from the _variables dictionary
+            </summary>
+            <param name="s"></param>
+            <returns></returns>
+        </member>
+        <member name="T:OMODFramework.Scripting.OBMMScriptHandler.LineAttribute">
+            <summary>
+            Utility attribute for <see cref="T:OMODFramework.Scripting.OBMMScriptHandler.TokenType"/>. Used in <see cref="M:OMODFramework.Scripting.OBMMScriptHandler.ValidateLine(OMODFramework.Scripting.OBMMScriptHandler.Line)"/>
+            to see if a line has the required amount of arguments.
+            </summary>
+        </member>
+        <member name="T:OMODFramework.Scripting.OBMMScriptHandler.TokenType">
+            <summary>
+            All possible tokens
+            </summary>
+        </member>
+    </members>
+</doc>
