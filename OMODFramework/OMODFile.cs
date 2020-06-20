@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Zip;
 using JetBrains.Annotations;
+using OMODFramework.Exceptions;
 
 namespace OMODFramework
 {
@@ -105,6 +107,27 @@ namespace OMODFramework
         }
     }
 
+    internal class OMODCompressedEntryComparer : IComparer<OMODCompressedEntry>
+    {
+        public int Compare(OMODCompressedEntry x, OMODCompressedEntry y)
+        {
+            return (int) (x.Offset - y.Offset);
+        }
+    }
+
+    internal class SplitMemoryStream : MemoryStream
+    {
+        internal readonly int StartIndex;
+        internal readonly int EndIndex;
+
+        internal SplitMemoryStream(byte[] buffer, int index, int count, int startIndex, int endIndex) :
+            base(buffer, index, count, false)
+        {
+            StartIndex = startIndex;
+            EndIndex = endIndex;
+        }
+    }
+
     internal class OMODFile : IDisposable
     {
         private readonly ZipFile _zipFile;
@@ -112,8 +135,29 @@ namespace OMODFramework
         private MemoryStream? _decompressedDataStream;
         private MemoryStream? _decompressedPluginStream;
 
-        internal HashSet<OMODCompressedEntry>? DataFiles { get; private set; }
-        internal HashSet<OMODCompressedEntry>? Plugins { get; private set; }
+        private HashSet<OMODCompressedEntry>? _dataFiles;
+        internal HashSet<OMODCompressedEntry> DataFiles
+        {
+            get
+            {
+                _dataFiles ??= GetCRCSet(true)!;
+                if(_dataFiles == null)
+                    throw new OMODException("DataFiles were requested but DataFiles are null!");
+                return _dataFiles;
+            }
+        }
+
+        private HashSet<OMODCompressedEntry>? _plugins;
+        internal HashSet<OMODCompressedEntry> Plugins
+        {
+            get
+            {
+                _plugins ??= GetCRCSet(false);
+                if(_plugins == null)
+                    throw new OMODException("Plugins were requested but Plugins are null!");
+                return _plugins;
+            }
+        }
 
         internal CompressionType CompressionType { get; set; }
 
@@ -132,18 +176,80 @@ namespace OMODFramework
         {
             if (entryFileType == OMODEntryFileType.Data)
             {
-                DataFiles ??= GetCRCSet(true);
-
-                _decompressedDataStream ??=
-                    (MemoryStream)CompressionHandler.DecompressStream(DataFiles, ExtractFile(OMODEntryFileType.Data), CompressionType, _settings.CodeProgress);
+                _decompressedDataStream ??= (MemoryStream)CompressionHandler.DecompressStream(DataFiles, ExtractEntryFile(OMODEntryFileType.Data), CompressionType, _settings.CodeProgress);
+            }
+            else if (entryFileType == OMODEntryFileType.Plugins)
+            {
+                _decompressedPluginStream ??= (MemoryStream)CompressionHandler.DecompressStream(Plugins, ExtractEntryFile(OMODEntryFileType.Plugins), CompressionType, _settings.CodeProgress);
             }
             else
             {
-                Plugins ??= GetCRCSet(false);
-
-                _decompressedPluginStream ??=
-                    (MemoryStream)CompressionHandler.DecompressStream(Plugins, ExtractFile(OMODEntryFileType.Plugins), CompressionType, _settings.CodeProgress);
+                throw new ArgumentOutOfRangeException(nameof(entryFileType));
             }
+        }
+
+        internal async Task ExtractAllDecompressedFilesAsync(DirectoryInfo output, bool data, int threads = 4)
+        {
+            var decompressedStream = data ? _decompressedDataStream : _decompressedPluginStream;
+            IEnumerable<OMODCompressedEntry>? enumerable = data ? DataFiles : Plugins;
+
+            if (decompressedStream == null)
+                throw new Exception($"Decompressed Stream ({(data ? "data" : "plugins")}) is null!");
+            if (enumerable == null)
+                throw new Exception($"Enumerable for ({(data ? "data" : "plugins")}) is null!");
+
+            var comparer = new OMODCompressedEntryComparer();
+            var files = enumerable.ToList();
+            files.Sort(comparer);
+
+
+            var totalLength = decompressedStream.Length;
+            var lengthEach = totalLength / threads;
+            long usedLength = 0;
+            var lastIndex = 0;
+
+            var streams = new List<SplitMemoryStream>(threads);
+            for (var i = 0; i < threads; i++)
+            {
+                if (i == threads - 1)
+                {
+                    var length = totalLength - usedLength;
+                    var stream = new SplitMemoryStream(decompressedStream.GetBuffer(), (int) usedLength, (int) length, lastIndex, files.Count - 1);
+                    streams.Add(stream);
+                }
+                else
+                {
+                    var length = lengthEach + usedLength;
+                    //get the last entry in the enumerable whose offset is smaller than the length
+                    //so we dont end up cutting files in half
+                    var lastEntry = files.Last(x => x.Offset < length);
+                    var endIndex = files.IndexOf(lastEntry);
+                    length = lastEntry.Offset - usedLength;
+                    var stream = new SplitMemoryStream(decompressedStream.GetBuffer(), (int) usedLength, (int) length,
+                        lastIndex, endIndex);
+                    streams.Add(stream);
+
+                    lastIndex = endIndex + 1;
+                    usedLength += length;
+                }
+            }
+
+            var streamsLength = streams.Select(x => x.Length).Aggregate((x, y) => x + y);
+            if(totalLength != streamsLength)
+                throw new OMODException($"Stream creation failed, length of all streams does not equal length of all files: {streamsLength} != {totalLength}");
+
+            await Task.WhenAll(streams.Select(x => Task.Run(() =>
+            {
+                for (var i = x.StartIndex; i <= x.EndIndex; i++)
+                {
+                    var current = files.ElementAtOrDefault(i);
+                    if(current == null)
+                        throw new OMODException($"Unable to get OMODCompressedEntry at position {i}");
+                    ExtractDecompressedFile(x, current, output);
+                }
+            })));
+
+            streams.Do(x => x.Dispose());
         }
 
         internal void ExtractAllDecompressedFiles(DirectoryInfo output, bool data)
@@ -158,28 +264,33 @@ namespace OMODFramework
 
             foreach (var current in enumerable)
             {
-                decompressedStream.Seek(current.Offset, SeekOrigin.Begin);
-
-                var file = new FileInfo(current.GetFullPath(output));
-                if (file.Directory == null)
-                    throw new NullReferenceException("Directory is null!");
-                if (!file.Directory.Exists)
-                    file.Directory.Create();
-
-                if (file.Exists)
-                {
-                    if (file.Length == current.Length)
-                        return;
-                    file.Delete();
-                }
-
-                using var fileStream = file.Create();
-
-                byte[] buffer = new byte[current.Length];
-                decompressedStream.Read(buffer, 0, (int)current.Length);
-
-                fileStream.Write(buffer, 0, (int)current.Length);
+                ExtractDecompressedFile(decompressedStream, current, output);
             }
+        }
+
+        private static void ExtractDecompressedFile(MemoryStream stream, OMODCompressedEntry entry, DirectoryInfo output)
+        {
+            stream.Seek(entry.Offset, SeekOrigin.Begin);
+
+            var file = new FileInfo(entry.GetFullPath(output));
+            if (file.Directory == null)
+                throw new NullReferenceException("Directory is null!");
+            if (!file.Directory.Exists)
+                file.Directory.Create();
+
+            if (file.Exists)
+            {
+                if (file.Length == entry.Length)
+                    return;
+                file.Delete();
+            }
+
+            using var fileStream = file.Create();
+
+            byte[] buffer = new byte[entry.Length];
+            stream.Read(buffer, 0, (int)entry.Length);
+
+            fileStream.Write(buffer, 0, (int)entry.Length);
         }
 
         internal Stream ExtractDecompressedFile(OMODCompressedEntry entry, bool data = true)
@@ -215,41 +326,26 @@ namespace OMODFramework
             return fs;
         }
 
-        internal bool HasFile(OMODEntryFileType entryFileType) => _zipFile.HasFile(entryFileType.ToFileString());
+        internal bool HasEntryFile(OMODEntryFileType entryFileType) => _zipFile.HasFile(entryFileType.ToFileString());
 
-        internal Stream ExtractFile(OMODEntryFileType entryFileType)
+        internal Stream ExtractEntryFile(OMODEntryFileType entryFileType)
         {
             return _zipFile.ExtractFile(entryFileType.ToFileString());
         }
 
         internal Config ReadConfig()
         {
-            return Config.ParseConfig(ExtractFile(OMODEntryFileType.Config));
+            return Config.ParseConfig(ExtractEntryFile(OMODEntryFileType.Config));
         }
 
-        internal IEnumerable<OMODCompressedEntry> GetDataFiles()
-        {
-            if (DataFiles != null)
-                return DataFiles;
-
-            DataFiles ??= GetCRCSet(true);
-            return DataFiles;
-        }
-
-        internal IEnumerable<OMODCompressedEntry> GetPlugins()
-        {
-            if (Plugins != null)
-                return Plugins;
-
-            Plugins ??= GetCRCSet(false);
-            return Plugins;
-        }
-
-        private HashSet<OMODCompressedEntry> GetCRCSet(bool data)
+        private HashSet<OMODCompressedEntry>? GetCRCSet(bool data)
         {
             var entry = data ? OMODEntryFileType.DataCRC : OMODEntryFileType.PluginsCRC;
 
-            using var stream = ExtractFile(entry);
+            if (!HasEntryFile(entry))
+                return null;
+
+            using var stream = ExtractEntryFile(entry);
             using var br = new BinaryReader(stream);
 
             var set = new HashSet<OMODCompressedEntry>();

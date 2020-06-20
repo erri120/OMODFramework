@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using JetBrains.dotMemoryUnit;
 using Xunit;
 using Xunit.Abstractions;
@@ -22,12 +24,14 @@ namespace OMODFramework.Test
         [DotMemoryUnit(FailIfRunWithoutSupport = false)]
         public void TestExtraction()
         {
-            var res = Utils.Download(_fixture.Client, 11280, 37571, "DarkUId DarN 16 OMOD Version - 11280.omod".InDownloadsFolder()).Result;
+            var res = Utils.Download(_fixture.Client, 11280, 37571,
+                "DarkUId DarN 16 OMOD Version - 11280.omod".InDownloadsFolder()).Result;
             Assert.True(res);
 
             var isolator = new Action(() =>
             {
-                using var omod = new OMOD(new FileInfo("DarkUId DarN 16 OMOD Version - 11280.omod".InDownloadsFolder()));
+                using var omod =
+                    new OMOD(new FileInfo("DarkUId DarN 16 OMOD Version - 11280.omod".InDownloadsFolder()));
                 var dic = new Dictionary<OMODEntryFileType, long>
                 {
                     {OMODEntryFileType.Config, 384},
@@ -68,6 +72,27 @@ namespace OMODFramework.Test
             isolator();
 
             dotMemory.Check(memory => Assert.Equal(0, memory.GetObjects(where => where.Type.Is<OMOD>()).ObjectsCount));
+        }
+
+        [Fact]
+        public async Task TestMultiThreadedExtraction()
+        {
+            var nexusFile = new NexusFile(35551, 87078, "NoMaaM BBB Animation Replacer V3_1 OMOD-35551-3-1.omod");
+            var res = nexusFile.Download(_fixture.Client);
+            Assert.True(res);
+
+            using var omod = new OMOD(new FileInfo(nexusFile.Path));
+
+            var output = new DirectoryInfo("multi-threaded-output");
+            await omod.ExtractDataFilesAsync(output, 4);
+
+            var dataFiles = omod.GetDataFiles();
+
+            var expectedSize = dataFiles.Select(x => x.Length).Aggregate((x, y) => x + y);
+            var actualSize = output.EnumerateFiles("*", SearchOption.AllDirectories).Select(x => x.Length)
+                .Aggregate((x, y) => x + y);
+
+            Assert.Equal(expectedSize, actualSize);
         }
     }
 }

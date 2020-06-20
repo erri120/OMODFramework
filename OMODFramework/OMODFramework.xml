@@ -119,6 +119,67 @@
             Can be set to null if you don't want any logging at all.
             </summary>
         </member>
+        <member name="P:OMODFramework.FrameworkSettings.ScriptExecutionSettings">
+            <summary>
+            Settings only used during Script Execution
+            </summary>
+        </member>
+        <member name="T:OMODFramework.ScriptExecutionSettings">
+            <summary>
+            Scripts only used during Script Execution
+            </summary>
+        </member>
+        <member name="M:OMODFramework.ScriptExecutionSettings.VerifySettings">
+            <summary>
+            Verify your ScriptExecutionSettings. Do note that this will throw
+            Exceptions on purpose if it finds bad settings to make sure to
+            use try/catch or other Exception logging methods.
+            </summary>
+            <exception cref="T:OMODFramework.Exceptions.BadSettingsException"></exception>
+            <returns></returns>
+        </member>
+        <member name="M:OMODFramework.ScriptExecutionSettings.VerifySettings(OMODFramework.ScriptExecutionSettings)">
+            <summary>
+            Verify your ScriptExecutionSettings. Do note that this will throw
+            Exceptions on purpose if it finds bad settings to make sure to
+            use try/catch or other Exception logging methods.
+            </summary>
+            <param name="settings">Settings to verify</param>
+            <exception cref="T:OMODFramework.Exceptions.BadSettingsException"></exception>
+            <returns></returns>
+        </member>
+        <member name="P:OMODFramework.ScriptExecutionSettings.OblivionINIPath">
+            <summary>
+                Absolute path to the oblivion.ini file
+            </summary>
+        </member>
+        <member name="P:OMODFramework.ScriptExecutionSettings.OblivionRendererInfoPath">
+            <summary>
+                Absolute path to the RendererInfo.txt file
+            </summary>
+        </member>
+        <member name="P:OMODFramework.ScriptExecutionSettings.ReadINIWithInterface">
+            <summary>
+                <para>If this is set to <c>true</c>:</para>
+                <c>IScriptFunctions.ReadOblivionINI</c> will be called so you can
+                handle the reading of the oblivion.ini file the way you want.
+                <para>If this is set to <c>false</c>:</para>
+                Internal functions will be called to read the ini file, this requires
+                <see cref="P:OMODFramework.ScriptExecutionSettings.OblivionINIPath"/> to be set to the <c>oblivion.ini</c> file
+                <para>Default is <c>true</c></para>
+            </summary>
+        </member>
+        <member name="P:OMODFramework.ScriptExecutionSettings.ReadRendererInfoWithInterface">
+            <summary>
+                <para>If this is set to <c>true</c>:</para>
+                <c>IScriptFunctions.ReadRendererInfo</c> will be called so you can
+                handle the reading of the RendererInfo.txt file the way you want.
+                <para>If this is set to <c>false</c>:</para>
+                Internal functions will be called to read the file, this requires
+                <see cref="P:OMODFramework.ScriptExecutionSettings.OblivionRendererInfoPath"/> to be set to the <c>RendererInfo.txt</c> file
+                <para>Default is <c>true</c></para>
+            </summary>
+        </member>
         <member name="T:OMODFramework.Logging.LoggingLevel">
             <summary>
             Logging levels. Lower values mean more verbose output.
@@ -252,7 +313,7 @@
         </member>
         <member name="M:OMODFramework.OMOD.HasFile(OMODFramework.OMODEntryFileType)">
             <summary>
-            Checks if the OMOD contains the given file
+            Checks if the OMOD contains the given <see cref="T:OMODFramework.OMODEntryFileType"/>
             </summary>
             <param name="entryFileType">The file</param>
             <returns></returns>
@@ -297,23 +358,38 @@
         </member>
         <member name="M:OMODFramework.OMOD.GetPlugins">
             <summary>
-            Returns an enumerable for all plugins. Use <see cref="M:OMODFramework.OMOD.HasFile(OMODFramework.OMODEntryFileType)"/> beforehand
-            so you don't get a <see cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException"/>!
+            Returns an enumerable for all plugins. Do note that plugins
+            are optional so check if this is null before doing anything with it.
             </summary>
             <returns></returns>
-            <exception cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException"></exception>
         </member>
         <member name="M:OMODFramework.OMOD.ExtractPluginFiles(System.IO.DirectoryInfo)">
             <summary>
             Extracts all plugins to a given directory.
             </summary>
-            <param name="outputDirectory"></param>
+            <param name="outputDirectory">Output directory</param>
         </member>
         <member name="M:OMODFramework.OMOD.ExtractDataFiles(System.IO.DirectoryInfo)">
             <summary>
             Extracts all data files to a given directory.
             </summary>
-            <param name="outputDirectory"></param>
+            <param name="outputDirectory">Output directory</param>
+        </member>
+        <member name="M:OMODFramework.OMOD.ExtractPluginFilesAsync(System.IO.DirectoryInfo,System.Int32)">
+            <summary>
+            Extracts all plugins to a given directory asynchronously with a variable amount of threads.
+            </summary>
+            <param name="outputDirectory">Output directory</param>
+            <param name="threads">Number of threads to use. Default is 2</param>
+            <returns></returns>
+        </member>
+        <member name="M:OMODFramework.OMOD.ExtractDataFilesAsync(System.IO.DirectoryInfo,System.Int32)">
+            <summary>
+            Extracts all data files to a given directory.
+            </summary>
+            <param name="outputDirectory">Output directory</param>
+            <param name="threads">Number of threads to use. Default is 4</param>
+            <returns></returns>
         </member>
         <member name="M:OMODFramework.OMOD.Dispose">
             <summary>
@@ -400,6 +476,46 @@
         <member name="T:OMODFramework.OMODEntryFileType">
             <summary>
             Enum for all possible files in an omod file
+            </summary>
+        </member>
+        <member name="F:OMODFramework.OMODEntryFileType.DataCRC">
+            <summary>
+            File containing information about the data files
+            </summary>
+        </member>
+        <member name="F:OMODFramework.OMODEntryFileType.Data">
+            <summary>
+            Raw compressed data
+            </summary>
+        </member>
+        <member name="F:OMODFramework.OMODEntryFileType.PluginsCRC">
+            <summary>
+            File containing information about the plugins
+            </summary>
+        </member>
+        <member name="F:OMODFramework.OMODEntryFileType.Plugins">
+            <summary>
+            Raw compressed plugins (optional)
+            </summary>
+        </member>
+        <member name="F:OMODFramework.OMODEntryFileType.Config">
+            <summary>
+            Config file (optional)
+            </summary>
+        </member>
+        <member name="F:OMODFramework.OMODEntryFileType.Readme">
+            <summary>
+            Readme file
+            </summary>
+        </member>
+        <member name="F:OMODFramework.OMODEntryFileType.Script">
+            <summary>
+            Script file (optional)
+            </summary>
+        </member>
+        <member name="F:OMODFramework.OMODEntryFileType.Image">
+            <summary>
+            Image file (optional)
             </summary>
         </member>
         <member name="T:OMODFramework.OMODCompressedEntry">

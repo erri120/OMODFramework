@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using OMODFramework.Exceptions;
 
@@ -146,11 +147,11 @@ namespace OMODFramework
         }
 
         /// <summary>
-        /// Checks if the OMOD contains the given file
+        /// Checks if the OMOD contains the given <see cref="OMODEntryFileType"/>
         /// </summary>
         /// <param name="entryFileType">The file</param>
         /// <returns></returns>
-        public bool HasFile(OMODEntryFileType entryFileType) => OMODFile.HasFile(entryFileType);
+        public bool HasFile(OMODEntryFileType entryFileType) => OMODFile.HasEntryFile(entryFileType);
 
         /// <summary>
         /// Extract the given file from the OMOD and returns a <see cref="Stream"/> with the data
@@ -161,7 +162,7 @@ namespace OMODFramework
         /// <exception cref="ZipFileEntryNotFoundException"></exception>
         public Stream ExtractFile(OMODEntryFileType entryFileType)
         {
-            return OMODFile.ExtractFile(entryFileType);
+            return OMODFile.ExtractEntryFile(entryFileType);
         }
 
         private string ExtractStringFile(OMODEntryFileType entryFileType)
@@ -221,25 +222,25 @@ namespace OMODFramework
         /// <returns></returns>
         public IEnumerable<OMODCompressedEntry> GetDataFiles()
         {
-            return OMODFile.GetDataFiles();
+            return OMODFile.DataFiles;
         }
 
         /// <summary>
-        /// Returns an enumerable for all plugins. Use <see cref="HasFile"/> beforehand
-        /// so you don't get a <see cref="ZipFileEntryNotFoundException"/>!
+        /// Returns an enumerable for all plugins. Do note that plugins
+        /// are optional so check if this is null before doing anything with it.
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="ZipFileEntryNotFoundException"></exception>
-        public IEnumerable<OMODCompressedEntry> GetPlugins()
+        public IEnumerable<OMODCompressedEntry>? GetPlugins()
         {
-            return OMODFile.GetPlugins();
-
+            return HasFile(OMODEntryFileType.PluginsCRC) && HasFile(OMODEntryFileType.Plugins) 
+                ? OMODFile.Plugins 
+                : null;
         }
-        
+
         /// <summary>
         /// Extracts all plugins to a given directory.
         /// </summary>
-        /// <param name="outputDirectory"></param>
+        /// <param name="outputDirectory">Output directory</param>
         public void ExtractPluginFiles(DirectoryInfo outputDirectory)
         {
             ExtractCompressedData(OMODEntryFileType.Data, outputDirectory);
@@ -248,10 +249,47 @@ namespace OMODFramework
         /// <summary>
         /// Extracts all data files to a given directory.
         /// </summary>
-        /// <param name="outputDirectory"></param>
+        /// <param name="outputDirectory">Output directory</param>
         public void ExtractDataFiles(DirectoryInfo outputDirectory)
         {
             ExtractCompressedData(OMODEntryFileType.Data, outputDirectory);
+        }
+
+        /// <summary>
+        /// Extracts all plugins to a given directory asynchronously with a variable amount of threads.
+        /// </summary>
+        /// <param name="outputDirectory">Output directory</param>
+        /// <param name="threads">Number of threads to use. Default is 2</param>
+        /// <returns></returns>
+        public async Task ExtractPluginFilesAsync(DirectoryInfo outputDirectory, int threads = 2)
+        {
+            await ExtractCompressedDataAsync(OMODEntryFileType.Plugins, outputDirectory, threads);
+        }
+
+        /// <summary>
+        /// Extracts all data files to a given directory.
+        /// </summary>
+        /// <param name="outputDirectory">Output directory</param>
+        /// <param name="threads">Number of threads to use. Default is 4</param>
+        /// <returns></returns>
+        public async Task ExtractDataFilesAsync(DirectoryInfo outputDirectory, int threads = 4)
+        {
+            await ExtractCompressedDataAsync(OMODEntryFileType.Data, outputDirectory, threads);
+        }
+
+        private async Task ExtractCompressedDataAsync(OMODEntryFileType entryFileType, DirectoryInfo outputDirectory,
+            int threads = 4)
+        {
+            if (entryFileType != OMODEntryFileType.Data && entryFileType != OMODEntryFileType.Plugins)
+                throw new ArgumentException($"Provided OMODFile can only be Data or Plugins but is {entryFileType}!", nameof(entryFileType));
+
+            if (!outputDirectory.Exists)
+                outputDirectory.Create();
+
+            OMODFile.Decompress(entryFileType);
+
+            await OMODFile.ExtractAllDecompressedFilesAsync(outputDirectory, entryFileType == OMODEntryFileType.Data,
+                threads);
         }
 
         private void ExtractCompressedData(OMODEntryFileType entryFileType, DirectoryInfo outputDirectory)
