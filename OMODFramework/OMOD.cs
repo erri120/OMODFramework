@@ -60,17 +60,26 @@ namespace OMODFramework
 
         internal static Config ParseConfig(Stream stream)
         {
+            Utils.Info("Parsing config file");
             var config = new Config();
             using var br = new BinaryReader(stream);
 
             config.FileVersion = br.ReadByte();
+            Utils.Debug($"File Version: {config.FileVersion}");
             config.Name = br.ReadString();
+            Utils.Debug($"Name: {config.Name}");
             config._majorVersion = br.ReadInt32();
+            Utils.Debug($"Major Version: {config._majorVersion}");
             config._minorVersion = br.ReadInt32();
+            Utils.Debug($"Minor Version: {config._minorVersion}");
             config.Author = br.ReadString();
+            Utils.Debug($"Author: {config.Author}");
             config.Email = br.ReadString();
+            Utils.Debug($"Email: {config.Email}");
             config.Website = br.ReadString();
+            Utils.Debug($"Website: {config.Website}");
             config.Description = br.ReadString();
+            Utils.Debug($"Description: {config.Description}");
 
             if (config.FileVersion >= 2)
                 config.CreationTime = DateTime.FromBinary(br.ReadInt64());
@@ -81,7 +90,10 @@ namespace OMODFramework
                     out var creationTime) ? new DateTime(2006, 1, 1) : creationTime;
             }
 
+            Utils.Debug($"Creation Time: {config.CreationTime}");
+
             config.CompressionType = (CompressionType) br.ReadByte();
+            Utils.Debug($"Compression Type: {config.CompressionType}");
             if (config.FileVersion >= 1)
                 config._buildVersion = br.ReadInt32();
 
@@ -92,6 +104,7 @@ namespace OMODFramework
             if (config._buildVersion < 0)
                 config._buildVersion = 0;
 
+            Utils.Info("Finished parsing the config");
             return config;
         }
     }
@@ -335,7 +348,7 @@ namespace OMODFramework
         /// </summary>
         public void Dispose()
         {
-            Utils.Debug("Disposing OMOD.");
+            Utils.Debug("Disposing OMOD");
             OMODFile.Dispose();
         }
     }

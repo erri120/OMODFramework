@@ -327,6 +327,16 @@
             <returns></returns>
             <exception cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException"></exception>
         </member>
+        <member name="M:OMODFramework.OMOD.ExtractFile(OMODFramework.OMODEntryFileType,System.IO.FileInfo)">
+            <summary>
+            Extracts the given file from the OMOD to a specified output location.
+            If the output already exists but has different lengths than the file
+            to be extracted, it will be deleted. The directory will also be created
+            for you.
+            </summary>
+            <param name="entryFileType">File to extract</param>
+            <param name="output">Output location</param>
+        </member>
         <member name="M:OMODFramework.OMOD.GetReadme">
             <summary>
             Returns the readme of the OMOD
@@ -403,6 +413,31 @@
             <param name="options">Options</param>
             <param name="output">Output file</param>
             <param name="settings">Optional, <see cref="T:OMODFramework.FrameworkSettings"/> to use</param>
+        </member>
+        <member name="T:OMODFramework.ScriptType">
+            <summary>
+            Possible script types
+            </summary>
+        </member>
+        <member name="F:OMODFramework.ScriptType.OBMMScript">
+            <summary>
+            Classic OBMMScript
+            </summary>
+        </member>
+        <member name="F:OMODFramework.ScriptType.Python">
+            <summary>
+            Python using IronPython (unsupported)
+            </summary>
+        </member>
+        <member name="F:OMODFramework.ScriptType.CSharp">
+            <summary>
+            C#
+            </summary>
+        </member>
+        <member name="F:OMODFramework.ScriptType.VB">
+            <summary>
+            Visual Basic (unsupported)
+            </summary>
         </member>
         <member name="T:OMODFramework.CreationOptions">
             <summary>
