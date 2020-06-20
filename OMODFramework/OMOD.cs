@@ -165,6 +165,31 @@ namespace OMODFramework
             return OMODFile.ExtractEntryFile(entryFileType);
         }
 
+        /// <summary>
+        /// Extracts the given file from the OMOD to a specified output location.
+        /// If the output already exists but has different lengths than the file
+        /// to be extracted, it will be deleted. The directory will also be created
+        /// for you.
+        /// </summary>
+        /// <param name="entryFileType">File to extract</param>
+        /// <param name="output">Output location</param>
+        public void ExtractFile(OMODEntryFileType entryFileType, FileInfo output)
+        {
+            using var stream = ExtractFile(entryFileType);
+            if(output.Directory != null && !output.Directory.Exists)
+                output.Directory.Create();
+            
+            if (output.Exists)
+            {
+                if (output.Length == stream.Length)
+                    return;
+                output.Delete();
+            }
+
+            using var fs = File.Create(output.FullName);
+            stream.CopyTo(fs);
+        }
+
         private string ExtractStringFile(OMODEntryFileType entryFileType)
         {
             using var stream = ExtractFile(entryFileType);

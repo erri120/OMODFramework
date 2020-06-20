@@ -36,13 +36,7 @@ namespace OMODFramework.Example.CSharp
 
             if (omod.HasFile(OMODEntryFileType.Readme))
             {
-                //you can either use this function to get a Stream or the 
-                //GetReadme function to get the readme as a string.
-                using var stream = omod.ExtractFile(OMODEntryFileType.Script);
-                using var fileStream = File.Create(Path.Combine(output.FullName, "readme.txt"));
-                stream.CopyTo(fileStream);
-
-                //you can do the same thing as above for the script as well if you want
+                omod.ExtractFile(OMODEntryFileType.Readme, new FileInfo(Path.Combine(output.FullName, "readme.txt")));
             }
 
             if (omod.HasFile(OMODEntryFileType.Image))
@@ -66,6 +60,11 @@ namespace OMODFramework.Example.CSharp
             //it compare the length of the existing file with the expected length and
             //either continues if they are the same or deletes the file if they don't match
             omod.ExtractDataFiles(output);
+
+            //you can also use the asynchronous version of the method.
+            //with this you can specify the amount of threads to use during
+            //extraction
+            //omod.ExtractDataFilesAsync(output, 6).Wait();
 
             //every omod has Data files but not every omod has plugins
             if (omod.HasFile(OMODEntryFileType.PluginsCRC))
