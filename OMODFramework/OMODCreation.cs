@@ -7,12 +7,27 @@ using JetBrains.Annotations;
 
 namespace OMODFramework
 {
+    /// <summary>
+    /// Possible script types
+    /// </summary>
     [PublicAPI]
     public enum ScriptType : byte
     {
+        /// <summary>
+        /// Classic OBMMScript
+        /// </summary>
         OBMMScript,
+        /// <summary>
+        /// Python using IronPython (unsupported)
+        /// </summary>
         Python,
+        /// <summary>
+        /// C#
+        /// </summary>
         CSharp,
+        /// <summary>
+        /// Visual Basic (unsupported)
+        /// </summary>
         VB
     }
 
@@ -177,6 +192,11 @@ namespace OMODFramework
         /// <param name="settings">Optional, <see cref="FrameworkSettings"/> to use</param>
         public static void CreateOMOD(CreationOptions options, FileInfo output, FrameworkSettings? settings = null)
         {
+            if (!options.VerifyOptions())
+                return;
+
+            Utils.Info($"Starting OMOD Creation of {options.Name} by {options.Author}");
+
             settings ??= FrameworkSettings.DefaultFrameworkSettings;
 
             if(output.Exists)
@@ -192,6 +212,7 @@ namespace OMODFramework
 
             if (options.Readme != null && !string.IsNullOrEmpty(options.Readme))
             {
+                Utils.Debug("Including README in OMOD");
                 var entry = new ZipEntry("readme");
                 zipStream.PutNextEntry(entry);
                 bw.Write(options.Readme);
@@ -200,6 +221,7 @@ namespace OMODFramework
 
             if (options.Script != null && !string.IsNullOrEmpty(options.Script))
             {
+                Utils.Debug($"Including script in OMOD, type: {options.ScriptType}");
                 var entry = new ZipEntry("script");
                 zipStream.PutNextEntry(entry);
 
@@ -219,6 +241,7 @@ namespace OMODFramework
 
             if (options.ImagePath != null && options.ImagePath.Exists)
             {
+                Utils.Debug("Including image in OMOD");
                 var entry = new ZipEntry("image");
                 zipStream.PutNextEntry(entry);
 
@@ -227,6 +250,7 @@ namespace OMODFramework
                 bw.Flush();
             }
 
+            Utils.Debug("Writing config");
             var config = new ZipEntry("config");
             zipStream.PutNextEntry(config);
 
@@ -245,6 +269,7 @@ namespace OMODFramework
 
             if (options.PluginFiles != null && options.PluginFiles.Count > 0)
             {
+                Utils.Debug("Writing plugins to OMOD");
                 var entry = new ZipEntry("plugins.crc");
                 zipStream.PutNextEntry(entry);
                 CompressionHandler.CompressFiles(options.PluginFiles, options.CompressionType, options.DataCompressionLevel, out var pluginsCompressed, out var pluginsCRC, settings.CodeProgress);
@@ -264,6 +289,7 @@ namespace OMODFramework
 
             if (options.DataFiles != null && options.DataFiles.Count > 0)
             {
+                Utils.Debug("Writing data files to OMOD");
                 var entry = new ZipEntry("data.crc");
                 zipStream.PutNextEntry(entry);
                 CompressionHandler.CompressFiles(options.DataFiles, options.CompressionType, options.DataCompressionLevel, out var dataCompressed, out var dataCRC, settings.CodeProgress);
@@ -280,6 +306,8 @@ namespace OMODFramework
                 dataCompressed.Close();
                 dataCRC.Close();
             }
+
+            Utils.Info("Finished OMOD Creation");
         }
     }
 }
