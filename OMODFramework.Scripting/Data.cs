@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
+using System.Linq;
 using JetBrains.Annotations;
 using OblivionModManager.Scripting;
 
@@ -13,7 +15,7 @@ namespace OMODFramework.Scripting
     /// </summary>
     public class ScriptException : Exception
     {
-        public ScriptException(string s) : base(s) { }
+        internal ScriptException(string s) : base(s) { }
     }
 
     /// <summary>
@@ -21,7 +23,7 @@ namespace OMODFramework.Scripting
     /// </summary>
     public class ScriptingFatalErrorException : ScriptException
     {
-        public ScriptingFatalErrorException() : base("Fatal Error was triggered in the script!") { }
+        internal ScriptingFatalErrorException() : base("Fatal Error was triggered in the script!") { }
     }
 
     /// <summary>
@@ -29,8 +31,8 @@ namespace OMODFramework.Scripting
     /// </summary>
     public class ScriptingCanceledException : ScriptException
     {
-        public ScriptingCanceledException() : base("Script execution was canceled!") { }
-        public ScriptingCanceledException(string s) : base($"Script execution was canceled!\n{s}") { }
+        internal ScriptingCanceledException() : base("Script execution was canceled!") { }
+        internal ScriptingCanceledException(string s) : base($"Script execution was canceled!\n{s}") { }
     }
 
     #endregion
@@ -86,6 +88,11 @@ namespace OMODFramework.Scripting
         /// </summary>
         public readonly IScriptFunctions ScriptFunctions;
 
+        /// <summary>
+        /// Initializes a new <see cref="ScriptSettings"/> object
+        /// </summary>
+        /// <param name="scriptFunctions">The functions to use</param>
+        /// <param name="frameworkSettings">The Framework settings to use. Default settings will be used if this is null.</param>
         public ScriptSettings(IScriptFunctions scriptFunctions, FrameworkSettings? frameworkSettings)
         {
             ScriptFunctions = scriptFunctions;
@@ -241,13 +248,13 @@ namespace OMODFramework.Scripting
         /// </summary>
         public string Output { get; }
 
-        public ScriptReturnFile(OMODCompressedEntry entry)
+        internal ScriptReturnFile(OMODCompressedEntry entry)
         {
             OriginalFile = entry;
             Output = OriginalFile.Name;
         }
 
-        public ScriptReturnFile(OMODCompressedEntry entry, string output)
+        internal ScriptReturnFile(OMODCompressedEntry entry, string output)
         {
             OriginalFile = entry;
             Output = output;
@@ -281,9 +288,8 @@ namespace OMODFramework.Scripting
     [PublicAPI]
     public sealed class DataFile : ScriptReturnFile
     {
-        public DataFile(OMODCompressedEntry entry) : base(entry) { }
-
-        public DataFile(OMODCompressedEntry entry, string output) : base(entry, output) { }
+        internal DataFile(OMODCompressedEntry entry) : base(entry) { }
+        internal DataFile(OMODCompressedEntry entry, string output) : base(entry, output) { }
     }
 
     /// <summary>
@@ -315,8 +321,8 @@ namespace OMODFramework.Scripting
         /// </summary>
         public List<PluginFile> LoadAfter { get; set; } = new List<PluginFile>();
 
-        public PluginFile(OMODCompressedEntry entry) : base(entry) { }
-        public PluginFile(OMODCompressedEntry entry, string output) : base(entry, output) { }
+        internal PluginFile(OMODCompressedEntry entry) : base(entry) { }
+        internal PluginFile(OMODCompressedEntry entry, string output) : base(entry, output) { }
     }
 
     /// <summary>
@@ -380,10 +386,56 @@ namespace OMODFramework.Scripting
     }
 
     /// <summary>
+    /// Abstract class for Edits
+    /// </summary>
+    [PublicAPI]
+    public abstract class AEdit
+    {
+        internal readonly OMOD OMOD;
+
+        internal AEdit(OMOD omod)
+        {
+            OMOD = omod;
+        }
+    }
+
+    /// <summary>
+    /// Abstract class for File Edits
+    /// </summary>
+    [PublicAPI]
+    public abstract class AFileEdit : AEdit
+    {
+        /// <summary>
+        /// The File to edit
+        /// </summary>
+        public readonly ScriptReturnFile File;
+
+        internal AFileEdit(ScriptReturnFile file, OMOD omod) : base(omod)
+        {
+            File = file;
+        }
+
+        /// <summary>
+        /// Extracts <see cref="File"/> and reads the the data into the provided buffer. You should
+        /// use <see cref="OMODCompressedEntry.Length"/> to get the length of the file. This function
+        /// is supposed to be used if you want to execute the edit yourself.
+        /// </summary>
+        /// <param name="buffer">The buffer</param>
+        /// <exception cref="ArgumentException">When the length of the provided buffer does not equal the length the file</exception>
+        public void GetBytesFromFile(ref byte[] buffer)
+        {
+            using var stream = OMOD.OMODFile.ExtractDecompressedFile(File.OriginalFile, File is DataFile);
+            if(buffer.Length != stream.Length)
+                throw new ArgumentException($"Buffer size does not equal size of stream! Expected size: {stream.Length} actual size: {buffer.Length}");
+            stream.Read(buffer, 0, (int)stream.Length);
+        }
+    }
+
+    /// <summary>
     /// INI Edit Info
     /// </summary>
     [PublicAPI]
-    public struct INIEditInfo
+    public class INIEditInfo : AEdit
     {
         /// <summary>
         /// Section in the INI
@@ -398,11 +450,16 @@ namespace OMODFramework.Scripting
         /// </summary>
         public readonly string NewValue;
 
-        public INIEditInfo(string section, string name, string newValue)
+        internal INIEditInfo(string section, string name, string newValue, OMOD omod) : base(omod)
         {
             Section = section;
             Name = name;
             NewValue = newValue;
+        }
+
+        public void ExecuteEdit(OMOD omod)
+        {
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc />
@@ -416,17 +473,52 @@ namespace OMODFramework.Scripting
     /// Shader package edits
     /// </summary>
     [PublicAPI]
-    public struct SDPEditInfo
+    public class SDPEditInfo : AFileEdit
     {
+        /// <summary>
+        /// Shader package number, between 1 and 19
+        /// </summary>
         public readonly byte Package;
+        /// <summary>
+        /// Name of the shader
+        /// </summary>
         public readonly string Shader;
-        public readonly string BinaryObject;
 
-        public SDPEditInfo(byte package, string shader, string binaryObject)
+        internal SDPEditInfo(byte package, string shader, ScriptReturnFile file, OMOD omod) : base(file, omod)
         {
             Package = package;
             Shader = shader;
-            BinaryObject = binaryObject;
+        }
+
+        /// <summary>
+        /// <para>Use this function if you don't have code for dealing with shader edits.</para>
+        /// <para>
+        /// This function reads the provided shader file and replaces the shader inside of it. Use the
+        /// <paramref name="safeReplace"/> parameter if you don't want the original file to be changed.
+        /// If <paramref name="safeReplace"/> is set to true, you also have to provide an <paramref name="outputFile"/>
+        /// where the final shader file will go to.
+        /// </para>
+        /// </summary>
+        /// <param name="shaderFile">The Shader file to replace. Do note that this has to match shaderpackage{ID}.sdp where ID is <see cref="Package"/> with a PadLeft of 3. Meaning that Package 1 becomes 001 and package 18 becomes 018.</param>
+        /// <param name="outputFile">The output file, only needed if <paramref name="safeReplace"/> is set to true</param>
+        /// <param name="safeReplace">Whether to use export the final shader file to <paramref name="outputFile"/></param>
+        public void ExecuteEdit(FileInfo shaderFile, FileInfo? outputFile, bool safeReplace = true)
+        {
+            if(!shaderFile.Exists)
+                throw new ArgumentException($"Provided shader file does not exist: {shaderFile}!", nameof(shaderFile));
+            if(shaderFile.Extension != ".sdp")
+                throw new ArgumentException($"Extension of provided shader file is not .sdp but {shaderFile.Extension}!", nameof(shaderFile));
+
+            var fileName = $"shaderpackage{Package.ToString().PadLeft(3, '0')}.sdp";
+            if(!shaderFile.Name.Equals(fileName, StringComparison.InvariantCultureIgnoreCase))
+                throw new ArgumentException($"Provided shader file does not equal name {fileName} but is {shaderFile.Name}!", nameof(shaderFile));
+
+            if(safeReplace && outputFile == null)
+                throw new ArgumentException($"{nameof(safeReplace)} is true but {nameof(outputFile)} is null! {nameof(outputFile)} has to be set or {nameof(safeReplace)} has to be set to false!", nameof(outputFile));
+
+            byte[] buffer = new byte[File.OriginalFile.Length];
+            GetBytesFromFile(ref buffer);
+            OblivionSDP.EditShader(shaderFile, Shader, buffer, outputFile);
         }
     }
 
@@ -434,12 +526,8 @@ namespace OMODFramework.Scripting
     /// Class containing information about Patches to be made
     /// </summary>
     [PublicAPI]
-    public class PatchInfo
+    public class PatchInfo : AFileEdit
     {
-        /// <summary>
-        /// The entry containing the data to patch
-        /// </summary>
-        public readonly OMODCompressedEntry Entry;
         /// <summary>
         /// The file to patch
         /// </summary>
@@ -451,31 +539,22 @@ namespace OMODFramework.Scripting
 
         internal readonly bool IsDataFile;
 
-        public PatchInfo(OMODCompressedEntry entry, string fileToPatch, bool create, bool data)
+        internal PatchInfo(ScriptReturnFile file, string fileToPatch, bool create, bool data, OMOD omod) : base(file, omod)
         {
-            Entry = entry;
             FileToPatch = fileToPatch;
             Create = create;
             IsDataFile = data;
         }
 
-        /// <summary>
-        /// Extracts the <see cref="Entry"/> and returns it's bytes. This takes a
-        /// reference to a buffer so make sure you use <see cref="OMODCompressedEntry.Length"/>
-        /// to get the size of the buffer.
-        /// </summary>
-        /// <param name="omod">The OMOD</param>
-        /// <param name="buffer">Reference to the buffer</param>
-        public void GetBytesToPatch(OMOD omod, ref byte[] buffer)
+        public void ExecuteEdit(OMOD omod, string output)
         {
-            using var stream = omod.OMODFile.ExtractDecompressedFile(Entry, IsDataFile);
-            stream.Read(buffer, 0, (int)stream.Length);
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"Patch {FileToPatch} with {Entry}";
+            return $"Patch {FileToPatch} with {File}";
         }
     }
 
@@ -511,7 +590,7 @@ namespace OMODFramework.Scripting
     /// Class for plugin changes
     /// </summary>
     [PublicAPI]
-    public class SetPluginInfo
+    public class SetPluginInfo : AFileEdit
     {
         /// <summary>
         /// Type of the data in <see cref="Value"/>
@@ -525,17 +604,12 @@ namespace OMODFramework.Scripting
         /// Offset of the data to replace
         /// </summary>
         public readonly long Offset;
-        /// <summary>
-        /// The entry to change
-        /// </summary>
-        public readonly OMODCompressedEntry Entry;
 
-        public SetPluginInfo(SetPluginInfoType type, object value, long offset, OMODCompressedEntry entry)
+        internal SetPluginInfo(SetPluginInfoType type, object value, long offset, ScriptReturnFile file, OMOD omod) : base(file, omod)
         {
             Type = type;
             Value = value;
             Offset = offset;
-            Entry = entry;
         }
 
         /// <summary>
@@ -555,10 +629,15 @@ namespace OMODFramework.Scripting
             };
         }
 
+        public void ExecuteEdit(OMOD omod, string output)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"SetPlugin{Type} at {Offset} in {Entry}";
+            return $"SetPlugin{Type} at {Offset} in {File}";
         }
     }
 
@@ -585,7 +664,7 @@ namespace OMODFramework.Scripting
         /// </summary>
         public readonly string Value;
 
-        public ESPEditInfo(string value, string file, string edid, bool isGMST)
+        internal ESPEditInfo(string value, string file, string edid, bool isGMST)
         {
             Value = value;
             File = file;
@@ -604,12 +683,8 @@ namespace OMODFramework.Scripting
     /// Information about XML edits
     /// </summary>
     [PublicAPI]
-    public class EditXMLInfo
+    public class EditXMLInfo : AFileEdit
     {
-        /// <summary>
-        /// The XML file
-        /// </summary>
-        public readonly OMODCompressedEntry Entry;
         /// <summary>
         /// Whether to find and replace
         /// </summary>
@@ -638,9 +713,8 @@ namespace OMODFramework.Scripting
         /// </summary>
         public readonly string Replace;
 
-        public EditXMLInfo(OMODCompressedEntry entry, int line, string value)
+        internal EditXMLInfo(ScriptReturnFile file, int line, string value, OMOD omod) : base(file, omod)
         {
-            Entry = entry;
             IsReplace = false;
             IsEditLine = true;
 
@@ -651,9 +725,8 @@ namespace OMODFramework.Scripting
             Replace = string.Empty;
         }
 
-        public EditXMLInfo(OMODCompressedEntry entry, string find, string replace)
+        internal EditXMLInfo(ScriptReturnFile file, string find, string replace, OMOD omod) : base(file, omod)
         {
-            Entry = entry;
             IsReplace = true;
             IsEditLine = false;
 
@@ -662,6 +735,11 @@ namespace OMODFramework.Scripting
 
             Find = find;
             Replace = replace;
+        }
+
+        public void ExecuteEdit(OMOD omod, string output)
+        {
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc />
@@ -680,6 +758,13 @@ namespace OMODFramework.Scripting
     [PublicAPI]
     public class ScriptReturnData
     {
+        private readonly OMOD _omod;
+
+        internal ScriptReturnData(OMOD omod)
+        {
+            _omod = omod;
+        }
+
         /// <summary>
         /// Data Files to be installed
         /// </summary>
@@ -728,6 +813,19 @@ namespace OMODFramework.Scripting
         /// List of all XML Edits
         /// </summary>
         public List<EditXMLInfo> XMLEdits { get; } = new List<EditXMLInfo>();
+
+        internal ScriptReturnFile GetScriptReturnFileFromPath(string path, bool data)
+        {
+            var entry = data
+                ? _omod.OMODFile.DataFiles.First(x => x.Name.EqualsPath(path))
+                : _omod.OMODFile.Plugins.First(x => x.Name.EqualsPath(path));
+
+            ScriptReturnFile file = data
+                ? DataFiles.First(x => Equals(x.OriginalFile, entry))
+                : (ScriptReturnFile)PluginFiles.First(x => Equals(x.OriginalFile, entry));
+
+            return file;
+        }
 
         /// <inheritdoc />
         public override string ToString()

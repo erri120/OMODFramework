@@ -103,34 +103,34 @@ namespace OMODFramework
         }
 
         /// <summary>
-        ///     Absolute path to the oblivion.ini file
+        /// Absolute path to the oblivion.ini file
         /// </summary>
         public string? OblivionINIPath { get; set; }
 
         /// <summary>
-        ///     Absolute path to the RendererInfo.txt file
+        /// Absolute path to the RendererInfo.txt file
         /// </summary>
         public string? OblivionRendererInfoPath { get; set; }
 
         /// <summary>
-        ///     <para>If this is set to <c>true</c>:</para>
-        ///     <c>IScriptFunctions.ReadOblivionINI</c> will be called so you can
-        ///     handle the reading of the oblivion.ini file the way you want.
-        ///     <para>If this is set to <c>false</c>:</para>
-        ///     Internal functions will be called to read the ini file, this requires
-        ///     <see cref="OblivionINIPath"/> to be set to the <c>oblivion.ini</c> file
-        ///     <para>Default is <c>true</c></para>
+        /// <para>If this is set to <c>true</c>:</para>
+        /// <c>IScriptFunctions.ReadOblivionINI</c> will be called so you can
+        /// handle the reading of the oblivion.ini file the way you want.
+        /// <para>If this is set to <c>false</c>:</para>
+        /// Internal functions will be called to read the ini file, this requires
+        /// <see cref="OblivionINIPath"/> to be set to the <c>oblivion.ini</c> file
+        /// <para>Default is <c>true</c></para>
         /// </summary>
         public bool ReadINIWithInterface { get; set; } = true;
 
         /// <summary>
-        ///     <para>If this is set to <c>true</c>:</para>
-        ///     <c>IScriptFunctions.ReadRendererInfo</c> will be called so you can
-        ///     handle the reading of the RendererInfo.txt file the way you want.
-        ///     <para>If this is set to <c>false</c>:</para>
-        ///     Internal functions will be called to read the file, this requires
-        ///     <see cref="OblivionRendererInfoPath"/> to be set to the <c>RendererInfo.txt</c> file
-        ///     <para>Default is <c>true</c></para>
+        /// <para>If this is set to <c>true</c>:</para>
+        /// <c>IScriptFunctions.ReadRendererInfo</c> will be called so you can
+        /// handle the reading of the RendererInfo.txt file the way you want.
+        /// <para>If this is set to <c>false</c>:</para>
+        /// Internal functions will be called to read the file, this requires
+        /// <see cref="OblivionRendererInfoPath"/> to be set to the <c>RendererInfo.txt</c> file
+        /// <para>Default is <c>true</c></para>
         /// </summary>
         public bool ReadRendererInfoWithInterface { get; set; } = true;
     }

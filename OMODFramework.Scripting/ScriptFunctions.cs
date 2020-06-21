@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using OblivionModManager.Scripting;
 using OMODFramework.Exceptions;
+// ReSharper disable IdentifierTypo
 
 namespace OMODFramework.Scripting
 {
@@ -440,11 +441,8 @@ namespace OMODFramework.Scripting
 
         private void PatchFile(string from, string to, bool create, bool data)
         {
-            var file = data 
-                ? _omod.OMODFile.DataFiles.First(x => x.Name.EqualsPath(from)) 
-                : _omod.OMODFile.Plugins.First(x => x.Name.EqualsPath(from));
-
-            _srd.Patches.Add(new PatchInfo(file, to, create, data));
+            var file = _srd.GetScriptReturnFileFromPath(from, data);
+            _srd.Patches.Add(new PatchInfo(file, to, create, data, _omod));
         }
 
         public void RegisterBSA(string path)
@@ -459,14 +457,13 @@ namespace OMODFramework.Scripting
 
         public void EditINI(string section, string key, string value)
         {
-            _srd.INIEdits.Add(new INIEditInfo(section, key, value));
+            _srd.INIEdits.Add(new INIEditInfo(section, key, value, _omod));
         }
 
         public void EditShader(byte package, string name, string path)
         {
-            var file = _omod.OMODFile.DataFiles.First(x => x.Name.EqualsPath(path));
-
-            _srd.SDPEditInfos.Add(new SDPEditInfo(package, name, file.Name));
+            var file = _srd.GetScriptReturnFileFromPath(path, true);
+            _srd.SDPEditInfos.Add(new SDPEditInfo(package, name, file, _omod));
         }
 
         public void FatalError()
@@ -486,32 +483,32 @@ namespace OMODFramework.Scripting
 
         public void SetPluginByte(string file, long offset, byte value)
         {
-            var entry = _omod.OMODFile.Plugins.First(x => x.Name.EqualsPath(file));
-            _srd.SetPluginList.Add(new SetPluginInfo(SetPluginInfoType.Byte, value, offset, entry));
+            var scriptReturnFile = _srd.GetScriptReturnFileFromPath(file, false);
+            _srd.SetPluginList.Add(new SetPluginInfo(SetPluginInfoType.Byte, value, offset, scriptReturnFile, _omod));
         }
 
         public void SetPluginShort(string file, long offset, short value)
         {
-            var entry = _omod.OMODFile.Plugins.First(x => x.Name.EqualsPath(file));
-            _srd.SetPluginList.Add(new SetPluginInfo(SetPluginInfoType.Short, value, offset, entry));
+            var scriptReturnFile = _srd.GetScriptReturnFileFromPath(file, false);
+            _srd.SetPluginList.Add(new SetPluginInfo(SetPluginInfoType.Short, value, offset, scriptReturnFile, _omod));
         }
 
         public void SetPluginInt(string file, long offset, int value)
         {
-            var entry = _omod.OMODFile.Plugins.First(x => x.Name.EqualsPath(file));
-            _srd.SetPluginList.Add(new SetPluginInfo(SetPluginInfoType.Int, value, offset, entry));
+            var scriptReturnFile = _srd.GetScriptReturnFileFromPath(file, false);
+            _srd.SetPluginList.Add(new SetPluginInfo(SetPluginInfoType.Int, value, offset, scriptReturnFile, _omod));
         }
 
         public void SetPluginLong(string file, long offset, long value)
         {
-            var entry = _omod.OMODFile.Plugins.First(x => x.Name.EqualsPath(file));
-            _srd.SetPluginList.Add(new SetPluginInfo(SetPluginInfoType.Long, value, offset, entry));
+            var scriptReturnFile = _srd.GetScriptReturnFileFromPath(file, false);
+            _srd.SetPluginList.Add(new SetPluginInfo(SetPluginInfoType.Long, value, offset, scriptReturnFile, _omod));
         }
 
         public void SetPluginFloat(string file, long offset, float value)
         {
-            var entry = _omod.OMODFile.Plugins.First(x => x.Name.EqualsPath(file));
-            _srd.SetPluginList.Add(new SetPluginInfo(SetPluginInfoType.Float, value, offset, entry));
+            var scriptReturnFile = _srd.GetScriptReturnFileFromPath(file, false);
+            _srd.SetPluginList.Add(new SetPluginInfo(SetPluginInfoType.Float, value, offset, scriptReturnFile, _omod));
         }
 
         public string InputString()
@@ -545,14 +542,14 @@ namespace OMODFramework.Scripting
 
         public void EditXMLLine(string file, int line, string value)
         {
-            var entry = _omod.OMODFile.DataFiles.First(x => x.Name.EqualsPath(file));
-            _srd.XMLEdits.Add(new EditXMLInfo(entry, line, value));
+            var scriptReturnFile = _srd.GetScriptReturnFileFromPath(file, true);
+            _srd.XMLEdits.Add(new EditXMLInfo(scriptReturnFile, line, value, _omod));
         }
 
         public void EditXMLReplace(string file, string find, string replace)
         {
-            var entry = _omod.OMODFile.DataFiles.First(x => x.Name.EqualsPath(file));
-            _srd.XMLEdits.Add(new EditXMLInfo(entry, find, replace));
+            var scriptReturnFile = _srd.GetScriptReturnFileFromPath(file, true);
+            _srd.XMLEdits.Add(new EditXMLInfo(scriptReturnFile, find, replace, _omod));
         }
 
         public byte[] ReadDataFile(string file)

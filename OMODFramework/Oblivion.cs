@@ -85,4 +85,62 @@ namespace OMODFramework
             return result;
         }
     }
+
+    internal static class OblivionSDP
+    {
+        internal static void EditShader(FileInfo shaderFile, string shaderName, byte[] newData, FileInfo? outputFile)
+        {
+            var temp = Utils.CreateTempFile();
+            shaderFile.CopyTo(temp, true);
+
+            var output = outputFile == null ? shaderFile.FullName : outputFile.FullName;
+            if(File.Exists(output))
+                File.Delete(output);
+
+            {
+                using var br = new BinaryReader(File.OpenRead(temp));
+                using var bw = new BinaryWriter(File.Create(output));
+
+                bw.Write(br.ReadInt32());
+                var num = br.ReadInt32();
+                bw.Write(num);
+
+                var sizeOffset = br.BaseStream.Position;
+                bw.Write(br.ReadInt32());
+
+                var found = false;
+                for (var i = 0; i < num; i++)
+                {
+                    char[] name = br.ReadChars(0x100);
+                    var size = br.ReadInt32();
+                    byte[] data = br.ReadBytes(size);
+                    bw.Write(name);
+                    var sName = "";
+                    for (var j = 0; j < 100; j++)
+                    {
+                        if (name[j] == '\0')
+                            break;
+                        sName += name[j];
+                    }
+
+                    if (!found && sName == shaderName)
+                    {
+                        bw.Write(newData.Length);
+                        bw.Write(newData);
+                        found = true;
+                    }
+                    else
+                    {
+                        bw.Write(size);
+                        bw.Write(data);
+                    }
+                }
+
+                bw.BaseStream.Position = sizeOffset;
+                bw.Write(bw.BaseStream.Length-12);
+            }
+
+            File.Delete(temp);
+        }
+    }
 }

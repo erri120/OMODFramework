@@ -28,8 +28,13 @@ namespace OMODFramework
             };
         }
 
-        internal static FileStream CreateTempFile()
+        private static int _nextFile;
+
+        internal static string CreateTempFile()
         {
+            if (!File.Exists(Path.Combine("tmp", $"tmp_{_nextFile}.omodframework.tmp.file")))
+                return Path.Combine("tmp", $"tmp_{_nextFile++}.omodframework.tmp.file");
+
             for (var i = 0; i < 32000; i++)
             {
                 var path = Path.Combine("tmp", $"tmp_{i}.omodframework.tmp.file");
@@ -38,7 +43,8 @@ namespace OMODFramework
 
                 if (File.Exists(path))
                     continue;
-                return File.Create(path);
+                _nextFile = i+1;
+                return path;
             }
             throw new Exception("Reached max amount of temp files!");
         }

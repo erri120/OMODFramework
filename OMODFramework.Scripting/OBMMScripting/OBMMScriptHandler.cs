@@ -25,7 +25,7 @@ namespace OMODFramework.Scripting
         internal override ScriptReturnData Execute(OMOD omod, string script, ScriptSettings settings)
         {
             _settings = settings;
-            _srd = new ScriptReturnData();
+            _srd = new ScriptReturnData(omod);
             _omod = omod;
             _scriptFunctions = new ScriptFunctions(_settings, omod, _srd);
 
