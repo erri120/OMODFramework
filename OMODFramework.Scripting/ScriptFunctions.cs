@@ -216,6 +216,11 @@ namespace OMODFramework.Scripting
 
         public void SetNewLoadOrder(string[] plugins)
         {
+            //the OBMM had an interesting implementation for this:
+            //it loops through all the plugins and changes the LastWriteTime
+            //based on it's position in the array
+            //it's basically modifying the files so it can sort using
+            //LastWriteTime...
             throw new NotImplementedException();
         }
 
@@ -415,8 +420,10 @@ namespace OMODFramework.Scripting
             if(extension == null || extension != ".esp" || extension != ".esm")
                 throw new ScriptException($"Extension of {to} is not allowed!");
 
-            var file = _omod.OMODFile.Plugins.First(x => x.Name.EqualsPath(from));
-            throw new NotImplementedException();
+            //in OBMM this function replaces a plugin file inside the game folder
+            //with one from the current OMOD
+
+            PatchFile(from, to, create, false);
         }
 
         public void PatchDataFile(string from, string to, bool create)
@@ -425,7 +432,19 @@ namespace OMODFramework.Scripting
             if (extension == null || extension == ".esp" || extension == ".esm")
                 throw new ScriptException($"Extension of {to} is not allowed!");
 
-            throw new NotImplementedException();
+            //in OBMM this function replaces a data file inside the game folder
+            //with one from the current OMOD
+
+            PatchFile(from, to, create, true);
+        }
+
+        private void PatchFile(string from, string to, bool create, bool data)
+        {
+            var file = data 
+                ? _omod.OMODFile.DataFiles.First(x => x.Name.EqualsPath(from)) 
+                : _omod.OMODFile.Plugins.First(x => x.Name.EqualsPath(from));
+
+            _srd.Patches.Add(new PatchInfo(file, to, create, data));
         }
 
         public void RegisterBSA(string path)
@@ -457,37 +476,42 @@ namespace OMODFramework.Scripting
 
         public void SetGMST(string file, string edid, string value)
         {
-            throw new NotImplementedException();
+            _srd.ESPEdits.Add(new ESPEditInfo(value, file, edid, true));
         }
 
         public void SetGlobal(string file, string edid, string value)
         {
-            throw new NotImplementedException();
+            _srd.ESPEdits.Add(new ESPEditInfo(value, file, edid, false));
         }
 
         public void SetPluginByte(string file, long offset, byte value)
         {
-            throw new NotImplementedException();
+            var entry = _omod.OMODFile.Plugins.First(x => x.Name.EqualsPath(file));
+            _srd.SetPluginList.Add(new SetPluginInfo(SetPluginInfoType.Byte, value, offset, entry));
         }
 
         public void SetPluginShort(string file, long offset, short value)
         {
-            throw new NotImplementedException();
+            var entry = _omod.OMODFile.Plugins.First(x => x.Name.EqualsPath(file));
+            _srd.SetPluginList.Add(new SetPluginInfo(SetPluginInfoType.Short, value, offset, entry));
         }
 
         public void SetPluginInt(string file, long offset, int value)
         {
-            throw new NotImplementedException();
+            var entry = _omod.OMODFile.Plugins.First(x => x.Name.EqualsPath(file));
+            _srd.SetPluginList.Add(new SetPluginInfo(SetPluginInfoType.Int, value, offset, entry));
         }
 
         public void SetPluginLong(string file, long offset, long value)
         {
-            throw new NotImplementedException();
+            var entry = _omod.OMODFile.Plugins.First(x => x.Name.EqualsPath(file));
+            _srd.SetPluginList.Add(new SetPluginInfo(SetPluginInfoType.Long, value, offset, entry));
         }
 
         public void SetPluginFloat(string file, long offset, float value)
         {
-            throw new NotImplementedException();
+            var entry = _omod.OMODFile.Plugins.First(x => x.Name.EqualsPath(file));
+            _srd.SetPluginList.Add(new SetPluginInfo(SetPluginInfoType.Float, value, offset, entry));
         }
 
         public string InputString()

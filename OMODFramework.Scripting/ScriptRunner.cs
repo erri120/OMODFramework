@@ -2,16 +2,28 @@
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
+using FrameworkUtils = OMODFramework.Utils;
 
 namespace OMODFramework.Scripting
 {
+    /// <summary>
+    /// Script Runner for executing scripts
+    /// </summary>
     [PublicAPI]
     public static class ScriptRunner
     {
+        /// <summary>
+        /// Execute the script inside an OMOD
+        /// </summary>
+        /// <param name="omod">OMOD with the script</param>
+        /// <param name="settings">Settings used for Script Execution</param>
+        /// <returns></returns>
         public static ScriptReturnData ExecuteScript(OMOD omod, ScriptSettings settings)
         {
             if(!omod.HasFile(OMODEntryFileType.Script))
                 throw new ArgumentException("The given omod does not contain a script!", nameof(omod));
+
+            FrameworkUtils.Info("Loading script from OMOD");
 
             var script = omod.GetScript();
             ScriptType scriptType;
@@ -22,6 +34,8 @@ namespace OMODFramework.Scripting
                 scriptType = (ScriptType)script[0];
                 script = script.Substring(1);
             }
+
+            FrameworkUtils.Debug($"ScriptType: {scriptType}");
 
             omod.OMODFile.Decompress(OMODEntryFileType.Data);
             if(omod.HasFile(OMODEntryFileType.PluginsCRC))
@@ -66,7 +80,7 @@ namespace OMODFramework.Scripting
         }
     }
 
-    public abstract class AScriptHandler
+    internal abstract class AScriptHandler
     {
         internal abstract ScriptReturnData Execute(OMOD omod, string script, ScriptSettings settings);
     }

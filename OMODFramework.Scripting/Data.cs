@@ -142,7 +142,7 @@ namespace OMODFramework.Scripting
         /// Yes, No dialog prompt
         /// </summary>
         /// <param name="title">Title of the window</param>
-        /// <param name="message">Message ot be displayewd</param>
+        /// <param name="message">Message ot be displayed</param>
         /// <returns></returns>
         DialogResult DialogYesNo(string title, string message);
 
@@ -159,8 +159,6 @@ namespace OMODFramework.Scripting
         /// <param name="text">Text to be displayed</param>
         /// <param name="title">Title of the window (can be null)</param>
         void DisplayText(string text, string? title);
-
-        void Patch(string from, string to);
 
         string ReadOblivionINI(string section, string name);
 
@@ -383,8 +381,159 @@ namespace OMODFramework.Scripting
     }
 
     /// <summary>
+    /// Class containing information about Patches to be made
+    /// </summary>
+    [PublicAPI]
+    public class PatchInfo
+    {
+        /// <summary>
+        /// The entry containing the data to patch
+        /// </summary>
+        public readonly OMODCompressedEntry Entry;
+        /// <summary>
+        /// The file to patch
+        /// </summary>
+        public readonly string FileToPatch;
+        /// <summary>
+        /// Whether the file at <see cref="FileToPatch"/> should be created if it does not exist
+        /// </summary>
+        public readonly bool Create;
+        internal readonly bool IsDataFile;
+
+        public PatchInfo(OMODCompressedEntry entry, string fileToPatch, bool create, bool data)
+        {
+            Entry = entry;
+            FileToPatch = fileToPatch;
+            Create = create;
+            IsDataFile = data;
+        }
+
+        /// <summary>
+        /// Extracts the <see cref="Entry"/> and returns it's bytes. This takes a
+        /// reference to a buffer so make sure you use <see cref="OMODCompressedEntry.Length"/>
+        /// to get the size of the buffer.
+        /// </summary>
+        /// <param name="omod">The OMOD</param>
+        /// <param name="buffer">Reference to the buffer</param>
+        public void GetBytesToPatch(OMOD omod, ref byte[] buffer)
+        {
+            using var stream = omod.OMODFile.ExtractDecompressedFile(Entry, IsDataFile);
+            stream.Read(buffer, 0, (int)stream.Length);
+        }
+
+        public override string ToString()
+        {
+            return $"Patch {FileToPatch} with {Entry}";
+        }
+    }
+
+    /// <summary>
+    /// Type of the data in <see cref="SetPluginInfo"/>
+    /// </summary>
+    [PublicAPI]
+    public enum SetPluginInfoType
+    {
+        Byte,
+        Short,
+        Int,
+        Long,
+        Float
+    }
+
+    /// <summary>
+    /// Class for plugin changes
+    /// </summary>
+    [PublicAPI]
+    public class SetPluginInfo
+    {
+        /// <summary>
+        /// Type of the data in <see cref="Value"/>
+        /// </summary>
+        public readonly SetPluginInfoType Type;
+        /// <summary>
+        /// The data to replace in the plugin
+        /// </summary>
+        public readonly object Value;
+        /// <summary>
+        /// Offset of the data to replace
+        /// </summary>
+        public readonly long Offset;
+        /// <summary>
+        /// The entry to change
+        /// </summary>
+        public readonly OMODCompressedEntry Entry;
+
+        public SetPluginInfo(SetPluginInfoType type, object value, long offset, OMODCompressedEntry entry)
+        {
+            Type = type;
+            Value = value;
+            Offset = offset;
+            Entry = entry;
+        }
+
+        /// <summary>
+        /// Returns the amount of bytes to be written depending on the <see cref="Type"/>
+        /// </summary>
+        /// <returns></returns>
+        public int GetValueLength()
+        {
+            return Type switch
+            {
+                SetPluginInfoType.Byte => 1,
+                SetPluginInfoType.Float => 4,
+                SetPluginInfoType.Short => 2,
+                SetPluginInfoType.Int => 4,
+                SetPluginInfoType.Long => 8,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+
+        public override string ToString()
+        {
+            return $"SetPlugin{Type} at {Offset} in {Entry}";
+        }
+    }
+
+    /// <summary>
+    /// Class holding info about ESP edits to certain records
+    /// </summary>
+    [PublicAPI]
+    public class ESPEditInfo
+    {
+        /// <summary>
+        /// Whether the edit is for GMST or Global
+        /// </summary>
+        public readonly bool IsGMST;
+        /// <summary>
+        /// Plugin file to edit
+        /// </summary>
+        public readonly string File;
+        /// <summary>
+        /// The EDID of the record
+        /// </summary>
+        public readonly string EDID;
+        /// <summary>
+        /// The Value to change
+        /// </summary>
+        public readonly string Value;
+
+        public ESPEditInfo(string value, string file, string edid, bool isGMST)
+        {
+            Value = value;
+            File = file;
+            EDID = edid;
+            IsGMST = isGMST;
+        }
+
+        public override string ToString()
+        {
+            return $"ESPEdit to {File} at {EDID}: {Value}";
+        }
+    }
+
+    /// <summary>
     /// Script Return Data. This class holds information about everything that
-    /// gets returned and modified during script exeuction.
+    /// gets returned and modified during script execution.
     /// </summary>
     [PublicAPI]
     public class ScriptReturnData
@@ -418,12 +567,20 @@ namespace OMODFramework.Scripting
         /// </summary>
         public List<SDPEditInfo> SDPEditInfos { get; } = new List<SDPEditInfo>();
 
-        public bool HasDataFiles => DataFiles.Any();
-        public bool HasPlugins => PluginFiles.Any();
-        public bool HasConflicts => Conflicts.Any();
-        public bool HasRegisteredBSAs => RegisteredBSAs.Any();
-        public bool HasINIEdits => INIEdits.Any();
-        public bool HasSDPEdits => SDPEditInfos.Any();
+        /// <summary>
+        /// List of all Patches to be made
+        /// </summary>
+        public List<PatchInfo> Patches { get; } = new List<PatchInfo>();
+
+        /// <summary>
+        /// List of all <see cref="SetPluginInfo"/>s
+        /// </summary>
+        public List<SetPluginInfo> SetPluginList { get; } = new List<SetPluginInfo>();
+
+        /// <summary>
+        /// List of all ESP Edits
+        /// </summary>
+        public List<ESPEditInfo> ESPEdits { get; } = new List<ESPEditInfo>();
 
         public override string ToString()
         {

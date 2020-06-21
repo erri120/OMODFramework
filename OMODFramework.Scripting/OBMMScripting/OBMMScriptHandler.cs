@@ -4,10 +4,11 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using OblivionModManager.Scripting;
+using FrameworkUtils = OMODFramework.Utils;
 
 namespace OMODFramework.Scripting
 {
-    public partial class OBMMScriptHandler : AScriptHandler
+    internal partial class OBMMScriptHandler : AScriptHandler
     {
         private ScriptReturnData _srd = null!;
         private ScriptSettings _settings = null!;
@@ -35,44 +36,13 @@ namespace OMODFramework.Scripting
             if(_omod.HasFile(OMODEntryFileType.PluginsCRC))
                 _scriptFunctions.InstallAllPlugins();
 
+            FrameworkUtils.Info("Starting OBMM Script Handler");
+
             TokenizeScript(script);
             ParseScript();
 
-            //FinishUpReturnData();
-
             return _srd;
         }
-/*
-        /// <summary>
-        /// Utility Function that will clean up the script return data
-        /// </summary>
-        private void FinishUpReturnData()
-        {
-            //var comparer = new PathComparer();
-            //_srd.DataFiles = _srd.DataFiles.DistinctBy(x => x.Output, comparer).ToList();
-            //_srd.PluginFiles = _srd.PluginFiles.DistinctBy(x => x.Output, comparer).ToList();
-
-            if (_srd.UnCheckedPlugins.Count != 0)
-            {
-                if (_omod.OMODFile.Plugins == null)
-                    throw new ScriptingNullListException(false);
-
-                _srd.UnCheckedPlugins.Do(p =>
-                {
-                    if (_srd.PluginFiles.Any(x => x.Output.Equals(p, StringComparison.InvariantCultureIgnoreCase)))
-                    {
-                        _srd.PluginFiles.First(x => x.Output.Equals(p, StringComparison.InvariantCultureIgnoreCase))
-                            .IsUnchecked = true;
-                    }
-                    else
-                    {
-                        var first = (_omod.OMODFile.Plugins ?? throw new InvalidOperationException()).First(x =>
-                            x.Name.Equals(p, StringComparison.InvariantCultureIgnoreCase));
-                        _srd.PluginFiles.Add(new PluginFile(first){IsUnchecked = true});
-                    }
-                });
-            }
-        }*/
 
         /// <summary>
         /// Utility function for replacing variable placeholders with the actual value
@@ -100,10 +70,13 @@ namespace OMODFramework.Scripting
 
         private void ParseScript()
         {
+            FrameworkUtils.Debug("Being script parsing");
+
             var tokens = _tokens.Where(x => x.Type != TokenType.Commend).ToHashSet();
             for (var i = 0; i < tokens.Count; i++)
             {
                 var token = tokens.ElementAt(i);
+                FrameworkUtils.Debug($"Current token: {token}");
 
                 //the Return variable is being set by the Return instruction
                 //when that thing is called, the entire script exists
@@ -133,6 +106,7 @@ namespace OMODFramework.Scripting
 
                     var first = _labelTokens.First(x => x.Label == gotoLabelToken.Label);
                     i = first.Index;
+                    FrameworkUtils.Debug($"Token is {TokenType.Goto}, jumping to {i}");
 
                     continue;
                 }

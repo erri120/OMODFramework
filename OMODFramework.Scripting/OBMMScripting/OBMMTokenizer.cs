@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using FrameworkUtils = OMODFramework.Utils;
 
 namespace OMODFramework.Scripting
 {
-    public partial class OBMMScriptHandler
+    internal partial class OBMMScriptHandler
     {
         /// <summary>
         /// Utility attribute for <see cref="TokenType"/>. Used in <see cref="ValidateLine"/>
@@ -584,6 +585,7 @@ namespace OMODFramework.Scripting
 
         private void TokenizeScript(string script)
         {
+            FrameworkUtils.Debug("Tokenizing the script");
             var lines = script
                 .Replace("\r", "")
                 .Split("\n")
@@ -620,7 +622,9 @@ namespace OMODFramework.Scripting
             }
 
             lines = list;
+            FrameworkUtils.Debug($"OBMM Script has {lines.Count} lines");
             _tokens = lines.Select(TokenizeLine).ToHashSet();
+            FrameworkUtils.Debug("Finished tokenizing");
         }
 
         private struct Line
