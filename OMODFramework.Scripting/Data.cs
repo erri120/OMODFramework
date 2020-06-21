@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using JetBrains.Annotations;
 using OblivionModManager.Scripting;
 
 namespace OMODFramework.Scripting
 {
+    #region Exceptions
+
     /// <summary>
     /// Thrown during script execution
     /// </summary>
     public class ScriptException : Exception
     {
-        public ScriptException(string s) : base(s){ }
+        public ScriptException(string s) : base(s) { }
     }
 
     /// <summary>
@@ -31,6 +32,8 @@ namespace OMODFramework.Scripting
         public ScriptingCanceledException() : base("Script execution was canceled!") { }
         public ScriptingCanceledException(string s) : base($"Script execution was canceled!\n{s}") { }
     }
+
+    #endregion
 
     /// <summary>
     /// Results for Dialogs
@@ -223,10 +226,19 @@ namespace OMODFramework.Scripting
         byte[] GetDataFileFromBSA(string bsa, string file);
     }
 
+    /// <summary>
+    /// Script Return File
+    /// </summary>
     [PublicAPI]
     public class ScriptReturnFile
     {
+        /// <summary>
+        /// Original Entry
+        /// </summary>
         public readonly OMODCompressedEntry OriginalFile;
+        /// <summary>
+        /// Output path
+        /// </summary>
         public string Output { get; }
 
         public ScriptReturnFile(OMODCompressedEntry entry)
@@ -241,11 +253,13 @@ namespace OMODFramework.Scripting
             Output = output;
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"{OriginalFile.Name} to {Output}";
         }
 
+        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
             if (!(obj is ScriptReturnFile file))
@@ -254,12 +268,16 @@ namespace OMODFramework.Scripting
             return file.OriginalFile.Equals(OriginalFile) && file.Output.Equals(Output, StringComparison.InvariantCultureIgnoreCase);
         }
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashCode.Combine(OriginalFile, Output);
         }
     }
 
+    /// <summary>
+    /// A Data File
+    /// </summary>
     [PublicAPI]
     public sealed class DataFile : ScriptReturnFile
     {
@@ -268,15 +286,33 @@ namespace OMODFramework.Scripting
         public DataFile(OMODCompressedEntry entry, string output) : base(entry, output) { }
     }
 
+    /// <summary>
+    /// A Plugin File
+    /// </summary>
     [PublicAPI]
     public sealed class PluginFile : ScriptReturnFile
     {
+        /// <summary>
+        /// Whether the file is unchecked or not
+        /// </summary>
         public bool IsUnchecked { get; set; }
 
+        /// <summary>
+        /// (Can be null) Warning
+        /// </summary>
         public DeactiveStatus? Warning { get; set; }
+        /// <summary>
+        /// Whether to load the plugin early
+        /// </summary>
         public bool LoadEarly { get; set; }
 
+        /// <summary>
+        /// Plugins that should be loaded after the current plugin
+        /// </summary>
         public List<PluginFile> LoadBefore { get; set; } = new List<PluginFile>();
+        /// <summary>
+        /// Plugins that should be loaded before the current plugin
+        /// </summary>
         public List<PluginFile> LoadAfter { get; set; } = new List<PluginFile>();
 
         public PluginFile(OMODCompressedEntry entry) : base(entry) { }
@@ -314,16 +350,29 @@ namespace OMODFramework.Scripting
         /// </summary>
         public ConflictLevel Level { get; set; }
         /// <summary>
-        /// File that teh current OMOD conflicts with/depends on
+        /// File that the current OMOD conflicts with/depends on
         /// </summary>
         public string File { get; set; } = string.Empty;
         
+        /// <summary>
+        /// Conflict is only viable if the <see cref="File"/> has this minimum version
+        /// </summary>
         public Version? MinVersion { get; set; }
+        /// <summary>
+        /// Conflict is only viable if the <see cref="File"/> has this maximum version
+        /// </summary>
         public Version? MaxVersion { get; set; }
 
+        /// <summary>
+        /// (Can be null) Comment
+        /// </summary>
         public string? Comment { get; set; }
+        /// <summary>
+        /// Whether <see cref="File"/> is a regex
+        /// </summary>
         public bool Partial { get; set; }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"{(Type == ConflictType.Conflicts ? "Conflicts with" : "Depends on")} {File}";
@@ -356,6 +405,7 @@ namespace OMODFramework.Scripting
             NewValue = newValue;
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"[{Section}]{Name}:{NewValue}";
@@ -398,6 +448,7 @@ namespace OMODFramework.Scripting
         /// Whether the file at <see cref="FileToPatch"/> should be created if it does not exist
         /// </summary>
         public readonly bool Create;
+
         internal readonly bool IsDataFile;
 
         public PatchInfo(OMODCompressedEntry entry, string fileToPatch, bool create, bool data)
@@ -421,6 +472,7 @@ namespace OMODFramework.Scripting
             stream.Read(buffer, 0, (int)stream.Length);
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"Patch {FileToPatch} with {Entry}";
@@ -433,10 +485,25 @@ namespace OMODFramework.Scripting
     [PublicAPI]
     public enum SetPluginInfoType
     {
+        /// <summary>
+        /// Byte (1 byte... duh)
+        /// </summary>
         Byte,
+        /// <summary>
+        /// Short (2 bytes)
+        /// </summary>
         Short,
+        /// <summary>
+        /// Int (4 bytes)
+        /// </summary>
         Int,
+        /// <summary>
+        /// Long (8 bytes)
+        /// </summary>
         Long,
+        /// <summary>
+        /// Float (4 bytes)
+        /// </summary>
         Float
     }
 
@@ -488,6 +555,7 @@ namespace OMODFramework.Scripting
             };
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"SetPlugin{Type} at {Offset} in {Entry}";
@@ -525,9 +593,83 @@ namespace OMODFramework.Scripting
             IsGMST = isGMST;
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"ESPEdit to {File} at {EDID}: {Value}";
+        }
+    }
+
+    /// <summary>
+    /// Information about XML edits
+    /// </summary>
+    [PublicAPI]
+    public class EditXMLInfo
+    {
+        /// <summary>
+        /// The XML file
+        /// </summary>
+        public readonly OMODCompressedEntry Entry;
+        /// <summary>
+        /// Whether to find and replace
+        /// </summary>
+        public readonly bool IsReplace;
+        /// <summary>
+        /// Whether to replace a Line
+        /// </summary>
+        public readonly bool IsEditLine;
+
+        /// <summary>
+        /// Only set if <see cref="IsEditLine"/> is set to <c>true</c>. Line number
+        /// to replace.
+        /// </summary>
+        public readonly int Line;
+        /// <summary>
+        /// Only set if <see cref="IsEditLine"/> is set to <c>true</c>. Line replacement.
+        /// </summary>
+        public readonly string Value;
+
+        /// <summary>
+        /// Only set if <see cref="IsReplace"/> is set to <c>true</c>. String to find.
+        /// </summary>
+        public readonly string Find;
+        /// <summary>
+        /// Only set if <see cref="IsReplace"/> is set to <c>true</c>. String to replace <see cref="Find"/>with.
+        /// </summary>
+        public readonly string Replace;
+
+        public EditXMLInfo(OMODCompressedEntry entry, int line, string value)
+        {
+            Entry = entry;
+            IsReplace = false;
+            IsEditLine = true;
+
+            Line = line;
+            Value = value;
+
+            Find = string.Empty;
+            Replace = string.Empty;
+        }
+
+        public EditXMLInfo(OMODCompressedEntry entry, string find, string replace)
+        {
+            Entry = entry;
+            IsReplace = true;
+            IsEditLine = false;
+
+            Line = -1;
+            Value = string.Empty;
+
+            Find = find;
+            Replace = replace;
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return IsEditLine 
+                ? $"Replace Line {Line} with {Value}" 
+                : $"Find {Find} and replace with {Replace}";
         }
     }
 
@@ -582,6 +724,12 @@ namespace OMODFramework.Scripting
         /// </summary>
         public List<ESPEditInfo> ESPEdits { get; } = new List<ESPEditInfo>();
 
+        /// <summary>
+        /// List of all XML Edits
+        /// </summary>
+        public List<EditXMLInfo> XMLEdits { get; } = new List<EditXMLInfo>();
+
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"Data Files: {DataFiles.Count}, Plugins: {PluginFiles.Count}";

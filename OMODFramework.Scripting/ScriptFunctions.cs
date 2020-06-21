@@ -545,12 +545,14 @@ namespace OMODFramework.Scripting
 
         public void EditXMLLine(string file, int line, string value)
         {
-            throw new NotImplementedException();
+            var entry = _omod.OMODFile.DataFiles.First(x => x.Name.EqualsPath(file));
+            _srd.XMLEdits.Add(new EditXMLInfo(entry, line, value));
         }
 
         public void EditXMLReplace(string file, string find, string replace)
         {
-            throw new NotImplementedException();
+            var entry = _omod.OMODFile.DataFiles.First(x => x.Name.EqualsPath(file));
+            _srd.XMLEdits.Add(new EditXMLInfo(entry, find, replace));
         }
 
         public byte[] ReadDataFile(string file)
