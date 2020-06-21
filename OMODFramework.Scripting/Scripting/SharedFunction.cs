@@ -130,7 +130,7 @@ namespace OMODFramework.Scripting
     {
         public FunctionMessage(ref SharedFunctionsHandler handler) : base(ref handler) { }
         public override List<string> FuncNames { get; set; }
-        public override string FuncName { get; set; }
+        public override string FuncName { get; set; } = "Message";
         public override int MinArgs { get; set; }
         public override int MaxArgs { get; set; }
 
