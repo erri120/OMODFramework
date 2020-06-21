@@ -1228,9 +1228,12 @@ namespace OMODFramework.Scripting
                         Directory.GetDirectories(from).Do(d =>
                         {
                             var arg2 = d.Substring(OBMMScriptHandler.DataFiles.Length);
-                            if (arg2.StartsWith("\\"))
-                                arg2 = arg2.Substring(1);
                             var l = OBMMScriptHandler.DataFiles.Length + collection.ElementAt(1).Length;
+                            if (arg2.StartsWith("\\"))
+                            {
+                                arg2 = arg2.Substring(1);
+                                l++;
+                            }
                             var t = d.Substring(l);
                             var arg3 = collection.ElementAt(2) + t;
                             var arg = (IReadOnlyCollection<string>)new List<string> {"", arg2, arg3, "True"};
