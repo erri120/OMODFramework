@@ -112,11 +112,6 @@ namespace OMODFramework.Example.CSharp
             throw new NotImplementedException();
         }
 
-        public void Patch(string @from, string to)
-        {
-            throw new NotImplementedException();
-        }
-
         public string ReadOblivionINI(string section, string name)
         {
             throw new NotImplementedException();
