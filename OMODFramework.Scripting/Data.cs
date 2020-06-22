@@ -408,12 +408,20 @@ namespace OMODFramework.Scripting
         /// <summary>
         /// The File to edit
         /// </summary>
-        public readonly ScriptReturnFile File;
+        public virtual ScriptReturnFile File { get; }
 
         internal AFileEdit(ScriptReturnFile file, OMOD omod) : base(omod)
         {
             File = file;
         }
+
+        /// <summary>
+        /// Execute the Edit
+        /// </summary>
+        /// <param name="inputFile"></param>
+        /// <param name="outputFile"></param>
+        /// <param name="safeEdit"></param>
+        public abstract void ExecuteEdit(FileInfo inputFile, FileInfo? outputFile, bool safeEdit = true);
 
         /// <summary>
         /// Extracts <see cref="File"/> and reads the the data into the provided buffer. You should
@@ -484,8 +492,14 @@ namespace OMODFramework.Scripting
         /// </summary>
         public readonly string Shader;
 
+        /// <summary>
+        /// The file containing the replacement data for the shader
+        /// </summary>
+        public override ScriptReturnFile File { get; }
+
         internal SDPEditInfo(byte package, string shader, ScriptReturnFile file, OMOD omod) : base(file, omod)
         {
+            File = file;
             Package = package;
             Shader = shader;
         }
@@ -494,31 +508,31 @@ namespace OMODFramework.Scripting
         /// <para>Use this function if you don't have code for dealing with shader edits.</para>
         /// <para>
         /// This function reads the provided shader file and replaces the shader inside of it. Use the
-        /// <paramref name="safeReplace"/> parameter if you don't want the original file to be changed.
-        /// If <paramref name="safeReplace"/> is set to true, you also have to provide an <paramref name="outputFile"/>
+        /// <paramref name="safeEdit"/> parameter if you don't want the original file to be changed.
+        /// If <paramref name="safeEdit"/> is set to true, you also have to provide an <paramref name="outputFile"/>
         /// where the final shader file will go to.
         /// </para>
         /// </summary>
-        /// <param name="shaderFile">The Shader file to replace. Do note that this has to match shaderpackage{ID}.sdp where ID is <see cref="Package"/> with a PadLeft of 3. Meaning that Package 1 becomes 001 and package 18 becomes 018.</param>
-        /// <param name="outputFile">The output file, only needed if <paramref name="safeReplace"/> is set to true</param>
-        /// <param name="safeReplace">Whether to use export the final shader file to <paramref name="outputFile"/></param>
-        public void ExecuteEdit(FileInfo shaderFile, FileInfo? outputFile, bool safeReplace = true)
+        /// <param name="inputFile">The Shader file to replace. Do note that this has to match shaderpackage{ID}.sdp where ID is <see cref="Package"/> with a PadLeft of 3. Meaning that Package 1 becomes 001 and package 18 becomes 018.</param>
+        /// <param name="outputFile">The output file, only needed if <paramref name="safeEdit"/> is set to true</param>
+        /// <param name="safeEdit">Whether to use export the final shader file to <paramref name="outputFile"/></param>
+        public override void ExecuteEdit(FileInfo inputFile, FileInfo? outputFile, bool safeEdit = true)
         {
-            if(!shaderFile.Exists)
-                throw new ArgumentException($"Provided shader file does not exist: {shaderFile}!", nameof(shaderFile));
-            if(shaderFile.Extension != ".sdp")
-                throw new ArgumentException($"Extension of provided shader file is not .sdp but {shaderFile.Extension}!", nameof(shaderFile));
+            if(!inputFile.Exists)
+                throw new ArgumentException($"Provided shader file does not exist: {inputFile}!", nameof(inputFile));
+            if(inputFile.Extension != ".sdp")
+                throw new ArgumentException($"Extension of provided shader file is not .sdp but {inputFile.Extension}!", nameof(inputFile));
 
             var fileName = $"shaderpackage{Package.ToString().PadLeft(3, '0')}.sdp";
-            if(!shaderFile.Name.Equals(fileName, StringComparison.InvariantCultureIgnoreCase))
-                throw new ArgumentException($"Provided shader file does not equal name {fileName} but is {shaderFile.Name}!", nameof(shaderFile));
+            if(!inputFile.Name.Equals(fileName, StringComparison.InvariantCultureIgnoreCase))
+                throw new ArgumentException($"Provided shader file does not equal name {fileName} but is {inputFile.Name}!", nameof(inputFile));
 
-            if(safeReplace && outputFile == null)
-                throw new ArgumentException($"{nameof(safeReplace)} is true but {nameof(outputFile)} is null! {nameof(outputFile)} has to be set or {nameof(safeReplace)} has to be set to false!", nameof(outputFile));
+            if(safeEdit && outputFile == null)
+                throw new ArgumentException($"{nameof(safeEdit)} is true but {nameof(outputFile)} is null! {nameof(outputFile)} has to be set or {nameof(safeEdit)} has to be set to false!", nameof(outputFile));
 
             byte[] buffer = new byte[File.OriginalFile.Length];
             GetBytesFromFile(ref buffer);
-            OblivionSDP.EditShader(shaderFile, Shader, buffer, outputFile);
+            OblivionSDP.EditShader(inputFile, Shader, buffer, outputFile);
         }
     }
 
@@ -537,18 +551,50 @@ namespace OMODFramework.Scripting
         /// </summary>
         public readonly bool Create;
 
+        /// <summary>
+        /// The file to replace <see cref="FileToPatch"/> with
+        /// </summary>
+        public override ScriptReturnFile File { get; }
+
         internal readonly bool IsDataFile;
 
         internal PatchInfo(ScriptReturnFile file, string fileToPatch, bool create, bool data, OMOD omod) : base(file, omod)
         {
+            File = file;
             FileToPatch = fileToPatch;
             Create = create;
             IsDataFile = data;
         }
 
-        public void ExecuteEdit(OMOD omod, string output)
+        /// <summary>
+        /// <para>Use this function if you don't have code for dealing with Plugin/Data File patches.</para>
+        /// <para>
+        /// This function extracts <see cref="File"/> and replaces <paramref name="fileToPatch"/>. You can
+        /// use the <paramref name="safePatch"/> parameter if you don't want <paramref name="fileToPatch"/> to be
+        /// replaced. If <paramref name="safePatch"/> is set, you also need to provide a <paramref name="outputFile"/>.
+        /// Instead of replacing <paramref name="fileToPatch"/>, the data of <see cref="File"/> will be written to
+        /// <paramref name="outputFile"/> instead.
+        /// </para>
+        /// </summary>
+        /// <param name="fileToPatch">File to patch, use <see cref="FileToPatch"/> to get the path to the file inside the data folder.</param>
+        /// <param name="outputFile">Output File, only needed if <paramref name="safePatch"/> is set to true</param>
+        /// <param name="safePatch">Whether to replaces <paramref name="outputFile"/> instead of <paramref name="fileToPatch"/></param>
+        public override void ExecuteEdit(FileInfo fileToPatch, FileInfo? outputFile, bool safePatch = true)
         {
-            throw new NotImplementedException();
+            if(!fileToPatch.Exists && !Create)
+                throw new ArgumentException($"File at {fileToPatch} does not exist and the create setting is not set!", nameof(fileToPatch));
+            if(safePatch && outputFile == null)
+                throw new ArgumentException($"{nameof(safePatch)} is set but {nameof(outputFile)} is null! Either set {nameof(outputFile)} or set {nameof(safePatch)} to false", nameof(outputFile));
+
+            byte[] buffer = new byte[File.OriginalFile.Length];
+            GetBytesFromFile(ref buffer);
+
+            var output = safePatch ? outputFile! : fileToPatch;
+            if(output.Exists)
+                output.Delete();
+
+            using var fs = System.IO.File.Create(output.FullName);
+            fs.Write(buffer, 0, buffer.Length);
         }
 
         /// <inheritdoc />
@@ -605,15 +651,21 @@ namespace OMODFramework.Scripting
         /// </summary>
         public readonly long Offset;
 
+        /// <summary>
+        /// The Plugin to modify
+        /// </summary>
+        public override ScriptReturnFile File { get; }
+
         internal SetPluginInfo(SetPluginInfoType type, object value, long offset, ScriptReturnFile file, OMOD omod) : base(file, omod)
         {
+            File = file;
             Type = type;
             Value = value;
             Offset = offset;
         }
 
         /// <summary>
-        /// Returns the amount of bytes to be written depending on the <see cref="Type"/>
+        /// Returns the amount of bytes to be written, depending on the <see cref="Type"/>
         /// </summary>
         /// <returns></returns>
         public int GetValueLength()
@@ -629,9 +681,55 @@ namespace OMODFramework.Scripting
             };
         }
 
-        public void ExecuteEdit(OMOD omod, string output)
+        /// <summary>
+        /// This function will open the file at <paramref name="inputFile"/> and will change the value at <see cref="Offset"/>
+        /// with <see cref="Value"/> of type <see cref="Type"/>. If you have not extracted the plugin yet, make sure that
+        /// <paramref name="inputFile"/> equals <paramref name="outputFile"/>. If you have extracted the plugin and don't want
+        /// to modify <paramref name="inputFile"/>, set <paramref name="safeEdit"/> to true and change the <paramref name="outputFile"/>.
+        /// </summary>
+        /// <param name="inputFile"></param>
+        /// <param name="outputFile"></param>
+        /// <param name="safeEdit"></param>
+        public override void ExecuteEdit(FileInfo inputFile, FileInfo? outputFile, bool safeEdit = true)
         {
-            throw new NotImplementedException();
+            string output = inputFile.FullName;
+            if (safeEdit && outputFile != null)
+                output = outputFile.FullName;
+
+            if (outputFile != null && inputFile == outputFile)
+            {
+                if (!System.IO.File.Exists(output))
+                {
+                    byte[] buffer = new byte[File.OriginalFile.Length];
+                    GetBytesFromFile(ref buffer);
+                    
+                    using var fileStream = System.IO.File.Create(output);
+                    fileStream.Write(buffer, 0, buffer.Length);
+                }
+            }
+
+            using var fs = System.IO.File.OpenWrite(output);
+            if(Offset > fs.Length)
+                throw new Exception($"Length of the file stream is smaller than the specified Offset! This happens when the mod author fucked something up. Offset: {Offset}, length: {fs.Length}");
+            fs.Position = Offset;
+            
+            if(Type == SetPluginInfoType.Byte)
+            {
+                fs.WriteByte((byte) Value);
+                return;
+            }
+
+            byte[] data = Type switch
+            {
+                SetPluginInfoType.Short => BitConverter.GetBytes((short) Value),
+                SetPluginInfoType.Int => BitConverter.GetBytes((int) Value),
+                SetPluginInfoType.Long => BitConverter.GetBytes((long) Value),
+                SetPluginInfoType.Float => BitConverter.GetBytes((float) Value),
+                SetPluginInfoType.Byte => throw new ArgumentOutOfRangeException(),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            fs.Write(data, 0, GetValueLength());
         }
 
         /// <inheritdoc />
@@ -737,7 +835,7 @@ namespace OMODFramework.Scripting
             Replace = replace;
         }
 
-        public void ExecuteEdit(OMOD omod, string output)
+        public override void ExecuteEdit(FileInfo inputFile, FileInfo? outputFile, bool safeEdit = true)
         {
             throw new NotImplementedException();
         }
