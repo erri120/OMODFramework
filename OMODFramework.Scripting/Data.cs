@@ -687,9 +687,9 @@ namespace OMODFramework.Scripting
         /// <paramref name="inputFile"/> equals <paramref name="outputFile"/>. If you have extracted the plugin and don't want
         /// to modify <paramref name="inputFile"/>, set <paramref name="safeEdit"/> to true and change the <paramref name="outputFile"/>.
         /// </summary>
-        /// <param name="inputFile"></param>
-        /// <param name="outputFile"></param>
-        /// <param name="safeEdit"></param>
+        /// <param name="inputFile">The plugin file if you have already extracted it</param>
+        /// <param name="outputFile">If <paramref name="safeEdit"/> is set to true, this fill will be changed instead of <paramref name="inputFile"/></param>
+        /// <param name="safeEdit">Whether to change <paramref name="outputFile"/> or <paramref name="inputFile"/></param>
         public override void ExecuteEdit(FileInfo inputFile, FileInfo? outputFile, bool safeEdit = true)
         {
             string output = inputFile.FullName;
@@ -811,8 +811,14 @@ namespace OMODFramework.Scripting
         /// </summary>
         public readonly string Replace;
 
+        /// <summary>
+        /// The XML file to edit
+        /// </summary>
+        public override ScriptReturnFile File { get; }
+
         internal EditXMLInfo(ScriptReturnFile file, int line, string value, OMOD omod) : base(file, omod)
         {
+            File = file;
             IsReplace = false;
             IsEditLine = true;
 
@@ -825,6 +831,7 @@ namespace OMODFramework.Scripting
 
         internal EditXMLInfo(ScriptReturnFile file, string find, string replace, OMOD omod) : base(file, omod)
         {
+            File = file;
             IsReplace = true;
             IsEditLine = false;
 
@@ -835,9 +842,47 @@ namespace OMODFramework.Scripting
             Replace = replace;
         }
 
+        /// <summary>
+        /// This function will edit the XML file at <paramref name="inputFile"/>. If you have not extracted the file yet, make sure that
+        /// <paramref name="inputFile"/> equals <paramref name="outputFile"/>. If you have extracted the plugin and don't want
+        /// to modify <paramref name="inputFile"/>, set <paramref name="safeEdit"/> to true and change the <paramref name="outputFile"/>.
+        /// </summary>
+        /// <param name="inputFile">The XML file if you have already extracted it</param>
+        /// <param name="outputFile">If <paramref name="safeEdit"/> is set to true, this fill will be changed instead of <paramref name="inputFile"/></param>
+        /// <param name="safeEdit">Whether to change <paramref name="outputFile"/> or <paramref name="inputFile"/></param>
         public override void ExecuteEdit(FileInfo inputFile, FileInfo? outputFile, bool safeEdit = true)
         {
-            throw new NotImplementedException();
+            string output = inputFile.FullName;
+            if (safeEdit && outputFile != null)
+                output = outputFile.FullName;
+
+            if (outputFile != null && inputFile == outputFile)
+            {
+                if (!System.IO.File.Exists(output))
+                {
+                    byte[] buffer = new byte[File.OriginalFile.Length];
+                    GetBytesFromFile(ref buffer);
+
+                    using var fileStream = System.IO.File.Create(output);
+                    fileStream.Write(buffer, 0, buffer.Length);
+                }
+            }
+
+            if (IsEditLine)
+            {
+                var lines = System.IO.File.ReadAllLines(output);
+                if(Line >= lines.Length)
+                    throw new Exception($"Line number is greater than length of lines array: Line {Line}, length {lines.Length}");
+
+                lines[Line] = Value;
+                System.IO.File.WriteAllLines(output, lines);
+                return;
+            }
+
+            if (!IsReplace) return;
+            var text = System.IO.File.ReadAllText(output);
+            text = text.Replace(Find, Replace);
+            System.IO.File.WriteAllText(output, text);
         }
 
         /// <inheritdoc />
