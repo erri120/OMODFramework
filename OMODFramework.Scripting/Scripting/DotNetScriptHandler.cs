@@ -46,6 +46,7 @@ namespace OMODFramework.Scripting
                 ReferencedAssemblies =
                 {
                     Framework.Settings.DllPath,
+                    System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Framework.Settings.DllPath), "OMODFramework.Scripting.dll"),
                     "System.dll",
                     "System.Drawing.dll",
                     "System.Windows.Forms.dll",
@@ -69,6 +70,7 @@ namespace OMODFramework.Scripting
                     break;
                 case ScriptType.CSharp:
                     results = CSharpCompiler.CompileAssemblyFromSource(Params, code);
+                    
                     break;
                 case ScriptType.VB:
                     results = VBCompiler.CompileAssemblyFromSource(Params, code);
