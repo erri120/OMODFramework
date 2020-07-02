@@ -120,7 +120,7 @@ namespace OMODFramework
     /// OMOD class, implements <see cref="IDisposable"/>
     /// </summary>
     [PublicAPI]
-    public partial class OMOD : IDisposable
+    public partial class OMOD : IDisposable, IAsyncDisposable
     {
         private readonly FrameworkSettings _frameworkSettings = null!;
         internal readonly OMODFile OMODFile;
@@ -350,13 +350,25 @@ namespace OMODFramework
             OMODFile.ExtractAllDecompressedFiles(outputDirectory, entryFileType == OMODEntryFileType.Data);
         }
 
-        /// <summary>
-        /// Disposes the OMOD and closes the underlying zip file.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             Utils.Debug("Disposing OMOD");
             OMODFile.Dispose();
+        }
+
+        /// <inheritdoc />
+        public ValueTask DisposeAsync()
+        {
+            try
+            {
+                Dispose();
+                return new ValueTask();
+            }
+            catch (Exception ex)
+            {
+                return new ValueTask(Task.FromException(ex));
+            }
         }
     }
 }

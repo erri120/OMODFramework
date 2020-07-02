@@ -31,7 +31,6 @@ namespace OMODFramework.Scripting
     /// </summary>
     public class ScriptingCanceledException : ScriptException
     {
-        internal ScriptingCanceledException() : base("Script execution was canceled!") { }
         internal ScriptingCanceledException(string s) : base($"Script execution was canceled!\n{s}") { }
     }
 
