@@ -1058,7 +1058,7 @@ namespace OMODFramework.Scripting
                 return;
             }
 
-            if (line.Count >= 2)
+            if (line.Count > 2)
             {
                 switch (line.ElementAt(2))
                 {
