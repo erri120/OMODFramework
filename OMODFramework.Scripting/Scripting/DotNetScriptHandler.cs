@@ -33,7 +33,14 @@ namespace OMODFramework.Scripting
         private static readonly CompilerParameters Params;
         private static readonly Evidence Evidence;
 
-        private static readonly string ScriptOutputPath = Path.Combine(Framework.Settings.TempPath, "dotnetscript.dll");
+        private static readonly string ScriptOutputName = "dotnetscript.dll";
+        private static readonly string[] ReferencedAssemblies =
+        {
+            "System.dll",
+            "System.Drawing.dll",
+            "System.Windows.Forms.dll",
+            "System.Xml.dll"
+        };
 
         static DotNetScriptHandler()
         {
@@ -41,16 +48,7 @@ namespace OMODFramework.Scripting
             {
                 GenerateExecutable = false,
                 GenerateInMemory = false,
-                IncludeDebugInformation = false,
-                OutputAssembly = ScriptOutputPath,
-                ReferencedAssemblies =
-                {
-                    Framework.Settings.DllPath,
-                    "System.dll",
-                    "System.Drawing.dll",
-                    "System.Windows.Forms.dll",
-                    "System.Xml.dll"
-                }
+                IncludeDebugInformation = false
             };
 
             Evidence = new Evidence();
@@ -60,6 +58,10 @@ namespace OMODFramework.Scripting
         private static byte[] Compile(string code, ScriptType type)
         {
             Utils.Debug("Starting compilation...");
+            Params.OutputAssembly = Path.Combine(Framework.Settings.TempPath, ScriptOutputName);
+            Params.ReferencedAssemblies.Clear();
+            Params.ReferencedAssemblies.Add(Framework.Settings.DllPath);
+            Params.ReferencedAssemblies.AddRange(ReferencedAssemblies);
             CompilerResults results = null;
             switch (type)
             {
