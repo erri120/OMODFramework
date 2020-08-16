@@ -825,12 +825,18 @@ namespace OMODFramework.Scripting
 
                 try
                 {
-                    var paths = Directory.GetDirectories(Path.Combine(root, line.ElementAt(4)),
-                        line.Count > 6 ? line.ElementAt(6) : "*", option);
+                    string[] paths;
+                    if (elementAt.EndsWith("Folder"))
+                        paths = Directory.GetDirectories(Path.Combine(root, line.ElementAt(4)), line.Count > 6 ? line.ElementAt(6) : "*", option);
+                    else
+                        paths = Directory.GetFiles(Path.Combine(root, line.ElementAt(4)), line.Count > 6 ? line.ElementAt(6) : "*", option);
                     for (var i = 0; i < paths.Length; i++)
                     {
                         if (Path.IsPathRooted(paths[i]))
+                        {
                             paths[i] = paths[i].Substring(root.Length);
+                            paths[i] = paths[i].TrimStart(Path.DirectorySeparatorChar);
+                        }
                     }
                     return new FlowControlStruct(paths, line.ElementAt(3), lineNo);
                 }
