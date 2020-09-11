@@ -1,85 +1,121 @@
-﻿using System;
+﻿// /*
+//     Copyright (C) 2020  erri120
+// 
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+// 
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+// 
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// */
+
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using OMODFramework.Exceptions;
 
 namespace OMODFramework
 {
     internal static class OblivionINI
     {
-        internal static string GetINIValue(string file, string section, string name)
+        private static readonly Dictionary<string, Dictionary<string, string>> Cache = new Dictionary<string, Dictionary<string, string>>();
+
+        internal static string? GetINIValue(string file, string section, string name)
         {
-            var result = "";
-            List<string>? list = GetINISection(file, section);
-            if (list == null)
-                throw new OMODException($"Oblivion.ini section {section} does not exist!");
+            if (Cache.TryGetValue(file, out var cachedValues))
+                return cachedValues.TryGetValue(name, out var cachedValue) ? cachedValue : null;
+            
+            Dictionary<string, string> values = GetINISection(file, section);
+            if (values.Count == 0)
+                return null;
 
-            list.Where(s => s.Trim().ToLower().StartsWith($"{name.ToLower()}=")).Do(s =>
-            {
-                var res = s.Substring(s.IndexOf('=') + 1).Trim();
-                var i = res.IndexOf(';');
-                if (i != -1)
-                    res = res.Substring(0, i - 1);
-                result = res;
-            });
-
-            return result;
+            return values.TryGetValue(name, out var value) ? value : null;
         }
 
-        private static List<string>? GetINISection(string file, string section)
+        private static Dictionary<string, string> GetINISection(string file, string section)
         {
-            var contents = new List<string>();
+            var dictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            ReadOnlySpan<char> sectionSpan = section.AsSpan();
+
+            using var fs = File.Open(file, FileMode.Open, FileAccess.Read, FileShare.Read);
+            using var sr = new StreamReader(fs, Encoding.UTF8);
+
             var inSection = false;
-            using var sr = new StreamReader(File.OpenRead(file), Encoding.UTF8);
-            try
+            while (sr.Peek() != -1)
             {
-                while (sr.Peek() != -1)
+                var line = sr.ReadLine();
+                if (line == null) break;
+                ReadOnlySpan<char> span = line.AsSpan().Trim();
+                
+                if (inSection)
                 {
-                    var s = sr.ReadLine();
-                    if (s == null)
-                        break;
-                    if (inSection)
-                    {
-                        if (s.Trim().StartsWith("[") && s.Trim().EndsWith("]")) break;
-                        contents.Add(s);
-                    }
-                    else
-                    {
-                        if (s.Trim().ToLower() == section)
-                            inSection = true;
-                    }
+                    if (span[0].Equals('[') && span[^1].Equals(']')) break;
+
+                    var splitIndex = span.IndexOf('=');
+                    if (splitIndex == -1) continue;
+                    var commentIndex = span.IndexOf(';');
+
+                    ReadOnlySpan<char> key = span.Slice(0, splitIndex);
+                    ReadOnlySpan<char> value = span.Slice(splitIndex + 1,
+                        commentIndex == -1
+                            ? span.Length - splitIndex - 1
+                            : span.Length - splitIndex - 1 - (span.Length - commentIndex - 1));
+
+                    if (commentIndex != -1)
+                        value = value.TrimEnd();
+                    
+                    dictionary.Add(key.ToString(), value.ToString());
+                }
+                else
+                {
+                    if (span.Equals(sectionSpan, StringComparison.OrdinalIgnoreCase))
+                        inSection = true;
                 }
             }
-            catch (Exception e)
-            {
-                throw new OMODException($"Could not read from oblivion.ini at {file}\n{e}");
-            }
 
-            return !inSection ? null : contents;
+            Cache.Add(file, dictionary);
+            return dictionary;
         }
     }
 
-    internal static class OblivionRenderInfo
+    internal static class OblivionRendererInfo
     {
-        internal static string GetInfo(string file, string s)
+        internal static string? GetInfo(string file, string search)
         {
-            var result = $"Value {s} not found";
+            /*
+             * Example file (note the spaces):
+	Water shader       		: yes
+	Water reflections  		: yes
+	Water displacement 		: yes
+	Water high res     		: yes
+	MultiSample Type   		: 0
+	Shader Package     		: 13
+             */
+            
+            var result = "";
+            
+            ReadOnlySpan<char> searchSpan = search.AsSpan();
+            
+            string[] lines = File.ReadAllLines(file, Encoding.UTF8);
 
-            try
+            foreach (var line in lines)
             {
-                var lines = File.ReadAllLines(file);
-                lines.Where(t => t.Trim().ToLower().StartsWith(s)).Do(t =>
-                {
-                    var split = t.Split(':');
-                    if (split.Length != 2) result = "-1";
-                    result = split[1].Trim();
-                });
-            }
-            catch (Exception e)
-            {
-                throw new OMODException($"Could not read from RenderInfo.txt file at {file}\n{e}");
+                ReadOnlySpan<char> span = line.AsSpan();
+                var index = span.IndexOf(':');
+                if (index == -1) continue;
+
+                ReadOnlySpan<char> key = span.Slice(0, index).Trim();
+                if (!key.Equals(searchSpan, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                ReadOnlySpan<char> value = span.Slice(index + 1, span.Length - index -1);
+                result = value.ToString();
             }
 
             return result;
@@ -88,59 +124,55 @@ namespace OMODFramework
 
     internal static class OblivionSDP
     {
-        internal static void EditShader(FileInfo shaderFile, string shaderName, byte[] newData, FileInfo? outputFile)
+        internal static void EditShader(string shaderFile, string shaderName, byte[] newData, string? outputFile)
         {
-            var temp = Utils.CreateTempFile();
-            shaderFile.CopyTo(temp, true);
-
-            var output = outputFile == null ? shaderFile.FullName : outputFile.FullName;
-            if(File.Exists(output))
+            var output = outputFile ?? shaderFile;
+            if (File.Exists(output))
                 File.Delete(output);
 
+            using var tempFile = Utils.GetTempFile(FileMode.CreateNew, copyFile: shaderFile);
+            using var outputFileStream = File.Open(output, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.Read);
+
+            using var br = tempFile.GetBinaryReader();
+            using var bw = new BinaryWriter(outputFileStream, Encoding.UTF8, true);
+            
+            bw.Write(br.ReadInt32());
+            
+            var num = br.ReadInt32();
+            bw.Write(num);
+
+            var sizeOffset = br.BaseStream.Position;
+            
+            bw.Write(br.ReadInt32());
+
+            var found = false;
+            for (var i = 0; i < num; i++)
             {
-                using var br = new BinaryReader(File.OpenRead(temp));
-                using var bw = new BinaryWriter(File.Create(output));
+                char[] nameChars = br.ReadChars(0x100);
+                var size = br.ReadInt32();
+                byte[] data = br.ReadBytes(size);
+                
+                bw.Write(nameChars);
 
-                bw.Write(br.ReadInt32());
-                var num = br.ReadInt32();
-                bw.Write(num);
+                ReadOnlySpan<char> nameSpan = nameChars.AsSpan();
+                nameSpan.TrimEnd();
 
-                var sizeOffset = br.BaseStream.Position;
-                bw.Write(br.ReadInt32());
-
-                var found = false;
-                for (var i = 0; i < num; i++)
+                var sName = nameSpan.ToString();
+                if (!found && sName.Equals(shaderName))
                 {
-                    char[] name = br.ReadChars(0x100);
-                    var size = br.ReadInt32();
-                    byte[] data = br.ReadBytes(size);
-                    bw.Write(name);
-                    var sName = "";
-                    for (var j = 0; j < 100; j++)
-                    {
-                        if (name[j] == '\0')
-                            break;
-                        sName += name[j];
-                    }
-
-                    if (!found && sName == shaderName)
-                    {
-                        bw.Write(newData.Length);
-                        bw.Write(newData);
-                        found = true;
-                    }
-                    else
-                    {
-                        bw.Write(size);
-                        bw.Write(data);
-                    }
+                    bw.Write(newData.Length);
+                    bw.Write(newData);
+                    found = true;
                 }
-
-                bw.BaseStream.Position = sizeOffset;
-                bw.Write(bw.BaseStream.Length-12);
+                else
+                {
+                    bw.Write(size);
+                    bw.Write(data);
+                }
             }
 
-            File.Delete(temp);
+            bw.BaseStream.Position = sizeOffset;
+            bw.Write(bw.BaseStream.Length - 12);
         }
     }
 }

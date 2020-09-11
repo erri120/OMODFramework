@@ -29,26 +29,32 @@ namespace OMODFramework
         }
 
         private static int _nextFile;
+        private static readonly object NextFileLockObject = new object();
 
-        internal static string CreateTempFile()
+        internal static TempFile GetTempFile(FileMode mode = FileMode.OpenOrCreate, FileAccess access = FileAccess.ReadWrite, FileShare share = FileShare.Read, string? copyFile = null)
         {
-            if (!File.Exists(Path.Combine("tmp", $"tmp_{_nextFile}.omodframework.tmp.file")))
-                return Path.Combine("tmp", $"tmp_{_nextFile++}.omodframework.tmp.file");
-
-            for (var i = 0; i < 32000; i++)
+            //using lock so we don't have funky multi-thread problems when incrementing
+            lock (NextFileLockObject)
             {
-                var path = Path.Combine("tmp", $"tmp_{i}.omodframework.tmp.file");
-                if (!Directory.Exists("tmp"))
-                    Directory.CreateDirectory("tmp");
-
-                if (File.Exists(path))
-                    continue;
-                _nextFile = i+1;
-                return path;
+                var path = "";
+                if (!File.Exists(Path.Combine("tmp", $"{_nextFile}.omodFramework.tmp")))
+                {
+                    path = Path.Combine("tmp", $"{_nextFile++}.omodFramework.tmp");
+                }
+                else
+                {
+                    for (var i = _nextFile; i < 696969; i++)
+                    {
+                        if (File.Exists(Path.Combine("tmp", $"{i}.omodFramework.tmp"))) continue;
+                        path = Path.Combine("tmp", $"{i}.omodFramework.tmp");
+                        _nextFile = i + 1;
+                    }
+                }
+            
+                return new TempFile(path, mode, access, share, copyFile);
             }
-            throw new Exception("Reached max amount of temp files!");
         }
-
+        
         internal static uint CRC32(FileInfo file)
         {
             using var fs = file.OpenRead();
