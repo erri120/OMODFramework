@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace OMODFramework
@@ -28,6 +29,11 @@ namespace OMODFramework
 
         internal static string? GetINIValue(string file, string section, string name)
         {
+            if (!section.Contains('['))
+                section = "[" + section;
+            if (!section.Contains("]"))
+                section += "]";
+            
             if (Cache.TryGetValue(file, out var cachedValues))
                 return cachedValues.TryGetValue(name, out var cachedValue) ? cachedValue : null;
             
@@ -65,7 +71,7 @@ namespace OMODFramework
                     ReadOnlySpan<char> value = span.Slice(splitIndex + 1,
                         commentIndex == -1
                             ? span.Length - splitIndex - 1
-                            : span.Length - splitIndex - 1 - (span.Length - commentIndex - 1));
+                            : span.Length - splitIndex - 1 - (span.Length - commentIndex));
 
                     if (commentIndex != -1)
                         value = value.TrimEnd();
@@ -114,7 +120,7 @@ namespace OMODFramework
                 if (!key.Equals(searchSpan, StringComparison.OrdinalIgnoreCase))
                     continue;
 
-                ReadOnlySpan<char> value = span.Slice(index + 1, span.Length - index -1);
+                ReadOnlySpan<char> value = span.Slice(index + 1, span.Length - index -1).Trim();
                 result = value.ToString();
             }
 
@@ -126,16 +132,18 @@ namespace OMODFramework
     {
         internal static void EditShader(string shaderFile, string shaderName, byte[] newData, string? outputFile)
         {
+            ReadOnlySpan<char> shaderNameSpan = shaderName.AsSpan();
+            
             var output = outputFile ?? shaderFile;
             if (File.Exists(output))
                 File.Delete(output);
 
-            using var tempFile = Utils.GetTempFile(FileMode.CreateNew, copyFile: shaderFile);
-            using var outputFileStream = File.Open(output, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.Read);
+            using var tempFile = Utils.GetTempFile(copyFile: shaderFile);
+            using var outputFileStream = File.Open(output, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
 
             using var br = tempFile.GetBinaryReader();
             using var bw = new BinaryWriter(outputFileStream, Encoding.UTF8, true);
-            
+
             bw.Write(br.ReadInt32());
             
             var num = br.ReadInt32();
@@ -155,10 +163,9 @@ namespace OMODFramework
                 bw.Write(nameChars);
 
                 ReadOnlySpan<char> nameSpan = nameChars.AsSpan();
-                nameSpan.TrimEnd();
-
-                var sName = nameSpan.ToString();
-                if (!found && sName.Equals(shaderName))
+                nameSpan = nameSpan.Slice(0, nameSpan.IndexOf('\0'));
+                
+                if (!found && nameSpan.Equals(shaderNameSpan, StringComparison.OrdinalIgnoreCase))
                 {
                     bw.Write(newData.Length);
                     bw.Write(newData);
@@ -172,7 +179,7 @@ namespace OMODFramework
             }
 
             bw.BaseStream.Position = sizeOffset;
-            bw.Write(bw.BaseStream.Length - 12);
+            bw.Write((uint) bw.BaseStream.Length - 12);
         }
     }
 }

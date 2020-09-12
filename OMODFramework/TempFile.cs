@@ -24,15 +24,22 @@ namespace OMODFramework
     internal class TempFile : IDisposable
     {
         public readonly FileStream FileStream;
+        public readonly string Path;
 
         private BinaryReader? _binaryReader;
         
         public TempFile(string path, FileMode mode, FileAccess access, FileShare share, string? copyFile = null)
         {
             if (copyFile != null)
-                File.Copy(copyFile, path);
-            
+                File.Copy(copyFile, path, true);
+
+            if (File.Exists(path))
+            {
+                if (mode == FileMode.CreateNew)
+                    mode = FileMode.OpenOrCreate;
+            }
             FileStream = File.Open(path, mode, access, share);
+            Path = path;
         }
 
         public BinaryReader GetBinaryReader()
@@ -46,6 +53,8 @@ namespace OMODFramework
             _binaryReader?.Dispose();
 
             FileStream.Dispose();
+            
+            File.Delete(Path);
         }
     }
 }

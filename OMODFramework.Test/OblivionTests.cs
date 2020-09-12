@@ -15,6 +15,7 @@
 //     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // */
 
+using System;
 using System.IO;
 using System.Text;
 using Xunit;
@@ -66,25 +67,30 @@ namespace OMODFramework.Test
             const string file = "oblivion-test-shaderpackage.sdp";
             const string outputFile = "oblivion-test-shaderpackage-output.sdp";
 
+            if (File.Exists(file))
+                File.Delete(file);
+            
             using var fs = File.Open(file, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.Read);
             using (var bw = new BinaryWriter(fs, Encoding.UTF8, false))
             {
                 const byte count = 2;
                 bw.Write(0x64);
-                bw.Write(count);
+                bw.Write((uint) count);
                 bw.Write(0x1234);
 
                 for (byte i = 0; i < count; i++)
                 {
-                    var name = new char[100];
+                    Span<char> name = new char[0x100];
+                    name.Fill((char) 0);
                     name[0] = 'B';
                     name[1] = 'o';
                     name[2] = 'b';
-                    name[3] = (char) i;
+                    name[3] = Convert.ToChar($"{i}");
                     
                     bw.Write(name);
                     bw.Write(0x20);
-                    var data = new byte[20];
+                    Span<byte> data = new byte[0x20];
+                    data.Fill(0);
                     data[0] = i;
                     bw.Write(data);
                 }
@@ -94,15 +100,19 @@ namespace OMODFramework.Test
             OblivionSDP.EditShader(file, "bob1", newData, outputFile);
 
             using var outputFs = File.Open(outputFile, FileMode.Open, FileAccess.Read, FileShare.Read);
-            using var br = new BinaryReader(fs, Encoding.UTF8, false);
+            using var br = new BinaryReader(outputFs, Encoding.UTF8, false);
             
             Assert.Equal(0x64, br.ReadInt32());
             Assert.Equal(2, br.ReadInt32());
-            Assert.Equal(0x1234, br.ReadInt32());
+            br.ReadInt32();
 
             br.ReadChars(0x100);
+            br.ReadInt32();
+            br.ReadBytes(0x20);
+            
+            br.ReadChars(0x100);
             //new length
-            Assert.Equal(0x10, br.ReadInt32());
+            Assert.Equal(10, br.ReadInt32());
         }
     }
 }

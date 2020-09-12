@@ -1,12 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Force.Crc32;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OMODFramework
 {
     internal static partial class Utils
     {
+        private const string kTempDirectory = "tmp";
+        
+        static Utils()
+        {
+            Directory.CreateDirectory(kTempDirectory);
+        }
+        
         internal static void Do<T>(this IEnumerable<T> col, Action<T> a)
         {
             foreach(var item in col) a(item);
@@ -37,34 +46,23 @@ namespace OMODFramework
             lock (NextFileLockObject)
             {
                 var path = "";
-                if (!File.Exists(Path.Combine("tmp", $"{_nextFile}.omodFramework.tmp")))
+                if (!File.Exists(Path.Combine(kTempDirectory, $"{_nextFile}.omodFramework.tmp")))
                 {
-                    path = Path.Combine("tmp", $"{_nextFile++}.omodFramework.tmp");
+                    path = Path.Combine(kTempDirectory, $"{_nextFile++}.omodFramework.tmp");
                 }
                 else
                 {
                     for (var i = _nextFile; i < 696969; i++)
                     {
-                        if (File.Exists(Path.Combine("tmp", $"{i}.omodFramework.tmp"))) continue;
-                        path = Path.Combine("tmp", $"{i}.omodFramework.tmp");
+                        if (File.Exists(Path.Combine(kTempDirectory, $"{i}.omodFramework.tmp"))) continue;
+                        path = Path.Combine(kTempDirectory, $"{i}.omodFramework.tmp");
                         _nextFile = i + 1;
+                        break;
                     }
                 }
             
                 return new TempFile(path, mode, access, share, copyFile);
             }
-        }
-        
-        internal static uint CRC32(FileInfo file)
-        {
-            using var fs = file.OpenRead();
-            using var crc = new Crc32CAlgorithm();
-
-            byte[] bytes = crc.ComputeHash(fs);
-            //TODO: change the CRC lib
-            var crc32C = BitConverter.ToUInt32(bytes, 0);
-
-            return crc32C;
         }
     }
 }
