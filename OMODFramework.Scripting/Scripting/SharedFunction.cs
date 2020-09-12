@@ -1113,7 +1113,7 @@ namespace OMODFramework.Scripting
 
         public override void Run(ref IReadOnlyCollection<string> line)
         {
-            var plugin = line.ElementAt(0).StartsWith("Plugin");
+            var plugin = line.ElementAt(0).Contains("Plugin");
             FuncName = plugin ? "CopyPlugin" : "CopyDataFile";
 
             var from = line.ElementAt(1);
