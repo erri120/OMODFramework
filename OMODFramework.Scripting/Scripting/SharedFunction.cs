@@ -1058,7 +1058,7 @@ namespace OMODFramework.Scripting
                 return;
             }
 
-            if (line.Count >= 2)
+            if (line.Count > 2)
             {
                 switch (line.ElementAt(2))
                 {
@@ -1113,7 +1113,7 @@ namespace OMODFramework.Scripting
 
         public override void Run(ref IReadOnlyCollection<string> line)
         {
-            var plugin = line.ElementAt(0).StartsWith("Plugin");
+            var plugin = line.ElementAt(0).Contains("Plugin");
             FuncName = plugin ? "CopyPlugin" : "CopyDataFile";
 
             var from = line.ElementAt(1);
