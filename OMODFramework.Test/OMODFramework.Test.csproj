@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OMODFramework.Scripting\OMODFramework.Scripting.csproj" />
     <ProjectReference Include="..\OMODFramework\OMODFramework.csproj" />
     <ProjectReference Include="..\Wabbajack.Downloader\Wabbajack.Downloader.Common\Wabbajack.Downloader.Common.csproj" />
     <ProjectReference Include="..\Wabbajack.Downloader\Wabbajack.Downloader.NexusMods\Wabbajack.Downloader.NexusMods.csproj" />

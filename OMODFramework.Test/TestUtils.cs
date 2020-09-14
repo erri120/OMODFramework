@@ -8,7 +8,7 @@ using Wabbajack.Downloader.NexusMods;
 
 namespace OMODFramework.Test
 {
-    internal static class Utils
+    internal static class TestUtils
     {
         internal static string InDownloadsFolder(this string s)
         {
