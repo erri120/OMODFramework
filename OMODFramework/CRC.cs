@@ -17,6 +17,7 @@
 
 using System;
 using System.IO;
+using JetBrains.Annotations;
 
 namespace OMODFramework
 {
@@ -81,7 +82,8 @@ namespace OMODFramework
 	/// the information needed to generate CRC's on data a byte at a time for all
 	/// combinations of CRC register values and incoming bytes.
 	/// </summary>
-    internal class CRC32
+	[PublicAPI]
+	internal class CRC32
     {
 	    private const uint kCRCSeed = 0xFFFFFFFF;
 
@@ -196,6 +198,7 @@ namespace OMODFramework
         }
     }
     
+	[PublicAPI]
     internal static class CRCUtils
     {
 	    public static uint FromFile(string file)
@@ -216,26 +219,9 @@ namespace OMODFramework
 		    return crc32.FromStream(stream);
 	    }
 
-	    //private const int kBufferSize = 4096;
-	    
 	    public static uint FromStream(this CRC32 crc32, Stream stream)
 	    {
 		    crc32.Reset();
-		    /*byte[] buffer = new byte[kBufferSize];
-
-		    while (stream.Position + kBufferSize < stream.Length)
-		    {
-			    stream.Read(buffer, 0, kBufferSize);
-			    crc32.Update(buffer);
-		    }
-
-		    if (stream.Position < stream.Length)
-		    {
-			    var len = stream.Length - stream.Position;
-			    stream.Read(buffer, 0, (int) len);
-			    crc32.Update(buffer);
-		    }*/
-
 		    var buffer = new byte[stream.Length];
 		    stream.Read(buffer, 0, buffer.Length);
 		    crc32.Update(buffer);
