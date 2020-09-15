@@ -1,374 +1,178 @@
-﻿#nullable enable
+﻿// /*
+//     Copyright (C) 2020  erri120
+// 
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+// 
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+// 
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Globalization;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NLog;
 using OMODFramework.Exceptions;
+using OMODFramework.Logging;
 
 namespace OMODFramework
 {
-    /// <summary>
-    /// Config containing general information like Name, Author and Description about
-    /// an OMOD
-    /// </summary>
     [PublicAPI]
-    public class Config
+    public sealed partial class OMOD : IDisposable
     {
-        /// <summary>
-        /// Name of the OMOD
-        /// </summary>
-        public string Name { get; set; } = string.Empty;
-        private int _majorVersion, _minorVersion, _buildVersion;
-        /// <summary>
-        /// Version of the OMOD
-        /// </summary>
-        public Version Version => new Version(_majorVersion, _minorVersion, _buildVersion);
-        /// <summary>
-        /// Description of the OMOD, can be empty
-        /// </summary>
-        public string Description { get; set; } = string.Empty;
-        /// <summary>
-        /// Email of the author, can be empty
-        /// </summary>
-        public string Email { get; set; } = string.Empty;
-        /// <summary>
-        /// Website of the OMOD, can be empty
-        /// </summary>
-        public string Website { get; set; } = string.Empty;
-        /// <summary>
-        /// Author of the OMOD, can be empty
-        /// </summary>
-        public string Author { get; set; } = string.Empty;
-
-        /// <summary>
-        /// <see cref="DateTime"/> of the creation
-        /// </summary>
-        public DateTime CreationTime { get; set; }
-
-        /// <summary>
-        /// File Version which is checked against <see cref="FrameworkSettings.CurrentOMODVersion"/>
-        /// </summary>
-        public byte FileVersion { get; set; }
-
-        /// <summary>
-        /// <see cref="CompressionType"/> of the OMOD
-        /// </summary>
-        public CompressionType CompressionType { get; set; }
-
-        internal static Config ParseConfig(Stream stream)
-        {
-            Utils.Info("Parsing config file");
-            var config = new Config();
-            using var br = new BinaryReader(stream);
-
-            config.FileVersion = br.ReadByte();
-            Utils.Debug($"File Version: {config.FileVersion}");
-
-            config.Name = br.ReadString();
-            Utils.Debug($"Name: {config.Name}");
-
-            config._majorVersion = br.ReadInt32();
-            Utils.Debug($"Major Version: {config._majorVersion}");
-
-            config._minorVersion = br.ReadInt32();
-            Utils.Debug($"Minor Version: {config._minorVersion}");
-
-            config.Author = br.ReadString();
-            Utils.Debug($"Author: {config.Author}");
-
-            config.Email = br.ReadString();
-            Utils.Debug($"Email: {config.Email}");
-
-            config.Website = br.ReadString();
-            Utils.Debug($"Website: {config.Website}");
-
-            config.Description = br.ReadString();
-            Utils.Debug($"Description: {config.Description}");
-
-            if (config.FileVersion >= 2)
-                config.CreationTime = DateTime.FromBinary(br.ReadInt64());
-            else
-            {
-                var sCreationTime = br.ReadString();
-                config.CreationTime = !DateTime.TryParseExact(sCreationTime, "dd/MM/yyyy HH:mm", null, DateTimeStyles.None,
-                    out var creationTime) ? new DateTime(2006, 1, 1) : creationTime;
-            }
-
-            Utils.Debug($"Creation Time: {config.CreationTime}");
-
-            config.CompressionType = (CompressionType) br.ReadByte();
-            Utils.Debug($"Compression Type: {config.CompressionType}");
-            if (config.FileVersion >= 1)
-                config._buildVersion = br.ReadInt32();
-
-            if (config._majorVersion < 0)
-                config._majorVersion = 0;
-            if (config._minorVersion < 0)
-                config._minorVersion = 0;
-            if (config._buildVersion < 0)
-                config._buildVersion = 0;
-
-            Utils.Info("Finished parsing the config");
-            return config;
-        }
-    }
-
-    /// <summary>
-    /// OMOD class, implements <see cref="IDisposable"/>
-    /// </summary>
-    [PublicAPI]
-    public partial class OMOD : IDisposable, IAsyncDisposable
-    {
-        private readonly FrameworkSettings _frameworkSettings = null!;
+        private readonly Logger _logger;
+        
+        private readonly FrameworkSettings _frameworkSettings;
         internal readonly OMODFile OMODFile;
+        
+        public readonly OMODConfig OMODConfig;
 
-        /// <summary>
-        /// <see cref="Config"/> of the OMOD
-        /// </summary>
-        public readonly Config Config;
-
-        /// <summary>
-        /// Loads the OMOD file and reads the config.
-        /// </summary>
-        /// <param name="path">Path to the .omod file</param>
-        /// <param name="settings">Optional, custom <see cref="FrameworkSettings"/>. Default is <see cref="FrameworkSettings.DefaultFrameworkSettings"/></param>
-        /// <param name="checkIntegrity">Optional, whether to check verify the integrity of the .omod file. Default is <c>true</c></param>
-        public OMOD(FileInfo path, FrameworkSettings? settings = null, bool checkIntegrity = true)
+        public OMOD(string path, FrameworkSettings? settings = null, bool checkIntegrity = true)
         {
-            if (!path.Exists)
-                throw new ArgumentException($"File at {path} does not exists!", nameof(path));
+            _logger = OMODFrameworkLogging.GetLogger("OMOD");
+            
+            if (!File.Exists(path))
+                _logger.ErrorThrow(new ArgumentException($"OMOD {path} does not exist!", nameof(path)));
 
-            if (settings == null)
-                _frameworkSettings = FrameworkSettings.DefaultFrameworkSettings;
-
-            Utils.Info($"Opening OMOD from {path.FullName}");
-
+            _frameworkSettings = settings ?? FrameworkSettings.DefaultFrameworkSettings;
+            
+            _logger.Info($"Loading OMOD from {path}");
+            
             OMODFile = new OMODFile(path, _frameworkSettings);
 
             if (checkIntegrity)
-            {
-                Utils.Debug("Verifying integrity of the OMOD.");
-                if (!OMODFile.CheckIntegrity())
-                    throw new OMODException("OMOD failed the integrity check!");
-            }
+                OMODFile.CheckIntegrity();
 
-            Utils.Debug("Reading Config from OMOD.");
-            Config = OMODFile.ReadConfig();
+            if (!OMODFile.IsValidOMOD())
+                _logger.ErrorThrow(new OMODException("OMOD is not valid, check previous errors!"));
 
-            if(Config.FileVersion > _frameworkSettings.CurrentOMODVersion)
-                throw new OMODInvalidConfigException(Config, $"The file version in the config: {Config.FileVersion} is greater than the set OMOD version in the Framework Settings: {_frameworkSettings.CurrentOMODVersion}!");
+            using var configStream = OMODFile.GetEntryFileStream(OMODEntryFileType.Config);
+            OMODConfig = OMODConfig.ParseConfig(configStream);
 
-            OMODFile.CompressionType = Config.CompressionType;
-
-            Utils.Info($"Successfully loaded OMOD {Config.Name}");
+            OMODFile.CompressionType = OMODConfig.CompressionType;
+            
+            _logger.Info($"Successfully loaded OMOD {OMODConfig.Name}");
         }
 
         /// <summary>
-        /// Checks if the OMOD contains the given <see cref="OMODEntryFileType"/>
+        /// Check if the OMOD contains the provided <see cref="OMODEntryFileType"/>.
         /// </summary>
-        /// <param name="entryFileType">The file</param>
+        /// <param name="entryFileType">File to look for</param>
         /// <returns></returns>
         public bool HasFile(OMODEntryFileType entryFileType) => OMODFile.HasEntryFile(entryFileType);
 
         /// <summary>
-        /// Extract the given file from the OMOD and returns a <see cref="Stream"/> with the data
-        /// instead of writing to file.
-        /// </summary>
-        /// <param name="entryFileType">The file to extract</param>
-        /// <returns></returns>
-        /// <exception cref="ZipFileEntryNotFoundException"></exception>
-        public Stream ExtractFile(OMODEntryFileType entryFileType)
-        {
-            return OMODFile.ExtractEntryFile(entryFileType);
-        }
-
-        /// <summary>
-        /// Extracts the given file from the OMOD to a specified output location.
-        /// If the output already exists but has different lengths than the file
-        /// to be extracted, it will be deleted. The directory will also be created
-        /// for you.
+        /// Returns the decompressed Stream of a <see cref="OMODEntryFileType"/> from the OMOD.
+        /// Use <see cref="HasFile"/> before doing this to ensure you don't get a <see cref="ZipFileEntryNotFoundException"/>
         /// </summary>
         /// <param name="entryFileType">File to extract</param>
-        /// <param name="output">Output location</param>
-        public void ExtractFile(OMODEntryFileType entryFileType, FileInfo output)
+        /// <returns></returns>
+        /// <exception cref="ZipFileEntryNotFoundException">Thrown when the OMOD does not contain the provided <see cref="OMODEntryFileType"/></exception>
+        public Stream GetEntryFileStream(OMODEntryFileType entryFileType)
         {
-            using var stream = ExtractFile(entryFileType);
-            if(output.Directory != null && !output.Directory.Exists)
-                output.Directory.Create();
-            
-            if (output.Exists)
-            {
-                if (output.Length == stream.Length)
-                    return;
-                output.Delete();
-            }
-
-            using var fs = File.Create(output.FullName);
-            stream.CopyTo(fs);
+            return OMODFile.GetEntryFileStream(entryFileType);
         }
 
-        private string ExtractStringFile(OMODEntryFileType entryFileType)
+        private string GetStringFromEntry(OMODEntryFileType entryFileType)
         {
-            using var stream = ExtractFile(entryFileType);
+            if (!HasFile(entryFileType))
+            {
+                _logger.Error($"OMOD does not have a {entryFileType.ToFileString()}!");
+                return string.Empty;
+            }
+            using var stream = GetEntryFileStream(entryFileType);
             using var br = new BinaryReader(stream);
             return br.ReadString();
         }
-
+        
         /// <summary>
-        /// Returns the readme of the OMOD
+        /// Returns the Readme.
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="ZipFileEntryNotFoundException"></exception>
         public string GetReadme()
         {
-            return ExtractStringFile(OMODEntryFileType.Readme);
+            return GetStringFromEntry(OMODEntryFileType.Readme);
         }
 
         /// <summary>
-        /// Returns the script of the OMOD
+        /// Returns the Script
         /// </summary>
-        /// <param name="removeType">Whether to remove the script type identifier from the script.
-        /// This identifier is one byte at the start of the script.</param>
+        /// <param name="removeType">Whether to remove the script type identifier from the string.</param>
         /// <returns></returns>
-        /// <exception cref="ZipFileEntryNotFoundException"></exception>
         public string GetScript(bool removeType = true)
         {
-            var script = ExtractStringFile(OMODEntryFileType.Script);
+            var script = GetStringFromEntry(OMODEntryFileType.Script);
+            if (script.Equals(string.Empty)) return script;
+            if (!removeType) return script;
 
-            if (!removeType)
-                return script;
-
-            if ((byte) script[0] < 4)
-                script = script.Substring(1);
-
-            return script;
+            ReadOnlySpan<char> span = script.AsSpan();
+            if ((byte) span[0] < 4)
+                span = span.Slice(1);
+            return span.ToString();
         }
 
         /// <summary>
-        /// Extracts the Image in the OMOD and returns a <see cref="Bitmap"/>
+        /// Returns the Image of the OMOD or null if it does not have one.
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="ZipFileEntryNotFoundException"></exception>
-        public Bitmap GetImage()
+        public Bitmap? GetImage()
         {
+            if (!HasFile(OMODEntryFileType.Image))
+            {
+                _logger.Error("OMOD does not have an Image!");
+                return null;
+            }
+            
             //stream has be kept open for the lifetime of the image
             //see https://docs.microsoft.com/en-us/dotnet/api/system.drawing.image.fromstream?view=dotnet-plat-ext-3.1
-            var stream = ExtractFile(OMODEntryFileType.Image);
+            var stream = GetEntryFileStream(OMODEntryFileType.Image);
             var image = Image.FromStream(stream);
             return (Bitmap) image;
         }
 
-        /// <summary>
-        /// Returns an enumerable of all data files.
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<OMODCompressedEntry> GetDataFiles()
+        public IEnumerable<OMODCompressedFile> GetDataFilesInfo()
         {
             return OMODFile.DataFiles;
         }
 
-        /// <summary>
-        /// Returns an enumerable for all plugins. Do note that plugins
-        /// are optional so check if this is null before doing anything with it.
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<OMODCompressedEntry>? GetPlugins()
+        public IEnumerable<OMODCompressedFile> GetPluginFilesInfo()
         {
-            return HasFile(OMODEntryFileType.PluginsCRC) && HasFile(OMODEntryFileType.Plugins) 
-                ? OMODFile.Plugins 
-                : null;
+            return OMODFile.PluginFiles;
         }
 
-        /// <summary>
-        /// Extracts all plugins to a given directory.
-        /// </summary>
-        /// <param name="outputDirectory">Output directory</param>
-        public void ExtractPluginFiles(DirectoryInfo outputDirectory)
+        /// <inheritdoc cref="OMODFramework.OMODFile.ExtractFiles"/>
+        public void ExtractFiles(bool data, string output)
         {
-            ExtractCompressedData(OMODEntryFileType.Data, outputDirectory);
+            OMODFile.ExtractFiles(data, output);
         }
 
-        /// <summary>
-        /// Extracts all data files to a given directory.
-        /// </summary>
-        /// <param name="outputDirectory">Output directory</param>
-        public void ExtractDataFiles(DirectoryInfo outputDirectory)
+        /// <inheritdoc cref="OMODFramework.OMODFile.ExtractFilesParallel"/>
+        public void ExtractFilesParallel(bool data, string output, byte numStreams, int degreeOfParallelism = 0, CancellationToken? token = null)
         {
-            ExtractCompressedData(OMODEntryFileType.Data, outputDirectory);
+            OMODFile.ExtractFilesParallel(data, output, numStreams, degreeOfParallelism, token);
         }
-
-        /// <summary>
-        /// Extracts all plugins to a given directory asynchronously with a variable amount of threads.
-        /// </summary>
-        /// <param name="outputDirectory">Output directory</param>
-        /// <param name="threads">Number of threads to use. Default is 2</param>
-        /// <returns></returns>
-        public async Task ExtractPluginFilesAsync(DirectoryInfo outputDirectory, int threads = 2)
+        
+        /// <inheritdoc cref="OMODFramework.OMODFile.ExtractFilesAsync"/>
+        public async Task ExtractFilesAsync(bool data, string output, byte numThreads, CancellationToken? token = null)
         {
-            await ExtractCompressedDataAsync(OMODEntryFileType.Plugins, outputDirectory, threads);
+            await OMODFile.ExtractFilesAsync(data, output, numThreads, token);
         }
-
-        /// <summary>
-        /// Extracts all data files to a given directory.
-        /// </summary>
-        /// <param name="outputDirectory">Output directory</param>
-        /// <param name="threads">Number of threads to use. Default is 4</param>
-        /// <returns></returns>
-        public async Task ExtractDataFilesAsync(DirectoryInfo outputDirectory, int threads = 4)
-        {
-            await ExtractCompressedDataAsync(OMODEntryFileType.Data, outputDirectory, threads);
-        }
-
-        private async Task ExtractCompressedDataAsync(OMODEntryFileType entryFileType, DirectoryInfo outputDirectory,
-            int threads = 4)
-        {
-            if (entryFileType != OMODEntryFileType.Data && entryFileType != OMODEntryFileType.Plugins)
-                throw new ArgumentException($"Provided OMODFile can only be Data or Plugins but is {entryFileType}!", nameof(entryFileType));
-
-            if (!outputDirectory.Exists)
-                outputDirectory.Create();
-
-            OMODFile.Decompress(entryFileType);
-
-            await OMODFile.ExtractAllDecompressedFilesAsync(outputDirectory, entryFileType == OMODEntryFileType.Data,
-                threads);
-        }
-
-        private void ExtractCompressedData(OMODEntryFileType entryFileType, DirectoryInfo outputDirectory)
-        {
-            if(entryFileType != OMODEntryFileType.Data && entryFileType != OMODEntryFileType.Plugins)
-                throw new ArgumentException($"Provided OMODFile can only be Data or Plugins but is {entryFileType}!", nameof(entryFileType));
-
-            if(!outputDirectory.Exists)
-                outputDirectory.Create();
-
-            OMODFile.Decompress(entryFileType);
-
-            OMODFile.ExtractAllDecompressedFiles(outputDirectory, entryFileType == OMODEntryFileType.Data);
-        }
-
-        /// <inheritdoc />
+        
+        /// <inheritdoc /> 
         public void Dispose()
         {
-            Utils.Debug("Disposing OMOD");
             OMODFile.Dispose();
-        }
-
-        /// <inheritdoc />
-        public ValueTask DisposeAsync()
-        {
-            try
-            {
-                Dispose();
-                return new ValueTask();
-            }
-            catch (Exception ex)
-            {
-                return new ValueTask(Task.FromException(ex));
-            }
         }
     }
 }

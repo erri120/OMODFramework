@@ -68,6 +68,62 @@
             <param name="compressing">Whether we are compression or decompression</param>
             <returns></returns>
         </member>
+        <member name="T:OMODFramework.CRC32">
+             <summary>
+             Generate a table for a byte-wise 32-bit CRC calculation on the polynomial:
+             x^32+x^26+x^23+x^22+x^16+x^12+x^11+x^10+x^8+x^7+x^5+x^4+x^2+x+1.
+            
+             Polynomials over GF(2) are represented in binary, one bit per coefficient,
+             with the lowest powers in the most significant bit.  Then adding polynomials
+             is just exclusive-or, and multiplying a polynomial by x is a right shift by
+             one.  If we call the above polynomial p, and represent a byte as the
+             polynomial q, also with the lowest power in the most significant bit (so the
+             byte 0xb1 is the polynomial x^7+x^3+x+1), then the CRC is (q*x^32) mod p,
+             where a mod b means the remainder after dividing a by b.
+            
+             This calculation is done using the shift-register method of multiplying and
+             taking the remainder.  The register is initialized to zero, and for each
+             incoming bit, x^32 is added mod p to the register if the bit is a one (where
+             x^32 mod p is p+x^32 = x^26+...+1), and the register is multiplied mod p by
+             x (which is shifting right by one and adding x^32 mod p if the bit shifted
+             out is a one).  We start with the highest power (least significant bit) of
+             q and repeat for all eight bits of q.
+            
+             The table is simply the CRC of all possible eight bit values.  This is all
+             the information needed to generate CRC's on data a byte at a time for all
+             combinations of CRC register values and incoming bytes.
+             </summary>
+        </member>
+        <member name="P:OMODFramework.CRC32.Value">
+            <summary>
+            Returns the CRC32 data checksum computed so far.
+            </summary>
+        </member>
+        <member name="M:OMODFramework.CRC32.Reset">
+            <summary>
+            Resets the CRC32 data checksum as if no update was ever called.
+            </summary>
+        </member>
+        <member name="M:OMODFramework.CRC32.Update(System.Int32)">
+            <summary>
+            Updates the checksum with the int bVal.
+            </summary>
+            <param name="bVal">The byte is taken as the lower 8 bits of bVal.</param>
+        </member>
+        <member name="M:OMODFramework.CRC32.Update(System.Byte[])">
+            <summary>
+            Updates the checksum with the bytes takes from the array.
+            </summary>
+            <param name="buffer">Buffer containing the data.</param>
+        </member>
+        <member name="M:OMODFramework.CRC32.Update(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Adds the byte array to the data checksum.
+            </summary>
+            <param name="buffer">Buffer containing the data.</param>
+            <param name="offset">Offset in the buffer where the data starts.</param>
+            <param name="length">Length of the data.</param>
+        </member>
         <member name="T:OMODFramework.Exceptions.OMODInvalidConfigException">
             <summary>
             The Exception that is thrown when the parsed config of an OMOD is not valid
@@ -88,132 +144,176 @@
             The Exception that is thrown when a file could not be extracted from a <see cref="T:ICSharpCode.SharpZipLib.Zip.ZipFile"/>
             </summary>
         </member>
-        <member name="T:OMODFramework.FrameworkSettings">
+        <member name="M:OMODFramework.OMOD.HasFile(OMODFramework.OMODEntryFileType)">
             <summary>
-            Settings for the entire Framework
+            Check if the OMOD contains the provided <see cref="T:OMODFramework.OMODEntryFileType"/>.
             </summary>
-        </member>
-        <member name="P:OMODFramework.FrameworkSettings.DefaultFrameworkSettings">
-            <summary>
-            Default Framework Settings used when they are not provided
-            </summary>
-        </member>
-        <member name="P:OMODFramework.FrameworkSettings.CurrentOMODVersion">
-            <summary>
-            Current OMOD version, Default is 4
-            </summary>
-        </member>
-        <member name="P:OMODFramework.FrameworkSettings.CurrentOBMMVersion">
-            <summary>
-            Current version of the Oblivion Mod Manager, Default is 1.1.12.0
-            </summary>
-        </member>
-        <member name="P:OMODFramework.FrameworkSettings.CodeProgress">
-            <summary>
-            Progress reporter for compression and decompression of SevenZip archives.
-            </summary>
-        </member>
-        <member name="P:OMODFramework.FrameworkSettings.Logger">
-            <summary>
-            Logger to use. Default value is an internal FileLogger that will create a OMODFramework.log file.
-            Can be set to null if you don't want any logging at all.
-            </summary>
-        </member>
-        <member name="P:OMODFramework.FrameworkSettings.ScriptExecutionSettings">
-            <summary>
-            Settings only used during Script Execution
-            </summary>
-        </member>
-        <member name="T:OMODFramework.ScriptExecutionSettings">
-            <summary>
-            Scripts only used during Script Execution
-            </summary>
-        </member>
-        <member name="M:OMODFramework.ScriptExecutionSettings.VerifySettings">
-            <summary>
-            Verify your ScriptExecutionSettings. Do note that this will throw
-            Exceptions on purpose if it finds bad settings to make sure to
-            use try/catch or other Exception logging methods.
-            </summary>
-            <exception cref="T:OMODFramework.Exceptions.BadSettingsException"></exception>
+            <param name="entryFileType">File to look for</param>
             <returns></returns>
         </member>
-        <member name="M:OMODFramework.ScriptExecutionSettings.VerifySettings(OMODFramework.ScriptExecutionSettings)">
+        <member name="M:OMODFramework.OMOD.GetEntryFileStream(OMODFramework.OMODEntryFileType)">
             <summary>
-            Verify your ScriptExecutionSettings. Do note that this will throw
-            Exceptions on purpose if it finds bad settings to make sure to
-            use try/catch or other Exception logging methods.
+            Returns the decompressed Stream of a <see cref="T:OMODFramework.OMODEntryFileType"/> from the OMOD.
+            Use <see cref="M:OMODFramework.OMOD.HasFile(OMODFramework.OMODEntryFileType)"/> before doing this to ensure you don't get a <see cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException"/>
             </summary>
-            <param name="settings">Settings to verify</param>
-            <exception cref="T:OMODFramework.Exceptions.BadSettingsException"></exception>
+            <param name="entryFileType">File to extract</param>
+            <returns></returns>
+            <exception cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException">Thrown when the OMOD does not contain the provided <see cref="T:OMODFramework.OMODEntryFileType"/></exception>
+        </member>
+        <member name="M:OMODFramework.OMOD.GetReadme">
+            <summary>
+            Returns the Readme.
+            </summary>
             <returns></returns>
         </member>
-        <member name="P:OMODFramework.ScriptExecutionSettings.OblivionINIPath">
+        <member name="M:OMODFramework.OMOD.GetScript(System.Boolean)">
             <summary>
-            Absolute path to the oblivion.ini file
+            Returns the Script
+            </summary>
+            <param name="removeType">Whether to remove the script type identifier from the string.</param>
+            <returns></returns>
+        </member>
+        <member name="M:OMODFramework.OMOD.GetImage">
+            <summary>
+            Returns the Image of the OMOD or null if it does not have one.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OMODFramework.OMOD.Dispose">
+            <inheritdoc /> 
+        </member>
+        <member name="P:OMODFramework.OMODConfig.Name">
+            <summary>
+            Name of the OMOD
             </summary>
         </member>
-        <member name="P:OMODFramework.ScriptExecutionSettings.OblivionRendererInfoPath">
+        <member name="P:OMODFramework.OMODConfig.Version">
             <summary>
-            Absolute path to the RendererInfo.txt file
+            Version of the OMOD
             </summary>
         </member>
-        <member name="P:OMODFramework.ScriptExecutionSettings.ReadINIWithInterface">
+        <member name="P:OMODFramework.OMODConfig.Description">
             <summary>
-            <para>If this is set to <c>true</c>:</para>
-            <c>IScriptFunctions.ReadOblivionINI</c> will be called so you can
-            handle the reading of the oblivion.ini file the way you want.
-            <para>If this is set to <c>false</c>:</para>
-            Internal functions will be called to read the ini file, this requires
-            <see cref="P:OMODFramework.ScriptExecutionSettings.OblivionINIPath"/> to be set to the <c>oblivion.ini</c> file
-            <para>Default is <c>true</c></para>
+            Description of the OMOD, can be empty
             </summary>
         </member>
-        <member name="P:OMODFramework.ScriptExecutionSettings.ReadRendererInfoWithInterface">
+        <member name="P:OMODFramework.OMODConfig.Email">
             <summary>
-            <para>If this is set to <c>true</c>:</para>
-            <c>IScriptFunctions.ReadRendererInfo</c> will be called so you can
-            handle the reading of the RendererInfo.txt file the way you want.
-            <para>If this is set to <c>false</c>:</para>
-            Internal functions will be called to read the file, this requires
-            <see cref="P:OMODFramework.ScriptExecutionSettings.OblivionRendererInfoPath"/> to be set to the <c>RendererInfo.txt</c> file
-            <para>Default is <c>true</c></para>
+            Email of the author, can be empty
             </summary>
         </member>
-        <member name="T:OMODFramework.Logging.LoggingLevel">
+        <member name="P:OMODFramework.OMODConfig.Website">
             <summary>
-            Logging levels. Lower values mean more verbose output.
+            Website of the OMOD, can be empty
             </summary>
         </member>
-        <member name="F:OMODFramework.Logging.LoggingLevel.Debug">
+        <member name="P:OMODFramework.OMODConfig.Author">
             <summary>
-            Lowest value. This is very verbose and will even report
-            on every function call during script execution. 
+            Author of the OMOD, can be empty
             </summary>
         </member>
-        <member name="F:OMODFramework.Logging.LoggingLevel.Info">
+        <member name="P:OMODFramework.OMODConfig.CreationTime">
             <summary>
-            Default value.
+            <see cref="T:System.DateTime"/> of the creation
             </summary>
         </member>
-        <member name="T:OMODFramework.Logging.ILogger">
+        <member name="P:OMODFramework.OMODConfig.FileVersion">
             <summary>
-            Interface for a custom Logger
+            File Version which is checked against <see cref="F:OMODFramework.FrameworkSettings.CurrentOMODVersion"/>
             </summary>
         </member>
-        <member name="P:OMODFramework.Logging.ILogger.LowestLevel">
+        <member name="P:OMODFramework.OMODConfig.CompressionType">
             <summary>
-            Lowest level that will be reported. <see cref="M:OMODFramework.Logging.ILogger.Log(OMODFramework.Logging.LoggingLevel,System.String,System.DateTime)"/> won't be called
-            if the level of the log is below this LowestLevel.
+            <see cref="P:OMODFramework.OMODConfig.CompressionType"/> of the OMOD
             </summary>
         </member>
-        <member name="M:OMODFramework.Logging.ILogger.Log(OMODFramework.Logging.LoggingLevel,System.String,System.DateTime)">
+        <member name="F:OMODFramework.ScriptType.OBMMScript">
             <summary>
-            Log a message
+            Classic OBMMScript, see (http://timeslip.chorrol.com/obmmm/functionlist.htm)
             </summary>
-            <param name="level">Level of the message, will always be higher than <see cref="P:OMODFramework.Logging.ILogger.LowestLevel"/></param>
-            <param name="message">The message (can be multiline)</param>
-            <param name="time">Time of the log</param>
+        </member>
+        <member name="F:OMODFramework.ScriptType.Python">
+            <summary>
+            Python using IronPython (not supported)
+            </summary>
+        </member>
+        <member name="F:OMODFramework.ScriptType.CSharp">
+            <summary>
+            C#
+            </summary>
+        </member>
+        <member name="F:OMODFramework.ScriptType.VB">
+            <summary>
+            Visual Basic (not supported)
+            </summary>
+        </member>
+        <member name="T:OMODFramework.OMODCreationFile">
+            <summary>
+            Struct for data and plugin files in <see cref="T:OMODFramework.OMODCreationOptions"/>
+            </summary>
+        </member>
+        <member name="P:OMODFramework.OMODCreationOptions.Readme">
+            <summary>
+            Optional, Readme or path to Readme.
+            </summary>
+        </member>
+        <member name="P:OMODFramework.OMODCreationOptions.Script">
+            <summary>
+            Optional, Script or path to Script.
+            </summary>
+        </member>
+        <member name="P:OMODFramework.OMODCreationOptions.ScriptType">
+            <summary>
+            Required when <see cref="P:OMODFramework.OMODCreationOptions.Script"/> is not null.
+            </summary>
+        </member>
+        <member name="P:OMODFramework.OMODCreationOptions.ImagePath">
+            <summary>
+            Optional, path to Image if you don't want to use <see cref="P:OMODFramework.OMODCreationOptions.Image"/>. <see cref="P:OMODFramework.OMODCreationOptions.Image"/> must be null!
+            </summary>
+        </member>
+        <member name="P:OMODFramework.OMODCreationOptions.Image">
+            <summary>
+            Optional, Image if you don't want to use <see cref="P:OMODFramework.OMODCreationOptions.ImagePath"/>. <see cref="P:OMODFramework.OMODCreationOptions.ImagePath"/> must be null!
+            </summary>
+        </member>
+        <member name="P:OMODFramework.OMODCreationOptions.OMODCompressionLevel">
+            <summary>
+            Level of compression used for the .omod file. Must not be <see cref="F:OMODFramework.CompressionLevel.None"/>.
+            </summary>
+        </member>
+        <member name="P:OMODFramework.OMODCreationOptions.DataCompressionLevel">
+            <summary>
+            Level of compression used for the data and plugin files. Must not be <see cref="F:OMODFramework.CompressionLevel.None"/>.
+            </summary>
+        </member>
+        <member name="F:OMODFramework.OMODCreationOptions.DataFiles">
+            <summary>
+            Required, HashSet of all Data Files. Use <see cref="M:System.Collections.Generic.HashSet`1.Add(`0)"/> to add the files you want to use. Make sure you check the return value of <see cref="M:System.Collections.Generic.HashSet`1.Add(`0)"/>!
+            </summary>
+        </member>
+        <member name="F:OMODFramework.OMODCreationOptions.PluginFiles">
+            <summary>
+            Optional, HashSet of all Plugin Files. Use <see cref="M:System.Collections.Generic.HashSet`1.Add(`0)"/> to add the files you want to use. Make sure you check the return value of <see cref="M:System.Collections.Generic.HashSet`1.Add(`0)"/>!
+            </summary>
+        </member>
+        <member name="M:OMODFramework.OMODFile.ExtractFiles(System.Boolean,System.String)">
+            <summary>
+            Extracts all Data/Plugin files using a single Thread.
+            </summary>
+            <param name="data">Whether to extract data or plugin files.</param>
+            <param name="output">Output directory.</param>
+        </member>
+        <member name="M:OMODFramework.OMODFile.ExtractFilesParallel(System.Boolean,System.String,System.Byte,System.Int32,System.Nullable{System.Threading.CancellationToken})">
+            <summary>
+            Extracts the Data/Plugin Files in parallel using Split Memory Streams.
+            </summary>
+            <param name="data">Whether to extract Data or Plugin files.</param>
+            <param name="output">Output directory.</param>
+            <param name="numStreams">Number of Streams to use.</param>
+            <param name="degreeOfParallelism">Specifies the maximum number of processors that PLINQ should use to parallelize the query. See https://docs.microsoft.com/en-us/dotnet/api/system.linq.parallelenumerable.withdegreeofparallelism?view=netcore-3.1 for more info.</param>
+            <param name="token">Cancellation Token to cancel the execution if requested.</param>
+            <exception cref="T:System.ArgumentException"></exception>
         </member>
         <member name="M:OMODFramework.Utils.HasFile(ICSharpCode.SharpZipLib.Zip.ZipFile,System.String,System.Boolean)">
             <summary>
@@ -241,343 +341,6 @@
             <param name="name">The file to extract</param>
             <returns></returns>
             <exception cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException"></exception>
-        </member>
-        <member name="T:OMODFramework.Config">
-            <summary>
-            Config containing general information like Name, Author and Description about
-            an OMOD
-            </summary>
-        </member>
-        <member name="P:OMODFramework.Config.Name">
-            <summary>
-            Name of the OMOD
-            </summary>
-        </member>
-        <member name="P:OMODFramework.Config.Version">
-            <summary>
-            Version of the OMOD
-            </summary>
-        </member>
-        <member name="P:OMODFramework.Config.Description">
-            <summary>
-            Description of the OMOD, can be empty
-            </summary>
-        </member>
-        <member name="P:OMODFramework.Config.Email">
-            <summary>
-            Email of the author, can be empty
-            </summary>
-        </member>
-        <member name="P:OMODFramework.Config.Website">
-            <summary>
-            Website of the OMOD, can be empty
-            </summary>
-        </member>
-        <member name="P:OMODFramework.Config.Author">
-            <summary>
-            Author of the OMOD, can be empty
-            </summary>
-        </member>
-        <member name="P:OMODFramework.Config.CreationTime">
-            <summary>
-            <see cref="T:System.DateTime"/> of the creation
-            </summary>
-        </member>
-        <member name="P:OMODFramework.Config.FileVersion">
-            <summary>
-            File Version which is checked against <see cref="P:OMODFramework.FrameworkSettings.CurrentOMODVersion"/>
-            </summary>
-        </member>
-        <member name="P:OMODFramework.Config.CompressionType">
-            <summary>
-            <see cref="P:OMODFramework.Config.CompressionType"/> of the OMOD
-            </summary>
-        </member>
-        <member name="T:OMODFramework.OMOD">
-            <summary>
-            OMOD class, implements <see cref="T:System.IDisposable"/>
-            </summary>
-        </member>
-        <member name="F:OMODFramework.OMOD.Config">
-            <summary>
-            <see cref="F:OMODFramework.OMOD.Config"/> of the OMOD
-            </summary>
-        </member>
-        <member name="M:OMODFramework.OMOD.#ctor(System.IO.FileInfo,OMODFramework.FrameworkSettings,System.Boolean)">
-            <summary>
-            Loads the OMOD file and reads the config.
-            </summary>
-            <param name="path">Path to the .omod file</param>
-            <param name="settings">Optional, custom <see cref="T:OMODFramework.FrameworkSettings"/>. Default is <see cref="P:OMODFramework.FrameworkSettings.DefaultFrameworkSettings"/></param>
-            <param name="checkIntegrity">Optional, whether to check verify the integrity of the .omod file. Default is <c>true</c></param>
-        </member>
-        <member name="M:OMODFramework.OMOD.HasFile(OMODFramework.OMODEntryFileType)">
-            <summary>
-            Checks if the OMOD contains the given <see cref="T:OMODFramework.OMODEntryFileType"/>
-            </summary>
-            <param name="entryFileType">The file</param>
-            <returns></returns>
-        </member>
-        <member name="M:OMODFramework.OMOD.ExtractFile(OMODFramework.OMODEntryFileType)">
-            <summary>
-            Extract the given file from the OMOD and returns a <see cref="T:System.IO.Stream"/> with the data
-            instead of writing to file.
-            </summary>
-            <param name="entryFileType">The file to extract</param>
-            <returns></returns>
-            <exception cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException"></exception>
-        </member>
-        <member name="M:OMODFramework.OMOD.ExtractFile(OMODFramework.OMODEntryFileType,System.IO.FileInfo)">
-            <summary>
-            Extracts the given file from the OMOD to a specified output location.
-            If the output already exists but has different lengths than the file
-            to be extracted, it will be deleted. The directory will also be created
-            for you.
-            </summary>
-            <param name="entryFileType">File to extract</param>
-            <param name="output">Output location</param>
-        </member>
-        <member name="M:OMODFramework.OMOD.GetReadme">
-            <summary>
-            Returns the readme of the OMOD
-            </summary>
-            <returns></returns>
-            <exception cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException"></exception>
-        </member>
-        <member name="M:OMODFramework.OMOD.GetScript(System.Boolean)">
-            <summary>
-            Returns the script of the OMOD
-            </summary>
-            <param name="removeType">Whether to remove the script type identifier from the script.
-            This identifier is one byte at the start of the script.</param>
-            <returns></returns>
-            <exception cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException"></exception>
-        </member>
-        <member name="M:OMODFramework.OMOD.GetImage">
-            <summary>
-            Extracts the Image in the OMOD and returns a <see cref="T:System.Drawing.Bitmap"/>
-            </summary>
-            <returns></returns>
-            <exception cref="T:OMODFramework.Exceptions.ZipFileEntryNotFoundException"></exception>
-        </member>
-        <member name="M:OMODFramework.OMOD.GetDataFiles">
-            <summary>
-            Returns an enumerable of all data files.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:OMODFramework.OMOD.GetPlugins">
-            <summary>
-            Returns an enumerable for all plugins. Do note that plugins
-            are optional so check if this is null before doing anything with it.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:OMODFramework.OMOD.ExtractPluginFiles(System.IO.DirectoryInfo)">
-            <summary>
-            Extracts all plugins to a given directory.
-            </summary>
-            <param name="outputDirectory">Output directory</param>
-        </member>
-        <member name="M:OMODFramework.OMOD.ExtractDataFiles(System.IO.DirectoryInfo)">
-            <summary>
-            Extracts all data files to a given directory.
-            </summary>
-            <param name="outputDirectory">Output directory</param>
-        </member>
-        <member name="M:OMODFramework.OMOD.ExtractPluginFilesAsync(System.IO.DirectoryInfo,System.Int32)">
-            <summary>
-            Extracts all plugins to a given directory asynchronously with a variable amount of threads.
-            </summary>
-            <param name="outputDirectory">Output directory</param>
-            <param name="threads">Number of threads to use. Default is 2</param>
-            <returns></returns>
-        </member>
-        <member name="M:OMODFramework.OMOD.ExtractDataFilesAsync(System.IO.DirectoryInfo,System.Int32)">
-            <summary>
-            Extracts all data files to a given directory.
-            </summary>
-            <param name="outputDirectory">Output directory</param>
-            <param name="threads">Number of threads to use. Default is 4</param>
-            <returns></returns>
-        </member>
-        <member name="M:OMODFramework.OMOD.Dispose">
-            <inheritdoc />
-        </member>
-        <member name="M:OMODFramework.OMOD.DisposeAsync">
-            <inheritdoc />
-        </member>
-        <member name="M:OMODFramework.OMOD.CreateOMOD(OMODFramework.CreationOptions,System.IO.FileInfo,OMODFramework.FrameworkSettings)">
-            <summary>
-            Create an OMOD
-            </summary>
-            <param name="options">Options</param>
-            <param name="output">Output file</param>
-            <param name="settings">Optional, <see cref="T:OMODFramework.FrameworkSettings"/> to use</param>
-        </member>
-        <member name="T:OMODFramework.ScriptType">
-            <summary>
-            Possible script types
-            </summary>
-        </member>
-        <member name="F:OMODFramework.ScriptType.OBMMScript">
-            <summary>
-            Classic OBMMScript
-            </summary>
-        </member>
-        <member name="F:OMODFramework.ScriptType.Python">
-            <summary>
-            Python using IronPython (unsupported)
-            </summary>
-        </member>
-        <member name="F:OMODFramework.ScriptType.CSharp">
-            <summary>
-            C#
-            </summary>
-        </member>
-        <member name="F:OMODFramework.ScriptType.VB">
-            <summary>
-            Visual Basic (unsupported)
-            </summary>
-        </member>
-        <member name="T:OMODFramework.CreationOptions">
-            <summary>
-            Options used for OMOD Creation, inherits <see cref="T:OMODFramework.Config"/>
-            </summary>
-        </member>
-        <member name="P:OMODFramework.CreationOptions.Readme">
-            <summary>
-            Optional, entire Readme as a string
-            </summary>
-        </member>
-        <member name="P:OMODFramework.CreationOptions.Script">
-            <summary>
-            Optional, entire Script as a string
-            </summary>
-        </member>
-        <member name="P:OMODFramework.CreationOptions.ScriptType">
-            <summary>
-            Optional but has to be set when <see cref="P:OMODFramework.CreationOptions.Script"/> is not null
-            </summary>
-        </member>
-        <member name="P:OMODFramework.CreationOptions.ImagePath">
-            <summary>
-            Optional, path to the image
-            </summary>
-        </member>
-        <member name="P:OMODFramework.CreationOptions.OMODCompressionLevel">
-            <summary>
-            Level of compression used for the .omod file. Must not be <see cref="F:OMODFramework.CompressionLevel.None"/>
-            </summary>
-        </member>
-        <member name="P:OMODFramework.CreationOptions.DataCompressionLevel">
-            <summary>
-            Level of compression used for the data and plugin files. Must not be <see cref="F:OMODFramework.CompressionLevel.None"/>
-            </summary>
-        </member>
-        <member name="P:OMODFramework.CreationOptions.DataFiles">
-            <summary>
-            Required, List of all data files
-            </summary>
-        </member>
-        <member name="P:OMODFramework.CreationOptions.PluginFiles">
-            <summary>
-            Optional, List of all plugin files
-            </summary>
-        </member>
-        <member name="M:OMODFramework.CreationOptions.VerifyOptions(System.Boolean)">
-            <summary>
-            Utility function to verify whether the given Options are valid.
-            </summary>
-            <param name="throwException">Whether to throw an Exception instead of returning false if an option
-            is not valid. Default: true</param>
-            <returns></returns>
-        </member>
-        <member name="T:OMODFramework.CreationOptions.CreationOptionFile">
-            <summary>
-            Struct for files to be used in <see cref="P:OMODFramework.CreationOptions.DataFiles"/> and <see cref="P:OMODFramework.CreationOptions.PluginFiles"/>
-            </summary>
-        </member>
-        <member name="P:OMODFramework.CreationOptions.CreationOptionFile.From">
-            <summary>
-            File on disk to include
-            </summary>
-        </member>
-        <member name="P:OMODFramework.CreationOptions.CreationOptionFile.To">
-            <summary>
-            Path of the file to go to in the omod. Do note that plugins
-            must not be in a directory.
-            </summary>
-        </member>
-        <member name="T:OMODFramework.OMODEntryFileType">
-            <summary>
-            Enum for all possible files in an omod file
-            </summary>
-        </member>
-        <member name="F:OMODFramework.OMODEntryFileType.DataCRC">
-            <summary>
-            File containing information about the data files
-            </summary>
-        </member>
-        <member name="F:OMODFramework.OMODEntryFileType.Data">
-            <summary>
-            Raw compressed data
-            </summary>
-        </member>
-        <member name="F:OMODFramework.OMODEntryFileType.PluginsCRC">
-            <summary>
-            File containing information about the plugins
-            </summary>
-        </member>
-        <member name="F:OMODFramework.OMODEntryFileType.Plugins">
-            <summary>
-            Raw compressed plugins (optional)
-            </summary>
-        </member>
-        <member name="F:OMODFramework.OMODEntryFileType.Config">
-            <summary>
-            Config file (optional)
-            </summary>
-        </member>
-        <member name="F:OMODFramework.OMODEntryFileType.Readme">
-            <summary>
-            Readme file
-            </summary>
-        </member>
-        <member name="F:OMODFramework.OMODEntryFileType.Script">
-            <summary>
-            Script file (optional)
-            </summary>
-        </member>
-        <member name="F:OMODFramework.OMODEntryFileType.Image">
-            <summary>
-            Image file (optional)
-            </summary>
-        </member>
-        <member name="T:OMODFramework.OMODCompressedEntry">
-            <summary>
-            Files inside .crc entries
-            </summary>
-        </member>
-        <member name="F:OMODFramework.OMODCompressedEntry.Name">
-            <summary>
-            Path and Name of the file
-            </summary>
-        </member>
-        <member name="F:OMODFramework.OMODCompressedEntry.CRC">
-            <summary>
-            CRC32 of the file
-            </summary>
-        </member>
-        <member name="F:OMODFramework.OMODCompressedEntry.Length">
-            <summary>
-            Length (in bytes) of the file
-            </summary>
-        </member>
-        <member name="P:OMODFramework.OMODCompressedEntry.Offset">
-            <summary>
-            Offset in the decompressed data
-            </summary>
         </member>
     </members>
 </doc>

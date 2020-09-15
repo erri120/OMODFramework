@@ -23,7 +23,7 @@ using JetBrains.Annotations;
 namespace OMODFramework
 {
     [PublicAPI]
-    public class Config
+    public class OMODConfig
     {
         /// <summary>
         /// Name of the OMOD
@@ -66,9 +66,9 @@ namespace OMODFramework
         /// </summary>
         public CompressionType CompressionType { get; set; }
 
-        internal static Config ParseConfig(Stream stream)
+        internal static OMODConfig ParseConfig(Stream stream)
         {
-            var config = new Config();
+            var config = new OMODConfig();
             using var br = new BinaryReader(stream);
 
             config.FileVersion = br.ReadByte();

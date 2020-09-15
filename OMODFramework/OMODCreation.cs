@@ -1,259 +1,289 @@
-﻿#nullable enable
+﻿// /*
+//     Copyright (C) 2020  erri120
+// 
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+// 
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+// 
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// */
+
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
+using System.Text;
 using ICSharpCode.SharpZipLib.Zip;
 using JetBrains.Annotations;
+using OMODFramework.Logging;
 
 namespace OMODFramework
 {
-    /// <summary>
-    /// Possible script types
-    /// </summary>
     [PublicAPI]
     public enum ScriptType : byte
     {
         /// <summary>
-        /// Classic OBMMScript
+        /// Classic OBMMScript, see (http://timeslip.chorrol.com/obmmm/functionlist.htm)
         /// </summary>
         OBMMScript,
         /// <summary>
-        /// Python using IronPython (unsupported)
+        /// Python using IronPython (not supported)
         /// </summary>
+        [Obsolete("Not supported, use C# or OBMMScript instead.")]
         Python,
         /// <summary>
         /// C#
         /// </summary>
         CSharp,
         /// <summary>
-        /// Visual Basic (unsupported)
+        /// Visual Basic (not supported)
         /// </summary>
+        [Obsolete("Not supported, use C# or OBMMScript instead.")]
         VB
     }
 
     /// <summary>
-    /// Options used for OMOD Creation, inherits <see cref="Config"/>
+    /// Struct for data and plugin files in <see cref="OMODCreationOptions"/>
     /// </summary>
     [PublicAPI]
-    public class CreationOptions : Config
+    public struct OMODCreationFile
+    {
+        public readonly string From;
+        public readonly string To;
+
+        public OMODCreationFile(string from, string to)
+        {
+            if (!File.Exists(from))
+                throw new ArgumentException($"File at {from} does not exist!", nameof(from));
+            
+            var isAbsoluteFrom = Path.IsPathRooted(from) && Path.IsPathFullyQualified(from);
+            if (!isAbsoluteFrom)
+                throw new ArgumentException($"Path \"{from}\" is not absolute!", nameof(from));
+
+            var isAbsoluteTo = Path.IsPathRooted(to) && Path.IsPathFullyQualified(to);
+            if (isAbsoluteTo)
+                throw new ArgumentException($"Path \"{to}\" is not relative!", nameof(to));
+            
+            //TODO: make valid path
+            
+            From = from;
+            To = to;
+        }
+    }
+
+    public class OMODCreationFileComparer : IEqualityComparer<OMODCreationFile>
+    {
+        public bool Equals(OMODCreationFile x, OMODCreationFile y)
+        {
+            return string.Equals(x.From, y.From, StringComparison.OrdinalIgnoreCase) && string.Equals(x.To, y.To, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public int GetHashCode(OMODCreationFile obj)
+        {
+            var hashCode = new HashCode();
+            hashCode.Add(obj.From, StringComparer.OrdinalIgnoreCase);
+            hashCode.Add(obj.To, StringComparer.OrdinalIgnoreCase);
+            return hashCode.ToHashCode();
+        }
+    } 
+    
+    [PublicAPI]
+    public class OMODCreationOptions : OMODConfig
     {
         /// <summary>
-        /// Optional, entire Readme as a string
+        /// Optional, Readme or path to Readme.
         /// </summary>
         public string? Readme { get; set; }
+        
         /// <summary>
-        /// Optional, entire Script as a string
+        /// Optional, Script or path to Script.
         /// </summary>
         public string? Script { get; set; }
+        
         /// <summary>
-        /// Optional but has to be set when <see cref="Script"/> is not null
+        /// Required when <see cref="Script"/> is not null.
         /// </summary>
         public ScriptType ScriptType { get; set; }
+        
         /// <summary>
-        /// Optional, path to the image
+        /// Optional, path to Image if you don't want to use <see cref="Image"/>. <see cref="Image"/> must be null!
         /// </summary>
-        public FileInfo? ImagePath { get; set; }
-
+        public string? ImagePath { get; set; }
+        
         /// <summary>
-        /// Level of compression used for the .omod file. Must not be <see cref="CompressionLevel.None"/>
+        /// Optional, Image if you don't want to use <see cref="ImagePath"/>. <see cref="ImagePath"/> must be null!
+        /// </summary>
+        public Bitmap? Image { get; set; }
+        
+        /// <summary>
+        /// Level of compression used for the .omod file. Must not be <see cref="CompressionLevel.None"/>.
         /// </summary>
         public CompressionLevel OMODCompressionLevel { get; set; }
+        
         /// <summary>
-        /// Level of compression used for the data and plugin files. Must not be <see cref="CompressionLevel.None"/>
+        /// Level of compression used for the data and plugin files. Must not be <see cref="CompressionLevel.None"/>.
         /// </summary>
         public CompressionLevel DataCompressionLevel { get; set; }
+        
+        /// <summary>
+        /// Required, HashSet of all Data Files. Use <see cref="HashSet{T}.Add"/> to add the files you want to use. Make sure you check the return value of <see cref="HashSet{T}.Add"/>!
+        /// </summary>
+        public readonly HashSet<OMODCreationFile> DataFiles = new HashSet<OMODCreationFile>(new OMODCreationFileComparer());
+        
+        /// <summary>
+        /// Optional, HashSet of all Plugin Files. Use <see cref="HashSet{T}.Add"/> to add the files you want to use. Make sure you check the return value of <see cref="HashSet{T}.Add"/>!
+        /// </summary>
+        public readonly HashSet<OMODCreationFile> PluginFiles = new HashSet<OMODCreationFile>(new OMODCreationFileComparer());
 
-        /// <summary>
-        /// Required, List of all data files
-        /// </summary>
-        public HashSet<CreationOptionFile>? DataFiles { get; set; }
-        /// <summary>
-        /// Optional, List of all plugin files
-        /// </summary>
-        public HashSet<CreationOptionFile>? PluginFiles { get; set; }
-
-        /// <summary>
-        /// Utility function to verify whether the given Options are valid.
-        /// </summary>
-        /// <param name="throwException">Whether to throw an Exception instead of returning false if an option
-        /// is not valid. Default: true</param>
-        /// <returns></returns>
         public bool VerifyOptions(bool throwException = true)
         {
+            var report = new Action<string, string>((msg, name) =>
+            {
+                if (throwException)
+                    throw new ArgumentException(msg, name);
+            });
+
             if (string.IsNullOrEmpty(Name))
             {
-                if (throwException)
-                    throw new ArgumentException("Name must not be empty!", nameof(Name));
-                return false;
-            }
-
-            if (DataFiles == null)
-            {
-                if (throwException)
-                    throw new ArgumentException("DataFiles list must not be null!", nameof(DataFiles));
+                report("Name must not be empty!", nameof(Name));
                 return false;
             }
 
             if (DataFiles.Count == 0)
             {
-                if (throwException)
-                    throw new ArgumentException("DataFiles list must have at least 1 entry!", nameof(DataFiles));
+                report("Data Files must not be empty!", nameof(DataFiles));
                 return false;
             }
 
             if (OMODCompressionLevel == CompressionLevel.None)
             {
-                if (throwException)
-                    throw new ArgumentException("OMODCompressionLevel must not be None!", nameof(OMODCompressionLevel));
+                report("OMOD Compression Level must not be None!", nameof(OMODCompressionLevel));
                 return false;
             }
 
             if (DataCompressionLevel == CompressionLevel.None)
             {
-                if (throwException)
-                    throw new ArgumentException("DataCompressionLevel must not be None!", nameof(DataCompressionLevel));
+                report("Data Compression Level must not be None!", nameof(DataCompressionLevel));
                 return false;
             }
 
+            if (ImagePath != null && !File.Exists(ImagePath))
+            {
+                report($"Image Path {ImagePath} does not exist!", nameof(ImagePath));
+                return false;
+            }
+            
             return true;
-        }
-
-        /// <summary>
-        /// Struct for files to be used in <see cref="DataFiles"/> and <see cref="PluginFiles"/>
-        /// </summary>
-        [PublicAPI]
-        public struct CreationOptionFile
-        {
-            /// <summary>
-            /// File on disk to include
-            /// </summary>
-            public FileInfo From { get; }
-            /// <summary>
-            /// Path of the file to go to in the omod. Do note that plugins
-            /// must not be in a directory.
-            /// </summary>
-            public string To { get; }
-
-            public CreationOptionFile(FileInfo from, string to)
-            {
-                if (!from.Exists)
-                    throw new ArgumentException($"The given path: {from} does not exist!", nameof(from));
-
-                From = from;
-                To = to;
-            }
-
-            public override string ToString()
-            {
-                return $"{From.FullName} to {To}";
-            }
-
-            public override bool Equals(object obj)
-            {
-                if (!(obj is CreationOptionFile file))
-                    return false;
-
-                return To.Equals(file.To, StringComparison.InvariantCultureIgnoreCase) && From.FullName.Equals(file.From.FullName, StringComparison.InvariantCultureIgnoreCase);
-            }
-
-            public override int GetHashCode()
-            {
-                return From.FullName.GetHashCode(StringComparison.InvariantCultureIgnoreCase);
-            }
         }
     }
 
     public partial class OMOD
     {
-        private static void WriteStreamToZip(BinaryWriter bw, Stream stream)
+        public static void CreateOMOD(OMODCreationOptions options, string output, FrameworkSettings? settings = null)
         {
-            stream.Position = 0;
-            var buffer = new byte[4096];
-            var upTo = 0;
-            while (stream.Length - upTo > 4096)
-            {
-                stream.Read(buffer, 0, 4096);
-                bw.Write(buffer, 0, 4096);
-                upTo += 4096;
-            }
-
-            if (stream.Length - upTo > 0)
-            {
-                stream.Read(buffer, 0, (int)stream.Length - upTo);
-                bw.Write(buffer, 0, (int)stream.Length - upTo);
-            }
-        }
-
-        /// <summary>
-        /// Create an OMOD
-        /// </summary>
-        /// <param name="options">Options</param>
-        /// <param name="output">Output file</param>
-        /// <param name="settings">Optional, <see cref="FrameworkSettings"/> to use</param>
-        public static void CreateOMOD(CreationOptions options, FileInfo output, FrameworkSettings? settings = null)
-        {
-            if (!options.VerifyOptions())
-                return;
-
-            Utils.Info($"Starting OMOD Creation of {options.Name} by {options.Author}");
-
+            var logger = OMODFrameworkLogging.GetLogger("OMODCreation");
+            
             settings ??= FrameworkSettings.DefaultFrameworkSettings;
 
-            if(output.Exists)
-                output.Delete();
+            if (!options.VerifyOptions())
+                logger.ErrorThrow(new ArgumentException("Creation Options are not valid!", nameof(options)));
+            
+            var isDirectory = Directory.Exists(output);
+            var outputFile = isDirectory ? $"{options.Name}.omod" : output;
+            
+            logger.Info($"Output is {outputFile}");
+            
+            if (File.Exists(outputFile))
+                File.Delete(outputFile);
 
-            if(output.Extension != ".omod")
-                throw new ArgumentException("Output file has to have the .omod extension!", nameof(output));
-
-            using var zipStream = new ZipOutputStream(output.Open(FileMode.CreateNew, FileAccess.ReadWrite));
+            var fs = File.Open(output, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.Read);
+            using var zipStream = new ZipOutputStream(fs);
             using var bw = new BinaryWriter(zipStream);
+            
+            zipStream.SetLevel((int) options.OMODCompressionLevel);
 
-            zipStream.SetLevel((int)options.OMODCompressionLevel);
-
-            if (options.Readme != null && !string.IsNullOrEmpty(options.Readme))
+            if (options.Readme != null)
             {
-                Utils.Debug("Including README in OMOD");
+                var readme = options.Readme!;
+                try
+                {
+                    var path = Path.GetFullPath(options.Readme);
+                    if (File.Exists(path))
+                    {
+                        logger.Debug($"Reading Readme from {options.Readme}");
+                        readme = File.ReadAllText(options.Readme, Encoding.UTF8);
+                    }
+                }
+                catch
+                {
+                    readme = options.Readme!;
+                }
+                
                 var entry = new ZipEntry("readme");
                 zipStream.PutNextEntry(entry);
-                bw.Write(options.Readme);
+                bw.Write(readme);
                 bw.Flush();
             }
 
-            if (options.Script != null && !string.IsNullOrEmpty(options.Script))
+            if (options.Script != null)
             {
-                Utils.Debug($"Including script in OMOD, type: {options.ScriptType}");
-                var entry = new ZipEntry("script");
-                zipStream.PutNextEntry(entry);
-
-                var script = new char[options.Script.Length+1];
-                script[0] = (char) options.ScriptType;
-
-                for (var i = 0; i < options.Script.Length; i++)
+                var script = options.Script!;
+                try
                 {
-                    var c = options.Script[i];
-                    script[i + 1] = c;
+                    var path = Path.GetFullPath(options.Script);
+                    if (File.Exists(path))
+                    {
+                        logger.Debug($"Reading Script from {options.Script}");
+                        script = File.ReadAllText(options.Script, Encoding.UTF8);
+                    }
+                }
+                catch
+                {
+                    script = options.Script!;
                 }
 
-                var sScript = new string(script);
-                bw.Write(sScript);
+                script = script.Insert(0, $"{(char) options.ScriptType}");
+                
+                var entry = new ZipEntry("script");
+                zipStream.PutNextEntry(entry);
+                bw.Write(script);
                 bw.Flush();
             }
 
-            if (options.ImagePath != null && options.ImagePath.Exists)
+            if (options.ImagePath != null || options.Image != null)
             {
-                Utils.Debug("Including image in OMOD");
                 var entry = new ZipEntry("image");
                 zipStream.PutNextEntry(entry);
 
-                using var fs = options.ImagePath.OpenRead();
-                fs.CopyTo(zipStream);
+                if (options.ImagePath != null)
+                {
+                    logger.Debug($"Reading Image from path {options.ImagePath}");
+                    using var imageFs = File.Open(options.ImagePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    fs.CopyTo(zipStream);
+                } else if (options.Image != null)
+                {
+                    logger.Debug("Reading Image from Bitmap");
+                    options.Image.Save(zipStream, options.Image.RawFormat);
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+                
                 bw.Flush();
             }
-
-            Utils.Debug("Writing config");
+            
+            logger.Debug("Writing config info");
             var config = new ZipEntry("config");
             zipStream.PutNextEntry(config);
-
+            
             bw.Write(settings.CurrentOMODVersion);
             bw.Write(options.Name);
             bw.Write(options.Version.Major);
@@ -263,51 +293,59 @@ namespace OMODFramework
             bw.Write(options.Website);
             bw.Write(options.Description);
             bw.Write(DateTime.Now.ToBinary());
-            bw.Write((byte)options.CompressionType);
+            bw.Write((byte) options.CompressionType);
             bw.Write(options.Version.Build);
             bw.Flush();
 
-            if (options.PluginFiles != null && options.PluginFiles.Count > 0)
+            if (options.PluginFiles.Count > 0)
             {
-                Utils.Debug("Writing plugins to OMOD");
+                logger.Debug($"Including {options.PluginFiles.Count} Plugin Files");
                 var entry = new ZipEntry("plugins.crc");
                 zipStream.PutNextEntry(entry);
-                CompressionHandler.CompressFiles(options.PluginFiles, options.CompressionType, options.DataCompressionLevel, out var pluginsCompressed, out var pluginsCRC, settings.CodeProgress);
-                WriteStreamToZip(bw, pluginsCRC);
-                bw.Flush();
+                
+                CompressionHandler.CompressFiles(options.PluginFiles, options.CompressionType, options.DataCompressionLevel, 
+                    out var pluginsCompressed, out var pluginsCRC, settings.CodeProgress);
 
+                pluginsCRC.CopyTo(zipStream);
+                zipStream.Flush();
+                
                 zipStream.SetLevel(0);
                 entry = new ZipEntry("plugins");
                 zipStream.PutNextEntry(entry);
-                WriteStreamToZip(bw, pluginsCompressed);
-                bw.Flush();
-                zipStream.SetLevel((int)options.OMODCompressionLevel);
-
-                pluginsCompressed.Close();
-                pluginsCRC.Close();
+                
+                pluginsCompressed.CopyTo(zipStream);
+                zipStream.Flush();
+                zipStream.SetLevel((int) options.OMODCompressionLevel);
+                
+                pluginsCompressed.Dispose();
+                pluginsCRC.Dispose();
             }
-
-            if (options.DataFiles != null && options.DataFiles.Count > 0)
+            
+            if (options.DataFiles.Count > 0)
             {
-                Utils.Debug("Writing data files to OMOD");
+                logger.Debug($"Including {options.DataFiles.Count} Data Files");
                 var entry = new ZipEntry("data.crc");
                 zipStream.PutNextEntry(entry);
-                CompressionHandler.CompressFiles(options.DataFiles, options.CompressionType, options.DataCompressionLevel, out var dataCompressed, out var dataCRC, settings.CodeProgress);
-                WriteStreamToZip(bw, dataCRC);
-                bw.Flush();
+                
+                CompressionHandler.CompressFiles(options.DataFiles, options.CompressionType, options.DataCompressionLevel, 
+                    out var dataCompressed, out var dataCRC, settings.CodeProgress);
+                
+                dataCRC.CopyTo(zipStream);
+                zipStream.Flush();
 
                 zipStream.SetLevel(0);
                 entry = new ZipEntry("data");
                 zipStream.PutNextEntry(entry);
-                WriteStreamToZip(bw, dataCompressed);
-                bw.Flush();
-                zipStream.SetLevel((int)options.OMODCompressionLevel);
-
-                dataCompressed.Close();
-                dataCRC.Close();
+                
+                dataCompressed.CopyTo(zipStream);
+                zipStream.Flush();
+                zipStream.SetLevel((int) options.OMODCompressionLevel);
+                
+                dataCompressed.Dispose();
+                dataCRC.Dispose();
             }
-
-            Utils.Info("Finished OMOD Creation");
+            
+            logger.Info($"Finished OMOD Creation to {outputFile}");
         }
     }
 }
