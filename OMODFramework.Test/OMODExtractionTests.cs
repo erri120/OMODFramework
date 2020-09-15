@@ -32,7 +32,7 @@ namespace OMODFramework.Test
             _fixture = fixture;
         }
 
-        private static void CheckExtractedFiles(IReadOnlyCollection<OMODCompressedFile> dataFiles, string dataOutputFolder)
+        internal static void CheckExtractedFiles(IReadOnlyCollection<OMODCompressedFile> dataFiles, string dataOutputFolder)
         {
             var expectedSize = dataFiles
                 .Select(x => x.Length)

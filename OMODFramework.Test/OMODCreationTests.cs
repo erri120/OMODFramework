@@ -29,6 +29,7 @@ namespace OMODFramework.Test
         {
             const string omodOutput = "omod-creation-test-output.omod";
             const string dataDir = "omod-creation-test";
+            const string extractionDir = "omod-creation-extraction";
             const int count = 4;
 
             var options = DummyOMOD.CreateDummyCreationOptions(dataDir, count, 1 << 20);
@@ -57,6 +58,15 @@ namespace OMODFramework.Test
                 var file = options.DataFiles.First(y => y.To.Equals(x.Name));
                 return CRCUtils.FromFile(file.From).Equals(x.CRC);
             }));
+            
+            if (Directory.Exists(extractionDir))
+                Directory.Delete(extractionDir, true);
+
+            Directory.CreateDirectory(extractionDir);
+            
+            omod.ExtractFilesParallel(true, extractionDir, 2);
+            
+            OMODExtractionTests.CheckExtractedFiles(dataFiles, extractionDir);
         }
     }
 }

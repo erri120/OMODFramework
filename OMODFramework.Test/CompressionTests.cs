@@ -23,7 +23,7 @@ namespace OMODFramework.Test
         {
             const string expectedString = "Hello World";
 
-            var bytes = Encoding.UTF8.GetBytes(expectedString);
+            byte[] bytes = Encoding.UTF8.GetBytes(expectedString);
             using var ms = new MemoryStream(bytes.Length);
             ms.Write(bytes, 0, bytes.Length);
             ms.Position = 0;
@@ -47,7 +47,7 @@ namespace OMODFramework.Test
         {
             const string expectedString = "Hello World";
 
-            var bytes = Encoding.UTF8.GetBytes(expectedString);
+            byte[] bytes = Encoding.UTF8.GetBytes(expectedString);
             using var ms = new MemoryStream(bytes.Length);
             ms.Write(bytes, 0, bytes.Length);
             ms.Position = 0;
