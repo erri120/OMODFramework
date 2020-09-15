@@ -66,9 +66,8 @@ namespace OMODFramework
                 throw new ZipFileEntryNotFoundException(name, file);
 
             var entry = file[index];
-
-            using var stream = file.GetInputStream(entry);
-            var memoryStream = new MemoryStream();
+            using var stream = file.GetInputStream(index);
+            var memoryStream = new MemoryStream((int) entry.Size);
             stream.CopyTo(memoryStream);
             memoryStream.Seek(0, SeekOrigin.Begin);
 

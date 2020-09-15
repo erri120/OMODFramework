@@ -79,7 +79,7 @@ namespace OMODFramework
 
     internal static class CompressionHandler
     {
-        internal static Stream DecompressStream(IEnumerable<OMODCompressedEntry> entries, Stream compressedStream, CompressionType compressionType, ICodeProgress? progress = null)
+        internal static Stream DecompressStream(IEnumerable<OMODCompressedFile> entries, Stream compressedStream, CompressionType compressionType, ICodeProgress? progress = null)
         {
             var outSize = entries.Select(x => x.Length).Aggregate((x, y) => x + y);
             return compressionType switch
@@ -90,7 +90,7 @@ namespace OMODFramework
             };
         }
 
-        internal static void CompressFiles(HashSet<CreationOptions.CreationOptionFile> files, CompressionType type,
+        internal static void CompressFiles(HashSet<OMODCreationFile> files, CompressionType type,
             CompressionLevel level, out Stream compressedStream, out Stream crcStream, ICodeProgress? progress = null)
         {
             crcStream = GenerateCRCStream(files);
@@ -102,7 +102,7 @@ namespace OMODFramework
             };
         }
 
-        private static Stream GenerateCRCStream(IEnumerable<CreationOptions.CreationOptionFile> files)
+        private static Stream GenerateCRCStream(IEnumerable<OMODCreationFile> files)
         {
             var stream = new MemoryStream();
             using var bw = new BinaryWriter(stream, Encoding.Default, true);
@@ -112,25 +112,29 @@ namespace OMODFramework
             //  CRC       (uint)
             //  length    (long)
 
+            var crc = new CRC32();
+
             foreach (var file in files)
             {
+                var fi = new FileInfo(file.From);
+
                 bw.Write(file.To);
-                bw.Write(Utils.CRC32(file.From));
-                bw.Write(file.From.Length);
+                bw.Write(crc.FromFile(file.From));
+                bw.Write(fi.Length);
             }
 
             stream.Seek(0, SeekOrigin.Begin);
             return stream;
         }
 
-        private static Stream CreateDecompressedStream(HashSet<CreationOptions.CreationOptionFile> files)
+        private static Stream CreateDecompressedStream(HashSet<OMODCreationFile> files)
         {
             var length = files.Select(x => x.From.Length).Aggregate((x, y) => x + y);
 
-            var decompressedStream = new MemoryStream((int)length);
+            var decompressedStream = new MemoryStream(length);
             foreach (var file in files.Select(x => x.From))
             {
-                using var fs = file.OpenRead();
+                using var fs = File.Open(file, FileMode.Open, FileAccess.Read, FileShare.Read);
                 fs.CopyTo(decompressedStream);
             }
 
@@ -141,7 +145,7 @@ namespace OMODFramework
 
         #region SevenZip
 
-        private static Stream SevenZipOMODCompress(HashSet<CreationOptions.CreationOptionFile> files,
+        private static Stream SevenZipOMODCompress(HashSet<OMODCreationFile> files,
             CompressionLevel level, ICodeProgress? progress)
         {
             using var decompressedStream = CreateDecompressedStream(files);
@@ -202,7 +206,7 @@ namespace OMODFramework
 
         #region Zip
 
-        private static Stream ZipOMODCompress(HashSet<CreationOptions.CreationOptionFile> files, CompressionLevel level)
+        private static Stream ZipOMODCompress(HashSet<OMODCreationFile> files, CompressionLevel level)
         {
             using var decompressedStream = CreateDecompressedStream(files);
             return ZipCompress(decompressedStream, level);

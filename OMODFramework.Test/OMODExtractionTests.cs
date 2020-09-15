@@ -16,7 +16,6 @@
 // */
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Xunit;
@@ -136,6 +135,34 @@ namespace OMODFramework.Test
             Directory.CreateDirectory(dataOutputFolder);
             
             omod.ExtractFilesParallel(true, dataOutputFolder, 4);
+            
+            CheckExtractedFiles(dataFiles, dataOutputFolder);
+        }
+
+        [Fact]
+        public async void TestAsyncExtraction()
+        {
+            const string testOMOD = "DarkUId DarN 16 OMOD Version - 11280.omod";
+            const string dataOutputFolder = "omod-extraction-test-async-output";
+            
+            if (Directory.Exists(dataOutputFolder))
+                Directory.Delete(dataOutputFolder, true);
+            
+            var res = TestUtils.Download(_fixture.Client, 11280, 37571, testOMOD.InDownloadsFolder()).Result;
+            
+            Assert.True(res);
+            
+            using var omod = new OMOD(testOMOD.InDownloadsFolder());
+            
+            List<OMODCompressedFile> dataFiles = omod.GetDataFilesInfo().ToList();
+            Assert.NotEmpty(dataFiles);
+            
+            if (Directory.Exists(dataOutputFolder))
+                Directory.Delete(dataOutputFolder, true);
+
+            Directory.CreateDirectory(dataOutputFolder);
+
+            await omod.ExtractFilesAsync(true, dataOutputFolder, 4);
             
             CheckExtractedFiles(dataFiles, dataOutputFolder);
         }
