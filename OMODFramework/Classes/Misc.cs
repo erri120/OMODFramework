@@ -330,7 +330,10 @@ namespace OMODFramework
             }
 
             if (InstallAllData)
+            {
+                omod.AllDataFiles.Do(d => filesData.Add(d.FileName));
                 omod.AllPlugins.Do(d => filesData.Add(d));
+            }
             InstallData.Where(d => !filesData.Contains(d)).Do(d => filesData.Add(d));
             filesData.RemoveWhere(d => IgnoreData.Contains(d));
 
