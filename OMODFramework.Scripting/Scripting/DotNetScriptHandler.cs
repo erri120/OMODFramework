@@ -48,17 +48,7 @@ namespace OMODFramework.Scripting
             {
                 GenerateExecutable = false,
                 GenerateInMemory = false,
-                IncludeDebugInformation = false,
-                OutputAssembly = ScriptOutputPath,
-                ReferencedAssemblies =
-                {
-                    Framework.Settings.DllPath,
-                    System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Framework.Settings.DllPath), "OMODFramework.Scripting.dll"),
-                    "System.dll",
-                    "System.Drawing.dll",
-                    "System.Windows.Forms.dll",
-                    "System.Xml.dll"
-                }
+                IncludeDebugInformation = false
             };
 
             Evidence = new Evidence();
