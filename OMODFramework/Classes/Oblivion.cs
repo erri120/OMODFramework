@@ -102,7 +102,7 @@ namespace OMODFramework.Classes
             try
             {
                 var lines = File.ReadAllLines(Framework.Settings.ScriptExecutionSettings.OblivionRendererInfoPath);
-                lines.Where(t => t.Trim().ToLower().StartsWith(s)).Do(t =>
+                lines.Where(t => t.Trim().ToLower().StartsWith(s.ToLower())).Do(t =>
                 {
                     var split = t.Split(':');
                     if (split.Length != 2) result = "-1";
