@@ -25,6 +25,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System;
 
 namespace OMODFramework
 {
@@ -259,14 +260,14 @@ namespace OMODFramework
 
         // Plugins
         public bool InstallAllPlugins = true;
-        public HashSet<string> IgnorePlugins = new HashSet<string>();
-        public HashSet<string> InstallPlugins = new HashSet<string>();
+        public HashSet<string> IgnorePlugins = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        public HashSet<string> InstallPlugins = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         public HashSet<ScriptCopyDataFile> CopyPlugins = new HashSet<ScriptCopyDataFile>();
 
         // Data files
         public bool InstallAllData = true;
-        public HashSet<string> IgnoreData = new HashSet<string>();
-        public HashSet<string> InstallData = new HashSet<string>();
+        public HashSet<string> IgnoreData = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        public HashSet<string> InstallData = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         public HashSet<ScriptCopyDataFile> CopyDataFiles = new HashSet<ScriptCopyDataFile>();
 
         // Load order stuff
@@ -298,8 +299,8 @@ namespace OMODFramework
 
             InstallFiles = new HashSet<InstallFile>();
 
-            var filesPlugins = new HashSet<string>();
-            var filesData = new HashSet<string>();
+            var filesPlugins = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var filesData = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             if (pluginsPath != null)
             {
