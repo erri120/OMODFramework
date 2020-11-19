@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">GPL-3.0-only</license>
+    <projectUrl>https://github.com/erri120/OMODFramework</projectUrl>
+    <repository type="git" url="https://github.com/erri120/OMODFramework.git"/>
+    <description>$description$</description>
+    <copyright>$copyright$</copyright>
+    <dependencies>
+      <group>
+        <dependency id="OMODFramework" version="$version$"/>
+      </group>
+      <group targetFramework=".NETFramework4.8"/>
+    </dependencies>
+  </metadata>
+</package>
