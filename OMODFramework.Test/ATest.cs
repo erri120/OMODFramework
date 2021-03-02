@@ -50,7 +50,7 @@ namespace OMODFramework.Test
             if(!File.Exists("nexus_api_key.txt"))
                 throw new Exception("Nexus API Key file does not exist!");
 
-            _apiKey = File.ReadAllText("nexus_api_key.txt");
+            _apiKey = File.ReadAllText("nexus_api_key.txt").Trim();
 
             _client = new NexusClient(_apiKey, "OMODFramework Unit Tests", "0.0.1");
 
