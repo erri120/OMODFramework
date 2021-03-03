@@ -32,12 +32,12 @@ namespace OMODFramework
         public static FrameworkSettings Settings = new FrameworkSettings();
 
         /// <summary>
-        ///     This function will load all BSAs inside the provided HashSet. Do note that
+        ///     This function will load all BSAs inside the provided List. Do note that
         ///     this function is required when <see cref="ScriptExecutionSettings.HandleBSAsWithInterface"/>
-        ///     is set to <c>false</c>
+        ///     is set to <c>false</c>. BSAs later in the list win conflicts.
         /// </summary>
         /// <param name="fileList"></param>
-        public static void LoadBSAs(HashSet<string> fileList)
+        public static void LoadBSAs(List<string> fileList)
         {
             BSAArchive.Load(fileList);
         }

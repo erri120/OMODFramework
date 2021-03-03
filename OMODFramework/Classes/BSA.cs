@@ -227,7 +227,7 @@ namespace OMODFramework.Classes
             }
          */
 
-        internal static void Load(HashSet<string> list)
+        internal static void Load(List<string> list)
         {
             list.Do(f => new BSAArchive(f, true));
             Loaded = true;
