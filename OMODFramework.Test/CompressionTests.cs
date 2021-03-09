@@ -1,66 +1,60 @@
 ﻿using System.IO;
 using System.Text;
+using OMODFramework.Compression;
 using Xunit;
 
 namespace OMODFramework.Test
 {
     public class CompressionTests
     {
-        private class CodeProgress : ICodeProgress
+        private static string GetDummyString()
         {
-            public bool Init(long totalSize, bool compressing)
+            const string text = "Hello World!";
+            var sb = new StringBuilder();
+            for (var i = 0; i < 1000; i++)
             {
-                return true;
+                sb.AppendLine(text);
             }
 
-            public void SetProgress(long inSize, long outSize) { }
-
-            public void Dispose() { }
+            return sb.ToString();
         }
-
+        
         [Fact]
         public void TestSevenZipCompression()
         {
-            const string expectedString = "Hello World";
+            var inputText = GetDummyString();
 
-            byte[] bytes = Encoding.UTF8.GetBytes(expectedString);
-            using var ms = new MemoryStream(bytes.Length);
-            ms.Write(bytes, 0, bytes.Length);
-            ms.Position = 0;
+            var bytes = Encoding.UTF8.GetBytes(inputText);
+            using var inputStream = new MemoryStream(bytes, false);
+            
+            using var compressedStream = CompressionHandler.SevenZipCompress(inputStream, SevenZipCompressionLevel.Medium);
+            using var decompressedStream = CompressionHandler.SevenZipDecompress(compressedStream, inputStream.Length);
 
-            using var compressionProgress = new CodeProgress();
-            using var decompressionProgress = new CodeProgress();
+            var outputBytes = new byte[decompressedStream.Length];
+            decompressedStream.Read(outputBytes, 0, outputBytes.Length);
 
-            using var compressedStream = CompressionHandler.SevenZipCompress(ms, CompressionLevel.Medium, compressionProgress);
-            using var decompressedStream = CompressionHandler.SevenZipDecompress(compressedStream, bytes.Length, decompressionProgress);
-
-            var buffer = new byte[bytes.Length];
-            decompressedStream.Read(buffer, 0, bytes.Length);
-
-            var actualString = Encoding.UTF8.GetString(buffer);
-
-            Assert.Equal(expectedString, actualString);
+            var outputString = Encoding.UTF8.GetString(outputBytes, 0, outputBytes.Length);
+            
+            Assert.Equal(inputText, outputString);
         }
 
         [Fact]
         public void TestZipCompression()
         {
-            const string expectedString = "Hello World";
+            var inputText = GetDummyString();
 
-            byte[] bytes = Encoding.UTF8.GetBytes(expectedString);
-            using var ms = new MemoryStream(bytes.Length);
-            ms.Write(bytes, 0, bytes.Length);
-            ms.Position = 0;
+            var bytes = Encoding.UTF8.GetBytes(inputText);
+            using var inputStream = new MemoryStream(bytes, true);
+            
+            using var compressedStream = CompressionHandler.ZipCompress(inputStream, System.IO.Compression.CompressionLevel.Optimal);
+            using var decompressedStream = CompressionHandler.ZipDecompress(compressedStream, inputStream.Length);
 
-            using var compressedStream = CompressionHandler.ZipCompress(ms, CompressionLevel.Medium);
-            using var decompressedStream = CompressionHandler.ZipDecompress(compressedStream, bytes.Length);
+            var outputBytes = new byte[decompressedStream.Length];
+            decompressedStream.Read(outputBytes, 0, outputBytes.Length);
 
-            var buffer = new byte[bytes.Length];
-            decompressedStream.Read(buffer, 0, bytes.Length);
-
-            var actualString = Encoding.UTF8.GetString(buffer);
-
-            Assert.Equal(expectedString, actualString);
+            var outputString = Encoding.UTF8.GetString(outputBytes, 0, outputBytes.Length);
+            
+            Assert.Equal(inputText, outputString);
         }
     }
 }

@@ -28,10 +28,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wabbajack.Downloader.Common
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wabbajack.Downloader.NexusMods", "Wabbajack.Downloader\Wabbajack.Downloader.NexusMods\Wabbajack.Downloader.NexusMods.csproj", "{A5A5CBDF-1664-4915-B256-28ECB44514B6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OMODFramework.Example.CSharp", "OMODFramework.Example.CSharp\OMODFramework.Example.CSharp.csproj", "{1EBB60C1-8F18-4282-9C50-2623374537EE}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OMODFramework.Benchmark", "OMODFramework.Benchmark\OMODFramework.Benchmark.csproj", "{750A3695-691E-485E-87C4-A6652A2DFCEF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -58,14 +54,6 @@ Global
 		{A5A5CBDF-1664-4915-B256-28ECB44514B6}.Debug|x64.Build.0 = Debug|x64
 		{A5A5CBDF-1664-4915-B256-28ECB44514B6}.Release|x64.ActiveCfg = Release|x64
 		{A5A5CBDF-1664-4915-B256-28ECB44514B6}.Release|x64.Build.0 = Release|x64
-		{1EBB60C1-8F18-4282-9C50-2623374537EE}.Debug|x64.ActiveCfg = Debug|x64
-		{1EBB60C1-8F18-4282-9C50-2623374537EE}.Debug|x64.Build.0 = Debug|x64
-		{1EBB60C1-8F18-4282-9C50-2623374537EE}.Release|x64.ActiveCfg = Release|x64
-		{1EBB60C1-8F18-4282-9C50-2623374537EE}.Release|x64.Build.0 = Release|x64
-		{750A3695-691E-485E-87C4-A6652A2DFCEF}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{750A3695-691E-485E-87C4-A6652A2DFCEF}.Debug|x64.Build.0 = Debug|Any CPU
-		{750A3695-691E-485E-87C4-A6652A2DFCEF}.Release|x64.ActiveCfg = Release|Any CPU
-		{750A3695-691E-485E-87C4-A6652A2DFCEF}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
