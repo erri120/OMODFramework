@@ -7,7 +7,6 @@ namespace OMODFramework.Scripting.Exceptions
     [PublicAPI]
     public class OBMMScriptHandlerException : OMODScriptException
     {
-        internal OBMMScriptHandlerException() { }
         internal OBMMScriptHandlerException(string message) : base(message) { }
         internal OBMMScriptHandlerException(string message, Exception e) : base(message, e) { }
     }
@@ -15,7 +14,6 @@ namespace OMODFramework.Scripting.Exceptions
     [PublicAPI]
     public class OBMMScriptTokenizerException : OBMMScriptHandlerException
     {
-        internal OBMMScriptTokenizerException() { }
         internal OBMMScriptTokenizerException(string message) : base(message) { }
         internal OBMMScriptTokenizerException(string message, Exception e) : base(message, e) { }
     }

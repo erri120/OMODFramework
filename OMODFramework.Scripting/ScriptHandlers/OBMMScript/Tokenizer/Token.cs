@@ -715,11 +715,13 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript.Tokenizer
     internal sealed class GotoLabelToken : InstructionToken
     {
         /// <summary>
-        /// Name of the Label we define/goto
+        /// Name of the Label we define/goto.
         /// </summary>
         internal readonly string Label;
         
-        //TODO: write docs for this
+        /// <summary>
+        /// Index of the Label token we jump to.
+        /// </summary>
         internal int Index { get; set; }
 
         internal GotoLabelToken(Line line, TokenType tokenType) : base(line)

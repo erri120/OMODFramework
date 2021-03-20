@@ -7,6 +7,7 @@ using System.Linq;
 using NLog;
 using OblivionModManager.Scripting;
 using OMODFramework.Scripting.Data;
+using OMODFramework.Scripting.Exceptions;
 using OMODFramework.Scripting.ScriptHandlers.OBMMScript.Tokenizer;
 
 namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
@@ -41,7 +42,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
             {
                 var current = split[i];
                 if (!_variables.TryGetValue(current, out var value))
-                    throw new NotImplementedException($"Unable to find value of variable {current}");
+                    throw new OBMMScriptHandlerException($"Unable to find value of variable {current}");
                 result = result.Replace($"%{current}%", value);
             }
 
@@ -111,7 +112,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
                     }
 
                     if (_labelTokens.All(x => x.Label != gotoLabelToken.Label))
-                        throw new NotImplementedException();
+                        throw new OBMMScriptHandlerException($"Unable to find matching Label for Goto-Token: {gotoLabelToken.Label}");
 
                     var first = _labelTokens.First(x => x.Label == gotoLabelToken.Label);
                     
@@ -131,7 +132,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
                 if (token.Type == TokenType.EndFor)
                 {
                     if (_stack.All(x => x.Type != TokenType.For))
-                        throw new NotImplementedException();
+                        throw new OBMMScriptHandlerException("Encountered EndFor-Token but stack does not contain a For-Token!");
                     var forToken = (ForToken) _stack.First(x => x.Type == TokenType.For);
                     
                     if (!forToken.Active)
@@ -212,21 +213,21 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
                  */
 
                 if (_stack.Count == 0)
-                    throw new NotImplementedException("The stack is empty!");
+                    throw new OBMMScriptHandlerException("Encountered an EndFlowToken but the stack is empty!");
 
                 var peek = _stack.Peek();
                 
                 if (token.Type == TokenType.EndIf && peek.Type != TokenType.If && peek.Type != TokenType.IfNot && peek.Type != TokenType.Else)
-                    throw new NotImplementedException($"Top token is supposed to be {TokenType.If}, {TokenType.IfNot} or {TokenType.Else} but is {peek.Type}!");
+                    throw new OBMMScriptHandlerException($"Top token is supposed to be {TokenType.If}, {TokenType.IfNot} or {TokenType.Else} but is {peek.Type}!");
 
                 if (token.Type == TokenType.EndFor && peek.Type != TokenType.For)
-                    throw new NotImplementedException($"Top token is supposed to be {TokenType.For} but is {peek.Type}!");
+                    throw new OBMMScriptHandlerException($"Top token is supposed to be {TokenType.For} but is {peek.Type}!");
                 
                 if (token.Type == TokenType.EndSelect && !(peek is SelectiveToken))
-                    throw new NotImplementedException($"Top token is supposed to be a Select token but is {peek.Type}!");
+                    throw new OBMMScriptHandlerException($"Top token is supposed to be a Select token but is {peek.Type}!");
                 
                 if (token.Type == TokenType.Break && peek.Type != TokenType.Case)
-                    throw new NotImplementedException($"Top token is supposed to be {TokenType.Case} but is {peek.Type}!");
+                    throw new OBMMScriptHandlerException($"Top token is supposed to be {TokenType.Case} but is {peek.Type}!");
 
                 if (token.Type == TokenType.EndIf)
                 {
@@ -394,7 +395,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
                     var elseToken = (StartFlowToken) token;
                     var peek = _stack.Peek();
                     if (!(peek is IfToken ifToken))
-                        throw new NotImplementedException($"Else token encountered but top element in stack is not an If or IfNot token but {peek.Type}!");
+                        throw new OBMMScriptHandlerException($"Else token encountered but top element in stack is not an If or IfNot token but {peek.Type}!");
 
                     elseToken.Active = !ifToken.Active;
                     
@@ -407,7 +408,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
                     var peek = _stack.Peek();
 
                     if (!(peek is SelectiveToken selectiveToken))
-                        throw new NotImplementedException($"Case encountered but top element in stack is not a Select token but {peek.Type}!");
+                        throw new OBMMScriptHandlerException($"Case encountered but top element in stack is not a Select token but {peek.Type}!");
                     
                     //we already found a case statement that is true so we can just skip this one
                     if (selectiveToken.FoundCase)
@@ -455,7 +456,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
                             break;
                         }
                         default:
-                            throw new NotImplementedException($"Case encountered but top element in stack is not a Select token but {peek.Type}!");
+                            throw new OBMMScriptHandlerException($"Case encountered but top element in stack is not a Select token but {peek.Type}!");
                     }
                     
                     _stack.Push(caseToken);
@@ -466,7 +467,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
                     var peek = _stack.Peek();
 
                     if (!(peek is SelectiveToken selectiveToken))
-                        throw new NotImplementedException($"Default encountered but top element in stack is not a Select token but {peek.Type}!");
+                        throw new OBMMScriptHandlerException($"Default encountered but top element in stack is not a Select token but {peek.Type}!");
 
                     //already found a case that is true so we just skip this
                     //TODO: find out if the Default case is also triggered when you have a SelectMany token
@@ -537,7 +538,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
                 case TokenType.Exit:
                 {
                     if (_stack.All(x => x.Type != TokenType.For))
-                        throw new NotImplementedException();
+                        throw new OBMMScriptHandlerException("Exit or Continue token encountered but stack does not contain a For-Token!");
 
                     var forToken = (ForToken) _stack.First(x => x.Type == TokenType.For);
 
@@ -592,7 +593,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
                 {
                     var selectVarToken = (SelectVarToken) token;
                     if (!_variables.TryGetValue(selectVarToken.Variable, out var value))
-                        throw new NotImplementedException($"Unable to find variable {selectVarToken.Variable} in dictionary!");
+                        throw new OBMMScriptHandlerException($"Unable to find variable {selectVarToken.Variable} in dictionary!");
                     selectVarToken.Value = value;
                     _stack.Push(selectVarToken);
                     break;
@@ -672,9 +673,9 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
                         {
                             var levelName = iToken.Instructions[2];
                             if (!Utils.TryGetEnum<ConflictLevel>(levelName, out var level))
-                                throw new NotImplementedException();
+                                throw new OBMMScriptHandlerException($"Unable to parse {levelName} as ConflictLevel");
                             if (level == ConflictLevel.Active || level == ConflictLevel.NoConflict)
-                                throw new NotImplementedException();
+                                throw new OBMMScriptHandlerException($"Parsed ConflictLevel {level} is {ConflictLevel.Active} or {ConflictLevel.NoConflict}");
                             cd.Level = level;
                             goto case 2;
                         }
@@ -702,9 +703,9 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
                         {
                             var levelName = iToken.Instructions[2];
                             if (!Utils.TryGetEnum<ConflictLevel>(levelName, out var level))
-                                throw new NotImplementedException();
+                                throw new OBMMScriptHandlerException($"Unable to parse {levelName} as ConflictLevel");
                             if (level == ConflictLevel.Active || level == ConflictLevel.NoConflict)
-                                throw new NotImplementedException();
+                                throw new OBMMScriptHandlerException($"Parsed ConflictLevel {level} is {ConflictLevel.Active} or {ConflictLevel.NoConflict}");
                             cd.Level = level;
                             goto case 6;
                         }
@@ -778,7 +779,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
                     break;
                 }
                 case TokenType.FatalError:
-                    throw new NotImplementedException("Fatal Error called from script!");
+                    throw new OBMMScriptHandlerException("Fatal Error called from script!");
                 case TokenType.Return:
                 {
                     Return = true;
@@ -797,7 +798,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
                     var warningType = iToken.Instructions[1];
 
                     if (!Utils.TryGetEnum<DeactiveStatus>(warningType, out var status))
-                        throw new NotImplementedException($"Unable to parse {warningType} as DeactiveStatus!");
+                        throw new OBMMScriptHandlerException($"Unable to parse {warningType} as DeactiveStatus!");
                     
                     ScriptFunctions.SetDeactivationWarning(plugin, status);
                     break;
@@ -865,9 +866,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
                     var shaderPackage = iToken.Instructions[0];
                     var shaderName = iToken.Instructions[1];
                     var binaryObjectPath = iToken.Instructions[2];
-
-                    if (!byte.TryParse(shaderPackage, out var package))
-                        throw new NotImplementedException($"Unable to parse {shaderPackage} as byte!");
+                    var package = byte.Parse(shaderPackage);
                     
                     ScriptFunctions.EditShader(package, shaderName, binaryObjectPath);
                     break;
@@ -1114,7 +1113,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
                 case TokenType.Label:
                 case TokenType.Goto:
                 case TokenType.Comment:
-                    throw new NotImplementedException("Impossible to reach!");
+                    throw new OBMMScriptHandlerException("Impossible to reach!");
                 default:
                     throw new ArgumentOutOfRangeException();
             }

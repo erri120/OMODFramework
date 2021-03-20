@@ -30,6 +30,8 @@ namespace OMODFramework.Test.Scripting.OBMM
              * test can only be run locally.
              */
             
+            //TODO: make this run on the CI without having to download the mods (use data+plugin files index)
+            
             var file = Path.Combine("files", "obmm-scripting", fileName);
             if (!File.Exists(file))
                 return;
@@ -47,6 +49,7 @@ namespace OMODFramework.Test.Scripting.OBMM
             var settings = new OMODScriptSettings(externalScriptFunctions)
             {
                 DryRun = true,
+                UseBitmapOverloads = false
             };
             
             var srd = OMODScriptRunner.RunScript(omod, settings);
@@ -151,9 +154,17 @@ namespace OMODFramework.Test.Scripting.OBMM
             }
 
             public void DisplayImage(string imagePath, string? title) { }
+            public void DisplayImage(Bitmap image, string? title) { }
 
             public void DisplayText(string text, string? title) { }
 
+            public IEnumerable<int> Select(IEnumerable<string> items, string title, bool isMany,
+                IEnumerable<Bitmap> previews, IEnumerable<string> descriptions)
+            {
+                throw new NotImplementedException();
+            }
+
+            
             public IEnumerable<int> Select(IEnumerable<string> items, string title, bool isMany, IEnumerable<string> previews, IEnumerable<string> descriptions)
             {
                 var (_, value) = Selects.First(x => x.Key.Equals(title));

@@ -109,7 +109,7 @@ namespace OMODFramework.Oblivion
             }
 
             if (br.BaseStream.Position - 12 != initialPosition + packageSize)
-                throw new NotImplementedException($"Position in Stream does not equal expected position: {br.BaseStream.Position} - 12 != {initialPosition} + {packageSize}");
+                throw new OMODException($"Position in Stream does not equal expected position: {br.BaseStream.Position} - 12 != {initialPosition} + {packageSize}");
 
             //re-write the package size with a new one
             bw.BaseStream.Position = sizeOffset;

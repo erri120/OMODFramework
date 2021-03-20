@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using OblivionModManager.Scripting;
 using OMODFramework.Scripting.Data;
+using OMODFramework.Scripting.Exceptions;
 
 namespace OMODFramework.Scripting.ScriptHandlers
 {
@@ -38,7 +39,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
                 ? ExternalScriptFunctions.DialogYesNo(msg)
                 : ExternalScriptFunctions.DialogYesNo(msg, title);
             if (result == DialogResult.Cancel)
-                throw new NotImplementedException();
+                throw new OMODScriptFunctionException("User canceled the dialog!");
             return result == DialogResult.Yes;
         }
 
@@ -138,20 +139,44 @@ namespace OMODFramework.Scripting.ScriptHandlers
         // ReSharper disable once IdentifierTypo
         public string[] Select(string[] items, string[]? previews, string[]? descs, string title, bool many)
         {
-            var bitmapPreviews = new List<string>();
+            List<int> result;
+
+            var previewPaths = new List<string>();
             if (previews != null)
             {
-                bitmapPreviews = previews
+                previewPaths = previews
                     .Select(preview => _omod.GetDataFiles()
                         .First(x => x.Name.Equals(preview, StringComparison.OrdinalIgnoreCase)))
                     .Select(file => file.GetFileInFolder(_srd.DataFolder))
-                    //.Select(x => new Bitmap(x))
                     .ToList();
             }
+            
+            if (_settings.UseBitmapOverloads)
+            {
+                var bitmapPreviews = new List<Bitmap>();
 
-            var result = ExternalScriptFunctions
-                .Select(items, title, many, bitmapPreviews, descs ?? Array.Empty<string>())
-                .ToList();
+                if (previews != null)
+                {
+                    bitmapPreviews = previewPaths
+                        .Select(x => new Bitmap(x))
+                        .ToList();
+                }
+                
+                result = ExternalScriptFunctions
+                    .Select(items, title, many, bitmapPreviews, descs ?? Array.Empty<string>())
+                    .ToList();
+
+                foreach (var bitmap in bitmapPreviews)
+                {
+                    bitmap.Dispose();
+                }
+            }
+            else
+            {
+                result = ExternalScriptFunctions
+                    .Select(items, title, many, previewPaths, descs ?? Array.Empty<string>())
+                    .ToList();
+            }
 
             return result
                 .Select(x => items[x])
@@ -184,12 +209,19 @@ namespace OMODFramework.Scripting.ScriptHandlers
         {
             var file = _omod.GetDataFiles().First(x => x.Name.Equals(path, StringComparison.OrdinalIgnoreCase));
             var filePath = file.GetFileInFolder(_srd.DataFolder);
-            
-            if (!File.Exists(filePath))
-                throw new NotImplementedException();
 
-            //var bitmap = new Bitmap(filePath);
-            ExternalScriptFunctions.DisplayImage(filePath, title);
+            if (!File.Exists(filePath))
+                throw new OMODScriptFunctionException($"Image for DisplayImage does not exist: {filePath}");
+
+            if (_settings.UseBitmapOverloads)
+            {
+                using var bitmap = new Bitmap(filePath);
+                ExternalScriptFunctions.DisplayImage(bitmap, title);
+            }
+            else
+            {
+                ExternalScriptFunctions.DisplayImage(filePath, title);
+            }
         }
 
         public void DisplayText(string path)
@@ -203,7 +235,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
             var filePath = file.GetFileInFolder(_srd.DataFolder);
             
             if (!File.Exists(filePath))
-                throw new NotImplementedException();
+                throw new OMODScriptFunctionException($"Text for DisplayText does not exist: {filePath}");
 
             var text = File.ReadAllText(filePath);
             ExternalScriptFunctions.DisplayText(text, title);
@@ -382,7 +414,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
         {
             var plugin = _srd.PluginFiles.First(x => x.Input.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (!_srd.PluginFiles.Remove(plugin))
-                throw new NotImplementedException();
+                throw new OMODScriptFunctionException($"Unable to remove Plugin from collection: {plugin}");
         }
 
         // ReSharper disable once IdentifierTypo
@@ -390,7 +422,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
         {
             var dataFile = _srd.DataFiles.First(x => x.Input.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (!_srd.DataFiles.Remove(dataFile))
-                throw new NotImplementedException();
+                throw new OMODScriptFunctionException($"Unable to remove DataFile from collection: {dataFile}");
         }
 
         // ReSharper disable once IdentifierTypo
@@ -537,7 +569,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void FatalError()
         {
-            throw new NotImplementedException();
+            throw new OMODScriptFunctionException("FatalError called!");
         }
 
         // ReSharper disable once IdentifierTypo
@@ -621,7 +653,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
             var path = compressedFile.GetFileInFolder(_srd.DataFolder);
 
             if (!File.Exists(path))
-                throw new NotImplementedException();
+                throw new OMODScriptFunctionException($"File for ReadDataFile does not exist: {path}");
 
             return File.ReadAllBytes(path);
         }
@@ -650,7 +682,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
         {
             var dataFile = _srd.DataFiles.First(x => x.Output.Equals(file));
             if (!_srd.DataFiles.Remove(dataFile))
-                throw new NotImplementedException();
+                throw new OMODScriptFunctionException($"Unable to remove DataFile from collection: {dataFile}");
         }
 
         public void CancelDataFolderCopy(string folder)
