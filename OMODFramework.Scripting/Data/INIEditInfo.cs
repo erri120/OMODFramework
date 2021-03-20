@@ -23,8 +23,7 @@ namespace OMODFramework.Scripting.Data
         {
             return $"[{Section}]{Name}:{NewValue}";
         }
-
-
+        
         public bool Equals(INIEditInfo? other)
         {
             if (ReferenceEquals(null, other)) return false;

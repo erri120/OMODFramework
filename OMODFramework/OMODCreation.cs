@@ -100,7 +100,7 @@ namespace OMODFramework
                     using var configStream = config.Open();
                     using var bw = new BinaryWriter(configStream);
 
-                    bw.Write((byte) 4); //TODO: settings?
+                    bw.Write((byte) 4);
                     bw.Write(options.Name);
                     bw.Write(options.Version.Major);
                     bw.Write(options.Version.Minor);

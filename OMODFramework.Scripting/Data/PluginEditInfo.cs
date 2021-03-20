@@ -1,6 +1,5 @@
 ﻿using System;
 using JetBrains.Annotations;
-using OMODFramework.Compression;
 
 namespace OMODFramework.Scripting.Data
 {
@@ -9,13 +8,13 @@ namespace OMODFramework.Scripting.Data
     {
         public readonly bool IsGMST;
 
-        public readonly OMODCompressedFile File;
+        public readonly ScriptReturnFile File;
 
         public readonly string EditorId;
 
         public string NewValue { get; set; }
 
-        internal PluginEditInfo(string value, OMODCompressedFile file, string editorId, bool isGMST)
+        internal PluginEditInfo(string value, ScriptReturnFile file, string editorId, bool isGMST)
         {
             NewValue = value;
             File = file;

@@ -265,6 +265,10 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void SetNewLoadOrder(string[] plugins)
         {
+            /*
+             * This function was rather interesting in OBMM as it modified the LastWriteTime of all plugin files in the
+             * entire Oblivion folder. OBMM then went ahead and sorted those plugins based on the new LastWriteTime. 
+             */
             throw new NotImplementedException();
         }
 
@@ -571,7 +575,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void EditShader(byte package, string name, string path)
         {
-            var dataFile = _omod.GetDataFiles().First(x => x.Name.Equals(path, StringComparison.OrdinalIgnoreCase));
+            var dataFile = _srd.DataFiles.First(x => x.Input.Name.Equals(path, StringComparison.OrdinalIgnoreCase));
             var sdpEditInfo = new SDPEditInfo(package, name, dataFile);
 
             if (_srd.SDPEdits.TryGetValue(sdpEditInfo, out var actualValue))
@@ -605,7 +609,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
         // ReSharper disable once IdentifierTypo
         private void AddPluginEdit(string file, string edid, string value, bool isGMST)
         {
-            var pluginFile = _omod.GetPluginFiles().First(x => x.Name.Equals(file, StringComparison.OrdinalIgnoreCase));
+            var pluginFile = _srd.PluginFiles.First(x => x.Input.Name.Equals(file, StringComparison.OrdinalIgnoreCase));
             var pluginEditInfo = new PluginEditInfo(value, pluginFile, edid, isGMST);
 
             if (_srd.PluginEdits.TryGetValue(pluginEditInfo, out var actualValue))
@@ -620,29 +624,45 @@ namespace OMODFramework.Scripting.ScriptHandlers
         
         public void SetPluginByte(string file, long offset, byte value)
         {
-            throw new NotImplementedException();
+            SetPlugin(file, offset, typeof(byte), value);
         }
 
         public void SetPluginShort(string file, long offset, short value)
         {
-            throw new NotImplementedException();
+            SetPlugin(file, offset, typeof(short), value);
         }
 
         public void SetPluginInt(string file, long offset, int value)
         {
-            throw new NotImplementedException();
+            SetPlugin(file, offset, typeof(int), value);
         }
 
         public void SetPluginLong(string file, long offset, long value)
         {
-            throw new NotImplementedException();
+            SetPlugin(file, offset, typeof(long), value);
         }
 
         public void SetPluginFloat(string file, long offset, float value)
         {
-            throw new NotImplementedException();
+            SetPlugin(file, offset, typeof(float), value);
         }
 
+        private void SetPlugin(string file, long offset, Type type, object value)
+        {
+            var pluginFile = _srd.PluginFiles.First(x => x.Input.Name.Equals(file, StringComparison.OrdinalIgnoreCase));
+            var setPluginInfo = new SetPluginInfo(offset, pluginFile, type, value);
+
+            if (_srd.SetPluginInfos.TryGetValue(setPluginInfo, out var actualValue))
+            {
+                actualValue.ValueType = type;
+                actualValue.Value = value;
+            }
+            else
+            {
+                _srd.SetPluginInfos.Add(setPluginInfo);
+            }
+        }
+        
         public string InputString()
         {
             return ExternalScriptFunctions.InputString(null, null);
@@ -670,12 +690,32 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void EditXMLLine(string file, int line, string value)
         {
-            throw new NotImplementedException();
+            var dataFile = _srd.DataFiles.First(x => x.Input.Name.Equals(file, StringComparison.OrdinalIgnoreCase));
+            var editXMLInfo = new EditXMLInfo(dataFile, line, value);
+
+            if (_srd.EditXMLInfos.TryGetValue(editXMLInfo, out var actualValue))
+            {
+                actualValue.Value = value;
+            }
+            else
+            {
+                _srd.EditXMLInfos.Add(editXMLInfo);
+            }
         }
 
         public void EditXMLReplace(string file, string find, string replace)
         {
-            throw new NotImplementedException();
+            var dataFile = _srd.DataFiles.First(x => x.Input.Name.Equals(file, StringComparison.OrdinalIgnoreCase));
+            var editXMLInfo = new EditXMLInfo(dataFile, find, replace);
+
+            if (_srd.EditXMLInfos.TryGetValue(editXMLInfo, out var actualValue))
+            {
+                actualValue.Replace = replace;
+            }
+            else
+            {
+                _srd.EditXMLInfos.Add(editXMLInfo);
+            }
         }
 
         public byte[] ReadDataFile(string file)

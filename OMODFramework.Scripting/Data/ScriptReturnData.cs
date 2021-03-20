@@ -32,6 +32,10 @@ namespace OMODFramework.Scripting.Data
         public HashSet<SDPEditInfo> SDPEdits { get; internal set; } = new HashSet<SDPEditInfo>();
 
         public HashSet<PluginEditInfo> PluginEdits { get; internal set; } = new HashSet<PluginEditInfo>();
+
+        public HashSet<SetPluginInfo> SetPluginInfos { get; internal set; } = new HashSet<SetPluginInfo>();
+
+        public HashSet<EditXMLInfo> EditXMLInfos { get; internal set; } = new HashSet<EditXMLInfo>();
         
         internal ScriptReturnData(string dataFolder, string pluginsFolder)
         {

@@ -1,6 +1,5 @@
 ﻿using System;
 using JetBrains.Annotations;
-using OMODFramework.Compression;
 
 namespace OMODFramework.Scripting.Data
 {
@@ -11,9 +10,9 @@ namespace OMODFramework.Scripting.Data
 
         public readonly string Shader;
 
-        public OMODCompressedFile File { get; set; }
+        public ScriptReturnFile File { get; set; }
 
-        internal SDPEditInfo(byte package, string shader, OMODCompressedFile file)
+        internal SDPEditInfo(byte package, string shader, ScriptReturnFile file)
         {
             Package = package;
             Shader = shader;

@@ -52,6 +52,17 @@ namespace OMODFramework.Scripting.Data
         internal DataFile(OMODCompressedFile compressedFile) : base(compressedFile) { }
 
         internal DataFile(OMODCompressedFile compressedFile, string output) : base(compressedFile, output) { }
+
+        public override bool Equals(object? obj)
+        {
+            if (!(obj is DataFile dataFile)) return false;
+            return ScriptReturnFileEqualityComparer.Default.Equals(this, dataFile);
+        }
+
+        public override int GetHashCode()
+        {
+            return ScriptReturnFileEqualityComparer.Default.GetHashCode(this);
+        }
     }
 
     [PublicAPI]
@@ -70,5 +81,16 @@ namespace OMODFramework.Scripting.Data
         internal PluginFile(OMODCompressedFile compressedFile) : base(compressedFile) { }
 
         internal PluginFile(OMODCompressedFile compressedFile, string output) : base(compressedFile, output) { }
+        
+        public override bool Equals(object? obj)
+        {
+            if (!(obj is PluginFile pluginFile)) return false;
+            return ScriptReturnFileEqualityComparer.Default.Equals(this, pluginFile);
+        }
+
+        public override int GetHashCode()
+        {
+            return ScriptReturnFileEqualityComparer.Default.GetHashCode(this);
+        }
     }
 }
