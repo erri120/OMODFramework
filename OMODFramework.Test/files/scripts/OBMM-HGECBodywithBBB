@@ -1,0 +1,146 @@
+;** Analyzed by http://lhammonds.game-host.org/obmm/tools_obmm_analyzer.asp **
+If VersionLessThan 0.9.13
+	Message "This mod must be installed by OBMM version 0.9.13 or later to prevent script errors."
+	FatalError
+EndIf
+
+;** We will pick which files to install. **
+DontInstallAnyDataFiles
+
+;** First we install Exnem's Textures and common textures & meshes **
+CopyDataFolder "Common\\Skeletons" "Meshes" True
+CopyDataFolder "Common\\Textures" "Textures" True
+
+;** Now we choose whether we would like to install animations or not (included in another mod)
+SelectWithDescriptions "Choose version with or without animations" "|Animations" "Will install UFF FF00 Moving Breast and Animations By Dryad" "No Animations" "If you have installed or are going to install NoMaaM BBB Animation Replacer by fore or another set of BBB Animations"
+    Case Animations
+    	CopyDataFolder "Common\\Animations" "Meshes" True
+    Break	
+    Case No Animations
+    Break
+EndSelect	
+
+;** Now we choose whether we would like to see our chicks naked or with their undies. **
+Select "Choose version", "|Underwear - Several Upper&Lower Body Options", "Nude - Several Upper&Lower Body Options", "Special Nude - Several Full Body Options",
+    Case Underwear - Several Upper&Lower Body Options
+    	CopyDataFolder "Underwear\\Textures" "Textures" True
+	    SelectWithPreview "Choose cup size", "C-Cup", "Screenshots\\Underwear C-Cup.jpg", "|E-Cup", "Screenshots\\Underwear E-Cup.jpg", "H-Cup", "Screenshots\\Underwear H-Cup.jpg"
+			Case C-Cup
+				CopyDataFolder "Underwear\\Upper Body Set\\C\\Meshes" "Meshes" True				
+			Break
+			Case E-Cup
+				CopyDataFolder "Underwear\\Upper Body Set\\E\\Meshes" "Meshes" True
+			Break
+			Case H-Cup
+				CopyDataFolder "Underwear\\Upper Body Set\\H\\Meshes" "Meshes" True
+			Break
+		EndSelect
+		;** Here we choose her butt & legs size. ** 
+		SelectWithPreview "Choose a lower body size", "|Medium", "Screenshots\\N&F Lower Body Size.jpg", "Large", "Screenshots\\N&F Lower Body Size.jpg", "Extra Large", "Screenshots\\N&F Lower Body Size.jpg"
+			Case Medium
+				CopyDataFolder "Underwear\\Lower Body Set\\M\\Meshes" "Meshes" True
+			Break
+		  	Case Large
+				CopyDataFolder "Underwear\\Lower Body Set\\L\\Meshes" "Meshes" True
+		   	Break
+		   	Case Extra Large
+				CopyDataFolder "Underwear\\Lower Body Set\\LL\\Meshes" "Meshes" True
+		   	Break
+		EndSelect
+	Break
+   	Case Nude - Several Upper&Lower Body Options
+    	;** This one is a bit more complicated for it has a lot of options especially the firsth two. **  
+    	SelectWithPreview "Choose body type", "|Normal", "Screenshots\\Normal Nude Figure.jpg", "Fighter", "Screenshots\\Fighter Nude Figure.jpg"
+        	Case Normal
+            	;** Here we choose her boobs size. ** 
+            	SelectWithPreview "Choose cup size", "B-Cup", "Screenshots\\Normal Nude B-Cup.jpg", "C-Cup", "Screenshots\\Normal Nude C-Cup.jpg", "D-Cup", "Screenshots\\Normal Nude D-Cup.jpg", "|E-Cup", "Screenshots\\Normal Nude E-Cup.jpg", "H-Cup", "Screenshots\\Normal Nude H-Cup.jpg"
+               		Case B-Cup
+                  		CopyDataFolder "Nude\\Normal Upper Body\\B\\Meshes" "Meshes" True
+               		Break   
+               		Case C-Cup
+                  		CopyDataFolder "Nude\\Normal Upper Body\\C\\Meshes" "Meshes" True
+               		Break   
+               		Case D-Cup
+                  		CopyDataFolder "Nude\\Normal Upper Body\\D\\Meshes" "Meshes" True
+               		Break
+               		Case E-Cup
+                  		CopyDataFolder "Nude\\Normal Upper Body\\E\\Meshes" "Meshes" True
+               		Break
+               		Case H-Cup
+                  		CopyDataFolder "Nude\\Normal Upper Body\\H\\Meshes" "Meshes" True
+               		Break
+            	EndSelect
+            	;** Here we choose her butt & legs size. ** 
+            	SelectWithPreview "Choose a lower body size", "Small", "Screenshots\\N&F Lower Body Size.jpg", "|Medium", "Screenshots\\N&F Lower Body Size.jpg", "Large", "Screenshots\\N&F Lower Body Size.jpg", "Extra Large", "Screenshots\\N&F Lower Body Size.jpg"
+               		Case Small
+                  		CopyDataFolder "Nude\\Lower Body Set\\S\\Meshes" "Meshes" True
+               		Break
+               		Case Medium
+                  		CopyDataFolder "Nude\\Lower Body Set\\M\\Meshes" "Meshes" True
+               		Break
+               		Case Large
+                  		CopyDataFolder "Nude\\Lower Body Set\\L\\Meshes" "Meshes" True
+               		Break
+               		Case Extra Large
+                  		CopyDataFolder "Nude\\Lower Body Set\\LL\\Meshes" "Meshes" True
+               		Break
+            	EndSelect           
+         	Break
+         	Case Fighter
+            	SelectWithPreview "Choose cup size", "D-Cup", "Screenshots\\Fighter Nude D-Cup.jpg", "|E-Cup", "Screenshots\\Normal Nude E-Cup.jpg", "H-Cup", "Screenshots\\Normal Nude H-Cup.jpg", 
+               		Case D-Cup
+                		CopyDataFolder "Nude\\Fighter Upper Body\\D\\Meshes" "Meshes" True
+               		Break
+               		Case E-Cup
+                		CopyDataFolder "Nude\\Fighter Upper Body\\E\\Meshes" "Meshes" True
+               		Break
+              		Case H-Cup
+                		CopyDataFolder "Nude\\Fighter Upper Body\\H\\Meshes" "Meshes" True
+               		Break
+            	EndSelect
+            	SelectWithPreview "Choose a lower body size", "Small", "Screenshots\\N&F Lower Body Size.jpg", "|Medium", "Screenshots\\N&F Lower Body Size.jpg", "Large", "Screenshots\\N&F Lower Body Size.jpg", "Extra Large", "Screenshots\\N&F Lower Body Size.jpg"
+               		Case Small
+                		CopyDataFolder "Nude\\Lower Body Set\\S\\Meshes" "Meshes" True
+               		Break
+               		Case Medium
+                  		CopyDataFolder "Nude\\Lower Body Set\\M\\Meshes" "Meshes" True
+               		Break
+               		Case Large
+                  		CopyDataFolder "Nude\\Lower Body Set\\L\\Meshes" "Meshes" True
+               		Break
+               		Case Extra Large
+                  		CopyDataFolder "Nude\\Lower Body Set\\LL\\Meshes" "Meshes" True
+               		Break
+            	EndSelect
+         	Break
+         EndSelect
+    Break     
+    Case Special Nude - Several Full Body Options
+    	SelectWithPreview "Choose cup size", "DM (Seamless Double Melons with BBB)", "Screenshots\\DM (Seamless Double Melons with BBB).jpg", "DMGUTS (DMGUTS converted for BBB)", "Screenshots\\DMGUTS (DMGUTS converted for BBB).jpg", "GUTS (HGEC GUTS full body replacer nude)", "Screenshots\\GUTS (HGEC GUTS full body replacer nude).jpg", "HGEC Hcup VerA", "Screenshots\\HGEC Hcup VerA.jpg", "HGEC Hcup VerB (More bouncy)", "Screenshots\\HGEC Hcup VerB (More bouncy).jpg", "Hirdas BDM (Special Release for Umpa)", "Screenshots\\Hirdas BDM (Special Release for Umpa).jpg", "H-RA (HGEC H cup and Round Ass)", "Screenshots\\H-RA (HGEC H cup and Round Ass).jpg", "UHK (HGEC K cup LL bottom)", "Screenshots\\UHK (HGEC K cup LL bottom).jpg",
+        	Case DM (Seamless Double Melons with BBB)
+            	CopyDataFolder "Special Nude\\DM (Seamless Double Melons with BBB)\\Meshes" "Meshes" True
+            Break
+            Case DMGUTS (DMGUTS converted for BBB)
+            	CopyDataFolder "Special Nude\\DMGUTS (DMGUTS converted for BBB)\\Meshes" "Meshes" True
+            Break
+            Case GUTS (HGEC GUTS full body replacer nude)
+            	CopyDataFolder "Special Nude\\GUTS (HGEC GUTS full body replacer nude)\\Meshes" "Meshes" True
+            Break
+            Case HGEC Hcup VerA
+            	CopyDataFolder "Special Nude\\HGEC Hcup VerA\\Meshes" "Meshes" True
+            Break
+            Case HGEC Hcup VerB (More bouncy)
+            	CopyDataFolder "Special Nude\\HGEC Hcup VerB (More bouncy)\\Meshes" "Meshes" True
+            Break
+            Case Hirdas BDM (Special Release for Umpa)
+            	CopyDataFolder "Special Nude\\Hirdas BDM (Special Release for Umpa)\\Meshes" "Meshes" True
+            Break
+            Case H-RA (HGEC H cup and Round Ass)
+            	CopyDataFolder "Special Nude\\H-RA (HGEC H cup and Round Ass)\\Meshes" "Meshes" True
+            Break
+            Case UHK (HGEC K cup LL bottom)
+            	CopyDataFolder "Special Nude\\UHK (HGEC K cup LL bottom)\\Meshes" "Meshes" True
+            Break
+   		EndSelect
+   	Break
+EndSelect

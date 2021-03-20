@@ -1,0 +1,95 @@
+;** Analyzed by http://lhammonds.game-host.org/obmm/tools_obmm_analyzer.asp **
+
+If VersionLessThan 0.9.13
+	Message "This mod must be installed by OBMM version 0.9.13 or later to prevent script errors."
+	FatalError
+EndIf
+
+SetVar I 0
+SetVar Fkf1 ""
+For Each DataFile Fkf1 "_NoMaaM EXPRESSIVE (BMF 1.1)\\Data\\Meshes\\Characters\\_male" 
+;	Message "X %Fkf1%"
+	GetFileName Fkf2 "%Fkf1%"
+;	Message "Y %Fkf2%"
+	If DataFileExists "Meshes\\Characters\\_male\\%Fkf2%"
+		iSet I %I% + 1
+;		Message "z %Fkf2%"
+	EndIf
+EndFor
+
+If GreaterEqual %I% 1
+	IfNot DialogYesNo "NOTE: %I% KF files will be overwritten in 'characters\\_male' (e.g. %Fkf2%). Continue Installation (No will abort)?" "Possible Mod conflict"
+		FatalError
+	EndIf
+EndIf
+		
+DontInstallAnyDataFiles
+
+SetVar T1 "EXPRESSIVE (Very strong movement)"
+SetVar T2 "Moderate (Reduced movement)"
+SetVar T3 "low-key (Little movement)"
+
+SelectWithDescriptions "Choose BMF (Breast Movement Factor)" "|1.1 (EXPRESSIVE)" %T1% "0.8 (Moderate)" %T2% "0.6 (low-key)" %T3%
+Case 1.1 (EXPRESSIVE)
+	CopyDataFolder "_NoMaaM EXPRESSIVE (BMF 1.1)\\Data\\Meshes" "Meshes" True
+	SetVar BMF "1.1"
+	Break
+Case 0.8 (Moderate)
+	CopyDataFolder "_NoMaaM MODERATE (BMF 0.8)\\Data\\Meshes" "Meshes" True
+	SetVar BMF "0.8"
+	Break
+Case 0.6 (low-key)
+	CopyDataFolder "_NoMaaM LOW-KEY (BMF 0.6)\\Data\\Meshes" "Meshes" True
+	SetVar BMF "0.6"
+	Break
+EndSelect
+
+
+SetVar T1 "Standard idles (no breathing) with BBB"
+SetVar T2 "Standard idles (no breathing) without BBB"
+SetVar T3 "Idles with (added) strong breathing and EXPRESSIVE BBB (RECOMMENDED, if you prefer heavy breast movement during combat)"
+SetVar T4 "Idles with (added) strong breathing and MODERATE BBB (RECOMMENDED, if you prefer moderate breast movement during combat)"
+SetVar T5 "Idles with (added) strong breathing and LOW-KEY BBB"
+SetVar T6 "Idles with (added) strong breathing and without BBB"
+SetVar T7 "Idles with (added) subtile breathing without BBB"
+SetVar T8 "Idles with (added) subtile breathing and LOW-KEY BBB (RECOMMENDED, if you prefer natural breathing in the inventory menu"
+
+SelectWithDescriptions "Choose Idles" "|Standard - With BBB" %T1% "Standard - No BBB" %T2% "Strong Breathing - BMF 1.1" %T3% "Strong Breathing - BMF 0.8" %T4% "Strong Breathing - BMF 0.6" %T5% "Strong Breathing - No BBB" %T6% "Subtile Breathing - BMF 0.6" %T7% "Subtile Breathing - No BBB" %T8%
+Case Standard - With BBB
+	Break
+Case Standard - No BBB
+	CopyDataFolder "More Idles with No Breast Movement (BMF 0)\\Data\\Meshes" "Meshes" True
+	Break
+Case Strong Breathing - BMF 1.1
+	CopyDataFolder "NoMaaM Breathing Idles\\Strong Breathing - BMF 1.1\\Data\\Meshes" "Meshes" True
+	Break
+Case Strong Breathing - BMF 0.8
+	CopyDataFolder "NoMaaM Breathing Idles\\Strong Breathing - BMF 0.8\\Data\\Meshes" "Meshes" True
+	Break
+Case Strong Breathing - BMF 0.6
+	CopyDataFolder "NoMaaM Breathing Idles\\Strong Breathing - BMF 0.6\\Data\\Meshes" "Meshes" True
+	Break
+Case Strong Breathing - No BBB
+	CopyDataFolder "NoMaaM Breathing Idles\\Strong Breathing - No BBB\\Data\\Meshes" "Meshes" True
+	Break
+Case Subtile Breathing - BMF 0.6
+	CopyDataFolder "NoMaaM Breathing Idles\\Subtile Breathing - BMF 0.6\\Data\\Meshes" "Meshes" True
+	Break
+Case Subtile Breathing - No BBB
+	CopyDataFolder "NoMaaM Breathing Idles\\Subtile Breathing - No BBB\\Data\\Meshes" "Meshes" True
+	Break
+EndSelect
+
+
+SetVar T1 "With Flail animations you can use 'RGMs Real Flails and Chain Maces' - http://tesnexus.com/downloads/file.php?id=40783"
+SetVar T2 "No Flails can be used"
+
+SelectWithDescriptions "Choose Flail Animations" "|Install NoMaaM Flail Animations" %T1% "NO Flail Animations" %T2% 
+Case Install NoMaaM Flail Animations
+	CopyDataFolder "NoMaaM Flail Animations\\Data\\Meshes" "Meshes" True
+	Message "MAKE SURE you have a Flail Compatible 1stperson skeleton installed. See README for further instructions"
+	Break
+Case NO Flail Animations
+	Break
+EndSelect
+

@@ -1,0 +1,185 @@
+;** Installation script for EVE HGEC Body Selector and Stock Equipment Replacer OMOD Version **
+
+
+
+;** Requirement Check for OBMM **
+If VersionLessThan 0.9.26
+   Message "This mod must be installed by OBMM version 0.9.1 or later to prevent install script errors."
+   FatalError
+EndIf
+
+;** Requirement Check for Oblivion 1.2.214 or higher **
+IfNot OblivionNewerThan 1.2.213.0
+  Message "This mod requires Oblivion 1.2.214 or higher. Please download and install the official patch."
+  FatalError
+EndIf
+
+AllowRunOnLines
+
+;** All meshes and textures installed explicitly in script **
+
+DontInstallAnyDataFiles
+
+;** Optional plugins deactivated by default **
+
+UncheckESP "EVE_ShiveringIslesEasterEggs.esp"
+UncheckESP "EVE_KnightsoftheNine.esp"
+UncheckESP "EVE_KhajiitFix.esp"
+
+;** Begin by installing the required texture files **
+
+InstallDataFolder "Textures" True
+
+;** Next ask if the user wants optional body textures installed **
+
+Select "Install body textures?" \
+	   "Yes" \
+	   "No"
+	Case Yes
+		CopyDataFolder "Body Textures\\Textures" "Textures" True
+		Break
+	Case No
+		Break
+EndSelect
+
+;** Now prompt for which optional Upper variant is desired **
+
+Select "Which upper body option would you like to install?" \
+	   "HGEC Normal E-Cup Nude" \
+	   "HGEC Normal E-Cup Underwear" \
+	   "HGEC EBE E-Cup Nude" \
+	   "HGEC EBE E-Cup Underwear" \
+	   "HGEC Normal C-Cup Nude" \
+	   "HGEC Normal C-Cup Underwear" \
+	   "Use my current upper body mesh"
+	Case HGEC Normal E-Cup Nude
+    		CopyDataFolder "Upperbody HGEC Normal E-Cup Nude\\Meshes" "Meshes" True
+		CopyDataFolder "Equipment Replacer Upperbody HGEC Normal E-Cup\\Meshes" "Meshes" True
+    		Break
+    	Case HGEC Normal E-Cup Underwear
+		CopyDataFolder "Upperbody HGEC Normal E-Cup Underwear\\Meshes" "Meshes" True
+		CopyDataFolder "Equipment Replacer Upperbody HGEC Normal E-Cup\\Meshes" "Meshes" True
+		Break
+    	Case HGEC EBE E-Cup Nude
+		CopyDataFolder "Upperbody HGEC EBE E-Cup Nude\\Meshes" "Meshes" True
+		CopyDataFolder "Equipment Replacer Upperbody HGEC EBE E-Cup\\Meshes" "Meshes" True
+		Break
+    	Case HGEC EBE E-Cup Underwear
+		CopyDataFolder "Upperbody HGEC EBE E-Cup Underwear\\Meshes" "Meshes" True
+		CopyDataFolder "Equipment Replacer Upperbody HGEC EBE E-Cup\\Meshes" "Meshes" True
+		Break
+    	Case HGEC Normal C-Cup Nude
+		CopyDataFolder "Upperbody HGEC Normal C-Cup Nude\\Meshes" "Meshes" True
+		CopyDataFolder "Equipment Replacer Upperbody HGEC Normal C-Cup\\Meshes" "Meshes" True
+			;** Prompt whether or not to use Dermal Exposure versions of a few meshes **
+			Select "Use optional Dermal Exposure meshes?" \
+				"Yes" \
+				"No"
+			   Case Yes
+				   CopyDataFolder "Equipment Replacer Upperbody HGEC Normal C-Cup Alt\\Meshes" "Meshes" True
+				   Break
+			   Case No
+				   Break
+			EndSelect
+		Break
+    	Case HGEC Normal C-Cup Underwear
+		CopyDataFolder "Upperbody HGEC Normal C-Cup Underwear\\Meshes" "Meshes" True
+		CopyDataFolder "Equipment Replacer Upperbody HGEC Normal C-Cup\\Meshes" "Meshes" True
+			;** Prompt whether or not to use Dermal Exposure versions of a few meshes **
+			Select "Use optional Dermal Exposure meshes?" \
+				"Yes" \
+				"No"
+			   Case Yes
+				   CopyDataFolder "Equipment Replacer Upperbody HGEC Normal C-Cup Alt\\Meshes" "Meshes" True
+				   Break
+			   Case No
+				   Break
+			EndSelect
+		Break
+	Case Use my current upper body mesh
+		;** in case the user has an alternate upper body they wish to continue to use **
+			Select "Which upper body option should stock clothing and armor match?" \
+				"HGEC Normal E-Cup" \
+				"HGEC EBE E-Cup" \
+				"HGEC Normal C-Cup"
+			   Case HGEC Normal E-Cup
+				   CopyDataFolder "Equipment Replacer Upperbody HGEC Normal E-Cup\\Meshes" "Meshes" True
+				   Break
+			   Case HGEC EBE E-Cup
+				   CopyDataFolder "Equipment Replacer Upperbody HGEC EBE E-Cup\\Meshes" "Meshes" True
+				   Break
+			   Case HGEC Normal C-Cup
+				   CopyDataFolder "Equipment Replacer Upperbody HGEC Normal C-Cup\\Meshes" "Meshes" True
+					;** Prompt whether or not to use Dermal Exposure versions of a few meshes **
+					Select "Use optional Dermal Exposure meshes?" \
+						"Yes" \
+						"No"
+					   Case Yes
+						   CopyDataFolder "Equipment Replacer Upperbody HGEC Normal C-Cup Alt\\Meshes" "Meshes" True
+						   Break
+					   Case No
+						   Break
+					EndSelect
+				   Break
+			EndSelect
+		Break
+EndSelect
+		
+;** Now prompt for which optional Lower variant is desired **
+
+Select "Which lower body option would you like to install?  This is what you will see when a female character has nothing equipped.  Stock clothing and armor will be replaced to match the option you select." \
+	   "HGEC Normal Nude" \
+	   "HGEC Normal Underwear" \
+	   "HGEC EBE Nude" \
+	   "HGEC EBE Underwear" \
+	   "HGEC Wide Nude" \
+	   "HGEC Wide Underwear" \
+	   "Use my current lower body mesh"
+	Case HGEC Normal Nude
+		CopyDataFolder "Lowerbody HGEC Normal Nude\\Meshes" "Meshes" True
+		CopyDataFolder "Equipment Replacer Lowerbody HGEC Normal\\Meshes" "Meshes" True
+		Break
+	Case HGEC Normal Underwear
+		CopyDataFolder "Lowerbody HGEC Normal Underwear\\Meshes" "Meshes" True
+		CopyDataFolder "Equipment Replacer Lowerbody HGEC Normal\\Meshes" "Meshes" True
+		Break
+	Case HGEC EBE Nude
+		CopyDataFolder "Lowerbody HGEC EBE Nude\\Meshes" "Meshes" True
+		CopyDataFolder "Equipment Replacer Lowerbody HGEC EBE\\Meshes" "Meshes" True
+		Break
+	Case HGEC EBE Underwear
+		CopyDataFolder "Lowerbody HGEC EBE Underwear\\Meshes" "Meshes" True
+		CopyDataFolder "Equipment Replacer Lowerbody HGEC EBE\\Meshes" "Meshes" True
+		Break
+	Case HGEC Wide Nude
+		CopyDataFolder "Lowerbody HGEC Wide Nude\\Meshes" "Meshes" True
+		CopyDataFolder "Equipment Replacer Lowerbody HGEC Wide\\Meshes" "Meshes" True
+		Break
+	Case HGEC Wide Underwear
+		CopyDataFolder "Lowerbody HGEC Wide Underwear\\Meshes" "Meshes" True
+		CopyDataFolder "Equipment Replacer Lowerbody HGEC Wide\\Meshes" "Meshes" True
+		Break
+	Case Use my current lower body mesh
+		;** in case the user has an alternate lower body they wish to continue to use **
+			Select "Which lower body option should stock clothing and armor match?" \
+				"HGEC Normal" \
+				"HGEC EBE" \
+				"HGEC Wide"
+			   Case HGEC Normal
+				   CopyDataFolder "Equipment Replacer Lowerbody HGEC Normal\\Meshes" "Meshes" True
+				   Break
+			   Case HGEC EBE
+				   CopyDataFolder "Equipment Replacer Lowerbody HGEC EBE\\Meshes" "Meshes" True
+				   Break
+			   Case HGEC Wide
+				   CopyDataFolder "Equipment Replacer Lowerbody HGEC Wide\\Meshes" "Meshes" True
+				   Break
+			EndSelect
+		Break
+EndSelect
+
+Return
+
+; Script by Gudwyn.
+; Modified for use in EVE HGEC Body Selector and Stock Equipment Replacer by Grhys
+

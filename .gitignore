@@ -341,3 +341,6 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# OMODs for testing
+OMODFramework.Test/files/obmm-scripting/*.omod

@@ -1,31 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// ReSharper disable CheckNamespace
+// ReSharper disable InconsistentNaming
+// ReSharper disable IdentifierTypo
+
+using System;
 using JetBrains.Annotations;
 
 namespace OblivionModManager.Scripting
 {
-    [PublicAPI]
-    public class ScriptingException : ApplicationException
-    {
-        internal ScriptingException(string msg) : base(msg) { }
-        internal ScriptingException(string msg, Exception inner) : base(msg, inner) { }
-    }
-
-    [PublicAPI]
-    public class ExecutionCancelledException : ApplicationException { }
-
-    [PublicAPI]
-    public interface IScript
-    {
-        void Execute(IScriptFunctions sf);
-    }
-
-    [PublicAPI]
-    public enum ConflictLevel { Active, NoConflict, MinorConflict, MajorConflict, Unusable }
-
-    [PublicAPI]
-    public enum DeactiveStatus { Allow, WarnAgainst, Disallow }
-
     [PublicAPI]
     public interface IScriptFunctions
     {
@@ -49,7 +30,7 @@ namespace OblivionModManager.Scripting
         string[] GetExistingEspNames();
         string[] GetActiveOmodNames();
 
-        string[] Select(IEnumerable<string> items, IEnumerable<string>? previews, IEnumerable<string>? descs, string title, bool many);
+        string[] Select(string[] items, string[] previews, string[] descs, string title, bool many);
 
         void Message(string msg);
         void Message(string msg, string title);
@@ -67,19 +48,17 @@ namespace OblivionModManager.Scripting
         void SetDeactivationWarning(string plugin, DeactiveStatus warning);
 
         void ConflictsWith(string filename);
-        void ConflictsWith(string filename, string comment);
+        void ConslictsWith(string filename, string comment);
         void ConflictsWith(string filename, string comment, ConflictLevel level);
         void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion);
         void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion, string comment);
         void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion, string comment, ConflictLevel level);
-        void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion,
-            int maxMinorVersion, string? comment, ConflictLevel level, bool regex);
+        void ConflictsWith(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion, string comment, ConflictLevel level, bool regex);
         void DependsOn(string filename);
         void DependsOn(string filename, string comment);
         void DependsOn(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion);
         void DependsOn(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion, string comment);
-        void DependsOn(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion,
-            string? comment, bool regex);
+        void DependsOn(string name, int minMajorVersion, int minMinorVersion, int maxMajorVersion, int maxMinorVersion, string comment, bool regex);
 
         void DontInstallAnyPlugins();
         void DontInstallAnyDataFiles();
@@ -127,8 +106,8 @@ namespace OblivionModManager.Scripting
         void EditXMLLine(string file, int line, string value);
         void EditXMLReplace(string file, string find, string replace);
 
-        //System.Windows.Forms.Form CreateCustomDialog();
-
+        //TODO: System.Windows.Forms.Form CreateCustomDialog();
+        
         byte[] ReadDataFile(string file);
         byte[] ReadExistingDataFile(string file);
         byte[] GetDataFileFromBSA(string file);

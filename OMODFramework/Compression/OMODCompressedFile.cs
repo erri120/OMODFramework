@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using JetBrains.Annotations;
 
 namespace OMODFramework.Compression
@@ -14,12 +15,15 @@ namespace OMODFramework.Compression
 
         public OMODCompressedFile(string name, uint crc, long length, long offset)
         {
-            Name = name.Normalize();
+            //TODO: find a better solution
+            Name = name.Replace("\\", "\\\\");
             CRC = crc;
             Length = length;
 
             Offset = offset;
         }
+
+        internal string GetFileInFolder(string folder) => Path.Combine(folder, Name);
         
         public bool Equals(OMODCompressedFile? other)
         {

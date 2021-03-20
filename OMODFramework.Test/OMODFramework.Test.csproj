@@ -2,10 +2,11 @@
 
   <PropertyGroup>
       <IsPackable>false</IsPackable>
-      <Platforms>x64</Platforms>
+      <Platforms>AnyCPU</Platforms>
       <LangVersion>8.0</LangVersion>
       <Nullable>Enable</Nullable>
       <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
+      <Configurations>Release;Debug</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,24 +19,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OMODFramework.Scripting\OMODFramework.Scripting.csproj" />
     <ProjectReference Include="..\OMODFramework\OMODFramework.csproj" />
-    <ProjectReference Include="..\Wabbajack.Downloader\Wabbajack.Downloader.Common\Wabbajack.Downloader.Common.csproj" />
-    <ProjectReference Include="..\Wabbajack.Downloader\Wabbajack.Downloader.NexusMods\Wabbajack.Downloader.NexusMods.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="files\image.png">
+    <Content Include="files\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="files\data.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="files\plugin.esp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="files\test.omod">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
   </ItemGroup>
-
+  
 </Project>

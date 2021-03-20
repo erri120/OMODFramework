@@ -5,7 +5,7 @@ insert_final_newline = true
 
 [*.cs]
 
-dotnet_diagnostic.CS0169.severity = hint
+# dotnet_diagnostic.CS0169.severity = info
 
 # CS1591: // Missing XML comment for publicly visible type or member
 dotnet_diagnostic.CS1591.severity = silent

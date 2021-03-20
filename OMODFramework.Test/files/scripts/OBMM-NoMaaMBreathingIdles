@@ -1,0 +1,37 @@
+;** Analyzed by http://lhammonds.game-host.org/obmm/tools_obmm_analyzer.asp **
+If VersionLessThan 1.1.2
+   Message "This mod must be installed by OBMM version 1.1.2 or later to prevent script errors."
+   FatalError
+EndIf
+		
+DontInstallAnyDataFiles
+
+SetVar T1 "subtile breathing - no BBB: RECOMMENDED for non-BBB user"
+SetVar T2 "subtile breathing - BBB low-key (BMF 0.6)"
+SetVar T3 "strong breathing - no BBB"
+SetVar T4 "strong breathing - BBB low-key (BMF 0.6)"
+SetVar T5 "strong breathing - BBB moderate (BMF 0.8): RECOMMENDED for non-BBB user"
+SetVar T6 "strong breathing - BBB excessive (BMF 1.1)"
+
+SelectWithDescriptions "Choose Breathing and BBB level:" "Subtile / No BBB" %T1% "Subtile / BBB low" %T2% "Strong / No BBB" %T3% "Strong / BBB low" %T4% "Strong / BBB moderate" %T5% "Strong / BBB excessive" %T6% 
+Case Subtile / No BBB
+	CopyDataFolder "Subtile Breathing - No BBB\\Data\\Meshes" "Meshes" True
+	Break
+Case Subtile / BBB low
+	CopyDataFolder "Subtile Breathing - BBB low-key (BMF 0.6)\\Data\\Meshes" "Meshes" True
+	Break
+Case Strong / No BBB
+	CopyDataFolder "Strong Breathing - No BBB\\Data\\Meshes" "Meshes" True
+	Break
+Case Strong / BBB low
+	CopyDataFolder "Strong Breathing - BBB low-key (BMF 0.6)\\Data\\Meshes" "Meshes" True
+	Break
+Case Strong / BBB moderate
+	CopyDataFolder "Strong Breathing - BBB moderate (BMF 0.8)\\Data\\Meshes" "Meshes" True
+	Break
+Case Strong / BBB excessive
+	CopyDataFolder "Strong Breathing - BBB excessive (BMF 1.1)\\Data\\Meshes" "Meshes" True
+	Break
+
+EndSelect
+

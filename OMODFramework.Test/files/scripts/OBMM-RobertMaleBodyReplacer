@@ -1,0 +1,2054 @@
+;Script created by Room207
+If VersionLessThan 1.1.0
+   Message "This mod must be installed by OBMM version 1.1.0 or later to prevent script errors."
+   FatalError
+EndIf
+     
+DontInstallAnyPlugins     
+DontInstallAnyDataFiles
+
+SetVar FaceEGT FaceEGTInstall
+
+;::::::::::::::::::
+;   BODY MESHES   :
+;::::::::::::::::::
+
+Select "Install body meshes?" "Yes" "No"
+  Case Yes    
+    CopyDataFile "files\\textures\\cloth\\Gold1.dds" "textures\\clothes\\rt\\Gold1.dds"
+    CopyDataFile "files\\textures\\cloth\\Gold1_n.dds" "textures\\clothes\\rt\\Gold1_n.dds"
+    CopyDataFile "files\\textures\\cloth\\RTloincloth1a.dds" "textures\\clothes\\rt\\RTloincloth1a.dds"
+    CopyDataFile "files\\textures\\cloth\\RTloincloth1a_n.dds" "textures\\clothes\\rt\\RTloincloth1a_n.dds"
+    CopyDataFile "files\\textures\\cloth\\RTloincloth1b.dds" "textures\\clothes\\rt\\RTloincloth1b.dds"
+    CopyDataFile "files\\textures\\cloth\\RTloincloth1b_n.dds" "textures\\clothes\\rt\\RTloincloth1b_n.dds"
+    CopyDataFile "files\\textures\\cloth\\RTloincloth1d.dds" "textures\\clothes\\rt\\RTloincloth1d.dds"
+    CopyDataFile "files\\textures\\cloth\\RTloincloth1d_n.dds" "textures\\clothes\\rt\\RTloincloth1d_n.dds"
+    CopyDataFile "files\\textures\\cloth\\RTloincloth2.dds" "textures\\clothes\\rt\\RTloincloth2.dds"
+    CopyDataFile "files\\textures\\cloth\\RTloincloth2_n.dds" "textures\\clothes\\rt\\RTloincloth2_n.dds"
+    CopyDataFile "files\\textures\\cloth\\RTloincloth3.dds" "textures\\clothes\\rt\\RTloincloth3.dds"
+    CopyDataFile "files\\textures\\cloth\\RTloincloth3_n.dds" "textures\\clothes\\rt\\RTloincloth3_n.dds"
+    CopyDataFile "files\\textures\\cloth\\RTshorts3.dds" "textures\\clothes\\rt\\RTshorts3.dds"
+    CopyDataFile "files\\textures\\cloth\\RTshorts3_n.dds" "textures\\clothes\\rt\\RTshorts3_n.dds"
+    CopyDataFile "files\\textures\\cloth\\RTshortsRed1.dds" "textures\\clothes\\rt\\RTshortsRed1.dds"
+    CopyDataFile "files\\textures\\cloth\\RTshortsRed1_n.dds" "textures\\clothes\\rt\\RTshortsRed1_n.dds"
+    CopyDataFile "files\\textures\\cloth\\ruby.dds" "textures\\clothes\\rt\\ruby.dds"
+    CopyDataFile "files\\textures\\cloth\\ruby_n.dds" "textures\\clothes\\rt\\ruby_n.dds"
+    CopyDataFile "files\\textures\\body\\pubichair\\RTPubic02db.dds" "textures\\characters\\hair\\RTPubic02db.dds"
+    CopyDataFile "files\\textures\\body\\pubichair\\RTPubic02db_n.dds" "textures\\characters\\hair\\RTPubic02db_n.dds"
+    CopyDataFile "files\\textures\\body\\pubichair\\RTPubic02lb.dds" "textures\\characters\\hair\\RTPubic02lb.dds"
+    CopyDataFile "files\\textures\\body\\pubichair\\RTPubic02lb_n.dds" "textures\\characters\\hair\\RTPubic02lb_n.dds"
+    CopyDataFile "files\\textures\\body\\pubichair\\RTPubic02mb.dds" "textures\\characters\\hair\\RTPubic02mb.dds"
+    CopyDataFile "files\\textures\\body\\pubichair\\RTPubic02mb_n.dds" "textures\\characters\\hair\\RTPubic02mb_n.dds"
+    CopyDataFile "files\\textures\\body\\pubichair\\RTPubicAq1.dds" "textures\\characters\\hair\\RTPubic02Aq1.dds"
+    CopyDataFile "files\\textures\\body\\pubichair\\RTPubicAq1_n.dds" "textures\\characters\\hair\\RTPubic02Aq1_n.dds"
+    
+    SelectWithPreview "Pick one body type" "Bulky" "img\\bulky.jpg" "HeavyMusc" "img\\heavymusc.jpg" "Musc" "img\\musc.jpg" "MuscAth" "img\\muscath.jpg" "Average" "img\\average.jpg" "Belly" "img\\belly.jpg" "SLAth" "img\\slath.jpg" "BoyAth" "img\\boyath.jpg" "Boy1" "img\\boyarms1.jpg" "Boy2" "img\\boyarms2.jpg" "Scrawny" "img\\scrawny.jpg" "mMB" "img\\mmb.jpg" "Blues" "img\\blues.jpg" "BrzDefined" "img\\brzdefined.jpg" "Bodybuilder" "img\\bodybuilder.jpg"
+	  Case Bulky
+	  CopyDataFile "files\\meshes\\bodytypes\\bulky\\nude\\khajiittail.nif" "meshes\\characters\\khajiit\\male\\khajiittail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\bulky\\nude\\tail.nif" "meshes\\characters\\argonian\\male\\tail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\bulky\\nude\\upperbody.nif" "meshes\\characters\\_male\\upperbody.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\bulky\\nude\\hand.nif" "meshes\\characters\\_male\\hand.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\bulky\\nude\\foot.nif" "meshes\\characters\\_male\\foot.nif"
+	  SelectWithPreview "Choose underwear type" "Pants0" "img\\pants0.jpg" "Pants1a" "img\\pants1a.jpg" "Pants1b" "img\\pants1b.jpg" "Pants2" "img\\pants2.jpg" "Pants3" "img\\pants3.jpg" "Pants4" "img\\pants4.jpg" "Pants5" "img\\pants5.jpg" "Pants6d" "img\\pants6d.jpg" "Pants7" "img\\pants7.jpg" "Naked" "img\\nude.jpg" "Naked circumcised" "img\\nudecircumcised.jpg" "PubicHairAq" "img\\pubichairaq.jpg" "PubicHairDB" "img\\pubichairdb.jpg" "PubicHairMB" "img\\pubichairmb.jpg" "PubicHairLB" "img\\pubichairlb.jpg"
+	    Case Pants0
+	    CopyDataFile "files\\meshes\\bodytypes\\bulky\\cloth\\lowerbodypants0.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1a
+	    CopyDataFile "files\\meshes\\bodytypes\\bulky\\cloth\\lowerbodypants1a.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1b
+	    CopyDataFile "files\\meshes\\bodytypes\\bulky\\cloth\\lowerbodypants1b.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants2
+	    CopyDataFile "files\\meshes\\bodytypes\\bulky\\cloth\\lowerbodypants2.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants3
+	    CopyDataFile "files\\meshes\\bodytypes\\bulky\\cloth\\lowerbodypants3.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants4
+	    CopyDataFile "files\\meshes\\bodytypes\\bulky\\cloth\\lowerbodypants4.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants5
+	    CopyDataFile "files\\meshes\\bodytypes\\bulky\\cloth\\lowerbodypants5.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants6d
+	    CopyDataFile "files\\meshes\\bodytypes\\bulky\\cloth\\lowerbodypants6d.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants7
+	    CopyDataFile "files\\meshes\\bodytypes\\bulky\\cloth\\lowerbodypants7.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Naked
+	    CopyDataFile "files\\meshes\\bodytypes\\bulky\\nude\\lowerbody.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case Naked circumcised
+	    CopyDataFile "files\\meshes\\bodytypes\\bulky\\nude\\lowerbodycircumcised.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case PubicHairAq
+	    CopyDataFile "files\\meshes\\bodytypes\\bulky\\pubichair\\lowerbodypubichairaq.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case PubicHairDB
+	    CopyDataFile "files\\meshes\\bodytypes\\bulky\\pubichair\\lowerbodypubichairdb.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case PubicHairMB
+	    CopyDataFile "files\\meshes\\bodytypes\\bulky\\pubichair\\lowerbodypubichairmb.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case PubicHairLB
+	    CopyDataFile "files\\meshes\\bodytypes\\bulky\\pubichair\\lowerbodypubichairlb.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	  EndSelect
+	    Break
+      Case HeavyMusc
+	  CopyDataFile "files\\meshes\\bodytypes\\heavymusc\\nude\\khajiittail.nif" "meshes\\characters\\khajiit\\male\\khajiittail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\heavymusc\\nude\\tail.nif" "meshes\\characters\\argonian\\male\\tail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\heavymusc\\nude\\upperbody.nif" "meshes\\characters\\_male\\upperbody.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\heavymusc\\nude\\hand.nif" "meshes\\characters\\_male\\hand.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\heavymusc\\nude\\foot.nif" "meshes\\characters\\_male\\foot.nif"
+	  SelectWithPreview "Choose underwear type" "Pants0" "img\\pants0.jpg" "Pants1a" "img\\pants1a.jpg" "Pants1b" "img\\pants1b.jpg" "Pants2" "img\\pants2.jpg" "Pants3" "img\\pants3.jpg" "Pants4" "img\\pants4.jpg" "Pants5" "img\\pants5.jpg" "Pants6d" "img\\pants6d.jpg" "Pants7" "img\\pants7.jpg" "Naked" "img\\nude.jpg" "Naked circumcised" "img\\nudecircumcised.jpg"
+	    Case Pants0
+	    CopyDataFile "files\\meshes\\bodytypes\\heavymusc\\cloth\\lowerbodypants0.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1a
+	    CopyDataFile "files\\meshes\\bodytypes\\heavymusc\\cloth\\lowerbodypants1a.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1b
+	    CopyDataFile "files\\meshes\\bodytypes\\heavymusc\\cloth\\lowerbodypants1b.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants2
+	    CopyDataFile "files\\meshes\\bodytypes\\heavymusc\\cloth\\lowerbodypants2.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants3
+	    CopyDataFile "files\\meshes\\bodytypes\\heavymusc\\cloth\\lowerbodypants3.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants4
+	    CopyDataFile "files\\meshes\\bodytypes\\heavymusc\\cloth\\lowerbodypants4.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants5
+	    CopyDataFile "files\\meshes\\bodytypes\\heavymusc\\cloth\\lowerbodypants5.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants6d
+	    CopyDataFile "files\\meshes\\bodytypes\\heavymusc\\cloth\\lowerbodypants6d.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants7
+	    CopyDataFile "files\\meshes\\bodytypes\\heavymusc\\cloth\\lowerbodypants7.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Naked
+	    CopyDataFile "files\\meshes\\bodytypes\\heavymusc\\nude\\lowerbody.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case Naked circumcised
+	    CopyDataFile "files\\meshes\\bodytypes\\heavymusc\\nude\\lowerbodycircumcised.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	  EndSelect
+	    Break		
+	  Case Musc
+	  CopyDataFile "files\\meshes\\bodytypes\\musc\\nude\\khajiittail.nif" "meshes\\characters\\khajiit\\male\\khajiittail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\musc\\nude\\tail.nif" "meshes\\characters\\argonian\\male\\tail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\musc\\nude\\upperbody.nif" "meshes\\characters\\_male\\upperbody.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\musc\\nude\\hand.nif" "meshes\\characters\\_male\\hand.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\musc\\nude\\foot.nif" "meshes\\characters\\_male\\foot.nif"
+	  SelectWithPreview "Choose garment type" "Pants0" "img\\pants0.jpg" "Pants1a" "img\\pants1a.jpg" "Pants1b" "img\\pants1b.jpg" "Pants2" "img\\pants2.jpg" "Pants3" "img\\pants3.jpg" "Pants4" "img\\pants4.jpg" "Pants5" "img\\pants5.jpg" "Pants6d" "img\\pants6d.jpg" "Pants7" "img\\pants7.jpg" "Naked" "img\\nude.jpg" "Naked circumcised" "img\\nudecircumcised.jpg"
+	    Case Pants0
+	    CopyDataFile "files\\meshes\\bodytypes\\musc\\cloth\\lowerbodypants0.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1a
+	    CopyDataFile "files\\meshes\\bodytypes\\musc\\cloth\\lowerbodypants1a.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1b
+	    CopyDataFile "files\\meshes\\bodytypes\\musc\\cloth\\lowerbodypants1b.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants2
+	    CopyDataFile "files\\meshes\\bodytypes\\musc\\cloth\\lowerbodypants2.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants3
+	    CopyDataFile "files\\meshes\\bodytypes\\musc\\cloth\\lowerbodypants3.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants4
+	    CopyDataFile "files\\meshes\\bodytypes\\musc\\cloth\\lowerbodypants4.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants5
+	    CopyDataFile "files\\meshes\\bodytypes\\musc\\cloth\\lowerbodypants5.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants6d
+	    CopyDataFile "files\\meshes\\bodytypes\\musc\\cloth\\lowerbodypants6d.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants7
+	    CopyDataFile "files\\meshes\\bodytypes\\musc\\cloth\\lowerbodypants7.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Naked
+	    CopyDataFile "files\\meshes\\bodytypes\\musc\\nude\\lowerbody.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case Naked circumcised
+	    CopyDataFile "files\\meshes\\bodytypes\\musc\\nude\\lowerbodycircumcised.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	  EndSelect
+		Break
+	  Case MuscAth
+	  CopyDataFile "files\\meshes\\bodytypes\\muscath\\nude\\khajiittail.nif" "meshes\\characters\\khajiit\\male\\khajiittail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\muscath\\nude\\tail.nif" "meshes\\characters\\argonian\\male\\tail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\muscath\\nude\\upperbody.nif" "meshes\\characters\\_male\\upperbody.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\muscath\\nude\\hand.nif" "meshes\\characters\\_male\\hand.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\muscath\\nude\\foot.nif" "meshes\\characters\\_male\\foot.nif"
+	  SelectWithPreview "Choose underwear type" "Pants0" "img\\pants0.jpg" "Pants1a" "img\\pants1a.jpg" "Pants1b" "img\\pants1b.jpg" "Pants2" "img\\pants2.jpg" "Pants3" "img\\pants3.jpg" "Pants4" "img\\pants4.jpg" "Pants5" "img\\pants5.jpg" "Pants6d" "img\\pants6d.jpg" "Pants7" "img\\pants7.jpg" "Pants8" "img\\pants8.jpg" "Naked" "img\\nude.jpg" "Naked circumcised" "img\\nudecircumcised.jpg"
+	    Case Pants0
+	    CopyDataFile "files\\meshes\\bodytypes\\muscath\\cloth\\lowerbodypants0.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1a
+	    CopyDataFile "files\\meshes\\bodytypes\\muscath\\cloth\\lowerbodypants1a.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1b
+	    CopyDataFile "files\\meshes\\bodytypes\\muscath\\cloth\\lowerbodypants1b.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants2
+	    CopyDataFile "files\\meshes\\bodytypes\\muscath\\cloth\\lowerbodypants2.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants3
+	    CopyDataFile "files\\meshes\\bodytypes\\muscath\\cloth\\lowerbodypants3.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants4
+	    CopyDataFile "files\\meshes\\bodytypes\\muscath\\cloth\\lowerbodypants4.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants5
+	    CopyDataFile "files\\meshes\\bodytypes\\muscath\\cloth\\lowerbodypants5.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants6d
+	    CopyDataFile "files\\meshes\\bodytypes\\muscath\\cloth\\lowerbodypants6d.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants7
+	    CopyDataFile "files\\meshes\\bodytypes\\muscath\\cloth\\lowerbodypants7.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants8
+	    CopyDataFile "files\\meshes\\bodytypes\\muscath\\cloth\\lowerbodypants8.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Naked
+	    CopyDataFile "files\\meshes\\bodytypes\\muscath\\nude\\lowerbody.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case Naked circumcised
+	    CopyDataFile "files\\meshes\\bodytypes\\muscath\\nude\\lowerbodycircumcised.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	  EndSelect
+	    Break
+	  Case Average
+	  CopyDataFile "files\\meshes\\bodytypes\\average\\nude\\khajiittail.nif" "meshes\\characters\\khajiit\\male\\khajiittail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\average\\nude\\tail.nif" "meshes\\characters\\argonian\\male\\tail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\average\\nude\\upperbody.nif" "meshes\\characters\\_male\\upperbody.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\average\\nude\\hand.nif" "meshes\\characters\\_male\\hand.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\average\\nude\\foot.nif" "meshes\\characters\\_male\\foot.nif"
+	  SelectWithPreview "Choose underwear type" "Pants0" "img\\pants0.jpg" "Pants1a" "img\\pants1a.jpg" "Pants1b" "img\\pants1b.jpg" "Pants2" "img\\pants2.jpg" "Pants3" "img\\pants3.jpg" "Pants6d" "img\\pants6d.jpg" "Pants7" "img\\pants7.jpg" "Naked" "img\\nude.jpg" "Naked circumcised" "img\\nudecircumcised.jpg" "PubicHairAq" "img\\pubichairaq.jpg" "PubicHairDB" "img\\pubichairdb.jpg" "PubicHairMB" "img\\pubichairmb.jpg" "PubicHairLB" "img\\pubichairlb.jpg"
+	    Case Pants0
+	    CopyDataFile "files\\meshes\\bodytypes\\average\\cloth\\lowerbodypants0.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1a
+	    CopyDataFile "files\\meshes\\bodytypes\\average\\cloth\\lowerbodypants1a.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1b
+	    CopyDataFile "files\\meshes\\bodytypes\\average\\cloth\\lowerbodypants1b.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants2
+	    CopyDataFile "files\\meshes\\bodytypes\\average\\cloth\\lowerbodypants2.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants3
+	    CopyDataFile "files\\meshes\\bodytypes\\average\\cloth\\lowerbodypants3.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants6d
+	    CopyDataFile "files\\meshes\\bodytypes\\average\\cloth\\lowerbodypants6d.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants7
+	    CopyDataFile "files\\meshes\\bodytypes\\average\\cloth\\lowerbodypants7.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Naked
+	    CopyDataFile "files\\meshes\\bodytypes\\average\\nude\\lowerbody.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case Naked circumcised
+	    CopyDataFile "files\\meshes\\bodytypes\\average\\nude\\lowerbodycircumcised.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case PubicHairAq
+	    CopyDataFile "files\\meshes\\bodytypes\\average\\pubichair\\lowerbodypubichairaq.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case PubicHairDB
+	    CopyDataFile "files\\meshes\\bodytypes\\average\\pubichair\\lowerbodypubichairdb.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case PubicHairMB
+	    CopyDataFile "files\\meshes\\bodytypes\\average\\pubichair\\lowerbodypubichairmb.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case PubicHairLB
+	    CopyDataFile "files\\meshes\\bodytypes\\average\\pubichair\\lowerbodypubichairlb.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	  EndSelect
+	    Break
+	  Case Belly
+	  CopyDataFile "files\\meshes\\bodytypes\\belly\\nude\\khajiittail.nif" "meshes\\characters\\khajiit\\male\\khajiittail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\belly\\nude\\tail.nif" "meshes\\characters\\argonian\\male\\tail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\belly\\nude\\upperbody.nif" "meshes\\characters\\_male\\upperbody.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\belly\\nude\\hand.nif" "meshes\\characters\\_male\\hand.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\belly\\nude\\foot.nif" "meshes\\characters\\_male\\foot.nif"
+	  SelectWithPreview "Choose underwear type" "Pants0" "img\\pants0.jpg" "Pants1a" "img\\pants1a.jpg" "Pants1b" "img\\pants1b.jpg" "Pants2" "img\\pants2.jpg" "Pants3" "img\\pants3.jpg" "Pants6d" "img\\pants6d.jpg" "Pants7" "img\\pants7.jpg" "Naked" "img\\nude.jpg" "Naked circumcised" "img\\nudecircumcised.jpg" "PubicHairAq" "img\\pubichairaq.jpg" "PubicHairDB" "img\\pubichairdb.jpg" "PubicHairMB" "img\\pubichairmb.jpg" "PubicHairLB" "img\\pubichairlb.jpg"
+	    Case Pants0
+	    CopyDataFile "files\\meshes\\bodytypes\\belly\\cloth\\lowerbodypants0.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1a
+	    CopyDataFile "files\\meshes\\bodytypes\\belly\\cloth\\lowerbodypants1a.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1b
+	    CopyDataFile "files\\meshes\\bodytypes\\belly\\cloth\\lowerbodypants1b.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants2
+	    CopyDataFile "files\\meshes\\bodytypes\\belly\\cloth\\lowerbodypants2.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants3
+	    CopyDataFile "files\\meshes\\bodytypes\\belly\\cloth\\lowerbodypants3.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants6d
+	    CopyDataFile "files\\meshes\\bodytypes\\belly\\cloth\\lowerbodypants6d.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants7
+	    CopyDataFile "files\\meshes\\bodytypes\\belly\\cloth\\lowerbodypants7.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Naked
+	    CopyDataFile "files\\meshes\\bodytypes\\belly\\nude\\lowerbody.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case Naked circumcised
+	    CopyDataFile "files\\meshes\\bodytypes\\belly\\nude\\lowerbodycircumcised.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case PubicHairAq
+	    CopyDataFile "files\\meshes\\bodytypes\\belly\\pubichair\\lowerbodypubichairaq.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case PubicHairDB
+	    CopyDataFile "files\\meshes\\bodytypes\\belly\\pubichair\\lowerbodypubichairdb.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case PubicHairMB
+	    CopyDataFile "files\\meshes\\bodytypes\\belly\\pubichair\\lowerbodypubichairmb.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case PubicHairLB
+	    CopyDataFile "files\\meshes\\bodytypes\\belly\\pubichair\\lowerbodypubichairlb.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	  EndSelect
+	    Break
+      Case SLAth
+	  CopyDataFile "files\\meshes\\bodytypes\\slath\\nude\\khajiittail.nif" "meshes\\characters\\khajiit\\male\\khajiittail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\slath\\nude\\tail.nif" "meshes\\characters\\argonian\\male\\tail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\slath\\nude\\upperbody.nif" "meshes\\characters\\_male\\upperbody.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\slath\\nude\\hand.nif" "meshes\\characters\\_male\\hand.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\slath\\nude\\foot.nif" "meshes\\characters\\_male\\foot.nif"
+	  SelectWithPreview "Choose underwear type" "Pants0" "img\\pants0.jpg" "Pants1a" "img\\pants1a.jpg" "Pants1b" "img\\pants1b.jpg" "Pants2" "img\\pants2.jpg" "Pants3" "img\\pants3.jpg" "Pants4" "img\\pants4.jpg" "Pants5" "img\\pants5.jpg" "Pants6a" "img\\pants6a.jpg" "Pants6b" "img\\pants6b.jpg" "Pants6c" "img\\pants6c.jpg" "Pants6d" "img\\pants6d.jpg" "Pants7" "img\\pants7.jpg" "Pants8" "img\\pants8.jpg" "Naked" "img\\nude.jpg" "Naked circumcised" "img\\nudecircumcised.jpg"
+	    Case Pants0
+	    CopyDataFile "files\\meshes\\bodytypes\\slath\\cloth\\lowerbodypants0.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1a
+	    CopyDataFile "files\\meshes\\bodytypes\\slath\\cloth\\lowerbodypants1a.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1b
+	    CopyDataFile "files\\meshes\\bodytypes\\slath\\cloth\\lowerbodypants1b.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants2
+	    CopyDataFile "files\\meshes\\bodytypes\\slath\\cloth\\lowerbodypants2.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants3
+	    CopyDataFile "files\\meshes\\bodytypes\\slath\\cloth\\lowerbodypants3.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants4
+	    CopyDataFile "files\\meshes\\bodytypes\\slath\\cloth\\lowerbodypants4.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants5
+	    CopyDataFile "files\\meshes\\bodytypes\\slath\\cloth\\lowerbodypants5.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants6a
+	    CopyDataFile "files\\meshes\\bodytypes\\slath\\cloth\\lowerbodypants6a.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants6b
+	    CopyDataFile "files\\meshes\\bodytypes\\slath\\cloth\\lowerbodypants6b.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants6c
+	    CopyDataFile "files\\meshes\\bodytypes\\slath\\cloth\\lowerbodypants6c.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants6d
+	    CopyDataFile "files\\meshes\\bodytypes\\slath\\cloth\\lowerbodypants6d.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants7
+	    CopyDataFile "files\\meshes\\bodytypes\\slath\\cloth\\lowerbodypants7.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants8
+	    CopyDataFile "files\\meshes\\bodytypes\\slath\\cloth\\lowerbodypants8.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Naked
+	    CopyDataFile "files\\meshes\\bodytypes\\slath\\nude\\lowerbody.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case Naked circumcised
+	    CopyDataFile "files\\meshes\\bodytypes\\slath\\nude\\lowerbodycircumcised.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	  EndSelect
+	    Break
+	  Case BoyAth
+	  CopyDataFile "files\\meshes\\bodytypes\\boyath\\nude\\khajiittail.nif" "meshes\\characters\\khajiit\\male\\khajiittail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\boyath\\nude\\tail.nif" "meshes\\characters\\argonian\\male\\tail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\boyath\\nude\\upperbody.nif" "meshes\\characters\\_male\\upperbody.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\boyath\\nude\\hand.nif" "meshes\\characters\\_male\\hand.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\boyath\\nude\\foot.nif" "meshes\\characters\\_male\\foot.nif"
+	  SelectWithPreview "Choose underwear type" "Pants0" "img\\pants0.jpg" "Pants1a" "img\\pants1a.jpg" "Pants1b" "img\\pants1b.jpg" "Pants2" "img\\pants2.jpg" "Pants3" "img\\pants3.jpg" "Pants6d" "img\\pants6d.jpg" "Pants7" "img\\pants7.jpg" "Pants8" "img\\pants8.jpg" "Naked" "img\\nude.jpg" "Naked circumcised" "img\\nudecircumcised.jpg"
+	    Case Pants0
+	    CopyDataFile "files\\meshes\\bodytypes\\boyath\\cloth\\lowerbodypants0.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1a
+	    CopyDataFile "files\\meshes\\bodytypes\\boyath\\cloth\\lowerbodypants1a.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1b
+	    CopyDataFile "files\\meshes\\bodytypes\\boyath\\cloth\\lowerbodypants1b.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants2
+	    CopyDataFile "files\\meshes\\bodytypes\\boyath\\cloth\\lowerbodypants2.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants3
+	    CopyDataFile "files\\meshes\\bodytypes\\boyath\\cloth\\lowerbodypants3.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants6d
+	    CopyDataFile "files\\meshes\\bodytypes\\boyath\\cloth\\lowerbodypants6d.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants7
+	    CopyDataFile "files\\meshes\\bodytypes\\boyath\\cloth\\lowerbodypants7.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants8
+	    CopyDataFile "files\\meshes\\bodytypes\\boyath\\cloth\\lowerbodypants8.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Naked
+	    CopyDataFile "files\\meshes\\bodytypes\\boyath\\nude\\lowerbody.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case Naked circumcised
+	    CopyDataFile "files\\meshes\\bodytypes\\boyath\\nude\\lowerbodycircumcised.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	  EndSelect
+	    Break
+	  Case Boy1
+	    CopyDataFile "files\\meshes\\bodytypes\\boy1\\nude\\upperbody.nif" "meshes\\characters\\_male\\upperbody.nif"
+	    CopyDataFile "files\\meshes\\bodytypes\\boy1\\nude\\khajiittail.nif" "meshes\\characters\\khajiit\\male\\khajiittail.nif"
+	    CopyDataFile "files\\meshes\\bodytypes\\boy1\\nude\\tail.nif" "meshes\\characters\\argonian\\male\\tail.nif"
+	    CopyDataFile "files\\meshes\\bodytypes\\boy1\\nude\\hand.nif" "meshes\\characters\\_male\\hand.nif"
+	    CopyDataFile "files\\meshes\\bodytypes\\boy1\\nude\\foot.nif" "meshes\\characters\\_male\\foot.nif"
+	  SelectWithPreview "Choose underwear type" "Pants0" "img\\pants0.jpg" "Pants1a" "img\\pants1a.jpg" "Pants1b" "img\\pants1b.jpg" "Pants2" "img\\pants2.jpg" "Pants3" "img\\pants3.jpg" "Pants6d" "img\\pants6d.jpg" "Pants7" "img\\pants7.jpg" "Pants8" "img\\pants8.jpg" "Naked" "img\\nude.jpg" "Naked circumcised" "img\\nudecircumcised.jpg"
+	    Case Pants0
+	    CopyDataFile "files\\meshes\\bodytypes\\boy1\\cloth\\lowerbodypants0.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1a
+	    CopyDataFile "files\\meshes\\bodytypes\\boy1\\cloth\\lowerbodypants1a.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1b
+	    CopyDataFile "files\\meshes\\bodytypes\\boy1\\cloth\\lowerbodypants1b.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants2
+	    CopyDataFile "files\\meshes\\bodytypes\\boy1\\cloth\\lowerbodypants2.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants3
+	    CopyDataFile "files\\meshes\\bodytypes\\boy1\\cloth\\lowerbodypants3.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants6d
+	    CopyDataFile "files\\meshes\\bodytypes\\boy1\\cloth\\lowerbodypants6d.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants7
+	    CopyDataFile "files\\meshes\\bodytypes\\boy1\\cloth\\lowerbodypants7.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants8
+	    CopyDataFile "files\\meshes\\bodytypes\\boy1\\cloth\\lowerbodypants8.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Naked
+	    CopyDataFile "files\\meshes\\bodytypes\\boy1\\nude\\lowerbody.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case Naked circumcised
+	    CopyDataFile "files\\meshes\\bodytypes\\boy1\\nude\\lowerbodycircumcised.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	  EndSelect
+	    Break
+	  Case Boy2
+	    CopyDataFile "files\\meshes\\bodytypes\\boy2\\nude\\upperbody.nif" "meshes\\characters\\_male\\upperbody.nif"
+	    CopyDataFile "files\\meshes\\bodytypes\\boy2\\nude\\khajiittail.nif" "meshes\\characters\\khajiit\\male\\khajiittail.nif"
+	    CopyDataFile "files\\meshes\\bodytypes\\boy2\\nude\\tail.nif" "meshes\\characters\\argonian\\male\\tail.nif"
+	    CopyDataFile "files\\meshes\\bodytypes\\boy2\\nude\\hand.nif" "meshes\\characters\\_male\\hand.nif"
+	    CopyDataFile "files\\meshes\\bodytypes\\boy2\\nude\\foot.nif" "meshes\\characters\\_male\\foot.nif"
+	  SelectWithPreview "Choose underwear type" "Pants0" "img\\pants0.jpg" "Pants1a" "img\\pants1a.jpg" "Pants1b" "img\\pants1b.jpg" "Pants2" "img\\pants2.jpg" "Pants3" "img\\pants3.jpg" "Pants6d" "img\\pants6d.jpg" "Pants7" "img\\pants7.jpg" "Pants8" "img\\pants8.jpg" "Naked" "img\\nude.jpg" "Naked circumcised" "img\\nudecircumcised.jpg"
+	    Case Pants0
+	    CopyDataFile "files\\meshes\\bodytypes\\boy2\\cloth\\lowerbodypants0.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1a
+	    CopyDataFile "files\\meshes\\bodytypes\\boy2\\cloth\\lowerbodypants1a.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1b
+	    CopyDataFile "files\\meshes\\bodytypes\\boy2\\cloth\\lowerbodypants1b.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants2
+	    CopyDataFile "files\\meshes\\bodytypes\\boy2\\cloth\\lowerbodypants2.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants3
+	    CopyDataFile "files\\meshes\\bodytypes\\boy2\\cloth\\lowerbodypants3.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants6d
+	    CopyDataFile "files\\meshes\\bodytypes\\boy2\\cloth\\lowerbodypants6d.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants7
+	    CopyDataFile "files\\meshes\\bodytypes\\boy2\\cloth\\lowerbodypants7.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants8
+	    CopyDataFile "files\\meshes\\bodytypes\\boy2\\cloth\\lowerbodypants8.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Naked
+	    CopyDataFile "files\\meshes\\bodytypes\\boy2\\nude\\lowerbody.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case Naked circumcised
+	    CopyDataFile "files\\meshes\\bodytypes\\boy2\\nude\\lowerbodycircumcised.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	  EndSelect
+	    Break
+	  Case Scrawny
+	  CopyDataFile "files\\meshes\\bodytypes\\scrawny\\nude\\khajiittail.nif" "meshes\\characters\\khajiit\\male\\khajiittail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\scrawny\\nude\\tail.nif" "meshes\\characters\\argonian\\male\\tail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\scrawny\\nude\\upperbody.nif" "meshes\\characters\\_male\\upperbody.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\scrawny\\nude\\hand.nif" "meshes\\characters\\_male\\hand.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\scrawny\\nude\\foot.nif" "meshes\\characters\\_male\\foot.nif"
+	  SelectWithPreview "Choose underwear type" "Pants0" "img\\pants0.jpg" "Pants1a" "img\\pants1a.jpg" "Pants1b" "img\\pants1b.jpg" "Pants2" "img\\pants2.jpg" "Pants3" "img\\pants3.jpg" "Pants6d" "img\\pants6d.jpg" "Pants7" "img\\pants7.jpg" "Pants8" "img\\pants8.jpg" "Naked" "img\\nude.jpg" "Naked circumcised" "img\\nudecircumcised.jpg" "PubicHairAq" "img\\pubichairaq.jpg" "PubicHairDB" "img\\pubichairdb.jpg" "PubicHairMB" "img\\pubichairmb.jpg" "PubicHairLB" "img\\pubichairlb.jpg"
+	    Case Pants0
+	    CopyDataFile "files\\meshes\\bodytypes\\scrawny\\cloth\\lowerbodypants0.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1a
+	    CopyDataFile "files\\meshes\\bodytypes\\scrawny\\cloth\\lowerbodypants1a.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1b
+	    CopyDataFile "files\\meshes\\bodytypes\\scrawny\\cloth\\lowerbodypants1b.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants2
+	    CopyDataFile "files\\meshes\\bodytypes\\scrawny\\cloth\\lowerbodypants2.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants3
+	    CopyDataFile "files\\meshes\\bodytypes\\scrawny\\cloth\\lowerbodypants3.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants6d
+	    CopyDataFile "files\\meshes\\bodytypes\\scrawny\\cloth\\lowerbodypants6d.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants7
+	    CopyDataFile "files\\meshes\\bodytypes\\scrawny\\cloth\\lowerbodypants7.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants8
+	    CopyDataFile "files\\meshes\\bodytypes\\scrawny\\cloth\\lowerbodypants8.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Naked
+	    CopyDataFile "files\\meshes\\bodytypes\\scrawny\\nude\\lowerbody.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case Naked circumcised
+	    CopyDataFile "files\\meshes\\bodytypes\\scrawny\\nude\\lowerbodycircumcised.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case PubicHairAq
+	    CopyDataFile "files\\meshes\\bodytypes\\scrawny\\pubichair\\lowerbodypubichairaq.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case PubicHairDB
+	    CopyDataFile "files\\meshes\\bodytypes\\scrawny\\pubichair\\lowerbodypubichairdb.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case PubicHairMB
+	    CopyDataFile "files\\meshes\\bodytypes\\scrawny\\pubichair\\lowerbodypubichairmb.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case PubicHairLB
+	    CopyDataFile "files\\meshes\\bodytypes\\scrawny\\pubichair\\lowerbodypubichairlb.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	  EndSelect
+	    Break
+	  Case mMB
+	  CopyDataFile "files\\meshes\\bodytypes\\mmb\\nude\\khajiittail.nif" "meshes\\characters\\khajiit\\male\\khajiittail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\mmb\\nude\\tail.nif" "meshes\\characters\\argonian\\male\\tail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\mmb\\nude\\upperbody.nif" "meshes\\characters\\_male\\upperbody.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\mmb\\nude\\hand.nif" "meshes\\characters\\_male\\hand.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\mmb\\nude\\foot.nif" "meshes\\characters\\_male\\foot.nif"
+	  SelectWithPreview "Choose underwear type" "Pants7" "img\\pants7.jpg" "Naked" "img\\nude.jpg" "Naked circumcised" "img\\nudecircumcised.jpg"
+	    Case Pants7
+	    CopyDataFile "files\\meshes\\bodytypes\\mmb\\cloth\\lowerbodypants7.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Naked
+	    CopyDataFile "files\\meshes\\bodytypes\\mmb\\nude\\lowerbody.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case Naked circumcised
+	    CopyDataFile "files\\meshes\\bodytypes\\mmb\\nude\\lowerbodycircumcised.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	  EndSelect
+	    Break   
+	  Case Blues
+	  CopyDataFile "files\\meshes\\bodytypes\\blues\\nude\\khajiittail.nif" "meshes\\characters\\khajiit\\male\\khajiittail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\blues\\nude\\tail.nif" "meshes\\characters\\argonian\\male\\tail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\blues\\nude\\upperbody.nif" "meshes\\characters\\_male\\upperbody.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\blues\\nude\\hand.nif" "meshes\\characters\\_male\\hand.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\blues\\nude\\foot.nif" "meshes\\characters\\_male\\foot.nif"
+	  SelectWithPreview "Choose underwear type" "Pants1a" "img\\pants1a.jpg" "Pants2" "img\\pants2.jpg" "Pants7" "img\\pants7.jpg" "Naked" "img\\nude.jpg" "Naked circumcised" "img\\nudecircumcised.jpg"
+	    Case Pants1a
+	    CopyDataFile "files\\meshes\\bodytypes\\blues\\cloth\\lowerbodypants1a.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants2
+	    CopyDataFile "files\\meshes\\bodytypes\\blues\\cloth\\lowerbodypants2.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants7
+	    CopyDataFile "files\\meshes\\bodytypes\\blues\\cloth\\lowerbodypants7.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Naked
+	    CopyDataFile "files\\meshes\\bodytypes\\blues\\nude\\lowerbody.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case Naked circumcised
+	    CopyDataFile "files\\meshes\\bodytypes\\blues\\nude\\lowerbodycircumcised.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	  EndSelect
+	    Break
+      Case BrzDefined
+	  CopyDataFile "files\\meshes\\bodytypes\\brzdefined\\nude\\khajiittail.nif" "meshes\\characters\\khajiit\\male\\khajiittail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\brzdefined\\nude\\tail.nif" "meshes\\characters\\argonian\\male\\tail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\brzdefined\\nude\\upperbody.nif" "meshes\\characters\\_male\\upperbody.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\brzdefined\\nude\\hand.nif" "meshes\\characters\\_male\\hand.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\brzdefined\\nude\\foot.nif" "meshes\\characters\\_male\\foot.nif"
+	  SelectWithPreview "Choose underwear type" "Pants1a" "img\\pants1a.jpg" "Pants7" "img\\pants7.jpg" "Naked" "img\\nude.jpg" "Naked circumcised" "img\\nudecircumcised.jpg"
+	    Case Pants1a
+	    CopyDataFile "files\\meshes\\bodytypes\\brzdefined\\cloth\\lowerbodypants1a.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants7
+	    CopyDataFile "files\\meshes\\bodytypes\\brzdefined\\cloth\\lowerbodypants7.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Naked
+	    CopyDataFile "files\\meshes\\bodytypes\\brzdefined\\nude\\lowerbody.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case Naked circumcised
+	    CopyDataFile "files\\meshes\\bodytypes\\brzdefined\\nude\\lowerbodycircumcised.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	  EndSelect
+	    Break
+      Case Bodybuilder
+	  CopyDataFile "files\\meshes\\bodytypes\\bodybuilder\\nude\\khajiittail.nif" "meshes\\characters\\khajiit\\male\\khajiittail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\bodybuilder\\nude\\tail.nif" "meshes\\characters\\argonian\\male\\tail.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\bodybuilder\\nude\\upperbody.nif" "meshes\\characters\\_male\\upperbody.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\bodybuilder\\nude\\hand.nif" "meshes\\characters\\_male\\hand.nif"
+	  CopyDataFile "files\\meshes\\bodytypes\\bodybuilder\\nude\\foot.nif" "meshes\\characters\\_male\\foot.nif"
+	  SelectWithPreview "Choose underwear type" "Pants0" "img\\pants0.jpg" "Pants1a" "img\\pants1a.jpg" "Pants1b" "img\\pants1b.jpg" "Pants4" "img\\pants4.jpg" "Pants5" "img\\pants5.jpg" "Pants6d" "img\\pants6d.jpg" "Pants7" "img\\pants7.jpg" "Pants8" "img\\pants8.jpg" "Naked" "img\\bodybuildernude.jpg" "Naked circumcised" "img\\bodybuildernudecircumcised.jpg" "Naked foreskin" "img\\bodybuildernudeforeskin.jpg" "Naked big" "img\\bodybuildernudebig.jpg" "Naked big circumcised" "img\\bodybuildernudecircumcisedbig.jpg"
+	    Case Pants0
+	    CopyDataFile "files\\meshes\\bodytypes\\bodybuilder\\cloth\\lowerbodypants0.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1a
+	    CopyDataFile "files\\meshes\\bodytypes\\bodybuilder\\cloth\\lowerbodypants1a.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants1b
+	    CopyDataFile "files\\meshes\\bodytypes\\bodybuilder\\cloth\\lowerbodypants1b.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants4
+	    CopyDataFile "files\\meshes\\bodytypes\\bodybuilder\\cloth\\lowerbodypants4.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants5
+	    CopyDataFile "files\\meshes\\bodytypes\\bodybuilder\\cloth\\lowerbodypants5.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants6d
+	    CopyDataFile "files\\meshes\\bodytypes\\bodybuilder\\cloth\\lowerbodypants6d.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants7
+	    CopyDataFile "files\\meshes\\bodytypes\\bodybuilder\\cloth\\lowerbodypants7.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Pants8
+	    CopyDataFile "files\\meshes\\bodytypes\\bodybuilder\\cloth\\lowerbodypants8.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	    Case Naked
+	    CopyDataFile "files\\meshes\\bodytypes\\bodybuilder\\nude\\lowerbody.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case Naked circumcised
+	    CopyDataFile "files\\meshes\\bodytypes\\bodybuilder\\nude\\lowerbodycircumcised.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case Naked foreskin
+	    CopyDataFile "files\\meshes\\bodytypes\\bodybuilder\\nude\\lowerbodyforeskin.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case Naked big
+	    CopyDataFile "files\\meshes\\bodytypes\\bodybuilder\\nude\\lowerbodybig.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+		Case Naked big circumcised
+	    CopyDataFile "files\\meshes\\bodytypes\\bodybuilder\\nude\\lowerbodycircumcisedbig.nif" "meshes\\characters\\_male\\lowerbody.nif"
+		  Break
+	  EndSelect
+	    Break    
+	EndSelect
+	SelectWithPreview "Choose feet type" "Default" "img\\feetbare.jpg" "With sandals" "img\\feetwithsandals.jpg" "Hobbit small" "img\\feethobbitsmall.jpg" "Hobbit big" "img\\feethobbitbig.jpg"
+	  Case Default
+        Break
+      Case With sandals
+      CopyDataFile "files\\meshes\\feet\\footwithsandals.nif" "meshes\\characters\\_male\\foot.nif"
+      CopyDataFile "files\\textures\\cloth\\RTsandals.dds" "textures\\clothes\\rt\\RTsandals.dds"
+      CopyDataFile "files\\textures\\cloth\\RTsandals_n.dds" "textures\\clothes\\rt\\RTsandals_n.dds"
+        Break
+	  Case Hobbit small
+	  CopyDataFile "files\\meshes\\feet\\foothobbitsmall.nif" "meshes\\characters\\_male\\foot.nif"
+        Break
+	  Case Hobbit big
+	  CopyDataFile "files\\meshes\\feet\\foothobbitbig.nif" "meshes\\characters\\_male\\foot.nif"
+        Break
+	EndSelect    	
+    Break
+  Case No
+    Break
+  EndSelect
+  
+;::::::::::::::::::::
+;   BODY TEXTURES   :
+;::::::::::::::::::::
+  
+Select "Install body textures?" "Yes" "No"
+  Case Yes
+  SelectWithPreview "Choose amount of body hair (won't affect beasts)" "Hairy" "img\\bodyhairnormal.jpg" "Shaved" "img\\bodyhairshaved.jpg"
+    Case Hairy
+      SelectWithDescriptions "Choose body textures installation method" "Automatic" "This will install the default selection of body textures" "Custom" "This will let you install alternate textures for some races"
+        Case Automatic
+        CopyDataFile "files\\textures\\body\\v5\\footmaleargonian.dds" "textures\\characters\\argonian\\male\\footmale.dds"
+        CopyDataFile "files\\textures\\body\\v5\\RTfootmale.dds" "textures\\characters\\khajiit\\male\\RTfootmale.dds"
+        CopyDataFile "files\\textures\\body\\v5\\footmaleargonian_n.dds" "textures\\characters\\argonian\\male\\footmale_n.dds"
+        CopyDataFile "files\\textures\\body\\v5\\RTfootmale_n.dds" "textures\\characters\\khajiit\\male\\RTfootmale_n.dds" 
+        CopyDataFile "files\\textures\\body\\v5\\footmaledremora.dds" "textures\\characters\\dremora\\male\\footmale.dds"    
+        CopyDataFile "files\\textures\\body\\v5\\footmalebreton.dds" "textures\\characters\\breton\\male\\footmale.dds"
+        CopyDataFile "files\\textures\\body\\v5\\footmaledarkelf.dds" "textures\\characters\\darkelf\\male\\footmale.dds"
+        CopyDataFile "files\\textures\\body\\v5\\footmaledarkseducer.dds" "textures\\characters\\darkseducer\\male\\footmale.dds"
+        CopyDataFile "files\\textures\\body\\v5\\footmalegoldensaint.dds" "textures\\characters\\goldensaint\\male\\footmale.dds"
+        CopyDataFile "files\\textures\\body\\v5\\footmalehighelf.dds" "textures\\characters\\highelf\\male\\footmale.dds"
+        CopyDataFile "files\\textures\\body\\v5\\footmaleimperial.dds" "textures\\characters\\imperial\\male\\footmale.dds"
+        CopyDataFile "files\\textures\\body\\v5\\footmalenord.dds" "textures\\characters\\nord\\male\\footmale.dds"
+        CopyDataFile "files\\textures\\body\\v5\\footmaleorc.dds" "textures\\characters\\orc\\male\\footmale.dds"
+        CopyDataFile "files\\textures\\body\\v5\\footmaleredguard.dds" "textures\\characters\\redguard\\male\\footmale.dds"
+        CopyDataFile "files\\textures\\body\\v5\\footmalewoodelf.dds" "textures\\characters\\woodelf\\male\\footmale.dds"
+          Break
+        Case Custom
+        CopyDataFile "files\\textures\\body\\v5\\footmaleargonian.dds" "textures\\characters\\argonian\\male\\footmale.dds"
+        CopyDataFile "files\\textures\\body\\v5\\RTfootmale.dds" "textures\\characters\\khajiit\\male\\RTfootmale.dds"
+        CopyDataFile "files\\textures\\body\\v5\\footmaleargonian_n.dds" "textures\\characters\\argonian\\male\\footmale_n.dds"
+        CopyDataFile "files\\textures\\body\\v5\\RTfootmale_n.dds" "textures\\characters\\khajiit\\male\\RTfootmale_n.dds" 
+        CopyDataFile "files\\textures\\body\\v5\\footmaledremora.dds" "textures\\characters\\dremora\\male\\footmale.dds"
+        CopyDataFile "files\\textures\\body\\v5\\footmaledarkseducer.dds" "textures\\characters\\darkseducer\\male\\footmale.dds"
+        SelectWithPreview "Choose body texture for Imperials" "Default" "img\\skinimperialdefault.jpg" "Type1" "img\\skinhuman01.jpg" "Type2" "img\\skinhuman02.jpg" "Type3" "img\\skinhuman03.jpg" "Type4" "img\\skinhuman04.jpg" "Type5" "img\\skinhuman05.jpg" "Type6" "img\\skinhuman06.jpg" "Type7" "img\\skinhuman07.jpg" "Type8" "img\\skinhuman08.jpg"
+        Case Default
+        CopyDataFile "files\\textures\\body\\v5\\footmaleimperial.dds" "textures\\characters\\imperial\\male\\footmale.dds"
+          Break
+        Case Type1
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman01.dds" "textures\\characters\\imperial\\male\\footmale.dds"
+          Break
+        Case Type2
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman02.dds" "textures\\characters\\imperial\\male\\footmale.dds"
+          Break
+        Case Type3
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman03.dds" "textures\\characters\\imperial\\male\\footmale.dds"
+          Break
+        Case Type4
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman04.dds" "textures\\characters\\imperial\\male\\footmale.dds"
+          Break
+        Case Type5
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman05.dds" "textures\\characters\\imperial\\male\\footmale.dds"
+          Break
+        Case Type6
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman06.dds" "textures\\characters\\imperial\\male\\footmale.dds"
+          Break
+        Case Type7
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman07.dds" "textures\\characters\\imperial\\male\\footmale.dds"
+          Break
+        Case Type8
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman08.dds" "textures\\characters\\imperial\\male\\footmale.dds"
+          Break
+        EndSelect
+        SelectWithPreview "Choose body texture for Bretons" "Default" "img\\skinbretondefault.jpg" "Type1" "img\\skinhuman01.jpg" "Type2" "img\\skinhuman02.jpg" "Type3" "img\\skinhuman03.jpg" "Type4" "img\\skinhuman04.jpg" "Type5" "img\\skinhuman05.jpg" "Type6" "img\\skinhuman06.jpg" "Type7" "img\\skinhuman07.jpg" "Type8" "img\\skinhuman08.jpg"
+        Case Default
+        CopyDataFile "files\\textures\\body\\v5\\footmalebreton.dds" "textures\\characters\\breton\\male\\footmale.dds"
+          Break
+        Case Type1
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman01.dds" "textures\\characters\\breton\\male\\footmale.dds"
+          Break
+        Case Type2
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman02.dds" "textures\\characters\\breton\\male\\footmale.dds"
+          Break
+        Case Type3
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman03.dds" "textures\\characters\\breton\\male\\footmale.dds"
+          Break
+        Case Type4
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman04.dds" "textures\\characters\\breton\\male\\footmale.dds"
+          Break
+        Case Type5
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman05.dds" "textures\\characters\\breton\\male\\footmale.dds"
+          Break
+        Case Type6
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman06.dds" "textures\\characters\\breton\\male\\footmale.dds"
+          Break
+        Case Type7
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman07.dds" "textures\\characters\\breton\\male\\footmale.dds"
+          Break
+        Case Type8
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman08.dds" "textures\\characters\\breton\\male\\footmale.dds"
+          Break
+        EndSelect
+        SelectWithPreview "Choose body texture for Nords" "Default" "img\\skinnorddefault.jpg" "Type1" "img\\skinhuman01.jpg" "Type2" "img\\skinhuman02.jpg" "Type3" "img\\skinhuman03.jpg" "Type4" "img\\skinhuman04.jpg" "Type5" "img\\skinhuman05.jpg" "Type6" "img\\skinhuman06.jpg" "Type7" "img\\skinhuman07.jpg" "Type8" "img\\skinhuman08.jpg"
+        Case Default
+        CopyDataFile "files\\textures\\body\\v5\\footmalenord.dds" "textures\\characters\\nord\\male\\footmale.dds"
+          Break
+        Case Type1
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman01.dds" "textures\\characters\\nord\\male\\footmale.dds"
+          Break
+        Case Type2
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman02.dds" "textures\\characters\\nord\\male\\footmale.dds"
+          Break
+        Case Type3
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman03.dds" "textures\\characters\\nord\\male\\footmale.dds"
+          Break
+        Case Type4
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman04.dds" "textures\\characters\\nord\\male\\footmale.dds"
+          Break
+        Case Type5
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman05.dds" "textures\\characters\\nord\\male\\footmale.dds"
+          Break
+        Case Type6
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman06.dds" "textures\\characters\\nord\\male\\footmale.dds"
+          Break
+        Case Type7
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman07.dds" "textures\\characters\\nord\\male\\footmale.dds"
+          Break
+        Case Type8
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman08.dds" "textures\\characters\\nord\\male\\footmale.dds"
+          Break
+        EndSelect
+        SelectWithPreview "Choose body texture for Redguards" "Default" "img\\skinredguarddefault.jpg" "Type1" "img\\skinhuman01.jpg" "Type2" "img\\skinhuman02.jpg" "Type3" "img\\skinhuman03.jpg" "Type4" "img\\skinhuman04.jpg" "Type5" "img\\skinhuman05.jpg" "Type6" "img\\skinhuman06.jpg" "Type7" "img\\skinhuman07.jpg" "Type8" "img\\skinhuman08.jpg" "Better Redguards" "img\\skinbetterredguards.jpg"
+        Case Default
+        CopyDataFile "files\\textures\\body\\v5\\footmaleredguard.dds" "textures\\characters\\redguard\\male\\footmale.dds"
+          Break
+        Case Type1
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman01.dds" "textures\\characters\\redguard\\male\\footmale.dds"
+          Break
+        Case Type2
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman02.dds" "textures\\characters\\redguard\\male\\footmale.dds"
+          Break
+        Case Type3
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman03.dds" "textures\\characters\\redguard\\male\\footmale.dds"
+          Break
+        Case Type4
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman04.dds" "textures\\characters\\redguard\\male\\footmale.dds"
+          Break
+        Case Type5
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman05.dds" "textures\\characters\\redguard\\male\\footmale.dds"
+          Break
+        Case Type6
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman06.dds" "textures\\characters\\redguard\\male\\footmale.dds"
+          Break
+        Case Type7
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman07.dds" "textures\\characters\\redguard\\male\\footmale.dds"
+          Break
+        Case Type8
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman08.dds" "textures\\characters\\redguard\\male\\footmale.dds"
+          Break
+        Case Better Redguards
+        CopyDataFile "files\\textures\\body\\alternate\\footmalebetterredguards.dds" "textures\\characters\\redguard\\male\\footmale.dds"
+          Break
+        EndSelect 
+        SelectWithPreview "Choose body texture for High Elves" "Default" "img\\skinhighelfdefault.jpg" "Type1" "img\\skinhuman01.jpg" "Type2" "img\\skinhuman02.jpg" "Type3" "img\\skinhuman03.jpg" "Type4" "img\\skinhuman04.jpg" "Type5" "img\\skinhuman05.jpg" "Type6" "img\\skinhuman06.jpg" "Type7" "img\\skinhuman07.jpg" "Type8" "img\\skinhuman08.jpg"
+        Case Default
+        CopyDataFile "files\\textures\\body\\v5\\footmalehighelf.dds" "textures\\characters\\highelf\\male\\footmale.dds"
+          Break
+        Case Type1
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman01.dds" "textures\\characters\\highelf\\male\\footmale.dds"
+          Break
+        Case Type2
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman02.dds" "textures\\characters\\highelf\\male\\footmale.dds"
+          Break
+        Case Type3
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman03.dds" "textures\\characters\\highelf\\male\\footmale.dds"
+          Break
+        Case Type4
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman04.dds" "textures\\characters\\highelf\\male\\footmale.dds"
+          Break
+        Case Type5
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman05.dds" "textures\\characters\\highelf\\male\\footmale.dds"
+          Break
+        Case Type6
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman06.dds" "textures\\characters\\highelf\\male\\footmale.dds"
+          Break
+        Case Type7
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman07.dds" "textures\\characters\\highelf\\male\\footmale.dds"
+          Break
+        Case Type8
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman08.dds" "textures\\characters\\highelf\\male\\footmale.dds"
+          Break
+        EndSelect
+        SelectWithPreview "Choose body texture for Wood Elves" "Default" "img\\skinwoodelfdefault.jpg" "Type1" "img\\skinhuman01.jpg" "Type2" "img\\skinhuman02.jpg" "Type3" "img\\skinhuman03.jpg" "Type4" "img\\skinhuman04.jpg" "Type5" "img\\skinhuman05.jpg" "Type6" "img\\skinhuman06.jpg" "Type7" "img\\skinhuman07.jpg" "Type8" "img\\skinhuman08.jpg"
+        Case Default
+        CopyDataFile "files\\textures\\body\\v5\\footmalewoodelf.dds" "textures\\characters\\woodelf\\male\\footmale.dds"
+          Break
+        Case Type1
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman01.dds" "textures\\characters\\woodelf\\male\\footmale.dds"
+          Break
+        Case Type2
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman02.dds" "textures\\characters\\woodelf\\male\\footmale.dds"
+          Break
+        Case Type3
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman03.dds" "textures\\characters\\woodelf\\male\\footmale.dds"
+          Break
+        Case Type4
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman04.dds" "textures\\characters\\woodelf\\male\\footmale.dds"
+          Break
+        Case Type5
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman05.dds" "textures\\characters\\woodelf\\male\\footmale.dds"
+          Break
+        Case Type6
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman06.dds" "textures\\characters\\woodelf\\male\\footmale.dds"
+          Break
+        Case Type7
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman07.dds" "textures\\characters\\woodelf\\male\\footmale.dds"
+          Break
+        Case Type8
+        CopyDataFile "files\\textures\\body\\alternate\\footmalehuman08.dds" "textures\\characters\\woodelf\\male\\footmale.dds"
+          Break
+        EndSelect
+        SelectWithPreview "Choose body texture for Dark Elves" "Default" "img\\skindarkelfdefault.jpg" "Type1" "img\\skindarkelf01.jpg" "Type2" "img\\skindarkelf02.jpg" "Type3" "img\\skindarkelf03.jpg"
+        Case Default
+        CopyDataFile "files\\textures\\body\\v5\\footmaledarkelf.dds" "textures\\characters\\darkelf\\male\\footmale.dds"
+          Break
+        Case Type1
+        CopyDataFile "files\\textures\\body\\alternate\\footmaledarkelf01.dds" "textures\\characters\\darkelf\\male\\footmale.dds"
+          Break
+        Case Type2
+        CopyDataFile "files\\textures\\body\\alternate\\footmaledarkelf02.dds" "textures\\characters\\darkelf\\male\\footmale.dds"
+          Break
+        Case Type3
+        CopyDataFile "files\\textures\\body\\alternate\\footmaledarkelf03.dds" "textures\\characters\\darkelf\\male\\footmale.dds"
+          Break
+        EndSelect
+        SelectWithPreview "Choose body texture for Orcs" "Default" "img\\skinorcdefault.jpg" "Type1" "img\\skinorc01.jpg"
+        Case Default
+        CopyDataFile "files\\textures\\body\\v5\\footmaleorc.dds" "textures\\characters\\orc\\male\\footmale.dds"
+          Break
+        Case Type1
+        CopyDataFile "files\\textures\\body\\alternate\\footmaleorc01.dds" "textures\\characters\\orc\\male\\footmale.dds"
+          Break
+        EndSelect
+        SelectWithPreview "Choose body texture for Golden Saints" "Default" "img\\skingoldensaintdefault.jpg" "Type1" "img\\skingoldensaint01.jpg"
+        Case Default
+        CopyDataFile "files\\textures\\body\\v5\\footmalegoldensaint.dds" "textures\\characters\\goldensaint\\male\\footmale.dds"
+          Break
+        Case Type1
+        CopyDataFile "files\\textures\\body\\alternate\\footmalegoldensaint01.dds" "textures\\characters\\goldensaint\\male\\footmale.dds"
+          Break
+        EndSelect        
+        Break
+      EndSelect
+      
+;:::::::::::::::::::
+;   BODY NORMALS   :
+;:::::::::::::::::::    
+      
+    SelectWithDescriptions "Choose normal maps installation method" "Automatic" "This will install a preset selection of normal maps" "Custom" "You will be asked to select a normal map for each individual race"
+      Case Automatic
+      CopyDataFile "files\\textures\\body\\normalmaps\\footmale1a_n.dds" "textures\\characters\\dremora\\male\\footmale_n.dds"
+      CopyDataFile "files\\textures\\body\\normalmaps\\footmale1a_n.dds" "textures\\characters\\nord\\male\\footmale_n.dds"
+      CopyDataFile "files\\textures\\body\\normalmaps\\footmale1a_n.dds" "textures\\characters\\redguard\\male\\footmale_n.dds"
+      CopyDataFile "files\\textures\\body\\normalmaps\\footmale1a_n.dds" "textures\\characters\\orc\\male\\footmale_n.dds"
+      CopyDataFile "files\\textures\\body\\normalmaps\\footmale1a_n.dds" "textures\\characters\\goldensaint\\male\\footmale_n.dds"
+      CopyDataFile "files\\textures\\body\\normalmaps\\footmale1a_n.dds" "textures\\characters\\darkseducer\\male\\footmale_n.dds"
+      CopyDataFile "files\\textures\\body\\normalmaps\\footmale1b_n.dds" "textures\\characters\\darkelf\\male\\footmale_n.dds"
+      CopyDataFile "files\\textures\\body\\normalmaps\\footmale2_n.dds" "textures\\characters\\woodelf\\male\\footmale_n.dds"
+      CopyDataFile "files\\textures\\body\\normalmaps\\footmale3_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+      CopyDataFile "files\\textures\\body\\normalmaps\\footmale4a_n.dds" "textures\\characters\\breton\\male\\footmale_n.dds"
+      CopyDataFile "files\\textures\\body\\normalmaps\\footmale4b_n.dds" "textures\\characters\\highelf\\male\\footmale_n.dds"
+        Break
+      Case Custom
+      SelectWithPreview "Choose muscular tone for Imperials" "Type1a" "img\\n1a.jpg" "Type1b" "img\\n1b.jpg" "Type2" "img\\n2.jpg" "Type3" "img\\n3.jpg" "Type4a" "img\\n4a.jpg" "Type4b" "img\\n4b.jpg" "Type5" "img\\n5.jpg" "Type6" "img\\n6.jpg" "Type7" "img\\n7.jpg"
+        Case Type1a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1a_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+        Case Type1b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1b_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+        Case Type2
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale2_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+        Case Type3
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale3_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+        Case Type4a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4a_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+        Case Type4b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4b_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+        Case Type5
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale5_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+        Case Type6
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale6_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+        Case Type7
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale7_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+      EndSelect 
+      SelectWithPreview "Choose muscular tone for Bretons" "Type1a" "img\\n1a.jpg" "Type1b" "img\\n1b.jpg" "Type2" "img\\n2.jpg" "Type3" "img\\n3.jpg" "Type4a" "img\\n4a.jpg" "Type4b" "img\\n4b.jpg" "Type5" "img\\n5.jpg" "Type6" "img\\n6.jpg" "Type7" "img\\n7.jpg"
+        Case Type1a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1a_n.dds" "textures\\characters\\breton\\male\\footmale_n.dds"
+          Break
+        Case Type1b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1b_n.dds" "textures\\characters\\breton\\male\\footmale_n.dds"
+          Break
+        Case Type2
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale2_n.dds" "textures\\characters\\breton\\male\\footmale_n.dds"
+          Break
+        Case Type3
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale3_n.dds" "textures\\characters\\breton\\male\\footmale_n.dds"
+          Break
+        Case Type4a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4a_n.dds" "textures\\characters\\breton\\male\\footmale_n.dds"
+          Break
+        Case Type4b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4b_n.dds" "textures\\characters\\breton\\male\\footmale_n.dds"
+          Break
+        Case Type5
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale5_n.dds" "textures\\characters\\breton\\male\\footmale_n.dds"
+          Break
+        Case Type6
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale6_n.dds" "textures\\characters\\breton\\male\\footmale_n.dds"
+          Break
+        Case Type7
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale7_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+      EndSelect
+      SelectWithPreview "Choose muscular tone for Nords" "Type1a" "img\\n1a.jpg" "Type1b" "img\\n1b.jpg" "Type2" "img\\n2.jpg" "Type3" "img\\n3.jpg" "Type4a" "img\\n4a.jpg" "Type4b" "img\\n4b.jpg" "Type5" "img\\n5.jpg" "Type6" "img\\n6.jpg" "Type7" "img\\n7.jpg"
+        Case Type1a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1a_n.dds" "textures\\characters\\nord\\male\\footmale_n.dds"
+          Break
+        Case Type1b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1b_n.dds" "textures\\characters\\nord\\male\\footmale_n.dds"
+          Break
+        Case Type2
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale2_n.dds" "textures\\characters\\nord\\male\\footmale_n.dds"
+          Break
+        Case Type3
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale3_n.dds" "textures\\characters\\nord\\male\\footmale_n.dds"
+          Break
+        Case Type4a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4a_n.dds" "textures\\characters\\nord\\male\\footmale_n.dds"
+          Break
+        Case Type4b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4b_n.dds" "textures\\characters\\nord\\male\\footmale_n.dds"
+          Break
+        Case Type5
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale5_n.dds" "textures\\characters\\nord\\male\\footmale_n.dds"
+          Break
+        Case Type6
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale6_n.dds" "textures\\characters\\nord\\male\\footmale_n.dds"
+          Break
+        Case Type7
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale7_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+      EndSelect 
+      SelectWithPreview "Choose muscular tone for Redguards" "Type1a" "img\\n1a.jpg" "Type1b" "img\\n1b.jpg" "Type2" "img\\n2.jpg" "Type3" "img\\n3.jpg" "Type4a" "img\\n4a.jpg" "Type4b" "img\\n4b.jpg" "Type5" "img\\n5.jpg" "Type6" "img\\n6.jpg" "Type7" "img\\n7.jpg"
+        Case Type1a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1a_n.dds" "textures\\characters\\redguard\\male\\footmale_n.dds"
+          Break
+        Case Type1b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1b_n.dds" "textures\\characters\\redguard\\male\\footmale_n.dds"
+          Break
+        Case Type2
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale2_n.dds" "textures\\characters\\redguard\\male\\footmale_n.dds"
+          Break
+        Case Type3
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale3_n.dds" "textures\\characters\\redguard\\male\\footmale_n.dds"
+          Break
+        Case Type4a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4a_n.dds" "textures\\characters\\redguard\\male\\footmale_n.dds"
+          Break
+        Case Type4b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4b_n.dds" "textures\\characters\\redguard\\male\\footmale_n.dds"
+          Break
+        Case Type5
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale5_n.dds" "textures\\characters\\redguard\\male\\footmale_n.dds"
+          Break
+        Case Type6
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale6_n.dds" "textures\\characters\\redguard\\male\\footmale_n.dds"
+          Break
+        Case Type7
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale7_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+      EndSelect
+      SelectWithPreview "Choose muscular tone for High Elves" "Type1a" "img\\n1a.jpg" "Type1b" "img\\n1b.jpg" "Type2" "img\\n2.jpg" "Type3" "img\\n3.jpg" "Type4a" "img\\n4a.jpg" "Type4b" "img\\n4b.jpg" "Type5" "img\\n5.jpg" "Type6" "img\\n6.jpg" "Type7" "img\\n7.jpg"
+        Case Type1a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1a_n.dds" "textures\\characters\\highelf\\male\\footmale_n.dds"
+          Break
+        Case Type1b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1b_n.dds" "textures\\characters\\highelf\\male\\footmale_n.dds"
+          Break
+        Case Type2
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale2_n.dds" "textures\\characters\\highelf\\male\\footmale_n.dds"
+          Break
+        Case Type3
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale3_n.dds" "textures\\characters\\highelf\\male\\footmale_n.dds"
+          Break
+        Case Type4a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4a_n.dds" "textures\\characters\\highelf\\male\\footmale_n.dds"
+          Break
+        Case Type4b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4b_n.dds" "textures\\characters\\highelf\\male\\footmale_n.dds"
+          Break
+        Case Type5
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale5_n.dds" "textures\\characters\\highelf\\male\\footmale_n.dds"
+          Break
+        Case Type6
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale6_n.dds" "textures\\characters\\highelf\\male\\footmale_n.dds"
+          Break
+        Case Type7
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale7_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+      EndSelect
+      SelectWithPreview "Choose muscular tone for Wood Elves" "Type1a" "img\\n1a.jpg" "Type1b" "img\\n1b.jpg" "Type2" "img\\n2.jpg" "Type3" "img\\n3.jpg" "Type4a" "img\\n4a.jpg" "Type4b" "img\\n4b.jpg" "Type5" "img\\n5.jpg" "Type6" "img\\n6.jpg" "Type7" "img\\n7.jpg"
+        Case Type1a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1a_n.dds" "textures\\characters\\woodelf\\male\\footmale_n.dds"
+          Break
+        Case Type1b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1b_n.dds" "textures\\characters\\woodelf\\male\\footmale_n.dds"
+          Break
+        Case Type2
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale2_n.dds" "textures\\characters\\woodelf\\male\\footmale_n.dds"
+          Break
+        Case Type3
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale3_n.dds" "textures\\characters\\woodelf\\male\\footmale_n.dds"
+          Break
+        Case Type4a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4a_n.dds" "textures\\characters\\woodelf\\male\\footmale_n.dds"
+          Break
+        Case Type4b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4b_n.dds" "textures\\characters\\woodelf\\male\\footmale_n.dds"
+          Break
+        Case Type5
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale5_n.dds" "textures\\characters\\woodelf\\male\\footmale_n.dds"
+          Break
+        Case Type6
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale6_n.dds" "textures\\characters\\woodelf\\male\\footmale_n.dds"
+          Break
+        Case Type7
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale7_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+      EndSelect
+      SelectWithPreview "Choose muscular tone for Dark Elves" "Type1a" "img\\n1a.jpg" "Type1b" "img\\n1b.jpg" "Type2" "img\\n2.jpg" "Type3" "img\\n3.jpg" "Type4a" "img\\n4a.jpg" "Type4b" "img\\n4b.jpg" "Type5" "img\\n5.jpg" "Type6" "img\\n6.jpg" "Type7" "img\\n7.jpg"
+        Case Type1a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1a_n.dds" "textures\\characters\\darkelf\\male\\footmale_n.dds"
+          Break
+        Case Type1b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1b_n.dds" "textures\\characters\\darkelf\\male\\footmale_n.dds"
+          Break
+        Case Type2
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale2_n.dds" "textures\\characters\\darkelf\\male\\footmale_n.dds"
+          Break
+        Case Type3
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale3_n.dds" "textures\\characters\\darkelf\\male\\footmale_n.dds"
+          Break
+        Case Type4a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4a_n.dds" "textures\\characters\\darkelf\\male\\footmale_n.dds"
+          Break
+        Case Type4b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4b_n.dds" "textures\\characters\\darkelf\\male\\footmale_n.dds"
+          Break
+        Case Type5
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale5_n.dds" "textures\\characters\\darkelf\\male\\footmale_n.dds"
+          Break
+        Case Type6
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale6_n.dds" "textures\\characters\\darkelf\\male\\footmale_n.dds"
+          Break
+        Case Type7
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale7_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+      EndSelect
+      SelectWithPreview "Choose muscular tone for Orcs" "Type1a" "img\\n1a.jpg" "Type1b" "img\\n1b.jpg" "Type2" "img\\n2.jpg" "Type3" "img\\n3.jpg" "Type4a" "img\\n4a.jpg" "Type4b" "img\\n4b.jpg" "Type5" "img\\n5.jpg" "Type6" "img\\n6.jpg" "Type7" "img\\n7.jpg"
+        Case Type1a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1a_n.dds" "textures\\characters\\orc\\male\\footmale_n.dds"
+          Break
+        Case Type1b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1b_n.dds" "textures\\characters\\orc\\male\\footmale_n.dds"
+          Break
+        Case Type2
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale2_n.dds" "textures\\characters\\orc\\male\\footmale_n.dds"
+          Break
+        Case Type3
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale3_n.dds" "textures\\characters\\orc\\male\\footmale_n.dds"
+          Break
+        Case Type4a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4a_n.dds" "textures\\characters\\orc\\male\\footmale_n.dds"
+          Break
+        Case Type4b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4b_n.dds" "textures\\characters\\orc\\male\\footmale_n.dds"
+          Break
+        Case Type5
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale5_n.dds" "textures\\characters\\orc\\male\\footmale_n.dds"
+          Break
+        Case Type6
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale6_n.dds" "textures\\characters\\orc\\male\\footmale_n.dds"
+          Break
+        Case Type7
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale7_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+      EndSelect
+      SelectWithPreview "Choose muscular tone for Dremora" "Type1a" "img\\n1a.jpg" "Type1b" "img\\n1b.jpg" "Type2" "img\\n2.jpg" "Type3" "img\\n3.jpg" "Type4a" "img\\n4a.jpg" "Type4b" "img\\n4b.jpg" "Type5" "img\\n5.jpg" "Type6" "img\\n6.jpg" "Type7" "img\\n7.jpg"
+        Case Type1a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1a_n.dds" "textures\\characters\\dremora\\male\\footmale_n.dds"
+          Break
+        Case Type1b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1b_n.dds" "textures\\characters\\dremora\\male\\footmale_n.dds"
+          Break
+        Case Type2
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale2_n.dds" "textures\\characters\\dremora\\male\\footmale_n.dds"
+          Break
+        Case Type3
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale3_n.dds" "textures\\characters\\dremora\\male\\footmale_n.dds"
+          Break
+        Case Type4a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4a_n.dds" "textures\\characters\\dremora\\male\\footmale_n.dds"
+          Break
+        Case Type4b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4b_n.dds" "textures\\characters\\dremora\\male\\footmale_n.dds"
+          Break
+        Case Type5
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale5_n.dds" "textures\\characters\\dremora\\male\\footmale_n.dds"
+          Break
+        Case Type6
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale6_n.dds" "textures\\characters\\dremora\\male\\footmale_n.dds"
+          Break
+        Case Type7
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale7_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+      EndSelect
+      SelectWithPreview "Choose muscular tone for Golden Saints" "Type1a" "img\\n1a.jpg" "Type1b" "img\\n1b.jpg" "Type2" "img\\n2.jpg" "Type3" "img\\n3.jpg" "Type4a" "img\\n4a.jpg" "Type4b" "img\\n4b.jpg" "Type5" "img\\n5.jpg" "Type6" "img\\n6.jpg" "Type7" "img\\n7.jpg"
+        Case Type1a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1a_n.dds" "textures\\characters\\goldensaint\\male\\footmale_n.dds"
+          Break
+        Case Type1b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1b_n.dds" "textures\\characters\\goldensaint\\male\\footmale_n.dds"
+          Break
+        Case Type2
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale2_n.dds" "textures\\characters\\goldensaint\\male\\footmale_n.dds"
+          Break
+        Case Type3
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale3_n.dds" "textures\\characters\\goldensaint\\male\\footmale_n.dds"
+          Break
+        Case Type4a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4a_n.dds" "textures\\characters\\goldensaint\\male\\footmale_n.dds"
+          Break
+        Case Type4b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4b_n.dds" "textures\\characters\\goldensaint\\male\\footmale_n.dds"
+          Break
+        Case Type5
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale5_n.dds" "textures\\characters\\goldensaint\\male\\footmale_n.dds"
+          Break
+        Case Type6
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale6_n.dds" "textures\\characters\\goldensaint\\male\\footmale_n.dds"
+          Break
+        Case Type7
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale7_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+      EndSelect
+      SelectWithPreview "Choose muscular tone for Dark Seducers" "Type1a" "img\\n1a.jpg" "Type1b" "img\\n1b.jpg" "Type2" "img\\n2.jpg" "Type3" "img\\n3.jpg" "Type4a" "img\\n4a.jpg" "Type4b" "img\\n4b.jpg" "Type5" "img\\n5.jpg" "Type6" "img\\n6.jpg" "Type7" "img\\n7.jpg"
+        Case Type1a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1a_n.dds" "textures\\characters\\darkseducer\\male\\footmale_n.dds"
+          Break
+        Case Type1b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale1b_n.dds" "textures\\characters\\darkseducer\\male\\footmale_n.dds"
+          Break
+        Case Type2
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale2_n.dds" "textures\\characters\\darkseducer\\male\\footmale_n.dds"
+          Break
+        Case Type3
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale3_n.dds" "textures\\characters\\darkseducer\\male\\footmale_n.dds"
+          Break
+        Case Type4a
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4a_n.dds" "textures\\characters\\darkseducer\\male\\footmale_n.dds"
+          Break
+        Case Type4b
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale4b_n.dds" "textures\\characters\\darkseducer\\male\\footmale_n.dds"
+          Break
+        Case Type5
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale5_n.dds" "textures\\characters\\darkseducer\\male\\footmale_n.dds"
+          Break
+        Case Type6
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale6_n.dds" "textures\\characters\\goldensaint\\male\\footmale_n.dds"
+          Break
+        Case Type7
+        CopyDataFile "files\\textures\\body\\normalmaps\\footmale7_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+          Break
+      EndSelect
+      Break
+    EndSelect
+      Break
+      
+;:::::::::::::::::::::::::::
+;   SHAVED BODY TEXTURES   :
+;:::::::::::::::::::::::::::
+      
+    Case Shaved
+    CopyDataFile "files\\textures\\body\\v5\\footmaleargonian.dds" "textures\\characters\\argonian\\male\\footmale.dds"
+    CopyDataFile "files\\textures\\body\\v5\\RTfootmale.dds" "textures\\characters\\khajiit\\male\\RTfootmale.dds"
+    CopyDataFile "files\\textures\\body\\v5\\footmaledremora.dds" "textures\\characters\\dremora\\male\\footmale.dds"
+    CopyDataFile "files\\textures\\body\\v5\\footmaleargonian_n.dds" "textures\\characters\\argonian\\male\\footmale_n.dds"
+    CopyDataFile "files\\textures\\body\\v5\\RTfootmale_n.dds" "textures\\characters\\khajiit\\male\\RTfootmale_n.dds"
+    CopyDataFile "files\\textures\\body\\normalmaps\\footmale1a_n.dds" "textures\\characters\\dremora\\male\\footmale_n.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmalehuman.dds" "textures\\characters\\breton\\male\\footmale.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmaledarkelf.dds" "textures\\characters\\darkelf\\male\\footmale.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmaledarkseducer.dds" "textures\\characters\\darkseducer\\male\\footmale.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmalegoldensaint.dds" "textures\\characters\\goldensaint\\male\\footmale.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmalehuman.dds" "textures\\characters\\highelf\\male\\footmale.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmalehuman.dds" "textures\\characters\\imperial\\male\\footmale.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmalehuman.dds" "textures\\characters\\nord\\male\\footmale.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmaleorc.dds" "textures\\characters\\orc\\male\\footmale.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmalehuman.dds" "textures\\characters\\redguard\\male\\footmale.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmalehuman.dds" "textures\\characters\\woodelf\\male\\footmale.dds"    
+    CopyDataFile "files\\textures\\body\\smooth\\footmalesmooth_n.dds" "textures\\characters\\breton\\male\\footmale_n.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmalesmooth_n.dds" "textures\\characters\\darkelf\\male\\footmale_n.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmalesmooth_n.dds" "textures\\characters\\darkseducer\\male\\footmale_n.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmalesmooth_n.dds" "textures\\characters\\goldensaint\\male\\footmale_n.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmalesmooth_n.dds" "textures\\characters\\highelf\\male\\footmale_n.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmalesmooth_n.dds" "textures\\characters\\imperial\\male\\footmale_n.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmalesmooth_n.dds" "textures\\characters\\nord\\male\\footmale_n.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmalesmooth_n.dds" "textures\\characters\\orc\\male\\footmale_n.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmalesmooth_n.dds" "textures\\characters\\redguard\\male\\footmale_n.dds"
+    CopyDataFile "files\\textures\\body\\smooth\\footmalesmooth_n.dds" "textures\\characters\\woodelf\\male\\footmale_n.dds"
+      Break
+  EndSelect
+    Break
+  Case No
+    Break
+EndSelect
+
+;::::::::::::::::::::::
+;   SMOOTH BODY EGT   :
+;::::::::::::::::::::::
+
+      SelectWithDescriptions "Install smoother body egt files?" "Yes" "This will make the texture transition along the body seams smoother." "No" "Some body seams will be visible."
+        Case Yes
+        CopyDataFile "files\\meshes\\egt\\body.egt" "meshes\\characters\\_male\\body.egt"
+        CopyDataFile "files\\meshes\\egt\\upperbodyhumanfemale.egt" "meshes\\characters\\_male\\upperbodyhumanfemale.egt"
+        CopyDataFile "files\\meshes\\egt\\upperbodyhumanmale.egt" "meshes\\characters\\_male\\upperbodyhumanmale.egt"
+          Break
+        Case No
+          Break
+      EndSelect
+      
+;:::::::::::::::::::::::::::::::::
+;   HEAD MESHES: VANILLA BASED   :
+;:::::::::::::::::::::::::::::::::
+
+Select "Install custom head meshes?" "Yes" "No"
+  Case Yes
+  SelectWithDescriptions "Choose head family" "Robert" "This will give you the option to install one of the heads that use the standard face textures (default, Robert's, Ren's)" "Throttle Kitty" "This option will let you install one of the heads based on Throttle Kitty's Head06 mesh. This choice requires specific face textures, age maps and other files (included) to work properly"
+    Case Robert
+   	  SelectWithPreview "Choose Human head model" "Default" "img\\headdefault.jpg" "RobertRT4" "img\\headrt4.jpg" "RobertRT6" "img\\headrt6.jpg" "RobertRT8" "img\\headrt8.jpg" "Ren1" "img\\headren1.jpg" "Ren2" "img\\headren2.jpg"
+	    Case Default
+	    CopyDataFile "files\\meshes\\heads\\default\\headhuman.nif" "meshes\\characters\\imperial\\headhuman.nif"
+          Break
+  	    Case RobertRT4
+	    CopyDataFile "files\\meshes\\heads\\robert\\headhumanrt4.nif" "meshes\\characters\\imperial\\headhuman.nif"
+          Break
+  	    Case RobertRT6
+	    CopyDataFile "files\\meshes\\heads\\robert\\headhumanrt6.nif" "meshes\\characters\\imperial\\headhuman.nif"
+          Break
+  	    Case RobertRT8
+	    CopyDataFile "files\\meshes\\heads\\robert\\headhumanrt8.nif" "meshes\\characters\\imperial\\headhuman.nif"
+          Break
+  	    Case Ren1
+	    CopyDataFile "files\\meshes\\heads\\ren\\headhumanren1.nif" "meshes\\characters\\imperial\\headhuman.nif"
+	    CopyDataFile "files\\meshes\\heads\\ren\\headhumanren1.tri" "meshes\\characters\\imperial\\headhuman.tri"
+	    CopyDataFile "files\\meshes\\heads\\ren\\headhumanren1.egm" "meshes\\characters\\imperial\\headhuman.egm"
+	    CopyDataFile "files\\meshes\\heads\\ren\\headhumanren1.egt" "meshes\\characters\\imperial\\headhuman.egt"
+	    CopyDataFile "files\\meshes\\heads\\ren\\headhuman_50ren1.egm" "meshes\\characters\\imperial\\headhuman_50.egm"
+	    CopyDataFile "files\\meshes\\heads\\ren\\headhuman_50ren1.egt" "meshes\\characters\\imperial\\headhuman_50.egt"  
+          Break
+  	    Case Ren2
+	    CopyDataFile "files\\meshes\\heads\\ren\\headhumanren2.nif" "meshes\\characters\\imperial\\headhuman.nif"
+	    CopyDataFile "files\\meshes\\heads\\ren\\headhumanren2.tri" "meshes\\characters\\imperial\\headhuman.tri"
+	    CopyDataFile "files\\meshes\\heads\\ren\\headhumanren2.egm" "meshes\\characters\\imperial\\headhuman.egm"
+	    CopyDataFile "files\\meshes\\heads\\ren\\headhumanren2.egt" "meshes\\characters\\imperial\\headhuman.egt"
+	    CopyDataFile "files\\meshes\\heads\\ren\\headhuman_50ren2.egm" "meshes\\characters\\imperial\\headhuman_50.egm"
+	    CopyDataFile "files\\meshes\\heads\\ren\\headhuman_50ren2.egt" "meshes\\characters\\imperial\\headhuman_50.egt"  
+          Break
+      EndSelect
+      
+;:::::::::::::::::::::::::::::::::::
+;   FACE TEXTURES: VANILLA BASED   :
+;:::::::::::::::::::::::::::::::::::
+      
+Select "Install face textures?" "Yes" "No"
+  Case Yes  
+    CopyDataFile "files\\meshes\\ears\\earsdarkelf.nif" "meshes\\characters\\darkelf\\earself.nif"
+    CopyDataFile "files\\meshes\\ears\\earsdarkelf.egt" "meshes\\characters\\darkelf\\earself.egt"
+    CopyDataFile "files\\meshes\\ears\\earsdarkelf.egm" "meshes\\characters\\darkelf\\earself.egm"
+    CopyDataFile "files\\textures\\ears\\eardarkelf.dds" "textures\\characters\\darkelf\\eardarkelf.dds"
+    CopyDataFile "files\\textures\\ears\\eardarkelf_n.dds" "textures\\characters\\darkelf\\eardarkelf_n.dds"
+    CopyDataFile "files\\textures\\ears\\earkhajiit.dds" "textures\\characters\\khajiit\\earkhajiit.dds"
+    CopyDataFile "files\\textures\\ears\\earkhajiit_n.dds" "textures\\characters\\khajiit\\earkhajiit_n.dds"
+    CopyDataFile "files\\textures\\ears\\earsdarkseducer.dds" "textures\\characters\\darkseducer\\earsdarkseducer.dds"
+    CopyDataFile "files\\textures\\ears\\earsdarkseducer_n.dds" "textures\\characters\\darkseducer\\earsdarkseducer_n.dds"
+    CopyDataFile "files\\textures\\ears\\earsdremora.dds" "textures\\characters\\dremora\\earsdremora.dds"
+    CopyDataFile "files\\textures\\ears\\earsdremora_n.dds" "textures\\characters\\dremora\\earsdremora_n.dds"
+    CopyDataFile "files\\textures\\ears\\earsorc.dds" "textures\\characters\\orc\\earsorc.dds"
+    CopyDataFile "files\\textures\\ears\\earsorc_n.dds" "textures\\characters\\orc\\earsorc_n.dds"
+    CopyDataFile "files\\textures\\ears\\earssaint.dds" "textures\\characters\\goldensaint\\earssaint.dds"
+    CopyDataFile "files\\textures\\ears\\earssaint_n.dds" "textures\\characters\\goldensaint\\earssaint_n.dds"
+  SelectWithPreview "Choose face texture for Humans" "Pack0" "img\\faceimperial0.jpg" "Pack1" "img\\faceimperial1.jpg" "Pack2" "img\\faceimperial2.jpg" "Pack3" "img\\faceimperial3.jpg" "Pack5" "img\\faceimperial5.jpg" "Pack6" "img\\faceimperial6.jpg" "V4" "img\\faceimperialv4.jpg"
+    Case Pack0
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+      Break
+    Case Pack1
+      CopyDataFile "files\\textures\\face\\v5\\headhuman1.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman1_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+      Break
+    Case Pack2
+      CopyDataFile "files\\textures\\face\\v5\\headhuman2.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman2_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+      Break
+    Case Pack3
+      CopyDataFile "files\\textures\\face\\v5\\headhuman3.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+      Break
+    Case Pack5
+      CopyDataFile "files\\textures\\face\\v5\\headhuman5.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+      Break
+    Case Pack6
+      CopyDataFile "files\\textures\\face\\v5\\headhuman6.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+      Break
+    Case V4
+      CopyDataFile "files\\textures\\face\\v5\\headhumanv4.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhumanv4_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+      Break
+  EndSelect
+  SelectWithPreview "Choose face texture for Dark Elves" "Pack0" "img\\facedarkelf0.jpg" "Pack1" "img\\facedarkelf1.jpg" "Pack2" "img\\facedarkelf2.jpg" "Pack3" "img\\facedarkelf3.jpg" "Pack5" "img\\facedarkelf5.jpg" "Pack6" "img\\facedarkelf6.jpg" "V4" "img\\facedarkelfv4.jpg"
+    Case Pack0
+      CopyDataFile "files\\textures\\face\\v5\\headdarkelf0.dds" "textures\\characters\\darkelf\\headdarkelf.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\darkelf\\headdarkelf_n.dds"
+      Break
+    Case Pack1
+      CopyDataFile "files\\textures\\face\\v5\\headdarkelf1.dds" "textures\\characters\\darkelf\\headdarkelf.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\darkelf\\headdarkelf_n.dds"
+      Break
+    Case Pack2
+      CopyDataFile "files\\textures\\ears\\eardarkelf2.dds" "textures\\characters\\darkelf\\eardarkelf.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headdarkelf2.dds" "textures\\characters\\darkelf\\headdarkelf.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\darkelf\\headdarkelf_n.dds"
+      Break
+    Case Pack3
+      CopyDataFile "files\\textures\\face\\v5\\headdarkelf3.dds" "textures\\characters\\darkelf\\headdarkelf.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\darkelf\\headdarkelf_n.dds"
+      Break
+    Case Pack5
+      CopyDataFile "files\\textures\\face\\v5\\headdarkelf5.dds" "textures\\characters\\darkelf\\headdarkelf.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\darkelf\\headdarkelf_n.dds"
+      Break
+    Case Pack6
+      CopyDataFile "files\\textures\\face\\v5\\headdarkelf6.dds" "textures\\characters\\darkelf\\headdarkelf.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\darkelf\\headdarkelf_n.dds"
+      Break
+    Case V4
+      CopyDataFile "files\\textures\\face\\v5\\headdarkelfv4.dds" "textures\\characters\\darkelf\\headdarkelf.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhumanv4_n.dds" "textures\\characters\\darkelf\\headdarkelf_n.dds"
+      Break
+  EndSelect
+  SelectWithPreview "Choose face texture for Golden Saints" "Pack1" "img\\facegoldensaint1.jpg" "V4" "img\\facegoldensaintv4.jpg"
+    Case Pack1
+      CopyDataFile "files\\textures\\face\\v5\\headsaint1.dds" "textures\\characters\\goldensaint\\headsaint.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\goldensaint\\headsaint_n.dds"
+      Break
+    Case V4
+      CopyDataFile "files\\textures\\face\\v5\\headsaintv4.dds" "textures\\characters\\goldensaint\\headsaint.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhumanv4_n.dds" "textures\\characters\\goldensaint\\headsaint_n.dds"
+      Break
+  EndSelect
+  SelectWithPreview "Choose face texture for Dark Seducers" "Pack1" "img\\facedarkseducer1.jpg" "V4" "img\\facedarkseducerv4.jpg"
+    Case Pack1
+      CopyDataFile "files\\textures\\face\\v5\\headdarkseducer1.dds" "textures\\characters\\darkseducer\\headdarkseducer.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\darkseducer\\headdarkseducer_n.dds"
+      Break
+    Case V4
+      CopyDataFile "files\\textures\\face\\v5\\headdarkseducerv4.dds" "textures\\characters\\darkseducer\\headdarkseducer.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhumanv4_n.dds" "textures\\characters\\darkseducer\\headdarkseducer_n.dds"
+      Break
+  EndSelect
+    CopyDataFile "files\\textures\\face\\v5\\headargonian.dds" "textures\\characters\\argonian\\headargonian.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headargonian_n.dds" "textures\\characters\\argonian\\headargonian_n.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headkhajiit.dds" "textures\\characters\\khajiit\\headkhajiit.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headkhajiit_n.dds" "textures\\characters\\khajiit\\headkhajiit_n.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headdremora.dds" "textures\\characters\\dremora\\headdremora.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headdremora_n.dds" "textures\\characters\\dremora\\headdremora_n.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headorc.dds" "textures\\characters\\orc\\headorc.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headorc_n.dds" "textures\\characters\\orc\\headorc_n.dds"
+    Break
+  Case No
+    Break
+EndSelect
+  Break
+  
+;::::::::::::::::::::::::::::::::
+;   HEAD MESHES: HEAD06 BASED   :
+;::::::::::::::::::::::::::::::::
+  
+Case Throttle Kitty
+  SetVar FaceEGT FaceEGTNoInstall
+  CopyDataFile "files\\meshes\\heads\\tk\\eyelefthuman.nif" "meshes\\characters\\imperial\\eyelefthuman.nif"
+  CopyDataFile "files\\meshes\\heads\\tk\\eyelefthuman.egm" "meshes\\characters\\imperial\\eyelefthuman.egm"
+  CopyDataFile "files\\meshes\\heads\\tk\\eyelefthuman.tri" "meshes\\characters\\imperial\\eyelefthuman.tri"
+  CopyDataFile "files\\meshes\\heads\\tk\\eyerighthuman.nif" "meshes\\characters\\imperial\\eyerighthuman.nif"
+  CopyDataFile "files\\meshes\\heads\\tk\\eyerighthuman.egm" "meshes\\characters\\imperial\\eyerighthuman.egm"
+  CopyDataFile "files\\meshes\\heads\\tk\\eyerighthuman.tri" "meshes\\characters\\imperial\\eyerighthuman.tri"
+   	  SelectWithPreview "Choose Human head model" "Head06" "img\\head06.jpg" "TK3" "img\\headtk3.jpg" "TK4" "img\\headtk4.jpg" "TK7" "img\\headtk7.jpg"
+	    Case Head06
+	    CopyDataFile "files\\meshes\\heads\\tk\\head06.nif" "meshes\\characters\\imperial\\headhuman.nif"
+	    CopyDataFile "files\\meshes\\heads\\tk\\headhuman.tri" "meshes\\characters\\imperial\\headhuman.tri"
+	    CopyDataFile "files\\meshes\\heads\\tk\\head06.egm" "meshes\\characters\\imperial\\headhuman.egm"
+	    CopyDataFile "files\\meshes\\heads\\tk\\head06.egt" "meshes\\characters\\imperial\\headhuman.egt"
+	      Break
+	    Case TK3
+	    CopyDataFile "files\\meshes\\heads\\tk\\headhumantk3.nif" "meshes\\characters\\imperial\\headhuman.nif"
+	    CopyDataFile "files\\meshes\\heads\\tk\\headhuman.tri" "meshes\\characters\\imperial\\headhuman.tri"
+	    CopyDataFile "files\\meshes\\heads\\tk\\headhuman.egm" "meshes\\characters\\imperial\\headhuman.egm"
+	    CopyDataFile "files\\meshes\\heads\\tk\\headhuman.egt" "meshes\\characters\\imperial\\headhuman.egt"
+	    CopyDataFile "files\\meshes\\heads\\tk\\mouthhumantk3.nif" "meshes\\characters\\imperial\\mouthhuman.nif"
+	    CopyDataFile "files\\meshes\\heads\\tk\\mouthhuman.tri" "meshes\\characters\\imperial\\mouthhuman.tri"
+	    CopyDataFile "files\\meshes\\heads\\tk\\mouthhuman.egm" "meshes\\characters\\imperial\\mouthhuman.egm" 
+	    CopyDataFile "files\\meshes\\heads\\tk\\teethlowerhumantk3.nif" "meshes\\characters\\imperial\\teethlowerhuman.nif"
+	    CopyDataFile "files\\meshes\\heads\\tk\\teethlowerhuman.tri" "meshes\\characters\\imperial\\teethlowerhuman.tri"
+	    CopyDataFile "files\\meshes\\heads\\tk\\teethlowerhuman.egm" "meshes\\characters\\imperial\\teethlowerhuman.egm"
+	    CopyDataFile "files\\meshes\\heads\\tk\\teethupperhumantk3.nif" "meshes\\characters\\imperial\\teethupperhuman.nif"
+	    CopyDataFile "files\\meshes\\heads\\tk\\teethupperhuman.tri" "meshes\\characters\\imperial\\teethupperhuman.tri"
+	    CopyDataFile "files\\meshes\\heads\\tk\\teethupperhuman.egm" "meshes\\characters\\imperial\\teethupperhuman.egm"  
+	    CopyDataFile "files\\meshes\\heads\\tk\\tonguehumantk3.nif" "meshes\\characters\\imperial\\tonguehuman.nif"
+	    CopyDataFile "files\\meshes\\heads\\tk\\tonguehuman.tri" "meshes\\characters\\imperial\\tonguehuman.tri"
+	    CopyDataFile "files\\meshes\\heads\\tk\\tonguehuman.egm" "meshes\\characters\\imperial\\tonguehuman.egm"
+	      Break
+	    Case TK4
+	    CopyDataFile "files\\meshes\\heads\\tk\\headhumantk4.nif" "meshes\\characters\\imperial\\headhuman.nif"
+	    CopyDataFile "files\\meshes\\heads\\tk\\headhuman.tri" "meshes\\characters\\imperial\\headhuman.tri"
+	    CopyDataFile "files\\meshes\\heads\\tk\\headhuman.egm" "meshes\\characters\\imperial\\headhuman.egm"
+	    CopyDataFile "files\\meshes\\heads\\tk\\headhuman.egt" "meshes\\characters\\imperial\\headhuman.egt"  
+	    CopyDataFile "files\\meshes\\heads\\tk\\mouthhumantk4.nif" "meshes\\characters\\imperial\\mouthhuman.nif"
+	    CopyDataFile "files\\meshes\\heads\\tk\\mouthhuman.tri" "meshes\\characters\\imperial\\mouthhuman.tri"
+	    CopyDataFile "files\\meshes\\heads\\tk\\mouthhuman.egm" "meshes\\characters\\imperial\\mouthhuman.egm" 
+	    CopyDataFile "files\\meshes\\heads\\tk\\teethlowerhumantk4.nif" "meshes\\characters\\imperial\\teethlowerhuman.nif"
+	    CopyDataFile "files\\meshes\\heads\\tk\\teethlowerhuman.tri" "meshes\\characters\\imperial\\teethlowerhuman.tri"
+	    CopyDataFile "files\\meshes\\heads\\tk\\teethlowerhuman.egm" "meshes\\characters\\imperial\\teethlowerhuman.egm"
+	    CopyDataFile "files\\meshes\\heads\\tk\\teethupperhumantk4.nif" "meshes\\characters\\imperial\\teethupperhuman.nif"
+	    CopyDataFile "files\\meshes\\heads\\tk\\teethupperhuman.tri" "meshes\\characters\\imperial\\teethupperhuman.tri"
+	    CopyDataFile "files\\meshes\\heads\\tk\\teethupperhuman.egm" "meshes\\characters\\imperial\\teethupperhuman.egm"  
+	    CopyDataFile "files\\meshes\\heads\\tk\\tonguehumantk4.nif" "meshes\\characters\\imperial\\tonguehuman.nif"
+	    CopyDataFile "files\\meshes\\heads\\tk\\tonguehuman.tri" "meshes\\characters\\imperial\\tonguehuman.tri"
+	    CopyDataFile "files\\meshes\\heads\\tk\\tonguehuman.egm" "meshes\\characters\\imperial\\tonguehuman.egm"
+	      Break
+	    Case TK7
+	    CopyDataFile "files\\meshes\\heads\\tk\\headhumantk7.nif" "meshes\\characters\\imperial\\headhuman.nif"
+	    CopyDataFile "files\\meshes\\heads\\tk\\headhuman.tri" "meshes\\characters\\imperial\\headhuman.tri"
+	    CopyDataFile "files\\meshes\\heads\\tk\\headhuman.egm" "meshes\\characters\\imperial\\headhuman.egm"
+	    CopyDataFile "files\\meshes\\heads\\tk\\headhuman.egt" "meshes\\characters\\imperial\\headhuman.egt"
+	      Break  
+	  EndSelect
+	  
+;::::::::::::::::::::::::::::::::::
+;   FACE TEXTURES: HEAD06 BASED   :
+;::::::::::::::::::::::::::::::::::
+	      
+  Select "Install face textures?" "Yes" "No"
+    Case Yes  
+    CopyDataFile "files\\meshes\\ears\\earsdarkelf.nif" "meshes\\characters\\darkelf\\earself.nif"
+    CopyDataFile "files\\meshes\\ears\\earsdarkelf.egt" "meshes\\characters\\darkelf\\earself.egt"
+    CopyDataFile "files\\meshes\\ears\\earsdarkelf.egm" "meshes\\characters\\darkelf\\earself.egm"
+    CopyDataFile "files\\textures\\ears\\eardarkelf.dds" "textures\\characters\\darkelf\\eardarkelf.dds"
+    CopyDataFile "files\\textures\\ears\\eardarkelf_n.dds" "textures\\characters\\darkelf\\eardarkelf_n.dds"
+    CopyDataFile "files\\textures\\ears\\earkhajiit.dds" "textures\\characters\\khajiit\\earkhajiit.dds"
+    CopyDataFile "files\\textures\\ears\\earkhajiit_n.dds" "textures\\characters\\khajiit\\earkhajiit_n.dds"
+    CopyDataFile "files\\textures\\ears\\earsdarkseducer.dds" "textures\\characters\\darkseducer\\earsdarkseducer.dds"
+    CopyDataFile "files\\textures\\ears\\earsdarkseducer_n.dds" "textures\\characters\\darkseducer\\earsdarkseducer_n.dds"
+    CopyDataFile "files\\textures\\ears\\earsdremora.dds" "textures\\characters\\dremora\\earsdremora.dds"
+    CopyDataFile "files\\textures\\ears\\earsdremora_n.dds" "textures\\characters\\dremora\\earsdremora_n.dds"
+    CopyDataFile "files\\textures\\ears\\earsorc.dds" "textures\\characters\\orc\\earsorc.dds"
+    CopyDataFile "files\\textures\\ears\\earsorc_n.dds" "textures\\characters\\orc\\earsorc_n.dds"
+    CopyDataFile "files\\textures\\ears\\earssaint.dds" "textures\\characters\\goldensaint\\earssaint.dds"
+    CopyDataFile "files\\textures\\ears\\earssaint_n.dds" "textures\\characters\\goldensaint\\earssaint_n.dds"
+    SelectWithPreview "Choose face texture for Humans" "Pack1" "img\\facetkimperial1.jpg" "Pack2" "img\\facetkimperial2.jpg" "Pack3" "img\\facetkimperial3.jpg" "Pack4" "img\\facetkimperial4.jpg" "Pack5" "img\\facetkimperial5.jpg" "Pack6" "img\\facetkimperial6.jpg"
+      Case Pack1
+      CopyDataFile "files\\textures\\face\\tk\\headhumantk1.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\tk\\headhumantk_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+        Break
+      Case Pack2
+      CopyDataFile "files\\textures\\face\\tk\\headhumantk2.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\tk\\headhumantk_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+        Break
+      Case Pack3
+      CopyDataFile "files\\textures\\face\\tk\\headhumantk3.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\tk\\headhumantk_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+        Break
+      Case Pack4
+      CopyDataFile "files\\textures\\face\\tk\\headhumantk4.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\tk\\headhumantk_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+        Break
+      Case Pack5
+      CopyDataFile "files\\textures\\face\\tk\\headhumantk5.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\tk\\headhumantk_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+        Break
+      Case Pack6
+      CopyDataFile "files\\textures\\face\\tk\\headhumantk6.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\tk\\headhumantk_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+        Break
+    EndSelect
+    SelectWithPreview "Choose face texture for Dark Elves" "Pack1" "img\\facetkdarkelf1.jpg" "Pack2" "img\\facetkdarkelf2.jpg" "Pack4" "img\\facetkdarkelf4.jpg" "Pack6" "img\\facetkdarkelf6.jpg"
+      Case Pack1
+      CopyDataFile "files\\textures\\face\\tk\\headdarkelftk1.dds" "textures\\characters\\darkelf\\headdarkelf.dds"
+      CopyDataFile "files\\textures\\face\\tk\\headhumantk_n.dds" "textures\\characters\\darkelf\\headdarkelf_n.dds"
+        Break
+      Case Pack2
+      CopyDataFile "files\\textures\\face\\tk\\headdarkelftk2.dds" "textures\\characters\\darkelf\\headdarkelf.dds"
+      CopyDataFile "files\\textures\\face\\tk\\headhumantk_n.dds" "textures\\characters\\darkelf\\headdarkelf_n.dds"
+        Break
+      Case Pack4
+      CopyDataFile "files\\textures\\face\\tk\\headdarkelftk4.dds" "textures\\characters\\darkelf\\headdarkelf.dds"
+      CopyDataFile "files\\textures\\face\\tk\\headhumantk_n.dds" "textures\\characters\\darkelf\\headdarkelf_n.dds"
+        Break
+      Case Pack6
+      CopyDataFile "files\\textures\\face\\tk\\headdarkelftk6.dds" "textures\\characters\\darkelf\\headdarkelf.dds"
+      CopyDataFile "files\\textures\\face\\tk\\headhumantk_n.dds" "textures\\characters\\darkelf\\headdarkelf_n.dds"
+        Break
+    EndSelect
+    CopyDataFile "files\\textures\\face\\tk\\headsainttk.dds" "textures\\characters\\goldensaint\\headsaint.dds"
+    CopyDataFile "files\\textures\\face\\tk\\headhumantk_n.dds" "textures\\characters\\goldensaint\\headsaint_n.dds"
+    CopyDataFile "files\\textures\\face\\tk\\headdarkseducertk.dds" "textures\\characters\\darkseducer\\headdarkseducer.dds"
+    CopyDataFile "files\\textures\\face\\tk\\headhumantk_n.dds" "textures\\characters\\darkseducer\\headdarkseducer_n.dds"
+    CopyDataFile "files\\textures\\face\\tk\\headdremoratk.dds" "textures\\characters\\dremora\\headdremora.dds"
+    CopyDataFile "files\\textures\\face\\tk\\headdremoratk_n.dds" "textures\\characters\\dremora\\headdremora_n.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headargonian.dds" "textures\\characters\\argonian\\headargonian.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headargonian_n.dds" "textures\\characters\\argonian\\headargonian_n.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headkhajiit.dds" "textures\\characters\\khajiit\\headkhajiit.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headkhajiit_n.dds" "textures\\characters\\khajiit\\headkhajiit_n.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headorc.dds" "textures\\characters\\orc\\headorc.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headorc_n.dds" "textures\\characters\\orc\\headorc_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf10.dds" "textures\\characters\\imperial\\headhumanf10.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf10_n.dds" "textures\\characters\\imperial\\headhumanf10_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf20.dds" "textures\\characters\\imperial\\headhumanf20.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf20_n.dds" "textures\\characters\\imperial\\headhumanf20_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf30.dds" "textures\\characters\\imperial\\headhumanf30.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf30_n.dds" "textures\\characters\\imperial\\headhumanf30_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf40.dds" "textures\\characters\\imperial\\headhumanf40.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf40_n.dds" "textures\\characters\\imperial\\headhumanf40_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf50.dds" "textures\\characters\\imperial\\headhumanf50.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf50_n.dds" "textures\\characters\\imperial\\headhumanf50_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf60.dds" "textures\\characters\\imperial\\headhumanf60.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf60_n.dds" "textures\\characters\\imperial\\headhumanf60_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm10.dds" "textures\\characters\\imperial\\headhumanm10.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm10_n.dds" "textures\\characters\\imperial\\headhumanm10_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm20.dds" "textures\\characters\\imperial\\headhumanm20.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm20_n.dds" "textures\\characters\\imperial\\headhumanm20_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm30.dds" "textures\\characters\\imperial\\headhumanm30.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm30_n.dds" "textures\\characters\\imperial\\headhumanm30_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm40.dds" "textures\\characters\\imperial\\headhumanm40.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm40_n.dds" "textures\\characters\\imperial\\headhumanm40_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm50.dds" "textures\\characters\\imperial\\headhumanm50.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm50_n.dds" "textures\\characters\\imperial\\headhumanm50_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm60.dds" "textures\\characters\\imperial\\headhumanm60.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm60_n.dds" "textures\\characters\\imperial\\headhumanm60_n.dds" 
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf10.dds" "textures\\characters\\darkelf\\headdarkelff10.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf10_n.dds" "textures\\characters\\darkelf\\headdarkelff10_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf20.dds" "textures\\characters\\darkelf\\headdarkelff20.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf20_n.dds" "textures\\characters\\darkelf\\headdarkelff20_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf30.dds" "textures\\characters\\darkelf\\headdarkelff30.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf30_n.dds" "textures\\characters\\darkelf\\headdarkelff30_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf40.dds" "textures\\characters\\darkelf\\headdarkelff40.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf40_n.dds" "textures\\characters\\darkelf\\headdarkelff40_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf50.dds" "textures\\characters\\darkelf\\headdarkelff50.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf50_n.dds" "textures\\characters\\darkelf\\headdarkelff50_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf60.dds" "textures\\characters\\darkelf\\headdarkelff60.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf60_n.dds" "textures\\characters\\darkelf\\headdarkelff60_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm10.dds" "textures\\characters\\darkelf\\headdarkelfm10.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm10_n.dds" "textures\\characters\\darkelf\\headdarkelfm10_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm20.dds" "textures\\characters\\darkelf\\headdarkelfm20.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm20_n.dds" "textures\\characters\\darkelf\\headdarkelfm20_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm30.dds" "textures\\characters\\darkelf\\headdarkelfm30.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm30_n.dds" "textures\\characters\\darkelf\\headdarkelfm30_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm40.dds" "textures\\characters\\darkelf\\headdarkelfm40.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm40_n.dds" "textures\\characters\\darkelf\\headdarkelfm40_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm50.dds" "textures\\characters\\darkelf\\headdarkelfm50.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm50_n.dds" "textures\\characters\\darkelf\\headdarkelfm50_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm60.dds" "textures\\characters\\darkelf\\headdarkelfm60.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm60_n.dds" "textures\\characters\\darkelf\\headdarkelfm60_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf10.dds" "textures\\characters\\darkseducer\\headdarkseducerf10.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf10_n.dds" "textures\\characters\\darkseducer\\headdarkseducerf10_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf20.dds" "textures\\characters\\darkseducer\\headdarkseducerf20.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf20_n.dds" "textures\\characters\\darkseducer\\headdarkseducerf20_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf30.dds" "textures\\characters\\darkseducer\\headdarkseducerf30.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf30_n.dds" "textures\\characters\\darkseducer\\headdarkseducerf30_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf40.dds" "textures\\characters\\darkseducer\\headdarkseducerf40.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf40_n.dds" "textures\\characters\\darkseducer\\headdarkseducerf40_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf50.dds" "textures\\characters\\darkseducer\\headdarkseducerf50.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf50_n.dds" "textures\\characters\\darkseducer\\headdarkseducerf50_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf60.dds" "textures\\characters\\darkseducer\\headdarkseducerf60.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf60_n.dds" "textures\\characters\\darkseducer\\headdarkseducerf60_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm10.dds" "textures\\characters\\darkseducer\\headdarkseducerm10.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm10_n.dds" "textures\\characters\\darkseducer\\headdarkseducerm10_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm20.dds" "textures\\characters\\darkseducer\\headdarkseducerm20.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm20_n.dds" "textures\\characters\\darkseducer\\headdarkseducerm20_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm30.dds" "textures\\characters\\darkseducer\\headdarkseducerm30.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm30_n.dds" "textures\\characters\\darkseducer\\headdarkseducerm30_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm40.dds" "textures\\characters\\darkseducer\\headdarkseducerm40.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm40_n.dds" "textures\\characters\\darkseducer\\headdarkseducerm40_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm50.dds" "textures\\characters\\darkseducer\\headdarkseducerm50.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm50_n.dds" "textures\\characters\\darkseducer\\headdarkseducerm50_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm60.dds" "textures\\characters\\darkseducer\\headdarkseducerm60.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm60_n.dds" "textures\\characters\\darkseducer\\headdarkseducerm60_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf10.dds" "textures\\characters\\goldensaint\\headsaintf10.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf10_n.dds" "textures\\characters\\goldensaint\\headsaintf10_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf20.dds" "textures\\characters\\goldensaint\\headsaintf20.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf20_n.dds" "textures\\characters\\goldensaint\\headsaintf20_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf30.dds" "textures\\characters\\goldensaint\\headsaintf30.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf30_n.dds" "textures\\characters\\goldensaint\\headsaintf30_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf40.dds" "textures\\characters\\goldensaint\\headsaintf40.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf40_n.dds" "textures\\characters\\goldensaint\\headsaintf40_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf50.dds" "textures\\characters\\goldensaint\\headsaintf50.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf50_n.dds" "textures\\characters\\goldensaint\\headsaintf50_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf60.dds" "textures\\characters\\goldensaint\\headsaintf60.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanf60_n.dds" "textures\\characters\\goldensaint\\headsaintf60_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm10.dds" "textures\\characters\\goldensaint\\headsaintm10.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm10_n.dds" "textures\\characters\\goldensaint\\headsaintm10_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm20.dds" "textures\\characters\\goldensaint\\headsaintm20.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm20_n.dds" "textures\\characters\\goldensaint\\headsaintm20_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm30.dds" "textures\\characters\\goldensaint\\headsaintm30.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm30_n.dds" "textures\\characters\\goldensaint\\headsaintm30_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm40.dds" "textures\\characters\\goldensaint\\headsaintm40.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm40_n.dds" "textures\\characters\\goldensaint\\headsaintm40_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm50.dds" "textures\\characters\\goldensaint\\headsaintm50.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm50_n.dds" "textures\\characters\\goldensaint\\headsaintm50_n.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm60.dds" "textures\\characters\\goldensaint\\headsaintm60.dds"
+    CopyDataFile "files\\textures\\face\\tkagemaps\\imperial\\headhumanm60_n.dds" "textures\\characters\\goldensaint\\headsaintm60_n.dds"
+    CopyDataFolder "files\\textures\\face\\tkagemaps\\npcfaces" "textures\\faces\\Oblivion.esm" True
+      Break
+    Case No
+      Break
+  EndSelect
+  
+    Break
+  EndSelect
+  
+;::::::::::::::::::::
+;   ORC HEAD MESH   :
+;::::::::::::::::::::
+  
+      SelectWithPreview "Install less plastic looking Orc head?" "Yes" "img\\headorcmatt.jpg" "No" "img\\headorcshiny.jpg"
+        Case Yes
+        CopyDataFile "files\\meshes\\heads\\default\\headorc.nif" "meshes\\characters\\orc\\headorc.nif"
+          Break
+        Case No
+          Break
+      EndSelect
+      
+;:::::::::::::::::::::::::::::::::::::
+;   FACE TEXTURES: VANILLA BASED 2   :
+;:::::::::::::::::::::::::::::::::::::
+  
+    Break
+  Case No
+  Select "Install face textures?" "Yes" "No"
+    Case Yes  
+    CopyDataFile "files\\meshes\\ears\\earsdarkelf.nif" "meshes\\characters\\darkelf\\earself.nif"
+    CopyDataFile "files\\meshes\\ears\\earsdarkelf.egt" "meshes\\characters\\darkelf\\earself.egt"
+    CopyDataFile "files\\meshes\\ears\\earsdarkelf.egm" "meshes\\characters\\darkelf\\earself.egm"
+    CopyDataFile "files\\textures\\ears\\eardarkelf.dds" "textures\\characters\\darkelf\\eardarkelf.dds"
+    CopyDataFile "files\\textures\\ears\\eardarkelf_n.dds" "textures\\characters\\darkelf\\eardarkelf_n.dds"
+    CopyDataFile "files\\textures\\ears\\earkhajiit.dds" "textures\\characters\\khajiit\\earkhajiit.dds"
+    CopyDataFile "files\\textures\\ears\\earkhajiit_n.dds" "textures\\characters\\khajiit\\earkhajiit_n.dds"
+    CopyDataFile "files\\textures\\ears\\earsdarkseducer.dds" "textures\\characters\\darkseducer\\earsdarkseducer.dds"
+    CopyDataFile "files\\textures\\ears\\earsdarkseducer_n.dds" "textures\\characters\\darkseducer\\earsdarkseducer_n.dds"
+    CopyDataFile "files\\textures\\ears\\earsdremora.dds" "textures\\characters\\dremora\\earsdremora.dds"
+    CopyDataFile "files\\textures\\ears\\earsdremora_n.dds" "textures\\characters\\dremora\\earsdremora_n.dds"
+    CopyDataFile "files\\textures\\ears\\earsorc.dds" "textures\\characters\\orc\\earsorc.dds"
+    CopyDataFile "files\\textures\\ears\\earsorc_n.dds" "textures\\characters\\orc\\earsorc_n.dds"
+    CopyDataFile "files\\textures\\ears\\earssaint.dds" "textures\\characters\\goldensaint\\earssaint.dds"
+    CopyDataFile "files\\textures\\ears\\earssaint_n.dds" "textures\\characters\\goldensaint\\earssaint_n.dds"
+  SelectWithPreview "Choose face texture for Humans" "Pack0" "img\\faceimperial0.jpg" "Pack1" "img\\faceimperial1.jpg" "Pack2" "img\\faceimperial2.jpg" "Pack3" "img\\faceimperial3.jpg" "Pack5" "img\\faceimperial5.jpg" "Pack6" "img\\faceimperial6.jpg" "V4" "img\\faceimperialv4.jpg"
+    Case Pack0
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+      Break
+    Case Pack1
+      CopyDataFile "files\\textures\\face\\v5\\headhuman1.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman1_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+      Break
+    Case Pack2
+      CopyDataFile "files\\textures\\face\\v5\\headhuman2.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman2_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+      Break
+    Case Pack3
+      CopyDataFile "files\\textures\\face\\v5\\headhuman3.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+      Break
+    Case Pack5
+      CopyDataFile "files\\textures\\face\\v5\\headhuman5.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+      Break
+    Case Pack6
+      CopyDataFile "files\\textures\\face\\v5\\headhuman6.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+      Break
+    Case V4
+      CopyDataFile "files\\textures\\face\\v5\\headhumanv4.dds" "textures\\characters\\imperial\\headhuman.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhumanv4_n.dds" "textures\\characters\\imperial\\headhuman_n.dds"
+      Break
+  EndSelect
+  SelectWithPreview "Choose face texture for Dark Elves" "Pack0" "img\\facedarkelf0.jpg" "Pack1" "img\\facedarkelf1.jpg" "Pack2" "img\\facedarkelf2.jpg" "Pack3" "img\\facedarkelf3.jpg" "Pack5" "img\\facedarkelf5.jpg" "Pack6" "img\\facedarkelf6.jpg" "V4" "img\\facedarkelfv4.jpg"
+    Case Pack0
+      CopyDataFile "files\\textures\\face\\v5\\headdarkelf0.dds" "textures\\characters\\darkelf\\headdarkelf.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\darkelf\\headdarkelf_n.dds"
+      Break
+    Case Pack1
+      CopyDataFile "files\\textures\\face\\v5\\headdarkelf1.dds" "textures\\characters\\darkelf\\headdarkelf.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\darkelf\\headdarkelf_n.dds"
+      Break
+    Case Pack2
+      CopyDataFile "files\\textures\\ears\\eardarkelf2.dds" "textures\\characters\\darkelf\\eardarkelf.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headdarkelf2.dds" "textures\\characters\\darkelf\\headdarkelf.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\darkelf\\headdarkelf_n.dds"
+      Break
+    Case Pack3
+      CopyDataFile "files\\textures\\face\\v5\\headdarkelf3.dds" "textures\\characters\\darkelf\\headdarkelf.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\darkelf\\headdarkelf_n.dds"
+      Break
+    Case Pack5
+      CopyDataFile "files\\textures\\face\\v5\\headdarkelf5.dds" "textures\\characters\\darkelf\\headdarkelf.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\darkelf\\headdarkelf_n.dds"
+      Break
+    Case Pack6
+      CopyDataFile "files\\textures\\face\\v5\\headdarkelf6.dds" "textures\\characters\\darkelf\\headdarkelf.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\darkelf\\headdarkelf_n.dds"
+      Break
+    Case V4
+      CopyDataFile "files\\textures\\face\\v5\\headdarkelfv4.dds" "textures\\characters\\darkelf\\headdarkelf.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhumanv4_n.dds" "textures\\characters\\darkelf\\headdarkelf_n.dds"
+      Break
+  EndSelect
+  SelectWithPreview "Choose face texture for Golden Saints" "Pack1" "img\\facegoldensaint1.jpg" "V4" "img\\facegoldensaintv4.jpg"
+    Case Pack1
+      CopyDataFile "files\\textures\\face\\v5\\headsaint1.dds" "textures\\characters\\goldensaint\\headsaint.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\goldensaint\\headsaint_n.dds"
+      Break
+    Case V4
+      CopyDataFile "files\\textures\\face\\v5\\headsaintv4.dds" "textures\\characters\\goldensaint\\headsaint.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhumanv4_n.dds" "textures\\characters\\goldensaint\\headsaint_n.dds"
+      Break
+  EndSelect
+  SelectWithPreview "Choose face texture for Dark Seducers" "Pack1" "img\\facedarkseducer1.jpg" "V4" "img\\facedarkseducerv4.jpg"
+    Case Pack1
+      CopyDataFile "files\\textures\\face\\v5\\headdarkseducer1.dds" "textures\\characters\\darkseducer\\headdarkseducer.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhuman0_n.dds" "textures\\characters\\darkseducer\\headdarkseducer_n.dds"
+      Break
+    Case V4
+      CopyDataFile "files\\textures\\face\\v5\\headdarkseducerv4.dds" "textures\\characters\\darkseducer\\headdarkseducer.dds"
+      CopyDataFile "files\\textures\\face\\v5\\headhumanv4_n.dds" "textures\\characters\\darkseducer\\headdarkseducer_n.dds"
+      Break
+  EndSelect
+    CopyDataFile "files\\textures\\face\\v5\\headargonian.dds" "textures\\characters\\argonian\\headargonian.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headargonian_n.dds" "textures\\characters\\argonian\\headargonian_n.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headkhajiit.dds" "textures\\characters\\khajiit\\headkhajiit.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headkhajiit_n.dds" "textures\\characters\\khajiit\\headkhajiit_n.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headdremora.dds" "textures\\characters\\dremora\\headdremora.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headdremora_n.dds" "textures\\characters\\dremora\\headdremora_n.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headorc.dds" "textures\\characters\\orc\\headorc.dds"
+    CopyDataFile "files\\textures\\face\\v5\\headorc_n.dds" "textures\\characters\\orc\\headorc_n.dds"
+      Break
+    Case No
+      Break
+  EndSelect
+  
+    Break
+EndSelect
+
+;::::::::::::::::::::::
+;   SMOOTH FACE EGT   :
+;::::::::::::::::::::::
+
+SelectVar FaceEGT
+Case FaceEGTInstall
+      SelectWithDescriptions "Install smoother face egt file?" "Yes" "This file replaces the facial details textures (eyebrows, lips, beard, etc.) used in character customization. The textures will be smoother, however the tone sliders will have less noticeable effects." "No" "The default file will be used and no changes will occur."
+        Case Yes
+        CopyDataFile "files\\meshes\\egt\\headhuman.egt" "meshes\\characters\\imperial\\headhuman.egt"
+          Break
+        Case No
+          Break
+      EndSelect
+Break
+Case FaceEGTNoInstall
+Break
+EndSelect
+
+;:::::::::::::::::::::
+;   BLANK AGE MAPS   :
+;:::::::::::::::::::::
+  
+  SelectWithDescriptions "Install blank age maps for humans and elves?" "Yes" "This will replace the textures associated with the age slider with blank ones. There are 12 textures (6 for males and 6 for females) aged 10 to 60. By replacing all of them, face details like wrinkles and smile lines will no longer affect characters (NPCs included). However, to retain certain aging effects you might prefer to change just a couple of them. For instance replacing the 'Female10' and 'Male10' age maps will smooth out only younger characters' faces." "No" "No changes will occur and characters will keep their wrinkles."
+    Case Yes      
+        SelectMany "Select the age textures you want to replace" "Female10" "Male10" "Female20" "Male20" "Female30" "Male30" "Female40" "Male40" "Female50" "Male50" "Female60" "Male60"
+        Case Female10
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\imperial\\headhumanf10.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\imperial\\headhumanf10_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\darkelf\\headdarkelff10.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\darkelf\\headdarkelff10_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\darkseducer\\headdarkseducerf10.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\darkseducer\\headdarkseducerf10_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\goldensaint\\headsaintf10.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\goldensaint\\headsaintf10_n.dds"
+        Break 
+        Case Male10
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\imperial\\headhumanm10.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\imperial\\headhumanm10_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\darkelf\\headdarkelfm10.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\darkelf\\headdarkelfm10_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\darkseducer\\headdarkseducerm10.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\darkseducer\\headdarkseducerm10_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\goldensaint\\headsaintm10.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\goldensaint\\headsaintm10_n.dds"
+        Break   
+        Case Female20
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\imperial\\headhumanf20.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\imperial\\headhumanf20_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\darkelf\\headdarkelff20.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\darkelf\\headdarkelff20_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\darkseducer\\headdarkseducerf20.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\darkseducer\\headdarkseducerf20_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\goldensaint\\headsaintf20.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\goldensaint\\headsaintf20_n.dds"
+        Break 
+        Case Male20
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\imperial\\headhumanm20.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\imperial\\headhumanm20_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\darkelf\\headdarkelfm20.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\darkelf\\headdarkelfm20_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\darkseducer\\headdarkseducerm20.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\darkseducer\\headdarkseducerm20_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\goldensaint\\headsaintm20.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\goldensaint\\headsaintm20_n.dds"
+        Break  
+        Case Female30
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\imperial\\headhumanf30.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\imperial\\headhumanf30_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\darkelf\\headdarkelff30.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\darkelf\\headdarkelff30_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\darkseducer\\headdarkseducerf30.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\darkseducer\\headdarkseducerf30_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\goldensaint\\headsaintf30.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\goldensaint\\headsaintf30_n.dds"
+        Break 
+        Case Male30
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\imperial\\headhumanm30.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\imperial\\headhumanm30_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\darkelf\\headdarkelfm30.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\darkelf\\headdarkelfm30_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\darkseducer\\headdarkseducerm30.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\darkseducer\\headdarkseducerm30_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\goldensaint\\headsaintm30.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\goldensaint\\headsaintm30_n.dds"
+        Break     
+        Case Female40
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\imperial\\headhumanf40.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\imperial\\headhumanf40_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\darkelf\\headdarkelff40.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\darkelf\\headdarkelff40_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\darkseducer\\headdarkseducerf40.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\darkseducer\\headdarkseducerf40_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\goldensaint\\headsaintf40.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\goldensaint\\headsaintf40_n.dds"
+        Break 
+        Case Male40
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\imperial\\headhumanm40.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\imperial\\headhumanm40_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\darkelf\\headdarkelfm40.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\darkelf\\headdarkelfm40_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\darkseducer\\headdarkseducerm40.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\darkseducer\\headdarkseducerm40_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\goldensaint\\headsaintm40.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\goldensaint\\headsaintm40_n.dds"
+        Break  
+        Case Female50
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\imperial\\headhumanf50.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\imperial\\headhumanf50_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\darkelf\\headdarkelff50.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\darkelf\\headdarkelff50_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\darkseducer\\headdarkseducerf50.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\darkseducer\\headdarkseducerf50_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\goldensaint\\headsaintf50.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\goldensaint\\headsaintf50_n.dds"
+        Break 
+        Case Male50
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\imperial\\headhumanm50.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\imperial\\headhumanm50_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\darkelf\\headdarkelfm50.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\darkelf\\headdarkelfm50_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\darkseducer\\headdarkseducerm50.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\darkseducer\\headdarkseducerm50_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\goldensaint\\headsaintm50.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\goldensaint\\headsaintm50_n.dds"
+        Break  
+        Case Female60
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\imperial\\headhumanf60.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\imperial\\headhumanf60_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\darkelf\\headdarkelff60.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\darkelf\\headdarkelff60_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\darkseducer\\headdarkseducerf60.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\darkseducer\\headdarkseducerf60_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10.dds" "textures\\characters\\goldensaint\\headsaintf60.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanf10_n.dds" "textures\\characters\\goldensaint\\headsaintf60_n.dds"
+        Break 
+        Case Male60
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\imperial\\headhumanm60.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\imperial\\headhumanm60_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\darkelf\\headdarkelfm60.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\darkelf\\headdarkelfm60_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\darkseducer\\headdarkseducerm60.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\darkseducer\\headdarkseducerm60_n.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10.dds" "textures\\characters\\goldensaint\\headsaintm60.dds"
+          CopyDataFile "files\\textures\\face\\blankagemaps\\headhumanm10_n.dds" "textures\\characters\\goldensaint\\headsaintm60_n.dds"
+        Break  
+        EndSelect
+      Break
+    Case No
+      Break
+  EndSelect
+  
+;::::::::::::::::::::::
+;   IDLE ANIMATIONS   :
+;::::::::::::::::::::::
+     
+Select "Install less ape like idle anims?" "Yes" "No"
+  Case Yes
+    CopyDataFile "files\\meshes\\idle\\stand1.kf" "meshes\\characters\\_male\\idleanims\\stand1.kf"
+    CopyDataFile "files\\meshes\\idle\\idle.kf" "meshes\\characters\\_male\\idle.kf"
+    Break
+  Case No
+    Break
+EndSelect
+
+;::::::::::::::::::::::::::::::::::::::::
+;   STOCK CLOTHING AND ARMOR REPLACER   :
+;::::::::::::::::::::::::::::::::::::::::
+  
+Select "Install stock clothing and armor replacer?" "Yes" "No"
+  Case Yes
+    CopyDataFolder "files\\meshes\\outfit\\musc-average" "meshes" True   
+    Select "Choose body type" "Bulky-HeavyMusc-mMB" "Musc-Average-Blues" "MuscAth-SLAth-BrzDefined" "Belly" "Boy-BoyAth" "Scrawny"
+      Case Bulky-HeavyMusc-mMB
+      CopyDataFolder "files\\meshes\\outfit\\bulky-heavymusc" "meshes" True
+		Break
+      Case Musc-Average-Blues
+      CopyDataFolder "files\\meshes\\outfit\\musc-average" "meshes" True
+		Break
+      Case MuscAth-SLAth-BrzDefined
+      CopyDataFolder "files\\meshes\\outfit\\muscath-slath" "meshes" True
+		Break
+      Case Belly
+      CopyDataFolder "files\\meshes\\outfit\\belly" "meshes" True
+		Break
+      Case Boy-BoyAth
+      CopyDataFolder "files\\meshes\\outfit\\boy-boyath" "meshes" True
+		Break
+      Case Scrawny
+      CopyDataFolder "files\\meshes\\outfit\\scrawny" "meshes" True
+		Break
+	EndSelect    
+    Break
+  Case No
+    Break
+EndSelect
+
+;::::::::::
+;   ESP   :
+;::::::::::
+
+Select "Install male body replacer V5 plugin?" "Yes" "No"
+  Case Yes
+InstallPlugin "MaleBodyReplacerV5.esp"
+    Break
+  Case No
+    Break
+EndSelect

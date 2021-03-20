@@ -1,0 +1,29 @@
+#NoMaaM Breathing Idles V1 OMOD-40462-1-0.omod
+Select:Choose Breathing and BBB level:[$]Strong / BBB moderate
+$Data
+meshes\characters\_male\idleanims\scan.kf
+meshes\characters\_male\idleanims\stand1.kf
+meshes\characters\_male\blockidle.kf
+meshes\characters\_male\bowblockidle.kf
+meshes\characters\_male\bowidle.kf
+meshes\characters\_male\handtohandblockidle.kf
+meshes\characters\_male\handtohandidle.kf
+meshes\characters\_male\handtohandtorchidle.kf
+meshes\characters\_male\idle.kf
+meshes\characters\_male\onehandblockidle.kf
+meshes\characters\_male\onehandidle.kf
+meshes\characters\_male\onehandtorchidle.kf
+meshes\characters\_male\sneakbowidle.kf
+meshes\characters\_male\sneakhandtohandidle.kf
+meshes\characters\_male\sneakidle.kf
+meshes\characters\_male\sneakonehandidle.kf
+meshes\characters\_male\sneakstaffblockidle.kf
+meshes\characters\_male\sneakstaffidle.kf
+meshes\characters\_male\sneaktwohandidle.kf
+meshes\characters\_male\staffblockidle.kf
+meshes\characters\_male\staffidle.kf
+meshes\characters\_male\swimidle.kf
+meshes\characters\_male\torchidle.kf
+meshes\characters\_male\twohandblockidle.kf
+meshes\characters\_male\twohandidle.kf
+meshes\creatures\horse\idle.kf

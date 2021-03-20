@@ -197,16 +197,30 @@ namespace OMODFramework
         public string GetScript(bool removeType = true)
         {
             var script = GetStringFromEntryFile(OMODEntryFileType.Script);
-            if (!removeType) return script;
-
-            var span = script.AsSpan();
-            
-            //script byte can only be 0 <= x <= 3, maybe throw if this is not the case
-            if ((byte) span[0] < 4)
-                span = span[1..];
-            return span.ToString();
+            return !removeType ? script : GetScript(out _);
         }
 
+        /// <summary>
+        /// Extracts and returns the script as well as the <see cref="OMODScriptType"/>. The script type byte at the start
+        /// will be removed.
+        /// </summary>
+        /// <param name="scriptType"></param>
+        /// <returns></returns>
+        public string GetScript(out OMODScriptType scriptType)
+        {
+            var script = GetStringFromEntryFile(OMODEntryFileType.Script);
+            var span = script.AsSpan();
+            if ((byte) span[0] >= 4)
+                scriptType = OMODScriptType.OBMMScript;
+            else
+            {
+                scriptType = (OMODScriptType) span[0];
+                span = span[1..];
+            }
+            
+            return span.ToString();
+        }
+        
         /// <summary>
         /// Extracts and returns the image if present. Remember to dispose of the image using <see cref="Image.Dispose"/>.
         /// </summary>
@@ -292,6 +306,15 @@ namespace OMODFramework
             if (directory == null)
                 throw new DirectoryNotFoundException($"Unable to get directory name for path {outputPath}");
             Directory.CreateDirectory(directory);
+
+            if (File.Exists(outputPath))
+            {
+                //skip if the file already exists
+                var fi = new FileInfo(outputPath);
+                if (fi.Length == compressedFile.Length)
+                    return;
+                fi.Delete();
+            }
             
             decompressedStream.Seek(compressedFile.Offset, SeekOrigin.Begin);
             
@@ -450,8 +473,8 @@ namespace OMODFramework
         {
             if (File.Exists(path))
                 throw new ArgumentException("Path can not be a file!", nameof(path));
-            if (Directory.Exists(path))
-                Directory.Delete(path, true);
+            //if (Directory.Exists(path))
+            //    Directory.Delete(path, true);
             Directory.CreateDirectory(path);
             
             var entryFileType = data ? OMODEntryFileType.Data : OMODEntryFileType.Plugins;
