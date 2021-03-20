@@ -11,7 +11,7 @@ namespace OMODFramework.Scripting.Data
 
         public readonly string Shader;
 
-        public readonly OMODCompressedFile File;
+        public OMODCompressedFile File { get; set; }
 
         internal SDPEditInfo(byte package, string shader, OMODCompressedFile file)
         {

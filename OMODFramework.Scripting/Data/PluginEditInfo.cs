@@ -13,7 +13,7 @@ namespace OMODFramework.Scripting.Data
 
         public readonly string EditorId;
 
-        public readonly string NewValue;
+        public string NewValue { get; set; }
 
         internal PluginEditInfo(string value, OMODCompressedFile file, string editorId, bool isGMST)
         {

@@ -558,13 +558,31 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void EditINI(string section, string key, string value)
         {
-            _srd.INIEdits.Add(new INIEditInfo(section, key, value));
+            var iniEditInfo = new INIEditInfo(section, key, value);
+            if (_srd.INIEdits.TryGetValue(iniEditInfo, out var actualValue))
+            {
+                actualValue.NewValue = iniEditInfo.NewValue;
+            }
+            else
+            {
+                _srd.INIEdits.Add(iniEditInfo);
+            }
         }
 
         public void EditShader(byte package, string name, string path)
         {
             var dataFile = _omod.GetDataFiles().First(x => x.Name.Equals(path, StringComparison.OrdinalIgnoreCase));
-            _srd.SDPEdits.Add(new SDPEditInfo(package, name, dataFile));
+            var sdpEditInfo = new SDPEditInfo(package, name, dataFile);
+
+            if (_srd.SDPEdits.TryGetValue(sdpEditInfo, out var actualValue))
+            {
+                actualValue.File = sdpEditInfo.File;
+            }
+            else
+            {
+                _srd.SDPEdits.Add(sdpEditInfo);
+            }
+            
         }
 
         public void FatalError()
@@ -575,17 +593,31 @@ namespace OMODFramework.Scripting.ScriptHandlers
         // ReSharper disable once IdentifierTypo
         public void SetGMST(string file, string edid, string value)
         {
-            var pluginFile = _omod.GetPluginFiles().First(x => x.Name.Equals(file, StringComparison.OrdinalIgnoreCase));
-            _srd.PluginEdits.Add(new PluginEditInfo(value, pluginFile, edid, true));
+            AddPluginEdit(file, edid, value, false);
         }
 
         // ReSharper disable once IdentifierTypo
         public void SetGlobal(string file, string edid, string value)
         {
-            var pluginFile = _omod.GetPluginFiles().First(x => x.Name.Equals(file, StringComparison.OrdinalIgnoreCase));
-            _srd.PluginEdits.Add(new PluginEditInfo(value, pluginFile, edid, false));
+            AddPluginEdit(file, edid, value, false);
         }
 
+        // ReSharper disable once IdentifierTypo
+        private void AddPluginEdit(string file, string edid, string value, bool isGMST)
+        {
+            var pluginFile = _omod.GetPluginFiles().First(x => x.Name.Equals(file, StringComparison.OrdinalIgnoreCase));
+            var pluginEditInfo = new PluginEditInfo(value, pluginFile, edid, isGMST);
+
+            if (_srd.PluginEdits.TryGetValue(pluginEditInfo, out var actualValue))
+            {
+                actualValue.NewValue = pluginEditInfo.NewValue;
+            }
+            else
+            {
+                _srd.PluginEdits.Add(pluginEditInfo);
+            }
+        }
+        
         public void SetPluginByte(string file, long offset, byte value)
         {
             throw new NotImplementedException();

@@ -4,13 +4,13 @@ using JetBrains.Annotations;
 namespace OMODFramework.Scripting.Data
 {
     [PublicAPI]
-    public struct INIEditInfo : IEquatable<INIEditInfo>
+    public class INIEditInfo : IEquatable<INIEditInfo>
     {
         public readonly string Section;
 
         public readonly string Name;
 
-        public readonly string NewValue;
+        public string NewValue { get; set; }
 
         internal INIEditInfo(string section, string name, string newValue)
         {
@@ -24,14 +24,20 @@ namespace OMODFramework.Scripting.Data
             return $"[{Section}]{Name}:{NewValue}";
         }
 
-        public bool Equals(INIEditInfo other)
+
+        public bool Equals(INIEditInfo? other)
         {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
             return string.Equals(Section, other.Section, StringComparison.OrdinalIgnoreCase) && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase);
         }
 
         public override bool Equals(object? obj)
         {
-            return obj is INIEditInfo other && Equals(other);
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals((INIEditInfo) obj);
         }
 
         public override int GetHashCode()
@@ -40,16 +46,6 @@ namespace OMODFramework.Scripting.Data
             hashCode.Add(Section, StringComparer.OrdinalIgnoreCase);
             hashCode.Add(Name, StringComparer.OrdinalIgnoreCase);
             return hashCode.ToHashCode();
-        }
-
-        public static bool operator ==(INIEditInfo left, INIEditInfo right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(INIEditInfo left, INIEditInfo right)
-        {
-            return !(left == right);
         }
     }
 }
