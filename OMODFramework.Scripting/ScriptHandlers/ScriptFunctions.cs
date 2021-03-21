@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using Force.Crc32;
 using OblivionModManager.Scripting;
+using OMODFramework.Compression;
 using OMODFramework.Scripting.Data;
 using OMODFramework.Scripting.Exceptions;
 
@@ -681,7 +683,22 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void GenerateNewDataFile(string file, byte[] data)
         {
-            throw new NotImplementedException();
+            var filePath = Path.Combine(_srd.DataFolder, file);
+            if (File.Exists(filePath))
+                throw new OMODScriptFunctionException($"Can not generate new data file because the file already exists: {filePath}");
+
+            /*
+             * Very cheesy implementation. Since ScriptReturnData.DataFiles is a HashSet<DataFile> and DataFile inherits
+             * from ScriptReturnFile which expects an OMODCompressedFile, we need to create a new fake OMODCompressedFile
+             * with offset -1 and pass it to the constructor. Don't know if there is a better solution for this but this
+             * works for now.
+             */
+            
+            File.WriteAllBytes(filePath, data);
+            var crc = Crc32Algorithm.Compute(data, 0, data.Length);
+            var compressedFile = new OMODCompressedFile(file, crc, data.Length, -1);
+
+            _srd.DataFiles.Add(new DataFile(compressedFile));
         }
 
         public void CancelDataFileCopy(string file)
