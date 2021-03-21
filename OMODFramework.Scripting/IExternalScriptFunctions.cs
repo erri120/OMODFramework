@@ -56,6 +56,10 @@ namespace OMODFramework.Scripting
         byte[] ReadExistingDataFile(string file);
 
         bool DataFileExists(string path);
+
+        string ReadINI(string section, string valueName);
+
+        string ReadRendererInfo(string valueName);
     }
 
     [PublicAPI]

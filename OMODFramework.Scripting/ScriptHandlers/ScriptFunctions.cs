@@ -630,12 +630,12 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public string ReadINI(string section, string value)
         {
-            throw new NotImplementedException();
+            return ExternalScriptFunctions.ReadINI(section, value);
         }
 
         public string ReadRendererInfo(string value)
         {
-            throw new NotImplementedException();
+            return ExternalScriptFunctions.ReadRendererInfo(value);
         }
 
         public void EditXMLLine(string file, int line, string value)
@@ -666,7 +666,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public byte[] ReadExistingDataFile(string file)
         {
-            throw new NotImplementedException();
+            return ExternalScriptFunctions.ReadExistingDataFile(file);
         }
 
         public byte[] GetDataFileFromBSA(string file)

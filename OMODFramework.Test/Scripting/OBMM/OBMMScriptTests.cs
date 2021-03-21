@@ -241,6 +241,16 @@ namespace OMODFramework.Test.Scripting.OBMM
             {
                 return false;
             }
+
+            public string ReadINI(string section, string valueName)
+            {
+                throw new NotImplementedException();
+            }
+
+            public string ReadRendererInfo(string valueName)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
