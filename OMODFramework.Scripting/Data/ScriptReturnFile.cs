@@ -28,11 +28,24 @@ namespace OMODFramework.Scripting.Data
         {
             return $"{Input.Name} -> {Output}";
         }
+
+        public override bool Equals(object? obj)
+        {
+            if (!(obj is ScriptReturnFile scriptReturnFile)) return false;
+            return ScriptReturnFileEqualityComparer.Instance.Equals(this, scriptReturnFile);
+        }
+
+        public override int GetHashCode()
+        {
+            return ScriptReturnFileEqualityComparer.Instance.GetHashCode(this);
+        }
     }
 
     [PublicAPI]
     public class ScriptReturnFileEqualityComparer : EqualityComparer<ScriptReturnFile>
     {
+        public static readonly ScriptReturnFileEqualityComparer Instance = new ScriptReturnFileEqualityComparer();
+        
         public override bool Equals(ScriptReturnFile? x, ScriptReturnFile? y)
         {
             if (x == null && y == null) return true;
@@ -52,17 +65,6 @@ namespace OMODFramework.Scripting.Data
         internal DataFile(OMODCompressedFile compressedFile) : base(compressedFile) { }
 
         internal DataFile(OMODCompressedFile compressedFile, string output) : base(compressedFile, output) { }
-
-        public override bool Equals(object? obj)
-        {
-            if (!(obj is DataFile dataFile)) return false;
-            return ScriptReturnFileEqualityComparer.Default.Equals(this, dataFile);
-        }
-
-        public override int GetHashCode()
-        {
-            return ScriptReturnFileEqualityComparer.Default.GetHashCode(this);
-        }
     }
 
     [PublicAPI]
@@ -81,16 +83,5 @@ namespace OMODFramework.Scripting.Data
         internal PluginFile(OMODCompressedFile compressedFile) : base(compressedFile) { }
 
         internal PluginFile(OMODCompressedFile compressedFile, string output) : base(compressedFile, output) { }
-        
-        public override bool Equals(object? obj)
-        {
-            if (!(obj is PluginFile pluginFile)) return false;
-            return ScriptReturnFileEqualityComparer.Default.Equals(this, pluginFile);
-        }
-
-        public override int GetHashCode()
-        {
-            return ScriptReturnFileEqualityComparer.Default.GetHashCode(this);
-        }
     }
 }

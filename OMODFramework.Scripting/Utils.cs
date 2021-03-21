@@ -80,5 +80,17 @@ namespace OMODFramework.Scripting
         {
             return enumerable.Where(x => x != null).Select(x => x!);
         }
+
+        internal static void AddOrChange<T>(this HashSet<T> set, T obj, Action<T> change) where T : class
+        {
+            if (set.TryGetValue(obj, out var actualValue))
+            {
+                change(actualValue);
+            }
+            else
+            {
+                set.Add(obj);
+            }
+        }
     }
 }

@@ -396,8 +396,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
         public void InstallAllPlugins()
         {
             var files = _omod.GetPluginFiles()
-                .Select(x => new PluginFile(x))
-                .ToHashSet();
+                .Select(x => new PluginFile(x));
             
             _srd.PluginFiles.Clear();
             _srd.PluginFiles.UnionWith(files);
@@ -406,8 +405,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
         public void InstallAllDataFiles()
         {
             var files = _omod.GetDataFiles()
-                .Select(x => new DataFile(x))
-                .ToHashSet();
+                .Select(x => new DataFile(x));
             
             _srd.DataFiles.Clear();
             _srd.DataFiles.UnionWith(files);
@@ -448,30 +446,18 @@ namespace OMODFramework.Scripting.ScriptHandlers
         {
             var original = _omod.GetPluginFiles()
                 .First(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            
             var pluginFile = new PluginFile(original);
-
-            if (_srd.PluginFiles.TryGetValue(pluginFile, out var actualValue))
-            {
-                actualValue.Input = pluginFile.Input;
-                return;
-            }
-
-            _srd.PluginFiles.Add(pluginFile);
+            _srd.PluginFiles.AddOrChange(pluginFile, actualValue => actualValue.Input = pluginFile.Input);
         }
 
         public void InstallDataFile(string name)
         {
             var original = _omod.GetDataFiles()
                 .First(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-            var dataFile = new DataFile(original);
-
-            if (_srd.DataFiles.TryGetValue(dataFile, out var actualValue))
-            {
-                actualValue.Input = dataFile.Input;
-                return;
-            }
             
-            _srd.DataFiles.Add(dataFile);
+            var dataFile = new DataFile(original);
+            _srd.DataFiles.AddOrChange(dataFile, actualValue => actualValue.Input = dataFile.Input);
         }
 
         public void InstallDataFolder(string folder, bool recurse)
@@ -482,13 +468,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
             foreach (var dataFile in files)
             {
-                if (_srd.DataFiles.TryGetValue(dataFile, out var actualValue))
-                {
-                    actualValue.Input = dataFile.Input;
-                    continue;
-                }
-
-                _srd.DataFiles.Add(dataFile);
+                _srd.DataFiles.AddOrChange(dataFile, actualValue => actualValue.Input = dataFile.Input);
             }
         }
 
@@ -496,30 +476,18 @@ namespace OMODFramework.Scripting.ScriptHandlers
         {
             var original = _omod.GetPluginFiles()
                 .First(x => x.Name.Equals(from, StringComparison.OrdinalIgnoreCase));
+            
             var pluginFile = new PluginFile(original, to);
-
-            if (_srd.PluginFiles.TryGetValue(pluginFile, out var actualValue))
-            {
-                actualValue.Input = pluginFile.Input;
-                return;
-            }
-
-            _srd.PluginFiles.Add(pluginFile);
+            _srd.PluginFiles.AddOrChange(pluginFile, actualValue => actualValue.Input = pluginFile.Input);
         }
 
         public void CopyDataFile(string from, string to)
         {
             var original = _omod.GetDataFiles()
                 .First(x => x.Name.Equals(from, StringComparison.OrdinalIgnoreCase));
-            var dataFile = new DataFile(original, to);
-
-            if (_srd.DataFiles.TryGetValue(dataFile, out var actualValue))
-            {
-                actualValue.Input = dataFile.Input;
-                return;
-            }
             
-            _srd.DataFiles.Add(dataFile);
+            var dataFile = new DataFile(original, to);
+            _srd.DataFiles.AddOrChange(dataFile, actualValue => actualValue.Input = dataFile.Input);
         }
 
         public void CopyDataFolder(string from, string to, bool recurse)
@@ -530,13 +498,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
             
             foreach (var dataFile in files)
             {
-                if (_srd.DataFiles.TryGetValue(dataFile, out var actualValue))
-                {
-                    actualValue.Input = dataFile.Input;
-                    continue;
-                }
-
-                _srd.DataFiles.Add(dataFile);
+                _srd.DataFiles.AddOrChange(dataFile, actualValue => actualValue.Input = dataFile.Input);
             }
         }
 
@@ -563,30 +525,14 @@ namespace OMODFramework.Scripting.ScriptHandlers
         public void EditINI(string section, string key, string value)
         {
             var iniEditInfo = new INIEditInfo(section, key, value);
-            if (_srd.INIEdits.TryGetValue(iniEditInfo, out var actualValue))
-            {
-                actualValue.NewValue = iniEditInfo.NewValue;
-            }
-            else
-            {
-                _srd.INIEdits.Add(iniEditInfo);
-            }
+            _srd.INIEdits.AddOrChange(iniEditInfo, actualValue => actualValue.NewValue = iniEditInfo.NewValue);
         }
 
         public void EditShader(byte package, string name, string path)
         {
             var dataFile = _srd.DataFiles.First(x => x.Input.Name.Equals(path, StringComparison.OrdinalIgnoreCase));
             var sdpEditInfo = new SDPEditInfo(package, name, dataFile);
-
-            if (_srd.SDPEdits.TryGetValue(sdpEditInfo, out var actualValue))
-            {
-                actualValue.File = sdpEditInfo.File;
-            }
-            else
-            {
-                _srd.SDPEdits.Add(sdpEditInfo);
-            }
-            
+            _srd.SDPEdits.AddOrChange(sdpEditInfo, actualValue => actualValue.File = sdpEditInfo.File);
         }
 
         public void FatalError()
@@ -611,15 +557,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
         {
             var pluginFile = _srd.PluginFiles.First(x => x.Input.Name.Equals(file, StringComparison.OrdinalIgnoreCase));
             var pluginEditInfo = new PluginEditInfo(value, pluginFile, edid, isGMST);
-
-            if (_srd.PluginEdits.TryGetValue(pluginEditInfo, out var actualValue))
-            {
-                actualValue.NewValue = pluginEditInfo.NewValue;
-            }
-            else
-            {
-                _srd.PluginEdits.Add(pluginEditInfo);
-            }
+            _srd.PluginEdits.AddOrChange(pluginEditInfo, actualValue => actualValue.NewValue = pluginEditInfo.NewValue);
         }
         
         public void SetPluginByte(string file, long offset, byte value)
@@ -651,16 +589,12 @@ namespace OMODFramework.Scripting.ScriptHandlers
         {
             var pluginFile = _srd.PluginFiles.First(x => x.Input.Name.Equals(file, StringComparison.OrdinalIgnoreCase));
             var setPluginInfo = new SetPluginInfo(offset, pluginFile, type, value);
-
-            if (_srd.SetPluginInfos.TryGetValue(setPluginInfo, out var actualValue))
+            
+            _srd.SetPluginInfos.AddOrChange(setPluginInfo, actualValue =>
             {
                 actualValue.ValueType = type;
                 actualValue.Value = value;
-            }
-            else
-            {
-                _srd.SetPluginInfos.Add(setPluginInfo);
-            }
+            });
         }
         
         public string InputString()
@@ -692,30 +626,14 @@ namespace OMODFramework.Scripting.ScriptHandlers
         {
             var dataFile = _srd.DataFiles.First(x => x.Input.Name.Equals(file, StringComparison.OrdinalIgnoreCase));
             var editXMLInfo = new EditXMLInfo(dataFile, line, value);
-
-            if (_srd.EditXMLInfos.TryGetValue(editXMLInfo, out var actualValue))
-            {
-                actualValue.Value = value;
-            }
-            else
-            {
-                _srd.EditXMLInfos.Add(editXMLInfo);
-            }
+            _srd.EditXMLInfos.AddOrChange(editXMLInfo, actualValue => actualValue.Value = value);
         }
 
         public void EditXMLReplace(string file, string find, string replace)
         {
             var dataFile = _srd.DataFiles.First(x => x.Input.Name.Equals(file, StringComparison.OrdinalIgnoreCase));
             var editXMLInfo = new EditXMLInfo(dataFile, find, replace);
-
-            if (_srd.EditXMLInfos.TryGetValue(editXMLInfo, out var actualValue))
-            {
-                actualValue.Replace = replace;
-            }
-            else
-            {
-                _srd.EditXMLInfos.Add(editXMLInfo);
-            }
+            _srd.EditXMLInfos.AddOrChange(editXMLInfo, actualValue => actualValue.Replace = replace);
         }
 
         public byte[] ReadDataFile(string file)
