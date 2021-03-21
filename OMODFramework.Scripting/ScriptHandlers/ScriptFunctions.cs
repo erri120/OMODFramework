@@ -504,12 +504,28 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void PatchPlugin(string from, string to, bool create)
         {
-            throw new NotImplementedException();
+            var pluginFile = _omod.GetPluginFiles()
+                .First(x => x.Name.Equals(from, StringComparison.OrdinalIgnoreCase));
+            
+            var filePatch = new FilePatch(pluginFile, to, create, true);
+            _srd.FilePatches.AddOrChange(filePatch, actualValue =>
+            {
+                actualValue.From = pluginFile;
+                actualValue.Create = create;
+            });
         }
 
         public void PatchDataFile(string from, string to, bool create)
         {
-            throw new NotImplementedException();
+            var dataFile = _omod.GetDataFiles()
+                .First(x => x.Name.Equals(from, StringComparison.OrdinalIgnoreCase));
+            
+            var filePatch = new FilePatch(dataFile, to, create, false);
+            _srd.FilePatches.AddOrChange(filePatch, actualValue =>
+            {
+                actualValue.From = dataFile;
+                actualValue.Create = create;
+            });
         }
 
         public void RegisterBSA(string path)

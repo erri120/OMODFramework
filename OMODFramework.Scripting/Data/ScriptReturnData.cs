@@ -36,7 +36,9 @@ namespace OMODFramework.Scripting.Data
         public HashSet<SetPluginInfo> SetPluginInfos { get; internal set; } = new HashSet<SetPluginInfo>();
 
         public HashSet<EditXMLInfo> EditXMLInfos { get; internal set; } = new HashSet<EditXMLInfo>();
-        
+
+        public HashSet<FilePatch> FilePatches { get; internal set; } = new HashSet<FilePatch>();
+
         internal ScriptReturnData(string dataFolder, string pluginsFolder)
         {
             DataFolder = dataFolder;
