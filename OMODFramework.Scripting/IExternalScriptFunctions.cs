@@ -60,6 +60,8 @@ namespace OMODFramework.Scripting
         string ReadINI(string section, string valueName);
 
         string ReadRendererInfo(string valueName);
+
+        void SetNewLoadOrder(string[] plugins);
     }
 
     [PublicAPI]

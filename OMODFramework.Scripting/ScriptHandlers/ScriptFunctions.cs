@@ -271,7 +271,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
              * This function was rather interesting in OBMM as it modified the LastWriteTime of all plugin files in the
              * entire Oblivion folder. OBMM then went ahead and sorted those plugins based on the new LastWriteTime. 
              */
-            throw new NotImplementedException();
+            ExternalScriptFunctions.SetNewLoadOrder(plugins);
         }
 
         public void UncheckEsp(string plugin)
@@ -670,17 +670,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
         {
             return ExternalScriptFunctions.ReadExistingDataFile(file);
         }
-
-        public byte[] GetDataFileFromBSA(string file)
-        {
-            throw new NotImplementedException();
-        }
-
-        public byte[] GetDataFileFromBSA(string bsa, string file)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public void GenerateNewDataFile(string file, byte[] data)
         {
             var filePath = Path.Combine(_srd.DataFolder, file);
@@ -720,6 +710,16 @@ namespace OMODFramework.Scripting.ScriptHandlers
             throw new NotImplementedException();
         }
 
+        public byte[] GetDataFileFromBSA(string file)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] GetDataFileFromBSA(string bsa, string file)
+        {
+            throw new NotImplementedException();
+        }
+        
         public bool IsSimulation()
         {
             return false;

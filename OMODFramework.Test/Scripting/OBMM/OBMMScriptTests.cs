@@ -251,6 +251,11 @@ namespace OMODFramework.Test.Scripting.OBMM
             {
                 throw new NotImplementedException();
             }
+
+            public void SetNewLoadOrder(string[] plugins)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
