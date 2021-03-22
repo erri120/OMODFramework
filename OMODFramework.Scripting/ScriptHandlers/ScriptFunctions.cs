@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 using Force.Crc32;
 using OblivionModManager.Scripting;
 using OMODFramework.Compression;
@@ -723,6 +724,16 @@ namespace OMODFramework.Scripting.ScriptHandlers
         public bool IsSimulation()
         {
             return false;
+        }
+
+        public Form CreateCustomDialog()
+        {
+            var from = new Form
+            {
+                Name = "OMODFramework"
+            };
+            
+            return from;
         }
     }
 }

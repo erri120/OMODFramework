@@ -5,7 +5,7 @@
       <Platforms>AnyCPU</Platforms>
       <LangVersion>8.0</LangVersion>
       <Nullable>Enable</Nullable>
-      <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
+      <TargetFrameworks>net5.0-windows;netcoreapp3.1</TargetFrameworks>
       <Configurations>Release;Debug</Configurations>
   </PropertyGroup>
 

@@ -106,7 +106,7 @@ namespace OblivionModManager.Scripting
         void EditXMLLine(string file, int line, string value);
         void EditXMLReplace(string file, string find, string replace);
 
-        //TODO: System.Windows.Forms.Form CreateCustomDialog();
+        System.Windows.Forms.Form CreateCustomDialog();
         
         byte[] ReadDataFile(string file);
         byte[] ReadExistingDataFile(string file);
