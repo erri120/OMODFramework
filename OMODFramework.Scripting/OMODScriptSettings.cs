@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using JetBrains.Annotations;
 
 namespace OMODFramework.Scripting
@@ -7,11 +6,7 @@ namespace OMODFramework.Scripting
     [PublicAPI]
     public class OMODScriptSettings
     {
-        public string ExtractionFolder { get; set; } = Path.Combine(Path.GetTempPath(), "OMODFramework");
-
-        public bool CreateModSpecificExtractionFolder { get; set; } = true;
-
-        public bool DryRun { get; set; } = false;
+        public bool DryRun { get; set; }
 
         public bool UseBitmapOverloads { get; set; } = true;
         

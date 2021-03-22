@@ -22,7 +22,8 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
 
         private bool Return;
         
-        internal OBMMScriptHandler(OMOD omod, string script, OMODScriptSettings settings) : base(omod, script, settings) { }
+        internal OBMMScriptHandler(OMOD omod, string script, OMODScriptSettings settings, string? extractionFolder) 
+            : base(omod, script, settings, extractionFolder) { }
 
         /// <summary>
         /// Utility function that replaces a variable placeholder with its value from the <see cref="_variables"/>

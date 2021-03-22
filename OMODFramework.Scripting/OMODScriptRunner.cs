@@ -2,6 +2,7 @@
 using JetBrains.Annotations;
 using OMODFramework.Scripting.Data;
 using OMODFramework.Scripting.ScriptHandlers;
+using OMODFramework.Scripting.ScriptHandlers.CSharp;
 using OMODFramework.Scripting.ScriptHandlers.OBMMScript;
 
 namespace OMODFramework.Scripting
@@ -9,7 +10,7 @@ namespace OMODFramework.Scripting
     [PublicAPI]
     public static class OMODScriptRunner
     {
-        public static ScriptReturnData RunScript(OMOD omod, OMODScriptSettings settings)
+        public static ScriptReturnData RunScript(OMOD omod, OMODScriptSettings settings, string? extractionFolder = null)
         {
             if (!omod.HasEntryFile(OMODEntryFileType.Script))
                 throw new ArgumentException("OMOD does not have a script!", nameof(omod));
@@ -18,8 +19,8 @@ namespace OMODFramework.Scripting
 
             AScriptHandler handler = scriptType switch
             {
-                OMODScriptType.OBMMScript => new OBMMScriptHandler(omod, script, settings),
-                OMODScriptType.CSharp => throw new NotImplementedException(),
+                OMODScriptType.OBMMScript => new OBMMScriptHandler(omod, script, settings, extractionFolder),
+                OMODScriptType.CSharp => new CSharpScriptHandler(omod, script, settings, extractionFolder),
 #pragma warning disable 618
                 OMODScriptType.Python => throw new NotImplementedException(),
                 OMODScriptType.VisualBasic => throw new NotImplementedException(),
