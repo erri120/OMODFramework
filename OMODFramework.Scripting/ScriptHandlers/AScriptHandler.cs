@@ -37,8 +37,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
                 Directory.CreateDirectory(DataFolder);
                 Directory.CreateDirectory(PluginsFolder);
                 
-                //TODO: maybe use async or parallel overloads
-                omod.ExtractFiles(true, DataFolder);
+                omod.ExtractFilesParallel(DataFolder, 4);
                 if (omod.HasEntryFile(OMODEntryFileType.Plugins))
                     omod.ExtractFiles(false, PluginsFolder);
             }

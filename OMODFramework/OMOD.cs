@@ -430,10 +430,8 @@ namespace OMODFramework
                 Directory.Delete(path, true);
             Directory.CreateDirectory(path);
 
-            const OMODEntryFileType entryFileType = OMODEntryFileType.Data;
-            var fileSet = GetDataFiles(); 
-
-            using var compressedStream = GetEntryFileStream(entryFileType);
+            var fileSet = GetDataFiles();
+            using var compressedStream = GetEntryFileStream(OMODEntryFileType.Data);
             var outputSize = fileSet.Select(x => x.Length).Aggregate((x, y) => x + y);
             using var decompressedStream = CompressionHandler.SevenZipDecompress(compressedStream, outputSize);
 
@@ -473,8 +471,6 @@ namespace OMODFramework
         {
             if (File.Exists(path))
                 throw new ArgumentException("Path can not be a file!", nameof(path));
-            //if (Directory.Exists(path))
-            //    Directory.Delete(path, true);
             Directory.CreateDirectory(path);
             
             var entryFileType = data ? OMODEntryFileType.Data : OMODEntryFileType.Plugins;
