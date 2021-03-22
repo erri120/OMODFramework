@@ -22,6 +22,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp
             IScript script = ScriptCRC switch
             {
                 DarkUIdDarN.CRC => new DarkUIdDarN(),
+                DarNifiedUI.CRC => new DarNifiedUI(),
                 _ => throw new NotImplementedException($"{ScriptCRC:X8}")
             };
 

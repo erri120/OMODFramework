@@ -28,5 +28,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="files\csharp-scripting" />
+  </ItemGroup>
   
 </Project>

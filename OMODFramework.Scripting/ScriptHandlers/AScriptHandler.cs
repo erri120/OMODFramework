@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using NLog;
 using OMODFramework.Scripting.Data;
 
 namespace OMODFramework.Scripting.ScriptHandlers
@@ -35,6 +34,9 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
             if (!settings.DryRun)
             {
+                Directory.CreateDirectory(DataFolder);
+                Directory.CreateDirectory(PluginsFolder);
+                
                 //TODO: maybe use async or parallel overloads
                 omod.ExtractFiles(true, DataFolder);
                 if (omod.HasEntryFile(OMODEntryFileType.Plugins))

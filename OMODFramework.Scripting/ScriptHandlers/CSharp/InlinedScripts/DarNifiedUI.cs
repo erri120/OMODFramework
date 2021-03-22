@@ -11,20 +11,19 @@ using OblivionModManager.Scripting;
 #nullable disable
 
 /*
- * Original mod: https://www.nexusmods.com/oblivion/mods/11280
+ * Original mod: https://www.nexusmods.com/oblivion/mods/10763
  */
 
-#region DarkUId DarN 16 OMOD Version
+#region DarNified UI 1.3.2
 
-//	Install script for DarkUI'd DarN 1.6
-//	As made by DarN, modified by gothic251
-//	Ã‚Â© Copyright 2007 - 2008, DarN.
+//	Install script for DarNified UI 1.3.2
+//	© Copyright 2007 - 2008, DarN.
 
 namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
 {
-    internal class DarkUIdDarN : IScript
+    internal class DarNifiedUI : IScript
     {
-        internal const uint CRC = 0xF39B4EF8;
+        internal const uint CRC = 0x45738C31;
 
 
         public static IScriptFunctions sf;
@@ -84,10 +83,6 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
             false, // Custom Font 1
             false, // KCAS-AF Menus
             false, // Trollf Loading Screens
-            false, // Trollf Loading Screens - DarkUI Version
-            false, // DarkUI'd DarN Loading Screens
-            false, // Atmospheric Loading Screens
-            false, // Lighter Main Menu Text
             false, // Classic Inventory
             false, // Documentation
             false, // Colored Local Map
@@ -161,10 +156,6 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
             "Custom Font 1",
             "KCAS-AF Menus",
             "Trollf Loading Screens",
-            "Trollf Loading Screens - DarkUI Version",
-            "DarkUI'd DarN Loading Screens",
-            "Atmospheric Loading Screens",
-            "Lighter Main Menu Text",
             "Classic Inventory",
             "Documentation",
             "Colored Local Map",
@@ -214,26 +205,11 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
             "LoadingScreensAddOn.esp"
         };
 
-        string[] trollfdark =
-        {
-            "LoadingScreens.esp",
-            "LoadingScreens-OOO.esp",
-            "LoadingScreensSI.esp",
-            "LoadingScreensAddOn.esp"
-        };
-
         string[] kcas =
         {
             "RealisticLeveling.esp",
             "Kobu's Character Advancement System.esp",
             "AFLevelMod.esp"
-        };
-
-        string[] als =
-        {
-            "Atmospheric Loading Screens - No Text.esp",
-            "Atmospheric Loading Screens - Original Text.esp",
-            "Atmospheric Loading Screens - Random Quotes.esp"
         };
 
         string[] oxp = {"Oblivion XP.esp"};
@@ -264,7 +240,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
 
         void IScript.Execute(IScriptFunctions sf)
         {
-            DarkUIdDarN.sf = sf;
+            DarNifiedUI.sf = sf;
 
             Version requiredver = new Version(1, 1, 12, 0);
 
@@ -815,22 +791,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
             sf.InstallDataFolder("textures\\menus\\darn", true);
             sf.InstallDataFolder("meshes\\Menus\\darn", true);
             sf.InstallDataFile("menus\\main\\quickkeys_menu.xml");
-            sf.InstallDataFile("menus\\prefabs\\darn\\fill_bar.xml");
             sf.InstallDataFile("menus\\options\\credits_menu.xml");
-            sf.InstallDataFolder("textures\\menus\\stats", true);
-            sf.InstallDataFolder("textures\\menus50\\stats", true);
-            sf.InstallDataFolder("textures\\menus80\\stats", true);
-            sf.InstallDataFolder("textures\\darkui\\menus\\hud", true);
-            sf.InstallDataFolder("textures\\darkui\\menus\\icons", true);
-            sf.InstallDataFolder("textures\\darkui\\menus\\stats", true);
-            sf.InstallDataFolder("textures\\darkui\\menus\\book", true);
-            sf.InstallDataFolder("textures\\darkui\\menus\\focus", true);
-            sf.InstallDataFolder("textures\\darkui\\menus\\genericbackground", true);
-            sf.InstallDataFolder("textures\\darkui\\menus\\icons", true);
-            sf.InstallDataFolder("textures\\darkui\\menus\\shared", true);
-            sf.InstallDataFile("textures\\darkui\\menus\\loading\\loading_save_center_folddui.dds");
-            sf.InstallDataFile("textures\\darkui\\menus\\loading\\loading_save_wide_framedui.dds");
-            sf.InstallDataFile("textures\\darkui\\menus\\loading\\loading_save_linesdui.dds");
             sf.InstallDataFile("menus\\main\\hud_main_menu.xml"); // hud
             sf.InstallDataFile("menus\\main\\hud_reticle.xml");
             sf.InstallDataFile("menus\\book_menu.xml");
@@ -856,35 +817,28 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
                     case "Inventory":
                         sf.InstallDataFile("menus\\main\\inventory_menu.xml");
                         sf.InstallDataFile("menus\\main\\magic_popup_menu.xml");
-                        sf.InstallDataFolder("textures\\darkui\\menus\\inventory", true);
                         insinventory = true;
                         break;
                     case "Dialog Menu":
                         sf.InstallDataFile("menus\\dialog\\dialog_menu.xml");
-                        sf.InstallDataFolder("textures\\darkui\\menus\\dialog", true);
                         break;
                     case "Magic Menu":
                         sf.InstallDataFile("menus\\main\\magic_menu.xml");
-                        sf.InstallDataFolder("textures\\darkui\\menus\\magic", true);
                         break;
                     case "Map Menu":
                         sf.InstallDataFile("menus\\main\\map_menu.xml");
-                        sf.InstallDataFolder("textures\\darkui\\menus\\map", true);
                         break;
                     case "Spell Purchase Menu":
                         sf.InstallDataFile("menus\\dialog\\spell_purchase.xml");
                         break;
                     case "Container Menu":
                         sf.InstallDataFile("menus\\container_menu.xml");
-                        sf.InstallDataFolder("textures\\darkui\\menus\\container", true);
                         break;
                     case "Repair Menu":
                         sf.InstallDataFile("menus\\repair_menu.xml");
-                        sf.InstallDataFolder("textures\\darkui\\menus\\armorrepair", true);
                         break;
                     case "Alchemy Menu":
                         sf.InstallDataFile("menus\\dialog\\alchemy.xml");
-                        sf.InstallDataFolder("textures\\darkui\\menus\\alchemy", true);
                         break;
                     case "Persuasion Menu":
                         sf.InstallDataFile("menus\\dialog\\persuasion_menu.xml");
@@ -894,18 +848,15 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
                         break;
                     case "Recharge Menu":
                         sf.InstallDataFile("menus\\recharge_menu.xml");
-                        sf.InstallDataFolder("textures\\darkui\\menus\\recharge", true);
                         break;
                     case "Training Menu":
                         sf.InstallDataFile("menus\\training_menu.xml");
                         break;
                     case "Spellmaking Menu":
                         sf.InstallDataFile("menus\\dialog\\spellmaking.xml");
-                        sf.InstallDataFolder("textures\\darkui\\menus\\spellmaking", true);
                         break;
                     case "Enchantment Menu":
                         sf.InstallDataFile("menus\\dialog\\enchantment.xml");
-                        sf.InstallDataFolder("textures\\darkui\\menus\\enchanting", true);
                         break;
                     case "System Menus":
                         sf.InstallDataFolder("menus\\options", true);
@@ -932,7 +883,6 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
                         break;
                     case "Sigilstone Menu":
                         sf.InstallDataFile("menus\\dialog\\sigilstone.xml");
-                        sf.InstallDataFolder("textures\\darkui\\menus\\enchanting", true);
                         break;
                     case "Skill Perk Menu":
                         sf.InstallDataFile("menus\\generic\\skill_perk.xml");
@@ -969,20 +919,6 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
                         break;
                     case "Trollf Loading Screens":
                         sf.CopyDataFile("custom_files\\trollf_loading_menu.xml", "menus\\loading_menu.xml");
-                        break;
-                    case "Trollf Loading Screens - DarkUI Version":
-                        sf.CopyDataFile("custom_files\\trollf_dark_loading_menu.xml", "menus\\loading_menu.xml");
-                        break;
-                    case "DarkUI'd DarN Loading Screens":
-                        sf.CopyDataFile("custom_files\\dark_loading_menu.xml", "menus\\loading_menu.xml");
-                        sf.CopyDataFolder("custom_files\\darkuid_loading_screens\\", "", true);
-                        break;
-                    case "Atmospheric Loading Screens":
-                        sf.CopyDataFile("custom_files\\atmo_loading_menu.xml", "menus\\loading_menu.xml");
-                        break;
-                    case "Lighter Main Menu Text":
-                        sf.CopyDataFile("custom_files\\light_system_config.xml",
-                            "menus\\prefabs\\darn\\system_config.xml");
                         break;
                     case "Classic Inventory":
                         sf.CopyDataFolder("custom_files\\classic_inventory\\", "", true);
