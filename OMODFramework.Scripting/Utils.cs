@@ -29,11 +29,6 @@ namespace OMODFramework.Scripting
             dictionary.Add(key, value);
         }
 
-        internal static bool EqualsPath(this string path1, string path2)
-        {
-            return Path.GetFullPath(path1).Equals(Path.GetFullPath(path2), StringComparison.OrdinalIgnoreCase);
-        }
-        
         private static bool IsMatchingFile(OMODCompressedFile compressedFile, string path, string pattern,
             bool recursive)
         {
@@ -51,7 +46,7 @@ namespace OMODFramework.Scripting
              * search for.
              */
                 
-            if (!recursive && !dirName.EqualsPath(path))
+            if (!recursive && !dirName.Equals(path, StringComparison.OrdinalIgnoreCase))
                 return false;
 
             /*
@@ -67,13 +62,15 @@ namespace OMODFramework.Scripting
         internal static IEnumerable<OMODCompressedFile> FileEnumeration(this IEnumerable<OMODCompressedFile> files,
             string path, string pattern, bool recursive)
         {
-            return files.Where(x => IsMatchingFile(x, path, pattern, recursive));
+            var newPath = path.MakePath();
+            return files.Where(x => IsMatchingFile(x, newPath, pattern, recursive));
         }
 
         internal static IEnumerable<T> FileEnumeration<T>(this IEnumerable<T> files,
             string path, string pattern, bool recursive) where T : ScriptReturnFile
         {
-            return files.Where(x => IsMatchingFile(x.Input, path, pattern, recursive));
+            var newPath = path.MakePath();
+            return files.Where(x => IsMatchingFile(x.Input, newPath, pattern, recursive));
         }
 
         internal static IEnumerable<T> NotNull<T>(this IEnumerable<T?> enumerable) where T : class
@@ -91,6 +88,64 @@ namespace OMODFramework.Scripting
             {
                 set.Add(obj);
             }
+        }
+
+        internal static OMODCompressedFile GetDataFile(this OMOD omod, string file)
+        {
+            var compressedFile = omod.GetDataFiles().First(x => x.Name.Equals(file.MakePath(), StringComparison.OrdinalIgnoreCase));
+            return compressedFile;
+        }
+        
+        internal static OMODCompressedFile GetPluginFile(this OMOD omod, string file)
+        {
+            var compressedFile = omod.GetPluginFiles().First(x => x.Name.Equals(file.MakePath(), StringComparison.OrdinalIgnoreCase));
+            return compressedFile;
+        }
+        
+        internal static DataFile GetDataFile(this ScriptReturnData srd, string file, bool byInput = true)
+        {
+            var dataFile = srd.DataFiles.First(x => byInput 
+                ? x.Input.Name.Equals(file.MakePath(), StringComparison.OrdinalIgnoreCase) 
+                : x.Output.Equals(file.MakePath(), StringComparison.OrdinalIgnoreCase));
+            return dataFile;
+        }
+
+        internal static PluginFile GetPluginFile(this ScriptReturnData srd, string file, bool byInput = true)
+        {
+            var pluginFile = srd.PluginFiles.First(x => byInput 
+                ? x.Input.Name.Equals(file.MakePath(), StringComparison.OrdinalIgnoreCase) 
+                : x.Output.Equals(file.MakePath(), StringComparison.OrdinalIgnoreCase));
+            return pluginFile;
+        }
+        
+        internal static DataFile GetOrAddDataFile(this ScriptReturnData srd, string file, OMOD omod, bool byInput = true)
+        {
+            var filePath = file.MakePath();
+            var dataFile = srd.DataFiles.FirstOrDefault(x => byInput 
+                ? x.Input.Name.Equals(filePath, StringComparison.OrdinalIgnoreCase) 
+                : x.Output.Equals(filePath, StringComparison.OrdinalIgnoreCase));
+            if (dataFile != null) return dataFile;
+
+            var compressedFile = GetDataFile(omod, filePath);
+            dataFile = new DataFile(compressedFile);
+            srd.DataFiles.Add(dataFile);
+            
+            return dataFile;
+        }
+
+        internal static PluginFile GetOrAddPluginFile(this ScriptReturnData srd, string file, OMOD omod, bool byInput = true)
+        {
+            var filePath = file.MakePath();
+            var pluginFile = srd.PluginFiles.FirstOrDefault(x => byInput 
+                ? x.Input.Name.Equals(filePath, StringComparison.OrdinalIgnoreCase) 
+                : x.Output.Equals(filePath, StringComparison.OrdinalIgnoreCase));
+            if (pluginFile != null) return pluginFile;
+
+            var compressedFile = GetPluginFile(omod, filePath);
+            pluginFile = new PluginFile(compressedFile);
+            srd.PluginFiles.Add(pluginFile);
+            
+            return pluginFile;
         }
     }
 }

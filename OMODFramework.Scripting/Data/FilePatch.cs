@@ -18,7 +18,7 @@ namespace OMODFramework.Scripting.Data
         internal FilePatch(OMODCompressedFile from, string to, bool create, bool plugin)
         {
             From = from;
-            To = to;
+            To = to.MakePath();
             Create = create;
             IsPlugin = plugin;
         }

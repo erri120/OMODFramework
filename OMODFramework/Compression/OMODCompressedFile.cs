@@ -15,8 +15,7 @@ namespace OMODFramework.Compression
 
         public OMODCompressedFile(string name, uint crc, long length, long offset)
         {
-            //TODO: find a better solution
-            Name = name.Replace("\\", "\\\\");
+            Name = name.MakePath();
             CRC = crc;
             Length = length;
 

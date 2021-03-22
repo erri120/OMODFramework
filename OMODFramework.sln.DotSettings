@@ -9,5 +9,6 @@
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=SDP/@EntryIndexedValue">SDP</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=BSA/@EntryIndexedValue">BSA</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=XML/@EntryIndexedValue">XML</s:String>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=esps/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=obse/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=OMOD/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

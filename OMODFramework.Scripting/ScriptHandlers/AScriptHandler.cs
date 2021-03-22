@@ -20,7 +20,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
         private protected ScriptReturnData ScriptReturnData;
         private protected ScriptFunctions ScriptFunctions;
         
-        internal AScriptHandler(OMOD omod, string script, OMODScriptSettings settings)
+        internal AScriptHandler(OMOD omod, string script, OMODScriptSettings settings, string? extractionFolder)
         {
             ScriptSettings = settings;
 
@@ -28,9 +28,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
             Script = script;
 
             var guid = Guid.NewGuid();
-            ExtractionFolder = settings.CreateModSpecificExtractionFolder
-                ? Path.Combine(settings.ExtractionFolder, guid.ToString("D"))
-                : settings.ExtractionFolder;
+            ExtractionFolder = extractionFolder ?? Path.Combine(Path.GetTempPath(), "OMODFramework", guid.ToString("D"));
             
             DataFolder = Path.Combine(ExtractionFolder, "data");
             PluginsFolder = Path.Combine(ExtractionFolder, "plugins");

@@ -21,7 +21,7 @@ namespace OMODFramework.Scripting.Data
         internal ScriptReturnFile(OMODCompressedFile compressedFile, string output)
         {
             Input = compressedFile;
-            Output = output;
+            Output = output.MakePath();
         }
 
         public override string ToString()

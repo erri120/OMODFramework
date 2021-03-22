@@ -122,13 +122,13 @@ namespace OMODFramework.Test.Scripting.OBMM
 
                     if (inData)
                     {
-                        DataFiles.Add(current.Replace("\\", "\\\\"));
+                        DataFiles.Add(current.MakePath());
                         continue;
                     }
 
                     if (inPlugins)
                     {
-                        PluginFiles.Add(current.Replace("\\", "\\\\"));
+                        PluginFiles.Add(current.MakePath());
                         continue;
                     }
                 }
@@ -224,7 +224,7 @@ namespace OMODFramework.Test.Scripting.OBMM
 
             public IEnumerable<Plugin> GetPlugins()
             {
-                throw new NotImplementedException();
+                return new List<Plugin>();
             }
 
             public IEnumerable<string> GetActiveOMODNames()

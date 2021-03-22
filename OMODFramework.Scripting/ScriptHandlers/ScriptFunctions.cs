@@ -148,8 +148,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
             if (previews != null)
             {
                 previewPaths = previews
-                    .Select(preview => _omod.GetDataFiles()
-                        .First(x => x.Name.Equals(preview, StringComparison.OrdinalIgnoreCase)))
+                    .Select(preview => _omod.GetDataFile(preview))
                     .Select(file => file.GetFileInFolder(_srd.DataFolder))
                     .ToList();
             }
@@ -210,7 +209,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void DisplayImage(string path, string? title)
         {
-            var file = _omod.GetDataFiles().First(x => x.Name.Equals(path, StringComparison.OrdinalIgnoreCase));
+            var file = _omod.GetDataFile(path);
             var filePath = file.GetFileInFolder(_srd.DataFolder);
 
             if (!File.Exists(filePath))
@@ -234,7 +233,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void DisplayText(string path, string? title)
         {
-            var file = _omod.GetDataFiles().First(x => x.Name.Equals(path, StringComparison.OrdinalIgnoreCase));
+            var file = _omod.GetDataFile(path);
             var filePath = file.GetFileInFolder(_srd.DataFolder);
             
             if (!File.Exists(filePath))
@@ -246,22 +245,22 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void LoadEarly(string plugin)
         {
-            var pluginFile = _srd.PluginFiles.First(x => x.Output.Equals(plugin, StringComparison.OrdinalIgnoreCase));
+            var pluginFile = _srd.GetPluginFile(plugin, false);
             pluginFile.LoadEarly = true;
         }
 
         public void LoadBefore(string plugin1, string plugin2)
         {
-            var pluginFile = _srd.PluginFiles.First(x => x.Output.Equals(plugin1, StringComparison.OrdinalIgnoreCase));
-            var otherPlugin = _srd.PluginFiles.First(x => x.Output.Equals(plugin2, StringComparison.OrdinalIgnoreCase));
+            var pluginFile = _srd.GetPluginFile(plugin1, false);
+            var otherPlugin = _srd.GetPluginFile(plugin2, false);
             
             pluginFile.LoadBefore.Add(otherPlugin);
         }
 
         public void LoadAfter(string plugin1, string plugin2)
         {
-            var pluginFile = _srd.PluginFiles.First(x => x.Output.Equals(plugin1, StringComparison.OrdinalIgnoreCase));
-            var otherPlugin = _srd.PluginFiles.First(x => x.Output.Equals(plugin2, StringComparison.OrdinalIgnoreCase));
+            var pluginFile = _srd.GetPluginFile(plugin1, false);
+            var otherPlugin = _srd.GetPluginFile(plugin2, false);
             
             pluginFile.LoadAfter.Add(otherPlugin);
         }
@@ -277,13 +276,13 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void UncheckEsp(string plugin)
         {
-            var pluginFile = _srd.PluginFiles.First(x => x.Output.Equals(plugin, StringComparison.OrdinalIgnoreCase));
+            var pluginFile = _srd.GetPluginFile(plugin, false);
             pluginFile.IsUnchecked = true;
         }
 
         public void SetDeactivationWarning(string plugin, DeactiveStatus warning)
         {
-            var pluginFile = _srd.PluginFiles.First(x => x.Output.Equals(plugin, StringComparison.OrdinalIgnoreCase));
+            var pluginFile = _srd.GetPluginFile(plugin, false);
             pluginFile.Warning = warning;
         }
 
@@ -417,7 +416,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
         // ReSharper disable once IdentifierTypo
         public void DontInstallPlugin(string name)
         {
-            var plugin = _srd.PluginFiles.First(x => x.Input.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            var plugin = _srd.GetPluginFile(name);
             if (!_srd.PluginFiles.Remove(plugin))
                 throw new OMODScriptFunctionException($"Unable to remove Plugin from collection: {plugin}");
         }
@@ -425,7 +424,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
         // ReSharper disable once IdentifierTypo
         public void DontInstallDataFile(string name)
         {
-            var dataFile = _srd.DataFiles.First(x => x.Input.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            var dataFile = _srd.GetDataFile(name);
             if (!_srd.DataFiles.Remove(dataFile))
                 throw new OMODScriptFunctionException($"Unable to remove DataFile from collection: {dataFile}");
         }
@@ -447,8 +446,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
         
         public void InstallPlugin(string name)
         {
-            var original = _omod.GetPluginFiles()
-                .First(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            var original = _omod.GetPluginFile(name);
             
             var pluginFile = new PluginFile(original);
             _srd.PluginFiles.AddOrChange(pluginFile, actualValue => actualValue.Input = pluginFile.Input);
@@ -456,8 +454,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void InstallDataFile(string name)
         {
-            var original = _omod.GetDataFiles()
-                .First(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            var original = _omod.GetDataFile(name);
             
             var dataFile = new DataFile(original);
             _srd.DataFiles.AddOrChange(dataFile, actualValue => actualValue.Input = dataFile.Input);
@@ -477,8 +474,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void CopyPlugin(string from, string to)
         {
-            var original = _omod.GetPluginFiles()
-                .First(x => x.Name.Equals(from, StringComparison.OrdinalIgnoreCase));
+            var original = _omod.GetPluginFile(from);
             
             var pluginFile = new PluginFile(original, to);
             _srd.PluginFiles.AddOrChange(pluginFile, actualValue => actualValue.Input = pluginFile.Input);
@@ -486,8 +482,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void CopyDataFile(string from, string to)
         {
-            var original = _omod.GetDataFiles()
-                .First(x => x.Name.Equals(from, StringComparison.OrdinalIgnoreCase));
+            var original = _omod.GetDataFile(from);
             
             var dataFile = new DataFile(original, to);
             _srd.DataFiles.AddOrChange(dataFile, actualValue => actualValue.Input = dataFile.Input);
@@ -495,9 +490,11 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void CopyDataFolder(string from, string to, bool recurse)
         {
+            var fromPath = from.MakePath();
+            var toPath = to.MakePath();
             var files = _omod.GetDataFiles()
-                .FileEnumeration(from, "*", recurse)
-                .Select(x => new DataFile(x, x.Name.Replace(from, to, StringComparison.OrdinalIgnoreCase)));
+                .FileEnumeration(fromPath, "*", recurse)
+                .Select(x => new DataFile(x, x.Name.Replace(fromPath, toPath, StringComparison.OrdinalIgnoreCase)));
             
             foreach (var dataFile in files)
             {
@@ -507,8 +504,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void PatchPlugin(string from, string to, bool create)
         {
-            var pluginFile = _omod.GetPluginFiles()
-                .First(x => x.Name.Equals(from, StringComparison.OrdinalIgnoreCase));
+            var pluginFile = _omod.GetPluginFile(from);
             
             var filePatch = new FilePatch(pluginFile, to, create, true);
             _srd.FilePatches.AddOrChange(filePatch, actualValue =>
@@ -520,8 +516,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void PatchDataFile(string from, string to, bool create)
         {
-            var dataFile = _omod.GetDataFiles()
-                .First(x => x.Name.Equals(from, StringComparison.OrdinalIgnoreCase));
+            var dataFile = _omod.GetDataFile(from);
             
             var filePatch = new FilePatch(dataFile, to, create, false);
             _srd.FilePatches.AddOrChange(filePatch, actualValue =>
@@ -549,7 +544,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void EditShader(byte package, string name, string path)
         {
-            var dataFile = _srd.DataFiles.First(x => x.Input.Name.Equals(path, StringComparison.OrdinalIgnoreCase));
+            var dataFile = _srd.GetOrAddDataFile(path, _omod);
             var sdpEditInfo = new SDPEditInfo(package, name, dataFile);
             _srd.SDPEdits.AddOrChange(sdpEditInfo, actualValue => actualValue.File = sdpEditInfo.File);
         }
@@ -574,7 +569,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
         // ReSharper disable once IdentifierTypo
         private void AddPluginEdit(string file, string edid, string value, bool isGMST)
         {
-            var pluginFile = _srd.PluginFiles.First(x => x.Input.Name.Equals(file, StringComparison.OrdinalIgnoreCase));
+            var pluginFile = _srd.GetOrAddPluginFile(file, _omod);
             var pluginEditInfo = new PluginEditInfo(value, pluginFile, edid, isGMST);
             _srd.PluginEdits.AddOrChange(pluginEditInfo, actualValue => actualValue.NewValue = pluginEditInfo.NewValue);
         }
@@ -606,7 +601,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         private void SetPlugin(string file, long offset, Type type, object value)
         {
-            var pluginFile = _srd.PluginFiles.First(x => x.Input.Name.Equals(file, StringComparison.OrdinalIgnoreCase));
+            var pluginFile = _srd.GetOrAddPluginFile(file, _omod);
             var setPluginInfo = new SetPluginInfo(offset, pluginFile, type, value);
             
             _srd.SetPluginInfos.AddOrChange(setPluginInfo, actualValue =>
@@ -643,22 +638,21 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void EditXMLLine(string file, int line, string value)
         {
-            var dataFile = _srd.DataFiles.First(x => x.Input.Name.Equals(file, StringComparison.OrdinalIgnoreCase));
+            var dataFile = _srd.GetOrAddDataFile(file, _omod);
             var editXMLInfo = new EditXMLInfo(dataFile, line, value);
             _srd.EditXMLInfos.AddOrChange(editXMLInfo, actualValue => actualValue.Value = value);
         }
 
         public void EditXMLReplace(string file, string find, string replace)
         {
-            var dataFile = _srd.DataFiles.First(x => x.Input.Name.Equals(file, StringComparison.OrdinalIgnoreCase));
+            var dataFile = _srd.GetOrAddDataFile(file, _omod);
             var editXMLInfo = new EditXMLInfo(dataFile, find, replace);
             _srd.EditXMLInfos.AddOrChange(editXMLInfo, actualValue => actualValue.Replace = replace);
         }
 
         public byte[] ReadDataFile(string file)
         {
-            var compressedFile = _omod.GetDataFiles()
-                .First(x => x.Name.Equals(file, StringComparison.OrdinalIgnoreCase));
+            var compressedFile = _omod.GetDataFile(file);
             var path = compressedFile.GetFileInFolder(_srd.DataFolder);
 
             if (!File.Exists(path))
@@ -694,7 +688,7 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public void CancelDataFileCopy(string file)
         {
-            var dataFile = _srd.DataFiles.First(x => x.Output.Equals(file));
+            var dataFile = _srd.GetDataFile(file, false);
             if (!_srd.DataFiles.Remove(dataFile))
                 throw new OMODScriptFunctionException($"Unable to remove DataFile from collection: {dataFile}");
         }
