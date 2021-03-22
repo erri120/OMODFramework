@@ -23,6 +23,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp
             {
                 DarkUIdDarN.CRC => new DarkUIdDarN(),
                 DarNifiedUI.CRC => new DarNifiedUI(),
+                HorseArmorRevamped.CRC => new HorseArmorRevamped(),
                 _ => throw new NotImplementedException($"{ScriptCRC:X8}")
             };
 

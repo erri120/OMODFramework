@@ -16,7 +16,7 @@ namespace OMODFramework.Test.Scripting.CSharp
         //https://www.nexusmods.com/oblivion/mods/11280
         [InlineData("DarkUId DarN 16 OMOD Version-11280.omod", 18644802, DarkUIdDarN.CRC)]
         //https://www.nexusmods.com/oblivion/mods/46657
-        [InlineData("Horse Armor Revamped 1.8.omod-46657-1-8.omod", 9386737, 0x9646E015)]
+        [InlineData("Horse Armor Revamped 1.8.omod-46657-1-8.omod", 9386737, HorseArmorRevamped.CRC)]
         public void TestCSharpScript(string fileName, long expectedFileLength, uint scriptCRC)
         {
             var file = Path.Combine("files", "csharp-scripting", fileName);
