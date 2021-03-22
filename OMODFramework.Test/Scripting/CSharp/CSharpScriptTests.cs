@@ -36,6 +36,7 @@ namespace OMODFramework.Test.Scripting.CSharp
             //TODO: set this variable back to false once done testing locally
             const bool runScript = false;
             if (!runScript) return;
+#pragma warning disable 162
             if (TestUtils.IsCI)
                 throw new Exception($"Someone forgot to change the runScript variable back to false before commiting!");
             var scriptFunctions = new ExternalScriptFunctionsForTesting();
@@ -43,6 +44,7 @@ namespace OMODFramework.Test.Scripting.CSharp
             
             Directory.Delete(srd.DataFolder);
             Directory.Delete(srd.PluginsFolder);
+#pragma warning restore 162
         }
     }
 }

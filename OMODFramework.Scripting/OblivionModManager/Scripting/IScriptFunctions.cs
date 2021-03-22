@@ -30,7 +30,7 @@ namespace OblivionModManager.Scripting
         string[] GetExistingEspNames();
         string[] GetActiveOmodNames();
 
-        string[] Select(string[] items, string[] previews, string[] descs, string title, bool many);
+        string[] Select(string[] items, string[]? previews, string[]? descs, string title, bool many);
 
         void Message(string msg);
         void Message(string msg, string title);
