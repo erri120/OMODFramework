@@ -4,6 +4,9 @@ using OMODFramework.Scripting.ScriptHandlers.OBMMScript.Tokenizer;
 
 namespace OMODFramework.Scripting.Exceptions
 {
+    /// <summary>
+    /// Represents errors that occur during OBMM script execution.
+    /// </summary>
     [PublicAPI]
     public class OBMMScriptHandlerException : OMODScriptException
     {
@@ -11,6 +14,9 @@ namespace OMODFramework.Scripting.Exceptions
         internal OBMMScriptHandlerException(string message, Exception e) : base(message, e) { }
     }
 
+    /// <summary>
+    /// Represents errors that occur during tokenization of an OBMM script.
+    /// </summary>
     [PublicAPI]
     public class OBMMScriptTokenizerException : OBMMScriptHandlerException
     {
@@ -18,6 +24,9 @@ namespace OMODFramework.Scripting.Exceptions
         internal OBMMScriptTokenizerException(string message, Exception e) : base(message, e) { }
     }
 
+    /// <summary>
+    /// Represents errors that occur during line validation of OBMM script lines.
+    /// </summary>
     [PublicAPI]
     public class OBMMScriptLineValidationException : OBMMScriptTokenizerException
     {

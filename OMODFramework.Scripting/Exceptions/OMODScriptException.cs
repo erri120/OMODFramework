@@ -3,6 +3,9 @@ using JetBrains.Annotations;
 
 namespace OMODFramework.Scripting.Exceptions
 {
+    /// <summary>
+    /// Represents errors that occur during script execution.
+    /// </summary>
     [PublicAPI]
     public class OMODScriptException : OMODException
     {
@@ -10,6 +13,9 @@ namespace OMODFramework.Scripting.Exceptions
         internal OMODScriptException(string message, Exception e) : base(message, e) { }
     }
 
+    /// <summary>
+    /// Represents errors that occur in script functions during script execution.
+    /// </summary>
     [PublicAPI]
     public class OMODScriptFunctionException : OMODScriptException
     {

@@ -3,13 +3,25 @@ using JetBrains.Annotations;
 
 namespace OMODFramework.Scripting.Data
 {
+    /// <summary>
+    /// Represents an edit to the Oblivion.ini file.
+    /// </summary>
     [PublicAPI]
     public class INIEditInfo : IEquatable<INIEditInfo>
     {
+        /// <summary>
+        /// Name of the section where <see cref="Name"/> can be found.
+        /// </summary>
         public readonly string Section;
 
+        /// <summary>
+        /// Name of the key to find.
+        /// </summary>
         public readonly string Name;
 
+        /// <summary>
+        /// New value of the key <see cref="Name"/>.
+        /// </summary>
         public string NewValue { get; set; }
 
         internal INIEditInfo(string section, string name, string newValue)
@@ -19,11 +31,13 @@ namespace OMODFramework.Scripting.Data
             NewValue = newValue;
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"[{Section}]{Name}:{NewValue}";
         }
         
+        /// <inheritdoc />
         public bool Equals(INIEditInfo? other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -31,6 +45,7 @@ namespace OMODFramework.Scripting.Data
             return string.Equals(Section, other.Section, StringComparison.OrdinalIgnoreCase) && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase);
         }
 
+        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
@@ -39,6 +54,7 @@ namespace OMODFramework.Scripting.Data
             return Equals((INIEditInfo) obj);
         }
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             var hashCode = new HashCode();

@@ -3,15 +3,30 @@ using JetBrains.Annotations;
 
 namespace OMODFramework.Scripting.Data
 {
+    /// <summary>
+    /// Represents an edit of a plugin file.
+    /// </summary>
     [PublicAPI]
     public class PluginEditInfo : IEquatable<PluginEditInfo>
     {
+        /// <summary>
+        /// Whether the field is of type GMST or Global.
+        /// </summary>
         public readonly bool IsGMST;
 
+        /// <summary>
+        /// Plugin file to edit.
+        /// </summary>
         public readonly ScriptReturnFile File;
 
+        /// <summary>
+        /// EDID of the record to change.
+        /// </summary>
         public readonly string EditorId;
 
+        /// <summary>
+        /// New value of the record.
+        /// </summary>
         public string NewValue { get; set; }
 
         internal PluginEditInfo(string value, ScriptReturnFile file, string editorId, bool isGMST)
@@ -22,6 +37,7 @@ namespace OMODFramework.Scripting.Data
             IsGMST = isGMST;
         }
 
+        /// <inheritdoc />
         public bool Equals(PluginEditInfo? other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -30,6 +46,7 @@ namespace OMODFramework.Scripting.Data
                                           && string.Equals(EditorId, other.EditorId, StringComparison.OrdinalIgnoreCase);
         }
 
+        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
@@ -38,6 +55,7 @@ namespace OMODFramework.Scripting.Data
             return Equals((PluginEditInfo) obj);
         }
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             var hashCode = new HashCode();

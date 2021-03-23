@@ -8,7 +8,7 @@ insert_final_newline = true
 # dotnet_diagnostic.CS0169.severity = info
 
 # CS1591: // Missing XML comment for publicly visible type or member
-dotnet_diagnostic.CS1591.severity = silent
+dotnet_diagnostic.CS1591.severity = warning
 
 # CS8602: Dereference of a possibly null reference.
 dotnet_diagnostic.CS8602.severity = error

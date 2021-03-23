@@ -3,9 +3,15 @@ using JetBrains.Annotations;
 
 namespace OMODFramework.Scripting.Data
 {
+    /// <summary>
+    /// Represents an edit to a XML file.
+    /// </summary>
     [PublicAPI]
     public class EditXMLInfo : IEquatable<EditXMLInfo>
     {
+        /// <summary>
+        /// The XML file to edit.
+        /// </summary>
         public readonly ScriptReturnFile File;
 
         /// <summary>
@@ -62,6 +68,7 @@ namespace OMODFramework.Scripting.Data
             Replace = replace;
         }
 
+        /// <inheritdoc />
         public bool Equals(EditXMLInfo? other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -73,6 +80,7 @@ namespace OMODFramework.Scripting.Data
                    && string.Equals(Find, other.Find, StringComparison.OrdinalIgnoreCase);
         }
 
+        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
@@ -81,6 +89,7 @@ namespace OMODFramework.Scripting.Data
             return Equals((EditXMLInfo) obj);
         }
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             var hashCode = new HashCode();

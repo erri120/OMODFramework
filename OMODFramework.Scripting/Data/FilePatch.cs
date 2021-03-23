@@ -4,15 +4,30 @@ using OMODFramework.Compression;
 
 namespace OMODFramework.Scripting.Data
 {
+    /// <summary>
+    /// Represents a file patch.
+    /// </summary>
     [PublicAPI]
     public class FilePatch : IEquatable<FilePatch>
     {
+        /// <summary>
+        /// The file to patch.
+        /// </summary>
         public readonly string To;
         
+        /// <summary>
+        /// Plugin or Data file.
+        /// </summary>
         public readonly bool IsPlugin;
         
+        /// <summary>
+        /// What <see cref="To"/> should be replaced with.
+        /// </summary>
         public OMODCompressedFile From { get; internal set; }
 
+        /// <summary>
+        /// Whether to create or replace the file at <see cref="To"/>.
+        /// </summary>
         public bool Create { get; internal set; }
         
         internal FilePatch(OMODCompressedFile from, string to, bool create, bool plugin)
@@ -23,6 +38,7 @@ namespace OMODFramework.Scripting.Data
             IsPlugin = plugin;
         }
 
+        /// <inheritdoc />
         public bool Equals(FilePatch? other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -30,6 +46,7 @@ namespace OMODFramework.Scripting.Data
             return string.Equals(To, other.To, StringComparison.OrdinalIgnoreCase) && IsPlugin == other.IsPlugin;
         }
 
+        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
@@ -38,6 +55,7 @@ namespace OMODFramework.Scripting.Data
             return Equals((FilePatch) obj);
         }
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             var hashCode = new HashCode();
