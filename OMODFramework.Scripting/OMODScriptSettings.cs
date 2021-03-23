@@ -9,6 +9,8 @@ namespace OMODFramework.Scripting
         public bool DryRun { get; set; }
 
         public bool UseBitmapOverloads { get; set; } = true;
+
+        public bool UseInternalBSAFunctions { get; set; } = true;
         
         public Version CurrentOBMMVersion { get; set; } = new Version(1, 1, 12, 0);
         

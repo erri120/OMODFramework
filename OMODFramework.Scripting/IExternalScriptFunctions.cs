@@ -62,6 +62,12 @@ namespace OMODFramework.Scripting
         string ReadRendererInfo(string valueName);
 
         void SetNewLoadOrder(string[] plugins);
+
+        byte[] GetDataFileFromBSA(string file);
+        
+        byte[] GetDataFileFromBSA(string bsa, string file);
+
+        string GetExistingBSAPath(string bsa);
     }
 
     [PublicAPI]

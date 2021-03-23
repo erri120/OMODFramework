@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using Force.Crc32;
 using OblivionModManager.Scripting;
 using OMODFramework.Compression;
+using OMODFramework.Oblivion.BSA;
 using OMODFramework.Scripting.Data;
 using OMODFramework.Scripting.Exceptions;
 
@@ -18,6 +19,8 @@ namespace OMODFramework.Scripting.ScriptHandlers
         private readonly OMOD _omod;
         private readonly ScriptReturnData _srd;
         private IExternalScriptFunctions ExternalScriptFunctions => _settings.ExternalScriptFunctions;
+
+        private readonly Dictionary<string, BSAReader> _loadedBSAs = new Dictionary<string, BSAReader>(StringComparer.OrdinalIgnoreCase);
         
         internal ScriptFunctions(OMODScriptSettings settings, OMOD omod, ScriptReturnData srd)
         {
@@ -707,12 +710,45 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
         public byte[] GetDataFileFromBSA(string file)
         {
+            if (!_settings.UseInternalBSAFunctions)
+                return ExternalScriptFunctions.GetDataFileFromBSA(file);
+            
+            /*
+             * The problem with this function is that OBMM loaded all BSAs in the Oblivion data folder on startup and was
+             * thus able to search a Dictionary for this file. We can't really do this here so this relies on an external
+             * implementation for now.
+             */
+            
             throw new NotImplementedException();
         }
 
         public byte[] GetDataFileFromBSA(string bsa, string file)
         {
-            throw new NotImplementedException();
+            /*
+             * Similar to GetDataFileFromBSA(string file) but very different as we now have a concrete bsa we need to
+             * read where the file will be in. You can still use your own implementation but now we actually have one
+             * that checks our bsa cache and finds the file.
+             */
+            
+            var filePath = file.MakePath();
+            
+            if (!_settings.UseInternalBSAFunctions)
+                return ExternalScriptFunctions.GetDataFileFromBSA(bsa, file);
+
+            if (!_loadedBSAs.TryGetValue(bsa, out var reader))
+            {
+                var bsaPath = ExternalScriptFunctions.GetExistingBSAPath(bsa).MakePath();
+                reader = new BSAReader(bsaPath);
+                _loadedBSAs.Add(bsa, reader);
+            }
+
+            var archiveFile = reader.Files.First(x => x.Path.Equals(filePath, StringComparison.OrdinalIgnoreCase));
+
+            var buffer = new byte[archiveFile.Size];
+            using var ms = new MemoryStream(buffer);
+            archiveFile.CopyDataTo(ms);
+
+            return buffer;
         }
         
         public bool IsSimulation()

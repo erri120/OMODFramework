@@ -207,5 +207,20 @@ namespace OMODFramework.Test.Scripting
         {
             throw new NotImplementedException();
         }
+
+        public byte[] GetDataFileFromBSA(string file)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] GetDataFileFromBSA(string bsa, string file)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetExistingBSAPath(string bsa)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
