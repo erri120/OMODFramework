@@ -9,6 +9,14 @@
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DocumentationFile>bin\Release\OMODFramework.Scripting.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DocumentationFile>bin\Debug\OMODFramework.Scripting.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
     <PackageReference Include="NLog" Version="4.7.8" />
