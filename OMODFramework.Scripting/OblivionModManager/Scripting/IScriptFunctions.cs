@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 namespace OblivionModManager.Scripting
 {
     [PublicAPI]
-    public interface IScriptFunctions
+    internal interface IScriptFunctions
     {
         bool GetDisplayWarnings();
 
