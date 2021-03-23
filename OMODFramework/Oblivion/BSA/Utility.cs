@@ -21,8 +21,10 @@ namespace OMODFramework.Oblivion.BSA
             {
                 VersionType.SSE => Windows1252.Value,
 #pragma warning disable 618
+#pragma warning disable SYSLIB0001
                 _ => Encoding.UTF7
 #pragma warning restore 618
+#pragma warning restore SYSLIB0001
             };
         }
 
