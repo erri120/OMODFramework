@@ -143,16 +143,18 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
                 }
             }
 
-            var armorelventex1 = sf.GetDataFileFromBSA(@"textures\creatures\horse\armorelven_n.dds");
+            var armorelventex1 =
+                sf.GetDataFileFromBSA("DLCHorseArmor.bsa", @"textures\creatures\horse\armorelven_n.dds");
             sf.GenerateNewDataFile(@"harlanrm\textures\creatures\horse\armorelven_n.dds", armorelventex1);
 
-            var armorsteeltex = sf.GetDataFileFromBSA(@"textures\creatures\horse\armorsteel.dds");
+            var armorsteeltex = sf.GetDataFileFromBSA("DLCHorseArmor.bsa", @"textures\creatures\horse\armorsteel.dds");
             sf.GenerateNewDataFile(@"harlanrm\textures\creatures\horse\armorsteel.dds", armorsteeltex);
 
-            var armorsteeltex1 = sf.GetDataFileFromBSA(@"textures\creatures\horse\armorsteel_n.dds");
+            var armorsteeltex1 =
+                sf.GetDataFileFromBSA("DLCHorseArmor.bsa", @"textures\creatures\horse\armorsteel_n.dds");
             sf.GenerateNewDataFile(@"harlanrm\textures\creatures\horse\armorsteel_n.dds", armorsteeltex1);
 
-            var bridleelven = sf.GetDataFileFromBSA(@"meshes\creatures\horse\bridleelven.nif");
+            var bridleelven = sf.GetDataFileFromBSA("DLCHorseArmor.bsa", @"meshes\creatures\horse\bridleelven.nif");
             sf.GenerateNewDataFile(@"harlanrm\meshes\creatures\horse\bridleelven.nif", bridleelven);
 
             var bridleglass1 = new List<byte>(bridleelven);
@@ -173,7 +175,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
             var bridlecloth = bridlecloth1.ToArray();
             sf.GenerateNewDataFile(@"harlanrm\meshes\creatures\horse\bridlecloth.nif", bridlecloth);
 
-            var bridlesteel = sf.GetDataFileFromBSA(@"meshes\creatures\horse\bridlesteel.nif");
+            var bridlesteel = sf.GetDataFileFromBSA("DLCHorseArmor.bsa", @"meshes\creatures\horse\bridlesteel.nif");
             sf.GenerateNewDataFile(@"harlanrm\meshes\creatures\horse\bridlesteel.nif", bridlesteel);
 
             var
@@ -202,7 +204,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
             var bridledaedric = bridledaedric1.ToArray();
             sf.GenerateNewDataFile(@"harlanrm\meshes\creatures\horse\bridledaedric.nif", bridledaedric);
 
-            var armorelven = sf.GetDataFileFromBSA(@"meshes\creatures\horse\armorelven.nif");
+            var armorelven = sf.GetDataFileFromBSA("DLCHorseArmor.bsa", @"meshes\creatures\horse\armorelven.nif");
             sf.GenerateNewDataFile(@"harlanrm\meshes\creatures\horse\armorelven.nif", armorelven);
 
             var armorcloth1 = new List<byte>(armorelven);
@@ -234,7 +236,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
             var armorglass = armorglass1.ToArray();
             sf.GenerateNewDataFile(@"harlanrm\meshes\creatures\horse\armorglass.nif", armorglass);
 
-            var armorsteel = sf.GetDataFileFromBSA(@"meshes\creatures\horse\armorsteel.nif");
+            var armorsteel = sf.GetDataFileFromBSA("DLCHorseArmor.bsa", @"meshes\creatures\horse\armorsteel.nif");
             sf.GenerateNewDataFile(@"harlanrm\meshes\creatures\horse\armorsteel.nif", armorsteel);
 
             var armorebony1 = new List<byte>(armorsteel);
@@ -261,26 +263,32 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
             var armordragon = armordragon1.ToArray();
             sf.GenerateNewDataFile(@"harlanrm\meshes\creatures\horse\armordragon.nif", armordragon);
 
-            var foot1 = sf.GetDataFileFromBSA(@"sound\fx\npc\horse\foot\armor\npc_horse_foot_armor_01.wav");
+            var foot1 = sf.GetDataFileFromBSA("DLCHorseArmor.bsa",
+                @"sound\fx\npc\horse\foot\armor\npc_horse_foot_armor_01.wav");
             sf.GenerateNewDataFile(@"harlanrm\sound\fx\npc\horse\foot\armor\npc_horse_foot_armor_01.wav", foot1);
 
-            var foot2 = sf.GetDataFileFromBSA(@"sound\fx\npc\horse\foot\armor\npc_horse_foot_armor_02.wav");
+            var foot2 = sf.GetDataFileFromBSA("DLCHorseArmor.bsa",
+                @"sound\fx\npc\horse\foot\armor\npc_horse_foot_armor_02.wav");
             sf.GenerateNewDataFile(@"harlanrm\sound\fx\npc\horse\foot\armor\npc_horse_foot_armor_02.wav", foot2);
 
-            var foot3 = sf.GetDataFileFromBSA(@"sound\fx\npc\horse\foot\armor\npc_horse_foot_armor_03.wav");
+            var foot3 = sf.GetDataFileFromBSA("DLCHorseArmor.bsa",
+                @"sound\fx\npc\horse\foot\armor\npc_horse_foot_armor_03.wav");
             sf.GenerateNewDataFile(@"harlanrm\sound\fx\npc\horse\foot\armor\npc_horse_foot_armor_03.wav", foot3);
 
-            var foot4 = sf.GetDataFileFromBSA(@"sound\fx\npc\horse\foot\armor\npc_horse_foot_armor_04.wav");
+            var foot4 = sf.GetDataFileFromBSA("DLCHorseArmor.bsa",
+                @"sound\fx\npc\horse\foot\armor\npc_horse_foot_armor_04.wav");
             sf.GenerateNewDataFile(@"harlanrm\sound\fx\npc\horse\foot\armor\npc_horse_foot_armor_04.wav", foot4);
 
-            var foot5 = sf.GetDataFileFromBSA(@"sound\fx\npc\horse\foot\armor\npc_horse_foot_armor_05.wav");
+            var foot5 = sf.GetDataFileFromBSA("DLCHorseArmor.bsa",
+                @"sound\fx\npc\horse\foot\armor\npc_horse_foot_armor_05.wav");
             sf.GenerateNewDataFile(@"harlanrm\sound\fx\npc\horse\foot\armor\npc_horse_foot_armor_05.wav", foot5);
 
-            var foot6 = sf.GetDataFileFromBSA(@"sound\fx\npc\horse\foot\armor\npc_horse_foot_armor_06.wav");
+            var foot6 = sf.GetDataFileFromBSA("DLCHorseArmor.bsa",
+                @"sound\fx\npc\horse\foot\armor\npc_horse_foot_armor_06.wav");
             sf.GenerateNewDataFile(@"harlanrm\sound\fx\npc\horse\foot\armor\npc_horse_foot_armor_06.wav", foot6);
 
             var topic0 =
-                sf.GetDataFileFromBSA(
+                sf.GetDataFileFromBSA("DLCHorseArmor.bsa",
                     @"sound\voice\dlchorsearmor.esp\nord\f\dlchorsearmor_dlchorsearmortopic_00000cf0_1.lip");
             sf.GenerateNewDataFile(
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmor_HRMHorseArmorTopic_00000cf0_1.lip",
@@ -299,7 +307,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
                 topic0);
 
             var topic1 =
-                sf.GetDataFileFromBSA(
+                sf.GetDataFileFromBSA("DLCHorseArmor.bsa",
                     @"sound\voice\dlchorsearmor.esp\nord\f\dlchorsearmor_dlchorsearmortopic_00000cf0_1.mp3");
             sf.GenerateNewDataFile(
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmor_HRMHorseArmorTopic_00000cf0_1.mp3",
@@ -318,7 +326,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
                 topic1);
 
             var topicbuy0 =
-                sf.GetDataFileFromBSA(
+                sf.GetDataFileFromBSA("DLCHorseArmor.bsa",
                     @"sound\voice\dlchorsearmor.esp\nord\f\dlchorsearmor_dlchorsearmortopicbuy_0000210e_1.lip");
             sf.GenerateNewDataFile(
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmor_HRMHorseArmorTopicDaedric_0000351E_1.lip",
@@ -343,7 +351,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
                 topicbuy0);
 
             var topicbuy1 =
-                sf.GetDataFileFromBSA(
+                sf.GetDataFileFromBSA("DLCHorseArmor.bsa",
                     @"sound\voice\dlchorsearmor.esp\nord\f\dlchorsearmor_dlchorsearmortopicbuy_0000210e_1.mp3");
             sf.GenerateNewDataFile(
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmor_HRMHorseArmorTopicDaedric_0000351E_1.mp3",
@@ -368,7 +376,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
                 topicbuy1);
 
             var topicelven0 =
-                sf.GetDataFileFromBSA(
+                sf.GetDataFileFromBSA("DLCHorseArmor.bsa",
                     @"sound\voice\dlchorsearmor.esp\nord\f\dlchorsearmor_dlchorsearmortopicelven_00002613_1.lip");
             sf.GenerateNewDataFile(
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmor_HRMHorseArmorTopicHelp_00000EDF_1.lip",
@@ -384,7 +392,7 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
                 topicelven0);
 
             var topicelven1 =
-                sf.GetDataFileFromBSA(
+                sf.GetDataFileFromBSA("DLCHorseArmor.bsa",
                     @"sound\voice\dlchorsearmor.esp\nord\f\dlchorsearmor_dlchorsearmortopicelven_00002613_1.mp3");
             sf.GenerateNewDataFile(
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmor_HRMHorseArmorTopicHelp_00000EDF_1.mp3",
@@ -400,7 +408,8 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
                 topicelven1);
 
             var topiccancel0 =
-                sf.GetDataFileFromBSA(@"sound\voice\oblivion.esm\nord\f\generic_barterexit_000091e5_1.lip");
+                sf.GetDataFileFromBSA("Oblivion - Voices2.bsa",
+                    @"sound\voice\oblivion.esm\nord\f\generic_barterexit_000091e5_1.lip");
             sf.GenerateNewDataFile(
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmor_HRMHorseArmorTopicCancel_0000D57C_1.lip",
                 topiccancel0);
@@ -408,7 +417,8 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmorDragon_HRMHorseArmorTopicDragonCancel_0000B3A3_1.lip",
                 topiccancel0);
             var topiccancel1 =
-                sf.GetDataFileFromBSA(@"sound\voice\oblivion.esm\nord\f\generic_barterexit_000091e5_1.mp3");
+                sf.GetDataFileFromBSA("Oblivion - Voices2.bsa",
+                    @"sound\voice\oblivion.esm\nord\f\generic_barterexit_000091e5_1.mp3");
             sf.GenerateNewDataFile(
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmor_HRMHorseArmorTopicCancel_0000D57C_1.mp3",
                 topiccancel1);
@@ -417,56 +427,66 @@ namespace OMODFramework.Scripting.ScriptHandlers.CSharp.InlinedScripts
                 topiccancel1);
 
             var topicrefund0 =
-                sf.GetDataFileFromBSA(@"sound\voice\oblivion.esm\nord\f\generic_goodbye_0002b7ac_1.lip");
+                sf.GetDataFileFromBSA("Oblivion - Voices2.bsa",
+                    @"sound\voice\oblivion.esm\nord\f\generic_goodbye_0002b7ac_1.lip");
             sf.GenerateNewDataFile(
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmor_HRMHorseArmorTopicRefund_0000C150_1.lip",
                 topicrefund0);
             var topicrefund1 =
-                sf.GetDataFileFromBSA(@"sound\voice\oblivion.esm\nord\f\generic_goodbye_0002b7ac_1.mp3");
+                sf.GetDataFileFromBSA("Oblivion - Voices2.bsa",
+                    @"sound\voice\oblivion.esm\nord\f\generic_goodbye_0002b7ac_1.mp3");
             sf.GenerateNewDataFile(
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmor_HRMHorseArmorTopicRefund_0000C150_1.mp3",
                 topicrefund1);
 
             var topicserve0 =
-                sf.GetDataFileFromBSA(@"sound\voice\oblivion.esm\nord\f\generic_barterexit_000091ea_1.lip");
+                sf.GetDataFileFromBSA("Oblivion - Voices2.bsa",
+                    @"sound\voice\oblivion.esm\nord\f\generic_barterexit_000091ea_1.lip");
             sf.GenerateNewDataFile(
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmorDragon_HRMHorseArmorTopicDragon_0000B39F_1.lip",
                 topicserve0);
             var topicserve1 =
-                sf.GetDataFileFromBSA(@"sound\voice\oblivion.esm\nord\f\generic_barterexit_000091ea_1.mp3");
+                sf.GetDataFileFromBSA("Oblivion - Voices2.bsa",
+                    @"sound\voice\oblivion.esm\nord\f\generic_barterexit_000091ea_1.mp3");
             sf.GenerateNewDataFile(
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmorDragon_HRMHorseArmorTopicDragon_0000B39F_1.mp3",
                 topicserve1);
 
             var topicdragon0 =
-                sf.GetDataFileFromBSA(@"sound\voice\oblivion.esm\nord\f\emfriddemo_greeting_00028a26_1.lip");
+                sf.GetDataFileFromBSA("Oblivion - Voices2.bsa",
+                    @"sound\voice\oblivion.esm\nord\f\emfriddemo_greeting_00028a26_1.lip");
             sf.GenerateNewDataFile(
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmorDragon_HRMHorseArmorTopicDragon_0000B3A0_1.lip",
                 topicdragon0);
             var topicdragon1 =
-                sf.GetDataFileFromBSA(@"sound\voice\oblivion.esm\nord\f\emfriddemo_greeting_00028a26_1.mp3");
+                sf.GetDataFileFromBSA("Oblivion - Voices2.bsa",
+                    @"sound\voice\oblivion.esm\nord\f\emfriddemo_greeting_00028a26_1.mp3");
             sf.GenerateNewDataFile(
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmorDragon_HRMHorseArmorTopicDragon_0000B3A0_1.mp3",
                 topicdragon1);
 
             var topicdragondecline0 =
-                sf.GetDataFileFromBSA(@"sound\voice\oblivion.esm\nord\f\generic_barterfail_0000921e_1.lip");
+                sf.GetDataFileFromBSA("Oblivion - Voices2.bsa",
+                    @"sound\voice\oblivion.esm\nord\f\generic_barterfail_0000921e_1.lip");
             sf.GenerateNewDataFile(
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmorDragon_HRMHorseArmorTopicDragonBuy_0000B3A5_1.lip",
                 topicdragondecline0);
             var topicdragondecline1 =
-                sf.GetDataFileFromBSA(@"sound\voice\oblivion.esm\nord\f\generic_barterfail_0000921e_1.mp3");
+                sf.GetDataFileFromBSA("Oblivion - Voices2.bsa",
+                    @"sound\voice\oblivion.esm\nord\f\generic_barterfail_0000921e_1.mp3");
             sf.GenerateNewDataFile(
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmorDragon_HRMHorseArmorTopicDragonBuy_0000B3A5_1.mp3",
                 topicdragondecline1);
 
             var topicdragonbuy0 =
-                sf.GetDataFileFromBSA(@"sound\voice\oblivion.esm\nord\f\generic_persuasionenter_0018b2e5_1.lip");
+                sf.GetDataFileFromBSA("Oblivion - Voices2.bsa",
+                    @"sound\voice\oblivion.esm\nord\f\generic_persuasionenter_0018b2e5_1.lip");
             sf.GenerateNewDataFile(
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmorDragon_HRMHorseArmorTopicDragonBuy_0000B3A6_1.lip",
                 topicdragonbuy0);
             var topicdragonbuy1 =
-                sf.GetDataFileFromBSA(@"sound\voice\oblivion.esm\nord\f\generic_persuasionenter_0018b2e5_1.mp3");
+                sf.GetDataFileFromBSA("Oblivion - Voices2.bsa",
+                    @"sound\voice\oblivion.esm\nord\f\generic_persuasionenter_0018b2e5_1.mp3");
             sf.GenerateNewDataFile(
                 @"harlanrm\sound\Voice\HRMHorseArmor.esp\nord\f\HRMHorseArmorDragon_HRMHorseArmorTopicDragonBuy_0000B3A6_1.mp3",
                 topicdragonbuy1);
