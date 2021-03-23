@@ -11,7 +11,7 @@ using JetBrains.Annotations;
 namespace OMODFramework.Oblivion.BSA
 {
     [PublicAPI]
-    public struct ReadOnlyMemorySlice<T> : IEnumerable<T>
+    internal struct ReadOnlyMemorySlice<T> : IEnumerable<T>
     {
         private T[] _arr;
         private int _startPos;

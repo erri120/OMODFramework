@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 namespace OMODFramework.Oblivion.BSA
 {
     [PublicAPI]
-    public class FolderRecord : IArchiveFolder
+    internal class FolderRecord : IArchiveFolder
     {
         internal readonly BSAReader BSA;
         private readonly ReadOnlyMemorySlice<byte> _data;

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+#pragma warning disable 1591
 
 namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript.Tokenizer
 {

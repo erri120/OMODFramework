@@ -5,7 +5,7 @@ namespace OMODFramework.Oblivion.BSA
 {
     [PublicAPI]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public enum VersionType : uint
+    internal enum VersionType : uint
     {
         TES4 = 0x67,
         FO3 = 0x68, // FO3, FNV, TES5

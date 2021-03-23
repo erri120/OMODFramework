@@ -5,7 +5,7 @@ namespace OMODFramework.Oblivion.BSA
 {
     [PublicAPI]
     [Flags]
-    public enum FileFlags : uint
+    internal enum FileFlags : uint
     {
         Meshes = 0x1,
         Textures = 0x2,

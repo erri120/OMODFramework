@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 namespace OMODFramework.Oblivion.BSA
 {
     [PublicAPI]
-    public class BSAReader : IArchiveReader
+    internal class BSAReader : IArchiveReader
     {
         public const int HeaderLength = 0x24;
 

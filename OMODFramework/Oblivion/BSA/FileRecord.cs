@@ -10,7 +10,7 @@ using SharpCompress.Compressors.Deflate;
 namespace OMODFramework.Oblivion.BSA
 {
     [PublicAPI]
-    public class FileRecord : IArchiveFile
+    internal class FileRecord : IArchiveFile
     {
         public const int HeaderLength = 0x10;
 

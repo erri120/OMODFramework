@@ -5,7 +5,7 @@ namespace OMODFramework.Oblivion.BSA
 {
     [PublicAPI]
     [Flags]
-    public enum ArchiveFlags : uint
+    internal enum ArchiveFlags : uint
     {
         HasFolderNames = 0x1,
         HasFileNames = 0x2,

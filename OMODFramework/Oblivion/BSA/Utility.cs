@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 namespace OMODFramework.Oblivion.BSA
 {
     [PublicAPI]
-    public static class Utility
+    internal static class Utility
     {
         private static readonly Lazy<Encoding> Windows1252 = new Lazy<Encoding>(() =>
         {

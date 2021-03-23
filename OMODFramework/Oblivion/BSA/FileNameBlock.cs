@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 namespace OMODFramework.Oblivion.BSA
 {
     [PublicAPI]
-    public class FileNameBlock
+    internal class FileNameBlock
     {
         public readonly Lazy<ReadOnlyMemorySlice<byte>[]> Names;
 

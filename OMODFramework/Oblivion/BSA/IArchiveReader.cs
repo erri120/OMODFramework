@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 namespace OMODFramework.Oblivion.BSA
 {
     [PublicAPI]
-    public interface IArchiveReader
+    internal interface IArchiveReader
     {
         bool TryGetFolder(string path, [MaybeNullWhen(false)] out IArchiveFolder folder);
     }

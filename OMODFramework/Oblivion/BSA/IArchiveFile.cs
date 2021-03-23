@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 namespace OMODFramework.Oblivion.BSA
 {
     [PublicAPI]
-    public interface IArchiveFile
+    internal interface IArchiveFile
     {
         /// <summary>
         /// The path of the file inside the archive
