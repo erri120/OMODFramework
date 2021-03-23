@@ -222,7 +222,7 @@ namespace OMODFramework
         }
         
         /// <summary>
-        /// Extracts and returns the image if present. Remember to dispose of the image using <see cref="Image.Dispose"/>.
+        /// Extracts and returns the image if present. Remember to dispose of the image using <see cref="Image.Dispose()"/>.
         /// </summary>
         /// <returns></returns>
         public Bitmap GetImage()

@@ -188,12 +188,12 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript.Tokenizer
             /// </summary>
             GreaterThan,
             /// <summary>
-            /// Parsing both Arguments (Arguments[0] and Arguments[1]) as floats using <see cref="float.TryParse(string?,out float"/>
+            /// Parsing both Arguments (Arguments[0] and Arguments[1]) as floats using <see cref="float.TryParse(string?,out float)"/>
             /// and comparing them using <code>arg1 &gt;= arg2</code>
             /// </summary>
             fGreaterEqual,
             /// <summary>
-            /// Parsing both Arguments (Arguments[0] and Arguments[1]) as floats using <see cref="float.TryParse(string?,out float"/>
+            /// Parsing both Arguments (Arguments[0] and Arguments[1]) as floats using <see cref="float.TryParse(string?,out float)"/>
             /// and comparing them using <code>arg1 &lt; arg2</code>
             /// </summary>
             fGreaterThan
