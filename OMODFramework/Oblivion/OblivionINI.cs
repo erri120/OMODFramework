@@ -6,6 +6,9 @@ using JetBrains.Annotations;
 
 namespace OMODFramework.Oblivion
 {
+    /// <summary>
+    /// Provides static functions for reading and modifying the Oblivion.ini file.
+    /// </summary>
     [PublicAPI]
     public static class OblivionINI
     {

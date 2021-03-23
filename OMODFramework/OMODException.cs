@@ -3,6 +3,9 @@ using JetBrains.Annotations;
 
 namespace OMODFramework
 {
+    /// <summary>
+    /// Represents errors that occur when dealing with OMODs.
+    /// </summary>
     [PublicAPI]
     public class OMODException : Exception
     {
@@ -11,12 +14,18 @@ namespace OMODFramework
         internal OMODException(string message, Exception e) : base(message, e) { }
     }
 
+    /// <summary>
+    /// Represents errors that occur during OMOD validation.
+    /// </summary>
     [PublicAPI]
     public class OMODValidationException : OMODException
     {
         internal OMODValidationException(string message) : base(message) { }
     }
 
+    /// <summary>
+    /// Represents an error where a <see cref="OMODEntryFileType"/> was not found.
+    /// </summary>
     [PublicAPI]
     public class OMODEntryNotFoundException : OMODException
     {

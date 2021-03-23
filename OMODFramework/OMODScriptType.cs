@@ -3,6 +3,9 @@ using JetBrains.Annotations;
 
 namespace OMODFramework
 {
+    /// <summary>
+    /// Possible script types in an OMOD.
+    /// </summary>
     [PublicAPI]
     public enum OMODScriptType : byte
     {

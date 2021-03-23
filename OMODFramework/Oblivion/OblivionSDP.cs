@@ -5,6 +5,9 @@ using JetBrains.Annotations;
 
 namespace OMODFramework.Oblivion
 {
+    /// <summary>
+    /// Provides static functions for reading and modifying Oblivion Shader Packages.
+    /// </summary>
     [PublicAPI]
     public static class OblivionSDP
     {

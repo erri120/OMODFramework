@@ -5,6 +5,9 @@ using JetBrains.Annotations;
 
 namespace OMODFramework.Oblivion
 {
+    /// <summary>
+    /// Provides static functions for reading and modifying Oblivion Renderer-Info files.
+    /// </summary>
     [PublicAPI]
     public static class OblivionRendererInfo
     {

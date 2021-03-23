@@ -14,11 +14,17 @@ using OMODFramework.Compression;
 
 namespace OMODFramework
 {
+    /// <summary>
+    /// Represents an OMOD.
+    /// </summary>
     [PublicAPI]
     public sealed class OMOD : IDisposable
     {
         private ZipArchive _zipArchive;
 
+        /// <summary>
+        /// Configuration information.
+        /// </summary>
         public OMODConfig Config;
 
         private HashSet<OMODCompressedFile>? _dataFiles;

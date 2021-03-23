@@ -9,37 +9,87 @@ using OMODFramework.Compression;
 
 namespace OMODFramework
 {
+    /// <summary>
+    /// Represents creation options for an OMOD.
+    /// </summary>
     [PublicAPI]
     public sealed class OMODCreationOptions : OMODConfig
     {
+        /// <summary>
+        /// Readme of the OMOD.
+        /// </summary>
         public string? Readme { get; set; }
 
+        /// <summary>
+        /// Type of the script.
+        /// </summary>
         public OMODScriptType ScriptType { get; set; } = OMODScriptType.OBMMScript;
         
+        /// <summary>
+        /// Script of the OMOD.
+        /// </summary>
         public string? Script { get; set; }
 
+        /// <summary>
+        /// Image of the OMOD.
+        /// </summary>
         public Bitmap? Image { get; set; }
 
+        /// <summary>
+        /// Compression-level used for LZMA compression.
+        /// </summary>
         public SevenZipCompressionLevel SevenZipCompressionLevel { get; set; } = SevenZipCompressionLevel.Medium;
 
+        /// <summary>
+        /// Compression-level used for ZIP compression.
+        /// </summary>
         public CompressionLevel ZipCompressionLevel { get; set; } = CompressionLevel.Optimal;
         
+        /// <summary>
+        /// Compression-level used for the OMOD.
+        /// </summary>
         public CompressionLevel OMODCompressionLevel { get; set; } = CompressionLevel.Optimal;
 
+        /// <summary>
+        /// List of all data files to be added to the OMOD.
+        /// </summary>
         public List<OMODCreationFile>? DataFiles { get; set; }
 
+        /// <summary>
+        /// List of all plugin files to be added to the OMOD.
+        /// </summary>
         public List<OMODCreationFile>? PluginFiles { get; set; }
         
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OMODCreationOptions"/> class.
+        /// </summary>
+        /// <param name="version"><see cref="Version"/></param>
         public OMODCreationOptions(Version version) : base(string.Empty, version, string.Empty, string.Empty,
             string.Empty, string.Empty, DateTime.Now, 2, CompressionType.SevenZip) { }
     }
 
+    /// <summary>
+    /// Represents a data or plugin file to be added to the OMOD.
+    /// </summary>
     [PublicAPI]
     public readonly struct OMODCreationFile
     {
+        /// <summary>
+        /// Path to the file on disk.
+        /// </summary>
         public readonly string From;
+        
+        /// <summary>
+        /// Relative file of the file in the OMOD.
+        /// </summary>
         public readonly string To;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OMODCreationFile"/> structure.
+        /// </summary>
+        /// <param name="from"><see cref="From"/></param>
+        /// <param name="to"><see cref="To"/></param>
+        /// <exception cref="ArgumentException">File <paramref name="from"/> does not exist.</exception>
         public OMODCreationFile(string from, string to)
         {
             if (!File.Exists(from))
@@ -54,16 +104,29 @@ namespace OMODFramework
         }
     }
     
+    /// <summary>
+    /// Provides static functions for OMOD creation.
+    /// </summary>
     [PublicAPI]
     public static class OMODCreation
     {
+        /// <summary>
+        /// Create a new OMOD and write to disk.
+        /// </summary>
+        /// <param name="options">Creation options to use.</param>
+        /// <param name="output">Output path.</param>
         public static void CreateOMOD(OMODCreationOptions options, string output)
         {
             using var ms = CreateOMOD(options);
             using var fs = File.Open(output, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
             ms.CopyTo(fs);
         }
-
+        
+        /// <summary>
+        /// Create a new OMOD as a <see cref="MemoryStream"/>.
+        /// </summary>
+        /// <param name="options">Creation options to use.</param>
+        /// <returns></returns>
         public static MemoryStream CreateOMOD(OMODCreationOptions options)
         {
             var ms = new MemoryStream();
