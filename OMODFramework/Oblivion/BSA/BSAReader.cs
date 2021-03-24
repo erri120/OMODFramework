@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using SharpCompress.Compressors;
+using SharpCompress.Compressors.Deflate;
 
 namespace OMODFramework.Oblivion.BSA
 {
@@ -112,18 +114,17 @@ namespace OMODFramework.Oblivion.BSA
             Folders = GetFolders(_br).ToList();
             Files = new List<BSAFileInfo>();
             
-            var count = 0;
             foreach (var folder in Folders)
             {
-                folder.Name = new string(_br.ReadChars(_br.ReadByte()));
-                folder.Index = count;
+                if (HasFolderNames)
+                {
+                    folder.Name = new string(_br.ReadChars(_br.ReadByte()));
+                }
 
                 for (var i = 0; i < folder.FileCount; i++)
                 {
                     Files.Add(new BSAFileInfo(_br, HasNameBlobs, folder));
                 }
-
-                count += folder.FileCount;
             }
 
             if (HasFileNames)
@@ -144,7 +145,7 @@ namespace OMODFramework.Oblivion.BSA
             br.BaseStream.Position = _folderRecordOffset;
             for (var i = 0; i < _folderCount; i++)
             {
-                yield return new BSAFolderInfo(br) { Index = i };
+                yield return new BSAFolderInfo(br);
             }
         }
 
@@ -162,8 +163,17 @@ namespace OMODFramework.Oblivion.BSA
                 throw new ArgumentException("Stream is not seekable!", nameof(outputStream));
             
             _br.BaseStream.Position = fileInfo.Offset;
-            //TODO: better solution
-            outputStream.Write(_br.ReadBytes((int) fileInfo.Size));
+            if (CompressedByDefault)
+            {
+                using var deflateStream = new DeflateStream(_br.BaseStream, CompressionMode.Decompress);
+                deflateStream.CopyToLimit(outputStream, fileInfo.Size);
+            }
+            else
+            {
+                //TODO: better solution
+                outputStream.Write(_br.ReadBytes((int) fileInfo.Size));
+            }
+
             outputStream.Position = 0;
         }
 
@@ -184,11 +194,6 @@ namespace OMODFramework.Oblivion.BSA
         /// Name of the folder.
         /// </summary>
         public string Name { get; set; }
-        
-        /// <summary>
-        /// Index of the folder.
-        /// </summary>
-        public int Index { get; set; }
 
         /// <summary>
         /// Hash of the folder.
@@ -203,7 +208,6 @@ namespace OMODFramework.Oblivion.BSA
         internal BSAFolderInfo(BinaryReader br)
         {
             Name = string.Empty;
-            Index = -1;
 
             Hash = br.ReadUInt64();
             FileCount = br.ReadInt32();
