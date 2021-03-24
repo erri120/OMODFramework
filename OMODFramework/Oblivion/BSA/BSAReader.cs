@@ -118,7 +118,7 @@ namespace OMODFramework.Oblivion.BSA
             {
                 if (HasFolderNames)
                 {
-                    folder.Name = new string(_br.ReadChars(_br.ReadByte()));
+                    folder.Name = new string(_br.ReadChars(_br.ReadByte())[..^1]);
                 }
 
                 for (var i = 0; i < folder.FileCount; i++)
