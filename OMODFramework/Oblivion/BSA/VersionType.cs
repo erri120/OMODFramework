@@ -1,11 +1,12 @@
-using System.Diagnostics.CodeAnalysis;
+﻿// ReSharper disable InconsistentNaming
+
 using JetBrains.Annotations;
+#pragma warning disable 1591
 
 namespace OMODFramework.Oblivion.BSA
 {
     [PublicAPI]
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    internal enum VersionType : uint
+    public enum VersionType : uint
     {
         TES4 = 0x67,
         FO3 = 0x68, // FO3, FNV, TES5

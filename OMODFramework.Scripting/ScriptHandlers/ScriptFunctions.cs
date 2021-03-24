@@ -13,7 +13,7 @@ using OMODFramework.Scripting.Exceptions;
 
 namespace OMODFramework.Scripting.ScriptHandlers
 {
-    internal class ScriptFunctions : IScriptFunctions
+    internal sealed class ScriptFunctions : IScriptFunctions, IDisposable
     {
         private readonly OMODScriptSettings _settings;
         private readonly OMOD _omod;
@@ -742,11 +742,11 @@ namespace OMODFramework.Scripting.ScriptHandlers
                 _loadedBSAs.Add(bsa, reader);
             }
 
-            var archiveFile = reader.Files.First(x => x.Path.Equals(filePath, StringComparison.OrdinalIgnoreCase));
+            var archiveFile = reader.Files.First(x => x.Name.Equals(filePath, StringComparison.OrdinalIgnoreCase));
 
             var buffer = new byte[archiveFile.Size];
             using var ms = new MemoryStream(buffer);
-            archiveFile.CopyDataTo(ms);
+            reader.CopyFileTo(archiveFile, ms);
 
             return buffer;
         }
@@ -764,6 +764,14 @@ namespace OMODFramework.Scripting.ScriptHandlers
             };
             
             return from;
+        }
+
+        public void Dispose()
+        {
+            foreach (var pair in _loadedBSAs)
+            {
+                pair.Value.Dispose();
+            }
         }
     }
 }

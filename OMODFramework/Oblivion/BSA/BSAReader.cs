@@ -1,6 +1,5 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -8,40 +7,58 @@ using JetBrains.Annotations;
 
 namespace OMODFramework.Oblivion.BSA
 {
+    /// <summary>
+    /// Represents a reader for BSA files.
+    /// </summary>
     [PublicAPI]
-    internal class BSAReader : IArchiveReader
+    public sealed class BSAReader : IDisposable
     {
-        public const int HeaderLength = 0x24;
+        private readonly BinaryReader _br;
+        
+        /// <summary>
+        /// Game version for the BSA.
+        /// </summary>
+        public readonly VersionType HeaderType;
+        
+        /// <summary>
+        /// Archive flags of the BSA.
+        /// </summary>
+        public readonly ArchiveFlags ArchiveFlags;
+        
+        /// <summary>
+        /// File flags of the BSA.
+        /// </summary>
+        public readonly FileFlags FileFlags;
 
         private readonly uint _folderRecordOffset;
-        private readonly Lazy<FolderRecord[]> _folders;
-        private readonly Lazy<Dictionary<string, FolderRecord>> _foldersByName;
-        private readonly string _magic;
-        private readonly Func<Stream> _streamGetter;
+        private readonly uint _folderCount;
+        private readonly uint _fileCount;
+        private readonly uint _totalFolderNameLength;
+        private readonly uint _totalFileNameLength;
 
-        public uint FolderCount { get; }
-        public uint FileCount { get; }
-        public uint TotalFileNameLength { get; }
-        public uint TotalFolderNameLength { get; }
-
-        public VersionType HeaderType { get; private set; }
-
-        public ArchiveFlags ArchiveFlags { get; private set; }
-
-        public FileFlags FileFlags { get; private set; }
-
-        public IEnumerable<IArchiveFile> Files => _folders.Value.SelectMany(f => f.Files);
-
-        public IEnumerable<IArchiveFolder> Folders => _folders.Value;
-
+        /// <summary>
+        /// Whether the Archive has folder names.
+        /// </summary>
         public bool HasFolderNames => ArchiveFlags.HasFlag(ArchiveFlags.HasFolderNames);
-
+        
+        /// <summary>
+        /// Whether the archive has file names.
+        /// </summary>
         public bool HasFileNames => ArchiveFlags.HasFlag(ArchiveFlags.HasFileNames);
-
+        
+        /// <summary>
+        /// Whether the files are compressed.
+        /// </summary>
         public bool CompressedByDefault => ArchiveFlags.HasFlag(ArchiveFlags.Compressed);
-
+        
+        /// <summary>
+        /// Whether the archive has file name blobs.
+        /// </summary>
         public bool Bit9Set => ArchiveFlags.HasFlag(ArchiveFlags.HasFileNameBlobs);
 
+        /// <summary>
+        /// Whether the archive has name blobs.
+        /// </summary>
         public bool HasNameBlobs
         {
             get
@@ -51,95 +68,203 @@ namespace OMODFramework.Oblivion.BSA
             }
         }
 
-        public BSAReader(string filename)
-            : this(() => File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
+        /// <summary>
+        /// List of all folders in the BSA.
+        /// </summary>
+        public List<BSAFolderInfo> Folders { get; internal set; }
+        
+        /// <summary>
+        /// List of all files in the BSA. 
+        /// </summary>
+        public List<BSAFileInfo> Files { get; internal set; }
+        
+        /// <summary>
+        /// Creates a new BSAReader instance from a path.
+        /// </summary>
+        /// <param name="path">Path to the .bsa file.</param>
+        /// <exception cref="ArgumentException">The file does not exist.</exception>
+        /// <exception cref="InvalidDataException">File is not a BSA archive.</exception>
+        /// <exception cref="NotSupportedException">BSA archive is not for TES4.</exception>
+        public BSAReader(string path)
         {
-        }
+            if (!File.Exists(path))
+                throw new ArgumentException("File does not exist!", nameof(path));
+            
+            var fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            _br = new BinaryReader(fs, Encoding.UTF8);
 
-        public BSAReader(Func<Stream> streamGetter)
-        {
-            _streamGetter = streamGetter;
-            using var rdr = GetStream();
+            var magic = Encoding.ASCII.GetString(_br.ReadBytes(4));
+            if (magic != "BSA\0")
+                throw new InvalidDataException($"Archive at {path} is not a BSA!");
 
-            var fourcc = Encoding.ASCII.GetString(rdr.ReadBytes(4));
+            HeaderType = (VersionType) _br.ReadUInt32();
+            if (HeaderType != VersionType.TES4)
+                throw new NotSupportedException($"OMODFramework only supports TES4 BSAs not {HeaderType}");
+            
+            _folderRecordOffset = _br.ReadUInt32();
+            ArchiveFlags = (ArchiveFlags) _br.ReadUInt32();
+            _folderCount = _br.ReadUInt32();
+            _fileCount = _br.ReadUInt32();
+            _totalFolderNameLength = _br.ReadUInt32();
+            _totalFileNameLength = _br.ReadUInt32();
+            FileFlags = (FileFlags) _br.ReadUInt32();
 
-            if (fourcc != "BSA\0")
-                throw new InvalidDataException("Archive is not a BSA");
-
-            _magic = fourcc;
-            HeaderType = (VersionType)rdr.ReadUInt32();
-            _folderRecordOffset = rdr.ReadUInt32();
-            ArchiveFlags = (ArchiveFlags)rdr.ReadUInt32();
-            FolderCount = rdr.ReadUInt32();
-            FileCount = rdr.ReadUInt32();
-            TotalFolderNameLength = rdr.ReadUInt32();
-            TotalFileNameLength = rdr.ReadUInt32();
-            FileFlags = (FileFlags)rdr.ReadUInt32();
-
-            _folders = new Lazy<FolderRecord[]>(
-                isThreadSafe: true,
-                valueFactory: LoadFolderRecords);
-            _foldersByName = new Lazy<Dictionary<string, FolderRecord>>(
-                isThreadSafe: true,
-                valueFactory: GetFolderDictionary);
-        }
-
-        internal BinaryReader GetStream()
-        {
-            return new BinaryReader(_streamGetter());
-        }
-
-        private FolderRecord[] LoadFolderRecords()
-        {
-            using var rdr = GetStream();
-            rdr.BaseStream.Position = _folderRecordOffset;
-            var folderHeaderLength = FolderRecord.HeaderLength(HeaderType);
-            ReadOnlyMemorySlice<byte> folderHeaderData = rdr.ReadBytes(checked((int)(folderHeaderLength * FolderCount)));
-
-            var ret = new FolderRecord[FolderCount];
-            for (var idx = 0; idx < FolderCount; idx += 1)
-                ret[idx] = new FolderRecord(this, folderHeaderData.Slice(idx * folderHeaderLength, folderHeaderLength), idx);
-
-            // Slice off appropriate file header data per folder
-            var fileCountTally = 0;
-            foreach (var folder in ret)
+            Folders = GetFolders(_br).ToList();
+            Files = new List<BSAFileInfo>();
+            
+            var count = 0;
+            foreach (var folder in Folders)
             {
-                folder.ProcessFileRecordHeadersBlock(rdr, fileCountTally);
-                fileCountTally = checked(fileCountTally + folder.FileCount);
+                folder.Name = new string(_br.ReadChars(_br.ReadByte()));
+                folder.Index = count;
+
+                for (var i = 0; i < folder.FileCount; i++)
+                {
+                    Files.Add(new BSAFileInfo(_br, HasNameBlobs, folder));
+                }
+
+                count += folder.FileCount;
             }
 
             if (HasFileNames)
             {
-                var filenameBlock = new FileNameBlock(this, rdr.BaseStream.Position);
-                foreach (var folder in ret)
+                foreach (var fileInfo in Files)
                 {
-                    folder.FileNameBlock = filenameBlock;
+                    var sb = new StringBuilder();
+                    char c;
+                    while ((c = _br.ReadChar()) != '\0')
+                        sb.Append(c);
+                    fileInfo.Name = sb.ToString();
                 }
             }
-
-            return ret;
         }
 
-        private Dictionary<string, FolderRecord> GetFolderDictionary()
+        private IEnumerable<BSAFolderInfo> GetFolders(BinaryReader br)
         {
-            if (!HasFolderNames)
+            br.BaseStream.Position = _folderRecordOffset;
+            for (var i = 0; i < _folderCount; i++)
             {
-                throw new ArgumentException("Cannot get folders by name if the BSA does not have folder names.");
+                yield return new BSAFolderInfo(br) { Index = i };
             }
-
-            return _folders.Value.ToDictionary(folder => folder.Path!);
         }
 
-        public bool TryGetFolder(string path, [MaybeNullWhen(false)] out IArchiveFolder folder)
+        /// <summary>
+        /// Copies to contents of a file in the BSA to a stream.
+        /// </summary>
+        /// <param name="fileInfo">File to copy.</param>
+        /// <param name="outputStream">Output Stream to copy to, has to be seekable and writable.</param>
+        /// <exception cref="ArgumentException">Thrown when the Stream is not seekable or writable.</exception>
+        public void CopyFileTo(BSAFileInfo fileInfo, Stream outputStream)
         {
-            if (!HasFolderNames
-                || !_foldersByName.Value.TryGetValue(path, out var folderRec))
-            {
-                folder = default;
-                return false;
-            }
-            folder = folderRec;
-            return true;
+            if (!outputStream.CanWrite)
+                throw new ArgumentException("Stream is not writable!", nameof(outputStream));
+            if (!outputStream.CanSeek)
+                throw new ArgumentException("Stream is not seekable!", nameof(outputStream));
+            
+            _br.BaseStream.Position = fileInfo.Offset;
+            //TODO: better solution
+            outputStream.Write(_br.ReadBytes((int) fileInfo.Size));
+            outputStream.Position = 0;
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            _br.Dispose();
+        }
+    }
+
+    /// <summary>
+    /// Represents a folder with files from an BSA archive.
+    /// </summary>
+    [PublicAPI]
+    public class BSAFolderInfo
+    {
+        /// <summary>
+        /// Name of the folder.
+        /// </summary>
+        public string Name { get; set; }
+        
+        /// <summary>
+        /// Index of the folder.
+        /// </summary>
+        public int Index { get; set; }
+
+        /// <summary>
+        /// Hash of the folder.
+        /// </summary>
+        public readonly ulong Hash;
+        
+        /// <summary>
+        /// Amount of files in the folder.
+        /// </summary>
+        public readonly int FileCount;
+
+        internal BSAFolderInfo(BinaryReader br)
+        {
+            Name = string.Empty;
+            Index = -1;
+
+            Hash = br.ReadUInt64();
+            FileCount = br.ReadInt32();
+            br.ReadUInt32();
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"\"{Name}\": {FileCount} files";
+        }
+    }
+
+    /// <summary>
+    /// Represents a file in an BSA archive.
+    /// </summary>
+    [PublicAPI]
+    public class BSAFileInfo
+    {
+        /// <summary>
+        /// Name of the file.
+        /// </summary>
+        public string Name { get; set; }
+        
+        /// <summary>
+        /// Hash of the file.
+        /// </summary>
+        public readonly ulong Hash;
+        
+        /// <summary>
+        /// Size of the file.
+        /// </summary>
+        public readonly uint Size;
+        
+        /// <summary>
+        /// Offset of the data in the BSA.
+        /// </summary>
+        public readonly uint Offset;
+
+        /// <summary>
+        /// The <see cref="BSAFolderInfo"/> that the file goes into.
+        /// </summary>
+        public readonly BSAFolderInfo FolderInfo;
+
+        internal BSAFileInfo(BinaryReader br, bool hasNameBlobs, BSAFolderInfo folderInfo)
+        {
+            Name = string.Empty;
+            FolderInfo = folderInfo;
+
+            Hash = br.ReadUInt64();
+            Size = br.ReadUInt32();
+            Offset = br.ReadUInt32();
+
+            if (hasNameBlobs)
+                Size ^= 0x1 << 30;
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"\"{Name}\": {Size} {Hash:x8}";
         }
     }
 }

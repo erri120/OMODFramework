@@ -1,11 +1,12 @@
-using System;
+﻿using System;
 using JetBrains.Annotations;
+#pragma warning disable 1591
 
 namespace OMODFramework.Oblivion.BSA
 {
-    [PublicAPI]
     [Flags]
-    internal enum ArchiveFlags : uint
+    [PublicAPI]
+    public enum ArchiveFlags : uint
     {
         HasFolderNames = 0x1,
         HasFileNames = 0x2,

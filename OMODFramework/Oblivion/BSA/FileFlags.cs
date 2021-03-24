@@ -1,11 +1,12 @@
-using System;
+﻿using System;
 using JetBrains.Annotations;
+#pragma warning disable 1591
 
 namespace OMODFramework.Oblivion.BSA
 {
-    [PublicAPI]
     [Flags]
-    internal enum FileFlags : uint
+    [PublicAPI]
+    public enum FileFlags : uint
     {
         Meshes = 0x1,
         Textures = 0x2,
