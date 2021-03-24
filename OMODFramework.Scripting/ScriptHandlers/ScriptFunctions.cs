@@ -668,7 +668,21 @@ namespace OMODFramework.Scripting.ScriptHandlers
         {
             return ExternalScriptFunctions.ReadExistingDataFile(file);
         }
-        
+
+        public void CancelDataFileCopy(string file)
+        {
+            var dataFile = _srd.GetDataFile(file, false);
+            if (!_srd.DataFiles.Remove(dataFile))
+                throw new OMODScriptFunctionException($"Unable to remove DataFile from collection: {dataFile}");
+        }
+
+        public void CancelDataFolderCopy(string folder)
+        {
+            var files = _srd.DataFiles
+                .Where(x => x.Output.StartsWith(folder, StringComparison.OrdinalIgnoreCase));
+            _srd.DataFiles.ExceptWith(files);
+        }
+
         public void GenerateNewDataFile(string file, byte[] data)
         {
             var filePath = Path.Combine(_srd.DataFolder, file);
@@ -688,24 +702,36 @@ namespace OMODFramework.Scripting.ScriptHandlers
 
             _srd.DataFiles.Add(new DataFile(compressedFile));
         }
-
-        public void CancelDataFileCopy(string file)
-        {
-            var dataFile = _srd.GetDataFile(file, false);
-            if (!_srd.DataFiles.Remove(dataFile))
-                throw new OMODScriptFunctionException($"Unable to remove DataFile from collection: {dataFile}");
-        }
-
-        public void CancelDataFolderCopy(string folder)
-        {
-            var files = _srd.DataFiles
-                .Where(x => x.Output.StartsWith(folder, StringComparison.OrdinalIgnoreCase));
-            _srd.DataFiles.ExceptWith(files);
-        }
-
+        
         public void GenerateBSA(string file, string path, string prefix, int cRatio, int cLevel)
         {
-            throw new NotImplementedException();
+            //TODO: compression
+            //TODO: figure out what to do with prefix argument
+            
+            var filePath = Path.Combine(_srd.DataFolder, file);
+            if (File.Exists(filePath))
+                throw new OMODScriptFunctionException($"Can not generate new BSA because file already exists: {filePath}");
+
+            var folderPath = path.MakePath();
+            var files = _srd.DataFiles.FileEnumeration(folderPath, "*", true);
+
+            var creator = new BSACreator();
+            
+            foreach (var dataFile in files)
+            {
+                var dataFilePath = dataFile.Input.Name;
+                var relativeTo = dataFilePath.Replace(folderPath, "");
+                if (relativeTo[0] == '\\')
+                    relativeTo = relativeTo[1..];
+                creator.AddFile(dataFile.Input.Name, relativeTo);
+            }
+            
+            creator.WriteToFile(file);
+            var fi = new FileInfo(file);
+            
+            //TODO: check if we can leave CRC at 0
+            var compressedFile = new OMODCompressedFile(file, 0x0, fi.Length, -1);
+            _srd.DataFiles.Add(new DataFile(compressedFile));
         }
 
         public byte[] GetDataFileFromBSA(string file)
