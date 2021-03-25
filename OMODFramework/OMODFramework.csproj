@@ -1,10 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <LangVersion>8.0</LangVersion>
-    <Nullable>enable</Nullable>
+    <Title>OMODFramework</Title>
     <TargetFrameworks>net5.0;netstandard2.1</TargetFrameworks>
-
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+  
+  <PropertyGroup>
     <NoWarn>$(NoWarn);SYSLIB0001</NoWarn>
   </PropertyGroup>
   

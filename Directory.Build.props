@@ -1,0 +1,11 @@
+<Project>
+    <PropertyGroup>
+        <Authors>erri120</Authors>
+        <Description>.NET library for working with OMODs.</Description>
+        <Copyright>GPL-3.0 License</Copyright>
+        <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/erri120/OMODFramework</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/erri120/OMODFramework.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+</Project>

@@ -1,12 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <LangVersion>8.0</LangVersion>
-    <Nullable>enable</Nullable>
-    <Platforms>AnyCPU</Platforms>
+    <Title>OMODFramework.Scripting</Title>
     <TargetFrameworks>net5.0-windows;netcoreapp3.1</TargetFrameworks>
-    <Configurations>Release;Debug</Configurations>
     <UseWindowsForms>true</UseWindowsForms>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
