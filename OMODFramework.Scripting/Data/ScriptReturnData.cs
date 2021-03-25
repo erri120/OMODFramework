@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 
 namespace OMODFramework.Scripting.Data
@@ -79,6 +80,61 @@ namespace OMODFramework.Scripting.Data
         {
             DataFolder = dataFolder;
             PluginsFolder = pluginsFolder;
+        }
+
+        private void CopyAllScriptReturnFiles(string outputPath, IEnumerable<ScriptReturnFile> files, string extractionFolder)
+        {
+            foreach (var file in files)
+            {
+                file.CopyToOutput(extractionFolder, outputPath);
+            }
+        }
+
+        private void CopyAllScriptReturnFilesParallel(string outputPath, IEnumerable<ScriptReturnFile> files,
+            string extractionFolder)
+        {
+            files
+                .AsParallel()
+                .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
+                .ForAll(x => x.CopyToOutput(extractionFolder, outputPath));
+        }
+        
+        /// <summary>
+        /// Copies all data files in <see cref="DataFiles"/> to the output folder.
+        /// </summary>
+        /// <param name="outputPath">Output folder</param>
+        public void CopyAllDataFiles(string outputPath) => CopyAllScriptReturnFiles(outputPath, DataFiles, DataFolder);
+        
+        /// <summary>
+        /// Copies all plugin files in <see cref="PluginFiles"/> to the output folder. 
+        /// </summary>
+        /// <param name="outputPath">Output folder</param>
+        public void CopyAllPluginFiles(string outputPath) => CopyAllScriptReturnFiles(outputPath, PluginFiles, PluginsFolder);
+        
+        /// <summary>
+        /// Copies all data files in parallel to the output folder.
+        /// </summary>
+        /// <param name="outputPath">Output folder</param>
+        public void CopyAllDataFilesParallel(string outputPath) => CopyAllScriptReturnFilesParallel(outputPath, DataFiles, DataFolder);
+
+        /// <summary>
+        /// Copies all files to the output folder.
+        /// </summary>
+        /// <param name="outputPath">Output folder</param>
+        public void CopyAllFiles(string outputPath)
+        {
+            CopyAllDataFiles(outputPath);
+            CopyAllPluginFiles(outputPath);
+        }
+
+        /// <summary>
+        /// Copies all files in parallel to the output folder.
+        /// </summary>
+        /// <param name="outputPath">Output folder</param>
+        public void CopyAllFilesParallel(string outputPath)
+        {
+            CopyAllDataFilesParallel(outputPath);
+            CopyAllPluginFiles(outputPath);
         }
     }
 }

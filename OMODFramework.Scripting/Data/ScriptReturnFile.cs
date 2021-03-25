@@ -60,6 +60,10 @@ namespace OMODFramework.Scripting.Data
                 if (fi.Length == Input.Length) return outputPath;
                 fi.Delete();
             }
+
+            var outputPathDirectory = Path.GetDirectoryName(outputPath);
+            if (outputPathDirectory != null)
+                Directory.CreateDirectory(outputPathDirectory);
             
             File.Copy(inputPath, outputPath, true);
             return outputPath;
