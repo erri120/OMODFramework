@@ -69,3 +69,4 @@ jobs:
         prerelease: ${{ steps.changelog_reader.outputs.status == 'prereleased' }}
         files: |
           **/*.nupkg
+          **/*.snupkg
