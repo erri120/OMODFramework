@@ -1,6 +1,7 @@
 # OMODFramework
 
 [![Nuget](https://img.shields.io/nuget/v/OMODFramework)](https://www.nuget.org/packages/OMODFramework/)
+[![CI](https://github.com/erri120/OMODFramework/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/erri120/OMODFramework/actions/workflows/ci.yml)
 
 The [Oblivion Mod Manager](https://www.nexusmods.com/oblivion/mods/2097) by Timeslip was a utility tool for managing Oblivion mods and was the most prominent mod manager during it's time. One of the crazy features it has was `.omod` files and the multiple different ways of creating installation scripts for them. 10 years later and you still needed to use parts of the tool in order to install OMODs. This library solves the issue and pain involved when dealing with OMODs and is written in modern C# code targeting .NET Standard 2.1 and .NET 5.
 
