@@ -1099,12 +1099,12 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
                     break;
                 }
                 case TokenType.AllowRunOnLines:
-                    //TODO: AllowRunOnLines
                     /*
                      * This enables the use of '\' characters at the end of a line to make it multi-line. The problem is
                      * that we don't evaluate this before we transform the script since we don't parse the script line
                      * by line.
-                     * Don't know what should be done with this so leaving this as it is for now.
+                     * We do nothing with this here but check if "AllowRunOnLines" is present during tokenization. Go
+                     * over there to find more info.
                      */
                     break;
                 case TokenType.EndIf:

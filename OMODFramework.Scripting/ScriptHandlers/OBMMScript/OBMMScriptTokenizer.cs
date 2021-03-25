@@ -24,10 +24,13 @@ namespace OMODFramework.Scripting.ScriptHandlers.OBMMScript
                 //remove empty lines
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .ToList();
+
+            var allowRunOnLines = lines.Any(x => x.Equals("AllowRunOnLines"));
             
             /*
              * The code above only works if you have one statement per line but you can extends a line with the '\'
              * character:
+
 Select "Install body textures?" \
 	   "Yes" \
 	   "No"
@@ -37,56 +40,69 @@ Select "Install body textures?" \
 	Case No
 		Break
 EndSelect
+
              * The Select statement goes for 3 lines which we need to process as 1. We can achieve this by using a queue
              * and enqueue all lines that have the '\' character at the end (without the '\' of course) and aggregating
              * the contents of the queue into a new line once we reach a line that does not have this character at
              * the end.
+             *
+             * Do note that the script has to call AllowRunOnLines to enable this behavior.
              */
-            
-            var queue = new Queue<string>();
-            var list = new List<string>();
-            /*
-             * Example:
-Select "Install body textures?" \
-	   "Yes" \
-	   "No"
-             */
-            foreach (var currentLine in lines)
+
+            if (allowRunOnLines)
             {
-                //in the example, the first and second line match this
-                if (currentLine.EndsWith("\\"))
+                var queue = new Queue<string>();
+                var list = new List<string>();
+                /*
+                 * Example:
+
+Select "Install body textures?" \
+       "Yes" \
+       "No"
+
+                 */
+                foreach (var currentLine in lines)
                 {
-                    //we enqueue the first and second example lines without the '\' character at the end
-                    queue.Enqueue(currentLine[..^1].Trim());
-                }
-                else
-                {
-                    //we encounter a line that does not have the '\' character at the end
-                    
-                    /*
-                     * The queue is empty when the current line is not part of a multi-line statement so we can just
-                     * add the current line to our new list and continue.
-                     */
-                    if (queue.Count == 0)
+                    //in the example, the first and second line match this
+                    if (currentLine.EndsWith("\\"))
                     {
-                        list.Add(currentLine);
-                        continue;
+                        //we enqueue the first and second example lines without the '\' character at the end
+                        queue.Enqueue(currentLine[..^1].Trim());
                     }
+                    else
+                    {
+                        //we encounter a line that does not have the '\' character at the end
+                    
+                        /*
+                         * The queue is empty when the current line is not part of a multi-line statement so we can just
+                         * add the current line to our new list and continue.
+                         */
+                        if (queue.Count == 0)
+                        {
+                            list.Add(currentLine);
+                            continue;
+                        }
 
-                    /*
-                     * The queue is not empty so we need to combine all elements into one new line. The current line
-                     * is not in the queue so we just append it afterwards and clear the queue.
-                     */
-                    var s = queue.Aggregate((x, y) => $"{x} {y}");
-                    s += $" {currentLine}";
-                    //the final output for s would be "Select "Install body textures?" "Yes" "No"" (using the example)
-                    list.Add(s);
-                    queue.Clear();
+                        /*
+                         * The queue is not empty so we need to combine all elements into one new line. The current line
+                         * is not in the queue so we just append it afterwards and clear the queue.
+                         */
+                        var s = queue.Aggregate((x, y) => $"{x} {y}");
+                        s += $" {currentLine}";
+                        //the final output for s would be "Select "Install body textures?" "Yes" "No"" (using the example)
+                        list.Add(s);
+                        queue.Clear();
+                    }
                 }
+
+                lines = list;
             }
-
-            lines = list;
-
+            else
+            {
+                if (lines.Any(x => x.EndsWith('\\')))
+                    throw new OBMMScriptTokenizerException("Script contains lines that end with \\ but AllowRunOnLines was not called!");
+            }
+            
             var tokens = lines
                 .Select(TokenizeLine)
                 .ToList();
