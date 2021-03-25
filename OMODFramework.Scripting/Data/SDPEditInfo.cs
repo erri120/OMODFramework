@@ -1,5 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
+using OMODFramework.Oblivion;
 
 namespace OMODFramework.Scripting.Data
 {
@@ -31,6 +32,25 @@ namespace OMODFramework.Scripting.Data
             File = file;
         }
 
+        /// <summary>
+        /// Executes the edit and changes a shader package.
+        /// </summary>
+        /// <param name="extractionFolder">Path to the extraction folder, this should be <see cref="ScriptReturnData.DataFolder"/></param>.
+        /// <param name="shaderPath">Path to the shader file that should be edited.</param>
+        /// <param name="outputPath">Optional output path if you don't want the shader to be overwritten.</param>
+        /// <exception cref="ArgumentException">The file does not exist</exception>
+        public void ExecuteEdit(string extractionFolder, string shaderPath, string? outputPath = null)
+        {
+            var filePath = File.GetFileInFolder(extractionFolder);
+            if (!System.IO.File.Exists(filePath))
+                throw new ArgumentException($"File does not exist: {filePath}");
+            if (!System.IO.File.Exists(shaderPath))
+                throw new ArgumentException($"File does not exist: {shaderPath}");
+            
+            var bytes = System.IO.File.ReadAllBytes(filePath);
+            OblivionSDP.EditShaderPackage(shaderPath, Shader, bytes, outputPath);
+        }
+        
         /// <inheritdoc />
         public bool Equals(SDPEditInfo? other)
         {
@@ -44,7 +64,7 @@ namespace OMODFramework.Scripting.Data
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((SDPEditInfo) obj);
         }
 
