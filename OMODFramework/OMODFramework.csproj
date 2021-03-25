@@ -3,6 +3,8 @@
   <PropertyGroup>
     <Title>OMODFramework</Title>
     <TargetFrameworks>net5.0;netstandard2.1</TargetFrameworks>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   
