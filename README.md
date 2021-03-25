@@ -59,4 +59,4 @@ var srd = OMODScriptRunner.RunScript(omod, settings);
 
 You have to create a new class that implements `IExternalScriptFunctions` before you want to execute any script. This interface provides functions that can be called during script execution which this library can not do alone. You do not have to implement every function as some are never called depending on your settings (make sure to adjust `OMODScriptSettings`) but most of them like `Select`, `Message` or the `Display*` functions are very common in OBMM scripts.
 
-`OMODScriptRunner.RunScript` will run the script and return `ScriptReturnData` which contains everything you need to do after script execution in order to install the mod.
+`OMODScriptRunner.RunScript` will run the script and return `ScriptReturnData` which contains everything you need to do after script execution in order to install the mod. This library provides additional utility functions like `ScriptReturnData.CopyAllDataFiles` or `ExecuteEdit` functions for edits that need to be done after script execution.
