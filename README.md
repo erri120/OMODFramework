@@ -1,48 +1,62 @@
 # OMODFramework
 
-[![Build Status](https://dev.azure.com/erri120/OMODFramework/_apis/build/status/erri120.OMODFramework?branchName=master)](https://dev.azure.com/erri120/OMODFramework/_build/latest?definitionId=3&branchName=master)
 [![Nuget](https://img.shields.io/nuget/v/OMODFramework)](https://www.nuget.org/packages/OMODFramework/)
 
-This project is the continuation and overhaul of my previous `OMOD-Framework`. Aside from the fact that I remove the `-` from the name, this project will be more refined than the last one. I've implemented more features from the [Oblivion Mod Manager](https://www.nexusmods.com/oblivion/mods/2097) and finally use continuous integration with Azure DevOps to build, test and release this project.
+The [Oblivion Mod Manager](https://www.nexusmods.com/oblivion/mods/2097) by Timeslip was a utility tool for managing Oblivion mods and was the most prominent mod manager during it's time. One of the crazy features it has was `.omod` files and the multiple different ways of creating installation scripts for them. 10 years later and you still needed to use parts of the tool in order to install OMODs. This library solves the issue and pain involved when dealing with OMODs and is written in modern C# code targeting .NET Standard 2.1 and .NET 5.
 
 ## Features
 
-- Extraction
-- Creation
-- Script Execution
-
-## OMOD
-
-`.omod` files are used exclusively by the [Oblivion Mod Manager](https://www.nexusmods.com/oblivion/mods/2097) aka `OBMM`. This was fine 11 years ago. Today the Oblivion modding community still stands strong and continues to mod their favorite game. There are sadly some huge and essential mods still in the OMOD format. [Mod Organizer 2](https://github.com/Modorganizer2/modorganizer) has [recently](https://github.com/ModOrganizer2/modorganizer/releases/tag/v2.2.0) added more support for [running Oblivion OBSE with MO2](https://github.com/ModOrganizer2/modorganizer/wiki/Running-Oblivion-OBSE-with-MO2) and made me wanna mod Oblivion again, only to find out that you still need OBMM for some stuff.
-
-The source code for the original OBMM, written in .NET 2 ... yes _.NET 2_, was made available in 2010 under the _GPLv2_ license.
-
-This Framework uses a lot of the original algorithms for extraction, compression and of course all functions needed for script executing.
-
-## Download
-
-- `OMODFramework`: [NuGet](https://www.nuget.org/packages/OMODFramework/), [GitHub Packages](https://github.com/erri120/OMODFramework/packages/63159), [GitHub Release](https://github.com/erri120/OMODFramework/releases)
-- `OMODFramework.Scripting`: [NuGet](https://www.nuget.org/packages/OMODFramework.Scripting/), [GitHub Release](https://github.com/erri120/OMODFramework/releases)
+- File Extraction
+- OMOD Creation (please don't create new OMODs, only use this for testing)
+- Script Execution (only OBMM and inlined C# scripts)
 
 ## Usage
 
-Check the [Wiki](https://github.com/erri120/OMODFramework/wiki) here on GitHub.
+### Extraction
 
-## License
+```c#
+//OMOD implements IDisposable
+using var omod = new OMOD("path-to-file.omod");
 
-```text
-Copyright (C) 2019-2020  erri120
+/*
+ * Use on of the different extraction methods:
+ *  - ExtractFiles
+ *  - ExtractFilesParallel (only for data files)
+*/
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+omod.ExtractFiles(true, "output\\data");
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//not every OMOD has plugin files so make sure to check before extracting
+if (omod.HasEntryFile(OMODEntryFileType.PluginsCRC))
+    omod.ExtractFiles(false, "output\\plugins");
 ```
+
+### Script Execution
+
+Script Execution is very complex compared to simple extraction. You need the `OMODFramework.Scripting` library for this and have to use the `OMODScriptRunner` class. The important thing to understand is that there are multiple different types of scripts:
+
+- OBMM (custom scripting language of the Oblivion Mod Manager, see [this](http://timeslip.chorrol.com/obmmm/functionlist.htm) for more infos)
+- C#
+- Python (using IronPython)
+- Visual Basic
+
+The OMODFramework only supports OBMM scripts and inlined C# scripts. OBMM scripts are the most common with probably 95% of all scripts being in this language while the rest are C# scripts. I have yet to find any script in Python and Visual Basic. The OMODFramework only supports running inlined C# scripts, as opposed to the Oblivion Mod Manager which compiled the scripts and then used DI to make it run, because script compilation changed in newer .NET versions and also pose a huge security risk. There are also not many C# scripts out there and I included the biggset scripts:
+
+- [DarkUId DarN 16 OMOD Version](https://www.nexusmods.com/oblivion/mods/11280)
+- [DarNified UI 1.3.2](https://www.nexusmods.com/oblivion/mods/10763)
+- [Horse Armor Revamped 1.8](https://www.nexusmods.com/oblivion/mods/46657)
+
+If you found another C# script, create a new issue and I will look into inlining it as well. Now onto the actual script execution:
+
+```c#
+using var omod = new OMOD("path-to-file.omod");
+
+IExternalScriptFunctions scriptFunctions = new MyExternalScriptFunctions();
+var settings = new OMODScriptSettings(scriptFunctions);
+
+var srd = OMODScriptRunner.RunScript(omod, settings);
+```
+
+You have to create a new class that implements `IExternalScriptFunctions` before you want to execute any script. This interface provides functions that can be called during script execution which this library can not do alone. You do not have to implement every function as some are never called depending on your settings (make sure to adjust `OMODScriptSettings`) but most of them like `Select`, `Message` or the `Display*` functions are very common in OBMM scripts.
+
+`OMODScriptRunner.RunScript` will run the script and return `ScriptReturnData` which contains everything you need to do after script execution in order to install the mod.
