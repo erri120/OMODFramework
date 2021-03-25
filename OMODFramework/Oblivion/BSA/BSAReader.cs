@@ -170,8 +170,7 @@ namespace OMODFramework.Oblivion.BSA
             }
             else
             {
-                //TODO: better solution
-                outputStream.Write(_br.ReadBytes((int) fileInfo.Size));
+                _br.BaseStream.CopyToLimit(outputStream, fileInfo.Size);
             }
 
             outputStream.Position = 0;
