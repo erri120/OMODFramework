@@ -1,11 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-      <LangVersion>8.0</LangVersion>
-      <Nullable>enable</Nullable>
-      <TargetFrameworks>net5.0;netstandard2.1</TargetFrameworks>
-  </PropertyGroup>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <TargetFrameworks>net5.0;netstandard2.1</TargetFrameworks>
 
+    <NoWarn>$(NoWarn);SYSLIB0001</NoWarn>
+  </PropertyGroup>
+  
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DocumentationFile>bin\Debug\OMODFramework.xml</DocumentationFile>
   </PropertyGroup>
