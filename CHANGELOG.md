@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 
 ## [Released]
 
-### [3.0.0]
+## [3.0.0] - 2021-03-25
 
 This release is a complete overhaul and basically an entirely new package.
 
