@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 
 ## [Unreleased]
 
+## 3.0.1
+
+### Changed
+
+- `JetBrains.Annotations` is now a private assets and should no longer be a dependency
+
 ## [Released]
 
 ## [3.0.0] - 2021-03-25
