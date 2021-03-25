@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Get version from input
+      id: tag_name
+      shell: bash
+      env:
+        INPUT_VERSION: ${{ github.event.inputs.version }}
+      run: |
+        echo ::set-output name=current_version::${INPUT_VERSION}
+    
+    - uses: actions/checkout@v2
+    
+    - name: Setup .NET Core 3.1.x
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.x
+    - name: Setup .NET 5.0.x
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+        
+    - name: Verify .NET Core
+      run: dotnet --info
+
+    - name: Clear local NuGet cache (workaround for failed restores on windows-latest)
+      run: dotnet clean && dotnet nuget locals all --clear
+      
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build --no-restore -p:Version="${{ steps.tag_name.outputs.current_version }}"
+      
+    - name: Test
+      run: dotnet test --no-build --no-restore --verbosity normal
+
+    - name: Get Changelog Entry
+      id: changelog_reader
+      uses: mindsers/changelog-reader-action@v2
+      with:
+        version: ${{ steps.tag_name.outputs.current_version }}
+        path: ./CHANGELOG.md
+
+    - name: Push
+      run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+    
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: v${{ steps.changelog_reader.outputs.version }}
+        name: Release ${{ steps.changelog_reader.outputs.version }}
+        body: ${{ steps.changelog_reader.outputs.changes }}
+        draft: ${{ steps.changelog_reader.outputs.status == 'unreleased' }}
+        prerelease: ${{ steps.changelog_reader.outputs.status == 'prereleased' }}
+        files: |
+          **/*.nupkg
