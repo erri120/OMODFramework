@@ -212,10 +212,34 @@ namespace OMODFramework.Scripting
         /// <param name="plugins"></param>
         void SetNewLoadOrder(string[] plugins);
 
+        /// <summary>
+        /// Returns the binary data of a file in a BSA. Only called when <see cref="OMODScriptSettings.UseInternalBSAFunctions"/>
+        /// is set to false. OBMM loads all BSAs in the Oblivion data folder at startup and builds a cache containing all
+        /// files in all BSAs. When this function is called, OBMM will simply check the cache for the file name and knows
+        /// from what BSA it came from. We can't really replicate this behaviour in the OMODFramework so you have to
+        /// implement this yourself. Do note that no inlined-script calls this function.
+        /// </summary>
+        /// <param name="file">Relative path of the file in the BSA</param>
+        /// <returns></returns>
         byte[] GetDataFileFromBSA(string file);
         
+        /// <summary>
+        /// Returns the binary data of a file in a BSA. Only called when <see cref="OMODScriptSettings.UseInternalBSAFunctions"/>
+        /// is set to false. This is very different from <see cref="GetDataFileFromBSA(string)"/> as it explicitly
+        /// sets the BSA from where the file came from.
+        /// </summary>
+        /// <param name="bsa">BSA containing <paramref name="file"/></param>
+        /// <param name="file">Relative path of teh file in the BSA</param>
+        /// <returns></returns>
         byte[] GetDataFileFromBSA(string bsa, string file);
 
+        /// <summary>
+        /// Returns the path to an existing BSA archive. Only called when <see cref="OMODScriptSettings.UseInternalBSAFunctions"/>
+        /// is set to true. The OMODFramework will not change this archive but simply read from it using the internal
+        /// implementation of <see cref="GetDataFileFromBSA(string, string)"/>.
+        /// </summary>
+        /// <param name="bsa"></param>
+        /// <returns></returns>
         string GetExistingBSAPath(string bsa);
     }
 
