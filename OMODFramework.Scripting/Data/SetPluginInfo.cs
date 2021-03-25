@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Text;
 using JetBrains.Annotations;
 
 namespace OMODFramework.Scripting.Data
@@ -44,6 +46,42 @@ namespace OMODFramework.Scripting.Data
             Value = value;
         }
 
+        /// <summary>
+        /// Executes the binary plugin edit and changes the file at the specified offset.
+        /// </summary>
+        /// <param name="extractionFolder">The extraction folder, this should be <see cref="ScriptReturnData.PluginsFolder"/></param>
+        /// <param name="outputPath">The output path.</param>
+        /// <exception cref="Exception">Offset is greater than length of file</exception>
+        public void ExecuteEdit(string extractionFolder, string outputPath)
+        {
+            var filePath = PluginFile.CopyToOutput(extractionFolder, outputPath);
+
+            using var fs = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
+            using var bw = new BinaryWriter(fs, Encoding.UTF8);
+
+            if (Offset > bw.BaseStream.Length)
+                throw new Exception("Offset is greater than length of file stream!");
+            
+            bw.BaseStream.Position = Offset;
+
+            if (ValueType == typeof(byte))
+            {
+                bw.Write((byte) Value);
+            } else if (ValueType == typeof(short))
+            {
+                bw.Write((short) Value);
+            } else if (ValueType == typeof(int))
+            {
+                bw.Write((int) Value);
+            } else if (ValueType == typeof(long))
+            {
+                bw.Write((long) Value);
+            } else if (ValueType == typeof(float))
+            {
+                bw.Write((float) Value);
+            }
+        }
+        
         /// <inheritdoc />
         public bool Equals(SetPluginInfo? other)
         {
