@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using JetBrains.Annotations;
 using OblivionModManager.Scripting;
 using OMODFramework.Compression;
@@ -34,6 +35,36 @@ namespace OMODFramework.Scripting.Data
             Output = output.MakePath();
         }
 
+        /// <summary>
+        /// Returns the combined path of <paramref name="folder"/> and <see cref="Output"/>.
+        /// </summary>
+        /// <param name="folder">Folder the file should be in</param>
+        /// <returns></returns>
+        public string GetFileInFolder(string folder) => Path.Combine(folder, Output);
+
+        /// <summary>
+        /// Copies the input file to the output path.
+        /// </summary>
+        /// <param name="extractionFolder">Path of the extraction folder. This should either be <see cref="ScriptReturnData.DataFolder"/>
+        /// or <see cref="ScriptReturnData.PluginsFolder"/>.</param>
+        /// <param name="outputFolder">Path of the output folder.</param>
+        /// <returns>Returns the path to the copied file in the output folder.</returns>
+        public string CopyToOutput(string extractionFolder, string outputFolder)
+        {
+            var inputPath = Input.GetFileInFolder(extractionFolder);
+            var outputPath = GetFileInFolder(outputFolder);
+            
+            if (File.Exists(outputPath))
+            {
+                var fi = new FileInfo(outputPath);
+                if (fi.Length == Input.Length) return outputPath;
+                fi.Delete();
+            }
+            
+            File.Copy(inputPath, outputPath, true);
+            return outputPath;
+        }
+        
         /// <inheritdoc />
         public override string ToString()
         {

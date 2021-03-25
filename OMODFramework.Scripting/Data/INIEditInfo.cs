@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using JetBrains.Annotations;
+using OMODFramework.Oblivion;
 
 namespace OMODFramework.Scripting.Data
 {
@@ -31,6 +33,19 @@ namespace OMODFramework.Scripting.Data
             NewValue = newValue;
         }
 
+        /// <summary>
+        /// Executes the edit and replaces a key in a section in the Oblivion.ini file with a new value.
+        /// </summary>
+        /// <param name="iniPath">Path to the Oblivion.ini file</param>
+        /// <exception cref="ArgumentException">File does not exist</exception>
+        public void ExecuteEdit(string iniPath)
+        {
+            if (!File.Exists(iniPath))
+                throw new ArgumentException($"File does not exist: {iniPath}", nameof(iniPath));
+            
+            OblivionINI.SetINIValue(iniPath, Section, Name, NewValue);
+        }
+        
         /// <inheritdoc />
         public override string ToString()
         {

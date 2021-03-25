@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Text;
 using JetBrains.Annotations;
+using OMODFramework.Scripting.Exceptions;
 
 namespace OMODFramework.Scripting.Data
 {
@@ -68,6 +70,34 @@ namespace OMODFramework.Scripting.Data
             Replace = replace;
         }
 
+        /// <summary>
+        /// Executes the edit and changes the XML file. This function will copy the file to the output folder and then
+        /// either replace <see cref="Find"/> with <see cref="Replace"/> if <see cref="IsReplace"/> or change line
+        /// <see cref="Line"/> with <see cref="Value"/> if <see cref="IsEditLine"/>.
+        /// </summary>
+        /// <param name="extractionFolder">Path to the extraction folder. This should be <see cref="ScriptReturnData.DataFolder"/>.</param>
+        /// <param name="outputFolder">Path to the output folder.</param>
+        /// <exception cref="OBMMScriptHandlerException">Line <see cref="Line"/> does not exist</exception>
+        public void ExecuteEdit(string extractionFolder, string outputFolder)
+        {
+            var path = File.CopyToOutput(extractionFolder, outputFolder);
+
+            if (IsReplace)
+            {
+                var contents = System.IO.File.ReadAllText(path, Encoding.UTF8);
+                contents = contents.Replace(Find, Replace);
+                System.IO.File.WriteAllText(path, contents, Encoding.UTF8);
+            }
+            else
+            {
+                var lines = System.IO.File.ReadAllLines(path, Encoding.UTF8);
+                if (Line < 0 || Line >= lines.Length)
+                    throw new OBMMScriptHandlerException($"Unable to edit XML {path}, line {Line} does not exist!");
+                lines[Line] = Value;
+                System.IO.File.WriteAllLines(path, lines, Encoding.UTF8);
+            }
+        }
+        
         /// <inheritdoc />
         public bool Equals(EditXMLInfo? other)
         {

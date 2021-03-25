@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 
@@ -69,6 +70,61 @@ namespace OMODFramework.Oblivion
                 return null;
 
             return values.TryGetValue(key, out var value) ? value : null;
+        }
+
+        /// <summary>
+        /// Edits the provided ini to replace a key in a section with a new value.
+        /// </summary>
+        /// <param name="file">Path to the ini file.</param>
+        /// <param name="section">Section where the key is located in</param>
+        /// <param name="key">Key to replace it's value</param>
+        /// <param name="newValue">New value of the key</param>
+        /// <exception cref="ArgumentException">File does not exist</exception>
+        public static void SetINIValue(string file, string section, string key, string newValue)
+        {
+            if (!File.Exists(file))
+                throw new ArgumentException($"File does not exist: {file}", nameof(file));
+            
+            var lines = File.ReadAllLines(file).Select(x => x.Trim()).ToList();
+
+            var sectionString = FixSection(section);
+            var sectionIndex = lines.IndexOf(sectionString);
+            if (sectionIndex == -1)
+                throw new ArgumentException("Unable to find section in ini!", nameof(section));
+
+            var nextSection = lines.Skip(sectionIndex+1).FirstOrDefault(x => x.StartsWith('[') && x.EndsWith(']'));
+            var nextSectionIndex = nextSection == null ? lines.Count : lines.IndexOf(nextSection);
+
+            var keySpan = key.AsSpan();
+            
+            for (var i = sectionIndex; i < nextSectionIndex; i++)
+            {
+                var span = lines[i].AsSpan();
+                
+                var splitIndex = span.IndexOf('=');
+                if (splitIndex == -1) continue;
+                var commentIndex = span.IndexOf(';');
+
+                //example line: "myKey=SomeValue ;I'm a comment"
+                    
+                //splitting from index 0 till index of "=" (non-inclusive)
+                var currentKey = span[..splitIndex];
+
+                if (!currentKey.Equals(keySpan, StringComparison.OrdinalIgnoreCase)) continue;
+
+                var newLine = $"{key}={newValue}";
+                
+                if (commentIndex != -1)
+                {
+                    var comment = span.Slice(commentIndex + 1, span.Length - commentIndex - 1);
+                    newLine = $"{newLine} ;{comment.ToString()}";
+                }
+                
+                lines[i] = newLine;
+                break;
+            }
+            
+            File.WriteAllLines(file, lines);
         }
         
         private static Dictionary<string, string> GetINISection(string file, string section)

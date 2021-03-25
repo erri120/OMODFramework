@@ -10,7 +10,7 @@ namespace OMODFramework.Test
     public class OblivionTests
     {
         [Fact]
-        public void TestOblivionINI_Stream()
+        public void TestOblivionINI_Get_Stream()
         {
             const string contents = "[General]\nname=Peter Griffin\nage=18 ;very important!";
             var bytes = Encoding.UTF8.GetBytes(contents);
@@ -29,7 +29,7 @@ namespace OMODFramework.Test
         }
         
         [Fact]
-        public void TestOblivionINI_File()
+        public void TestOblivionINI_Get_File()
         {
             const string file = "oblivion-test-ini.ini";
             const string contents = "[General]\nname=Peter Griffin\nage=18 ;very important!";
@@ -45,6 +45,21 @@ namespace OMODFramework.Test
             Assert.Null(nothing);
         }
 
+        [Fact]
+        public void TestOblivionINI_Set()
+        {
+	        const string file = "oblivion-test-ini-set.ini";
+	        const string contents = "[General]\nname=Peter Griffin\nage=18 ;very important!";
+
+	        File.WriteAllText(file, contents, Encoding.UTF8);
+	        
+	        OblivionINI.SetINIValue(file, "General", "age", "22");
+
+	        var newValue = OblivionINI.GetINIValue(file, "General", "age");
+	        Assert.Equal("22", newValue);
+        }
+        
+        
         [Fact]
         [SuppressMessage("ReSharper", "IdentifierTypo")]
         [SuppressMessage("ReSharper", "StringLiteralTypo")]
