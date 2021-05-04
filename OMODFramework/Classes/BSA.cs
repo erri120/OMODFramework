@@ -69,8 +69,7 @@ namespace OMODFramework.Classes
             var count = 0;
             for (uint i = 0; i < header.FolderCount; i++)
             {
-                folderInfo[i].Path = new string(_br.ReadChars(_br.ReadByte() - 1));
-                _br.BaseStream.Position++;
+                folderInfo[i].Path = new string(_br.ReadChars(_br.ReadByte())).TrimEnd('\0');
                 folderInfo[i].Offset = count;
                 for (int j = 0; j < folderInfo[i].Count; j++)
                 {
