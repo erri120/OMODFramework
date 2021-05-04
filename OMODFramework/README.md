@@ -6,5 +6,5 @@
 
 To build a Nuget package, run
 ```powershell
-msbuild .\OMODFramework.csproj /t:pack /p:Configuration:Release
+msbuild .\OMODFramework.csproj /t:pack /p:Configuration=Release
 ```
