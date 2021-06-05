@@ -95,13 +95,21 @@ namespace OMODFramework
 
     public static class Utils
     {
-        static Utils()
-        {
-            Logger = new FileLogger();
-            Logger.Init();
-        }
+        private static ILogger _logger;
 
-        internal static ILogger Logger;
+        internal static ILogger Logger
+        {
+            get
+            {
+                if (_logger == null)
+                {
+                    _logger = new FileLogger();
+                    _logger.Init();
+                }
+                return _logger;
+            }
+            set { _logger = value; }
+        }
 
         private static void Log(LoggingLevel level, string s)
         {
