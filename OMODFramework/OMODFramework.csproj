@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>erri120 AnyOldName3</Authors>
     <Company>erri120</Company>
-    <Version>2.2.1.0</Version>
+    <Version>2.2.2.0</Version>
     <Copyright>Copyright © erri120 AnyOldName3 2019-2020</Copyright>
     <PackageProjectUrl>https://github.com/erri120/OMODFramework</PackageProjectUrl>
     <RepositoryUrl>https://github.com/erri120/OMODFramework</RepositoryUrl>
